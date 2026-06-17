@@ -156,7 +156,7 @@
     .rev-l { animation: revL 80s linear infinite; }
     @keyframes revR { from { transform: translateX(-50%); } to { transform: translateX(0); } }
     @keyframes revL { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-    .rev-wall:hover .rev-track { animation-play-state: paused; }
+    .rev-wall:hover .rev-track, .rev-wall.paused .rev-track { animation-play-state: paused; }
     @media (prefers-reduced-motion: reduce) { .rev-track { animation: none; } .rev-wall { overflow-x: auto; } }
     .rev-mq { flex: 0 0 clamp(248px, 28vw, 308px); background: var(--surface); border: 1px solid var(--line-soft); border-radius: var(--radius); padding: 1.15rem 1.25rem; display: flex; flex-direction: column; gap: .65rem; box-shadow: var(--shadow-sm); }
     .rev-mq .stars { display: inline-flex; gap: 2px; color: var(--brass); }
@@ -332,18 +332,6 @@
         <div class="rev-line"><div class="rev-track rev-r" id="rl3"></div></div>
       </div>
     </section>
-
-    <!-- ===== JOURNAL ===== -->
-    <section class="section section--tight" style="padding-bottom: var(--space-2xl)">
-      <div class="container">
-        <div class="split-head" data-reveal style="margin-bottom: var(--space-md)">
-          <div class="section-head"><p class="eyebrow">Read, cook, host</p><h2 class="title" style="font-size: var(--step-3)">The Journal</h2></div>
-          <a class="link-arrow hide-mobile" href="journal.html">All articles
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-        </div>
-        <div class="products-grid products-grid--3" id="journal"></div>
-      </div>
-    </section>
   </main>
 
   <div id="fv-footer"></div>
@@ -431,8 +419,11 @@
       [["rl1", allRev.slice(0, per)], ["rl2", allRev.slice(per, per * 2)], ["rl3", allRev.slice(per * 2)]]
         .forEach(([id, rows]) => { const html = rows.map(revCard).join(""); $id(id).innerHTML = html + html; }); // duplicate for seamless loop
 
-      /* Journal */
-      $id("journal").innerHTML = FV.data.articles.slice(0, 3).map(FV.articleCardHTML).join("");
+      // pause the review wall while the page is actively scrolling, resume when idle
+      (function () {
+        const wall = $id("revWall"); let t;
+        window.addEventListener("scroll", () => { wall.classList.add("paused"); clearTimeout(t); t = setTimeout(() => wall.classList.remove("paused"), 350); }, { passive: true });
+      })();
 
       // rail/strip cards visible immediately (horizontal — vertical observer won't fire for off-screen-right)
       document.querySelectorAll(".rail [data-reveal], .rev-rail [data-reveal], .cat-strip [data-reveal]").forEach(e => e.classList.add("in"));

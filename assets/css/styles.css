@@ -474,7 +474,7 @@ body[data-hero="true"] .site-header.transparent:not(.scrolled) { --hdr-fg: var(-
 .product-card .p-add svg { width: 18px; height: 18px; }
 
 /* Product slider rails — homepage rows are sliders, not grids */
-.rail { display: flex; gap: clamp(1rem, 2vw, 1.6rem); overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding: .25rem .25rem 1rem; }
+.rail { display: flex; gap: clamp(1rem, 2vw, 1.6rem); overflow-x: auto; scroll-snap-type: x proximity; scroll-behavior: smooth; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding: .25rem .25rem 1rem; }
 .rail::-webkit-scrollbar { display: none; }
 .rail > * { flex: 0 0 clamp(230px, 21vw, 292px); scroll-snap-align: start; min-width: 0; }
 .rail--wide > * { flex-basis: clamp(290px, 30vw, 384px); }

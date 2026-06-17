@@ -21,6 +21,15 @@
     .toggle-row { display:inline-flex; background:var(--bone); border-radius:var(--radius-pill); padding:.3rem; gap:.3rem; margin-bottom:1.6rem; }
     .toggle-row button { padding:.6em 1.3em; border-radius:var(--radius-pill); font-size:var(--step--1); font-weight:600; color:var(--text-muted); transition:all .25s; }
     .toggle-row button[aria-pressed="true"] { background:var(--cream); color:var(--forest); box-shadow:var(--shadow-sm); }
+    .co-signin { background:var(--surface); border:1px solid var(--line-soft); border-radius:var(--radius); padding:1.2rem 1.3rem; margin-bottom:1.6rem; }
+    .co-signin .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .demo-hint { font-size:var(--step--2); color:var(--text-faint); margin-top:.9rem; }
+    .demo-hint b { color:var(--brass-deep); }
+    .signed-in { display:flex; align-items:center; gap:.6rem; flex-wrap:wrap; background:#E8F0E2; border:1px solid #CBDCC0; color:var(--forest-mid); border-radius:var(--radius); padding:.9rem 1.1rem; margin-bottom:1.6rem; font-size:var(--step--1); }
+    .signed-in strong { color:var(--forest); }
+    .signed-in svg { color:var(--forest-mid); }
+    .signed-in button { margin-left:auto; color:var(--brass-deep); font-weight:600; text-decoration:underline; text-underline-offset:2px; font-size:var(--step--1); }
+    @media (max-width:560px){ .co-signin .grid-2 { grid-template-columns:1fr; } }
     .slot-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:.6rem; }
     .slot { padding:.9rem .6rem; border:1px solid var(--line); border-radius:var(--radius); background:#fff; text-align:center; cursor:pointer; transition:all .2s; }
     .slot:hover { border-color:var(--brass); }
@@ -82,7 +91,10 @@
     (function () {
       const root = document.getElementById("coRoot");
       const FREE = 600;
-      const state = { mode: "guest", payment: "card", slotDay: 0, slotTime: 1 };
+      function currentUser(){ try { return JSON.parse(localStorage.getItem("fv_user")); } catch { return null; } }
+      let user = currentUser();
+      const nameParts = (n) => { const p = (n || "").trim().split(/\s+/); return { first: p[0] || "", last: p.slice(1).join(" ") }; };
+      const state = { mode: user ? "account" : "guest", payment: user ? "saved" : "card", slotDay: 0, slotTime: 1 };
 
       const arrow = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
 
@@ -123,19 +135,32 @@
         <div class="co-layout">
           <div>
             <div class="toggle-row" role="tablist">
-              <button data-mode="guest" aria-pressed="${state.mode === "guest"}">Guest checkout</button>
-              <button data-mode="account" aria-pressed="${state.mode === "account"}">Sign in</button>
+              <button type="button" data-mode="guest" aria-pressed="${state.mode === "guest"}">Guest checkout</button>
+              <button type="button" data-mode="account" aria-pressed="${state.mode === "account"}">Sign in</button>
             </div>
+
+            ${state.mode === "account" ? (user ? `
+              <div class="signed-in">${FV.icon("check")}<span>Signed in as <strong>${user.name}</strong> · ${user.email}</span><button type="button" id="coSignout">Sign out</button></div>
+            ` : `
+              <div class="co-signin">
+                <div class="grid-2">
+                  <div class="field"><label>Email</label><input class="input" id="siEmail" type="email" placeholder="you@email.com"></div>
+                  <div class="field"><label>Password</label><input class="input" id="siPass" type="password" placeholder="••••••••"></div>
+                </div>
+                <button type="button" class="btn btn--brass" id="siBtn" style="margin-top:.6rem">Sign in &amp; continue</button>
+                <p class="demo-hint">Demo account — sign in with <b>guest@freshvalley.eg</b> / <b>fresh123</b> (or any email &amp; password).</p>
+              </div>
+            `) : ``}
 
             <form id="coForm">
               <!-- 1 Contact + address -->
               <div class="co-step">
                 <div class="step-head"><span class="step-n">1</span><h2>Contact &amp; delivery address</h2></div>
                 <div class="grid-2">
-                  <div class="field"><label>First name</label><input class="input" name="first" required></div>
-                  <div class="field"><label>Last name</label><input class="input" name="last" required></div>
+                  <div class="field"><label>First name</label><input class="input" name="first" required value="${user ? nameParts(user.name).first : ""}"></div>
+                  <div class="field"><label>Last name</label><input class="input" name="last" required value="${user ? nameParts(user.name).last : ""}"></div>
                   <div class="field"><label>Phone</label><input class="input" name="phone" inputmode="tel" placeholder="+20" required></div>
-                  <div class="field"><label>Email</label><input class="input" type="email" name="email" required></div>
+                  <div class="field"><label>Email</label><input class="input" type="email" name="email" required value="${user ? (user.email || "") : ""}"></div>
                   <div class="field"><label>Area</label>
                     <select class="select" name="area" required>
                       <option value="">Select your area</option>
@@ -205,6 +230,19 @@
         document.getElementById("placeTotal").textContent = FV.money(sub + delivery);
 
         root.querySelectorAll("[data-mode]").forEach(b => b.addEventListener("click", () => { state.mode = b.dataset.mode; render(); }));
+        // checkout sign-in (mock, ties into the same fv_user session)
+        const siBtn = document.getElementById("siBtn");
+        if (siBtn) siBtn.addEventListener("click", () => {
+          const email = (document.getElementById("siEmail").value || "").trim();
+          if (!email || !email.includes("@")) { document.getElementById("siEmail").focus(); FV.toast("Enter a valid email to sign in"); return; }
+          const name = email.split("@")[0].replace(/[._-]+/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+          localStorage.setItem("fv_user", JSON.stringify({ name, email }));
+          user = currentUser(); state.payment = "saved";
+          FV.toast("Signed in as " + name.split(" ")[0]);
+          render();
+        });
+        const soBtn = document.getElementById("coSignout");
+        if (soBtn) soBtn.addEventListener("click", () => { localStorage.removeItem("fv_user"); user = null; state.mode = "guest"; state.payment = "card"; render(); });
         root.querySelectorAll("[data-day]").forEach(b => b.addEventListener("click", () => {
           state.slotDay = +b.dataset.day; root.querySelectorAll("[data-day]").forEach(x => x.setAttribute("aria-pressed", x === b));
         }));
