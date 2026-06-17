@@ -72,7 +72,12 @@
     find: (slug) => D.products.find((p) => p.slug === slug),
     findBox: (slug) => D.boxes.find((b) => b.slug === slug),
     byCategory: (c) => D.products.filter((p) => p.category === c),
-    byCollection: (c) => D.products.filter((p) => (p.collections || []).includes(c)),
+    byCollection: (c) => {
+      // Smart collections — resolved from product data so new categories need no data churn
+      if (c === "premium") return D.products.filter((p) => (p.pricePerKg >= 110 || p.pricePerUnit >= 130) && (p.rating || 0) >= 4.7);
+      if (c === "organic") return D.products.filter((p) => (p.badges || []).includes("organic") || (p.collections || []).includes("organic-reserve"));
+      return D.products.filter((p) => (p.collections || []).includes(c));
+    },
   };
 
   /* ------------------------------------------------------------------ *
@@ -457,18 +462,15 @@
   const ratingRow = (p) => `<span class="p-rating">${I.star} ${p.rating.toFixed(1)} <span class="rc">(${p.reviews})</span></span>`;
 
   function cardMedia(p) {
-    const addLabel = `Add ${p.unit === "kg" ? "1 kg · " : "· "}${FV.money(FV.cardPrice(p).value)}`;
     if (p.noPhoto) {
       return `<div class="media media--herb"><div class="herb-art">${I.leaf2}<span>${p.name}</span></div>
         ${cardTags(p)}
-        <button class="wish-btn" data-wish="${p.slug}" aria-label="Save ${p.name}" aria-pressed="false">${I.heart}</button>
-        <div class="quick-add"><button class="btn btn--light btn--block btn--sm" data-add="${p.slug}">${addLabel}</button></div></div>`;
+        <button class="wish-btn" data-wish="${p.slug}" aria-label="Save ${p.name}" aria-pressed="false">${I.heart}</button></div>`;
     }
     return `<div class="media">
         <img src="${FV.thumb(p.slug)}" srcset="${FV.thumb(p.slug)} 540w, ${FV.img(p.slug)} 1000w" sizes="(max-width:640px) 48vw, (max-width:1100px) 30vw, 22vw" alt="${p.name}" loading="lazy" width="540" height="540">
         ${cardTags(p)}
         <button class="wish-btn" data-wish="${p.slug}" aria-label="Save ${p.name}" aria-pressed="false">${I.heart}</button>
-        <div class="quick-add"><button class="btn btn--light btn--block btn--sm" data-add="${p.slug}">${addLabel}</button></div>
       </div>`;
   }
   FV.productCardHTML = function (p) {
@@ -478,7 +480,10 @@
       <div class="info">
         <div class="p-toprow"><span class="p-origin">${p.origin}</span>${ratingRow(p)}</div>
         <h3 class="p-name"><a href="product.html?slug=${p.slug}">${p.name}</a></h3>
-        <div class="p-price">${FV.money(cp.value)} <span class="per">${cp.per}</span></div>
+        <div class="p-buy">
+          <span class="p-price">${FV.money(cp.value)} <span class="per">${cp.per}</span></span>
+          <button class="p-add" data-add="${p.slug}" aria-label="Add ${p.name} to cart">${I.plus}</button>
+        </div>
       </div>
     </article>`;
   };
