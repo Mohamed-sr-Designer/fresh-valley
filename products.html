@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Collection — Fresh Valley</title>
+  <meta name="description" content="Browse export-grade fruits, vegetables, herbs and curated produce boxes. Select by weight, with prices that update as you choose.">
+  <meta name="theme-color" content="#1A2A1D">
+  <link rel="canonical" href="https://freshvalley.eg/products.html">
+  <meta property="og:title" content="The Collection — Fresh Valley">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,400..500&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <style>
+    .collection-empty { text-align:center; padding: 4rem 1rem; color: var(--text-muted); }
+  </style>
+</head>
+
+<body data-page="products">
+  <div id="fv-header"></div>
+
+  <main>
+    <!-- Page header -->
+    <section class="page-header">
+      <div class="container">
+        <nav class="breadcrumb"><a href="index.html">Home</a><span>/</span><span id="crumb">The Collection</span></nav>
+        <p class="eyebrow">Export-Grade · Egypt</p>
+        <h1 id="pageTitle">The Collection</h1>
+        <p id="pageBlurb">Every piece graded by hand and chosen for the table. Browse by category, and select the weight that suits your week.</p>
+      </div>
+    </section>
+
+    <!-- Filter / sort bar -->
+    <div class="filter-bar">
+      <div class="container">
+        <div class="inner">
+          <div class="filter-pills" id="catPills"></div>
+          <div class="filter-right">
+            <span class="result-count" id="resultCount"></span>
+            <div class="sort-select">
+              <select id="sortSelect" aria-label="Sort products">
+                <option value="featured">Featured</option>
+                <option value="price-asc">Price · low to high</option>
+                <option value="price-desc">Price · high to low</option>
+                <option value="name">Name · A to Z</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grid -->
+    <section class="section section--tight">
+      <div class="container">
+        <div class="products-grid" id="grid"></div>
+        <div class="collection-empty" id="empty" hidden>
+          <p>Nothing here just yet. Try another category.</p>
+          <a class="btn btn--outline btn--sm" href="products.html" style="margin-top:1rem">View all produce</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Boxes cross-sell (hidden when already viewing boxes) -->
+    <section class="section section--bone" id="boxTeaser">
+      <div class="container">
+        <div class="split-head" data-reveal>
+          <div class="section-head">
+            <p class="eyebrow">Curated &amp; ready to host</p>
+            <h2 class="title">Prefer it chosen for you?</h2>
+          </div>
+          <a class="link-arrow hide-mobile" href="products.html?cat=boxes">All boxes
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </div>
+        <div class="products-grid products-grid--3 mt-xl" id="boxTeaserGrid"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="fv-footer"></div>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    (function () {
+      const params = new URLSearchParams(location.search);
+      let state = {
+        cat: params.get("cat") || (params.get("collection") ? "collection" : "all"),
+        collection: params.get("collection") || null,
+        q: (params.get("q") || "").trim(),
+        sort: params.get("sort") || "featured",
+      };
+
+      const CATS = [
+        { key: "all", label: "All" },
+        { key: "fruits", label: "Fruits" },
+        { key: "vegetables", label: "Vegetables" },
+        { key: "herbs", label: "Herbs" },
+        { key: "boxes", label: "Boxes" },
+        { key: "seasonal", label: "Seasonal" },
+        { key: "organic-reserve", label: "Organic Reserve" },
+      ];
+      const TITLES = {
+        all: ["The Collection", "Every piece graded by hand and chosen for the table. Browse by category, and select the weight that suits your week."],
+        fruits: ["Fruits", "Sun-ripened and graded by hand — sweet, fragrant and ready to present."],
+        vegetables: ["Vegetables", "Crisp, clean and picked at peak — graded for the kitchen and the table."],
+        herbs: ["Herbs", "Cut fresh for the table, bright and aromatic."],
+        boxes: ["Fresh Valley Boxes", "Produce chosen and arranged for you — from a weekly family box to a grand hosting selection."],
+        seasonal: ["Seasonal", "What is best, right now. A changing selection at the peak of its moment."],
+        "organic-reserve": ["Organic Reserve", "Our quietest, rarest selections — organic where we can, rare where we can't."],
+      };
+
+      const grid = document.getElementById("grid");
+      const empty = document.getElementById("empty");
+      const boxTeaser = document.getElementById("boxTeaser");
+
+      function currentItems() {
+        // search overrides category
+        if (state.q) {
+          return { type: "product", list: FV.data.products.filter(p =>
+            (p.name + " " + p.category + " " + p.short).toLowerCase().includes(state.q.toLowerCase())) };
+        }
+        if (state.collection) return { type: "product", list: FV.byCollection(state.collection) };
+        switch (state.cat) {
+          case "boxes": return { type: "box", list: FV.data.boxes };
+          case "fruits":
+          case "vegetables":
+          case "herbs": return { type: "product", list: FV.byCategory(state.cat) };
+          case "seasonal": return { type: "product", list: FV.byCollection("seasonal") };
+          case "organic-reserve": return { type: "product", list: FV.byCollection("organic-reserve") };
+          default: return { type: "product", list: FV.data.products.slice() };
+        }
+      }
+
+      function sortList(type, list) {
+        const price = type === "box" ? (b => Math.min(...b.tiers.map(t => t.price)))
+                                     : (p => FV.cardPrice(p).value);
+        const arr = list.slice();
+        if (state.sort === "price-asc") arr.sort((a, b) => price(a) - price(b));
+        else if (state.sort === "price-desc") arr.sort((a, b) => price(b) - price(a));
+        else if (state.sort === "name") arr.sort((a, b) => a.name.localeCompare(b.name));
+        return arr;
+      }
+
+      function render() {
+        const { type, list } = currentItems();
+        const sorted = sortList(type, list);
+        grid.className = type === "box" ? "box-grid" : "products-grid";
+        grid.innerHTML = sorted.map(type === "box" ? FV.boxCardHTML : FV.productCardHTML).join("");
+        empty.hidden = sorted.length > 0;
+        document.getElementById("resultCount").textContent = sorted.length + (type === "box" ? " boxes" : " items");
+
+        // Title + crumb
+        const key = state.q ? "all" : (state.collection ? "all" : state.cat);
+        const t = state.q ? [`Results for “${state.q}”`, `${sorted.length} matches across the collection.`]
+                          : (state.collection ? [state.collection.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase()), "A hand-picked edit from across the collection."] : TITLES[key]);
+        document.getElementById("pageTitle").textContent = t[0];
+        document.getElementById("pageBlurb").textContent = t[1];
+        document.getElementById("crumb").textContent = t[0];
+
+        // Hide box teaser when already on boxes
+        boxTeaser.style.display = (type === "box") ? "none" : "";
+
+        FV.observeReveals(); FV.updateWishUI();
+      }
+
+      function buildPills() {
+        const el = document.getElementById("catPills");
+        const activeKey = state.q ? "" : (state.collection ? "" : state.cat);
+        el.innerHTML = CATS.map(c =>
+          `<button class="pill" data-cat="${c.key}" aria-pressed="${c.key === activeKey}">${c.label}</button>`).join("");
+        el.querySelectorAll("[data-cat]").forEach(b => b.addEventListener("click", () => {
+          state.cat = b.dataset.cat; state.collection = null; state.q = "";
+          const u = new URL(location); u.search = b.dataset.cat === "all" ? "" : "?cat=" + b.dataset.cat;
+          history.replaceState({}, "", u);
+          el.querySelectorAll("[data-cat]").forEach(x => x.setAttribute("aria-pressed", x === b));
+          render();
+        }));
+      }
+
+      document.getElementById("sortSelect").value = state.sort;
+      document.getElementById("sortSelect").addEventListener("change", e => { state.sort = e.target.value; render(); });
+
+      // Box teaser (3 featured)
+      document.getElementById("boxTeaserGrid").innerHTML =
+        FV.data.boxes.slice(0, 3).map(FV.boxCardHTML).join("");
+
+      buildPills();
+      render();
+    })();
+  </script>
+</body>
+</html>

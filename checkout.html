@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout — Fresh Valley</title>
+  <meta name="theme-color" content="#1A2A1D">
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,400..500&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <style>
+    .co-layout { display:grid; grid-template-columns: 1fr 400px; gap: clamp(2rem,4vw,4rem); align-items:start; }
+    .co-step { background:#FCFAF3; border:1px solid var(--line-soft); border-radius:var(--radius-lg); padding: clamp(1.4rem,3vw,2rem); margin-bottom:1.4rem; }
+    .co-step .step-head { display:flex; align-items:center; gap:.9rem; margin-bottom:1.4rem; }
+    .co-step .step-n { width:30px; height:30px; border-radius:50%; background:var(--forest); color:var(--cream); display:grid; place-items:center; font-family:var(--font-display); font-size:.95rem; flex-shrink:0; }
+    .co-step h2 { font-size:var(--step-1); }
+    .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .grid-2 .col-span { grid-column:1 / -1; }
+    .toggle-row { display:inline-flex; background:var(--bone); border-radius:var(--radius-pill); padding:.3rem; gap:.3rem; margin-bottom:1.6rem; }
+    .toggle-row button { padding:.6em 1.3em; border-radius:var(--radius-pill); font-size:var(--step--1); font-weight:600; color:var(--text-muted); transition:all .25s; }
+    .toggle-row button[aria-pressed="true"] { background:var(--cream); color:var(--forest); box-shadow:var(--shadow-sm); }
+    .slot-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:.6rem; }
+    .slot { padding:.9rem .6rem; border:1px solid var(--line); border-radius:var(--radius); background:#fff; text-align:center; cursor:pointer; transition:all .2s; }
+    .slot:hover { border-color:var(--brass); }
+    .slot[aria-pressed="true"] { border-color:var(--forest); background:var(--bone); box-shadow:inset 0 0 0 1px var(--forest); }
+    .slot .d { font-weight:600; color:var(--forest); font-size:var(--step--1); }
+    .slot .s { font-size:var(--step--2); color:var(--text-faint); }
+    .pay-opt { display:flex; align-items:center; gap:.9rem; padding:1rem 1.2rem; border:1px solid var(--line); border-radius:var(--radius); cursor:pointer; margin-bottom:.6rem; transition:all .2s; }
+    .pay-opt:hover { border-color:var(--brass); }
+    .pay-opt[aria-pressed="true"] { border-color:var(--forest); background:var(--bone); box-shadow:inset 0 0 0 1px var(--forest); }
+    .pay-opt .radio { width:20px; height:20px; border-radius:50%; border:2px solid var(--line); flex-shrink:0; display:grid; place-items:center; }
+    .pay-opt[aria-pressed="true"] .radio { border-color:var(--forest); }
+    .pay-opt[aria-pressed="true"] .radio::after { content:""; width:10px; height:10px; border-radius:50%; background:var(--forest); }
+    .pay-opt .label { flex:1; font-weight:500; color:var(--forest); }
+    .pay-opt .tag { font-size:var(--step--2); color:var(--text-faint); }
+    .card-fields { margin-top:1rem; padding-top:1rem; border-top:1px solid var(--line-soft); display:none; }
+    .card-fields.show { display:block; }
+    .secure-note { display:flex; gap:.5rem; align-items:center; font-size:var(--step--2); color:var(--text-faint); margin-top:1rem; }
+    .secure-note svg { width:16px; height:16px; color:var(--brass-deep); }
+    .co-summary { background:var(--forest); color:var(--on-dark); border-radius:var(--radius-lg); padding:1.8rem; position:sticky; top:calc(var(--header-h) + 1.5rem); }
+    .co-summary h3 { color:var(--cream); font-size:var(--step-1); margin-bottom:1.2rem; }
+    .co-summary .ci { display:grid; grid-template-columns:46px 1fr auto; gap:.8rem; padding:.7rem 0; border-bottom:1px solid rgba(237,231,214,.12); }
+    .co-summary .ci img { width:46px; height:46px; border-radius:var(--radius-sm); object-fit:cover; }
+    .co-summary .ci .n { font-size:var(--step--1); color:var(--cream); }
+    .co-summary .ci .v { font-size:var(--step--2); color:var(--on-dark-muted); }
+    .co-summary .ci .p { font-size:var(--step--1); color:var(--cream); text-align:right; }
+    .co-summary .sr { display:flex; justify-content:space-between; padding:.4rem 0; font-size:var(--step--1); color:var(--on-dark-muted); }
+    .co-summary .sr.tot { color:var(--cream); font-family:var(--font-display); font-size:var(--step-1); border-top:1px solid rgba(237,231,214,.16); margin-top:.5rem; padding-top:.9rem; }
+    .conf { text-align:center; max-width:560px; margin:0 auto; padding: var(--space-2xl) 0; }
+    .conf .tick { width:84px; height:84px; border-radius:50%; background:var(--forest); color:var(--cream); display:grid; place-items:center; margin:0 auto 1.6rem; }
+    .conf .tick svg { width:42px; height:42px; }
+    .conf .order-meta { background:#FCFAF3; border:1px solid var(--line-soft); border-radius:var(--radius); padding:1.4rem; margin:1.6rem 0; display:flex; justify-content:space-around; flex-wrap:wrap; gap:1rem; text-align:left; }
+    .conf .order-meta .k { font-size:var(--step--2); color:var(--text-faint); }
+    .conf .order-meta .v { font-weight:600; color:var(--forest); }
+    @media (max-width:860px){ .co-layout { grid-template-columns:1fr; } .co-summary { position:static; order:-1; } .slot-grid { grid-template-columns:repeat(2,1fr); } }
+  </style>
+</head>
+
+<body data-page="checkout">
+  <div id="fv-header"></div>
+
+  <main>
+    <section class="page-header" style="padding-bottom:var(--space-lg)">
+      <div class="container">
+        <nav class="breadcrumb"><a href="index.html">Home</a><span>/</span><a href="cart.html">Selection</a><span>/</span><span>Checkout</span></nav>
+        <h1 id="coTitle">Checkout</h1>
+      </div>
+    </section>
+
+    <section class="section section--tight">
+      <div class="container" id="coRoot"></div>
+    </section>
+  </main>
+
+  <div id="fv-footer"></div>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    (function () {
+      const root = document.getElementById("coRoot");
+      const FREE = 600;
+      const state = { mode: "guest", payment: "card", slotDay: 0, slotTime: 1 };
+
+      const arrow = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+
+      if (!FV.cart.items().length) {
+        root.innerHTML = `<div class="empty-state" style="padding:4rem 1rem">${FV.icon("bag")}
+          <h3 style="margin:1rem 0 .4rem">Your selection is empty</h3>
+          <p>Add something lovely before checking out.</p>
+          <a class="btn mt-lg" href="products.html" style="margin-top:1.5rem">Browse the collection ${arrow}</a></div>`;
+        return;
+      }
+
+      const days = (() => {
+        const out = [], fmt = { weekday: "short", day: "numeric" };
+        for (let i = 1; i <= 4; i++) { const d = new Date(); d.setDate(d.getDate() + i); out.push(d.toLocaleDateString("en-GB", fmt)); }
+        return out;
+      })();
+      const times = ["9–12", "12–3", "3–6", "6–9"];
+
+      function summaryHtml() {
+        const items = FV.cart.items(), sub = FV.cart.subtotal();
+        const remain = Math.max(0, FREE - sub);
+        const delivery = remain > 0 ? 45 : 0;
+        const total = sub + delivery;
+        return `<aside class="co-summary">
+          <h3>Order summary</h3>
+          ${items.map(it => `<div class="ci">
+            ${it.noPhoto ? `<div class="img" style="width:46px;height:46px;border-radius:var(--radius-sm);display:grid;place-items:center;background:var(--forest-mid);color:var(--brass)">${FV.icon("leaf2")}</div>` : `<img src="${FV.img(it.image)}" alt="">`}
+            <div><div class="n">${it.name}</div><div class="v">${it.variant} · ×${it.qty}</div></div>
+            <div class="p">${FV.money(it.price * it.qty)}</div></div>`).join("")}
+          <div class="sr" style="margin-top:.8rem"><span>Subtotal</span><span>${FV.money(sub)}</span></div>
+          <div class="sr"><span>Delivery</span><span>${delivery ? FV.money(delivery) : "Free"}</span></div>
+          <div class="sr tot"><span>Total</span><span>${FV.money(total)}</span></div>
+        </aside>`;
+      }
+
+      function render() {
+        root.innerHTML = `
+        <div class="co-layout">
+          <div>
+            <div class="toggle-row" role="tablist">
+              <button data-mode="guest" aria-pressed="${state.mode === "guest"}">Guest checkout</button>
+              <button data-mode="account" aria-pressed="${state.mode === "account"}">Sign in</button>
+            </div>
+
+            <form id="coForm">
+              <!-- 1 Contact + address -->
+              <div class="co-step">
+                <div class="step-head"><span class="step-n">1</span><h2>Contact &amp; delivery address</h2></div>
+                <div class="grid-2">
+                  <div class="field"><label>First name</label><input class="input" name="first" required></div>
+                  <div class="field"><label>Last name</label><input class="input" name="last" required></div>
+                  <div class="field"><label>Phone</label><input class="input" name="phone" inputmode="tel" placeholder="+20" required></div>
+                  <div class="field"><label>Email</label><input class="input" type="email" name="email" required></div>
+                  <div class="field"><label>Area</label>
+                    <select class="select" name="area" required>
+                      <option value="">Select your area</option>
+                      <option>New Cairo</option><option>Sheikh Zayed</option><option>October</option><option>Madinaty</option><option>Rehab</option>
+                    </select></div>
+                  <div class="field"><label>Compound / district</label><input class="input" name="district" placeholder="Optional"></div>
+                  <div class="field col-span"><label>Street address</label><input class="input" name="street" placeholder="Building, street, apartment" required></div>
+                  <div class="field col-span"><label>Delivery notes</label><input class="input" name="notes" placeholder="Gate code, landmark, anything that helps"></div>
+                </div>
+              </div>
+
+              <!-- 2 Delivery slot -->
+              <div class="co-step">
+                <div class="step-head"><span class="step-n">2</span><h2>Delivery slot</h2></div>
+                <p class="muted" style="font-size:var(--step--2);margin-bottom:.8rem">Choose a day</p>
+                <div class="slot-grid" id="dayGrid">
+                  ${days.map((d, i) => `<div class="slot" data-day="${i}" aria-pressed="${i === state.slotDay}"><div class="d">${d}</div></div>`).join("")}
+                </div>
+                <p class="muted" style="font-size:var(--step--2);margin:1rem 0 .8rem">Choose a time</p>
+                <div class="slot-grid" id="timeGrid">
+                  ${times.map((t, i) => `<div class="slot" data-time="${i}" aria-pressed="${i === state.slotTime}"><div class="d">${t}</div><div class="s">${["Morning","Midday","Afternoon","Evening"][i]}</div></div>`).join("")}
+                </div>
+              </div>
+
+              <!-- 3 Payment -->
+              <div class="co-step">
+                <div class="step-head"><span class="step-n">3</span><h2>Payment</h2></div>
+                ${state.mode === "account" ? `
+                  <div class="pay-opt" data-pay="saved" aria-pressed="${state.payment === "saved"}">
+                    <span class="radio"></span><span class="label">Visa ending 4291</span><span class="tag">Saved card</span></div>` : ``}
+                <div class="pay-opt" data-pay="card" aria-pressed="${state.payment === "card"}">
+                  <span class="radio"></span><span class="label">Credit or debit card</span><span class="tag">Visa · Mastercard</span></div>
+                <div class="pay-opt" data-pay="apple" aria-pressed="${state.payment === "apple"}">
+                  <span class="radio"></span><span class="label">Apple&nbsp;Pay</span><span class="tag">One-touch</span></div>
+                <div class="pay-opt" data-pay="wallet" aria-pressed="${state.payment === "wallet"}">
+                  <span class="radio"></span><span class="label">Mobile wallet</span><span class="tag">Vodafone · Instapay</span></div>
+                <div class="pay-opt" data-pay="cod" aria-pressed="${state.payment === "cod"}">
+                  <span class="radio"></span><span class="label">Cash on delivery</span><span class="tag">Pay at your door</span></div>
+
+                <div class="card-fields ${state.payment === "card" ? "show" : ""}" id="cardFields">
+                  <div class="grid-2">
+                    <div class="field col-span"><label>Card number</label><input class="input" inputmode="numeric" placeholder="•••• •••• •••• ••••" autocomplete="off"></div>
+                    <div class="field"><label>Expiry</label><input class="input" placeholder="MM / YY" autocomplete="off"></div>
+                    <div class="field"><label>CVC</label><input class="input" inputmode="numeric" placeholder="•••" autocomplete="off"></div>
+                    <div class="field col-span"><label>Name on card</label><input class="input" autocomplete="off"></div>
+                  </div>
+                </div>
+                <div class="secure-note">${FV.icon("shield")} Encrypted and secure. We never store your full card details.</div>
+              </div>
+
+              <!-- 4 Review -->
+              <div class="co-step">
+                <div class="step-head"><span class="step-n">4</span><h2>Review &amp; place order</h2></div>
+                <p class="muted" style="font-size:var(--step--1)">By placing your order you agree to our <a href="terms.html" style="color:var(--brass-deep);text-decoration:underline">Terms of Use</a> and <a href="policies.html" style="color:var(--brass-deep);text-decoration:underline">Policies</a>.</p>
+                <button class="btn btn--block btn--lg" type="submit" style="margin-top:1.2rem">Place order · <span id="placeTotal"></span></button>
+              </div>
+            </form>
+          </div>
+          ${summaryHtml()}
+        </div>`;
+        wire();
+      }
+
+      function wire() {
+        const sub = FV.cart.subtotal();
+        const delivery = sub >= FREE ? 0 : 45;
+        document.getElementById("placeTotal").textContent = FV.money(sub + delivery);
+
+        root.querySelectorAll("[data-mode]").forEach(b => b.addEventListener("click", () => { state.mode = b.dataset.mode; render(); }));
+        root.querySelectorAll("[data-day]").forEach(b => b.addEventListener("click", () => {
+          state.slotDay = +b.dataset.day; root.querySelectorAll("[data-day]").forEach(x => x.setAttribute("aria-pressed", x === b));
+        }));
+        root.querySelectorAll("[data-time]").forEach(b => b.addEventListener("click", () => {
+          state.slotTime = +b.dataset.time; root.querySelectorAll("[data-time]").forEach(x => x.setAttribute("aria-pressed", x === b));
+        }));
+        root.querySelectorAll("[data-pay]").forEach(b => b.addEventListener("click", () => {
+          state.payment = b.dataset.pay; root.querySelectorAll("[data-pay]").forEach(x => x.setAttribute("aria-pressed", x === b));
+          document.getElementById("cardFields").classList.toggle("show", state.payment === "card");
+        }));
+        document.getElementById("coForm").addEventListener("submit", e => { e.preventDefault();
+          if (!e.target.checkValidity()) { e.target.reportValidity(); return; }
+          placeOrder(e.target);
+        });
+      }
+
+      function placeOrder(form) {
+        const sub = FV.cart.subtotal();
+        const delivery = sub >= FREE ? 0 : 45;
+        const total = sub + delivery;
+        const order = "FV" + Math.floor(100000 + Math.random() * 899999);
+        const name = form.first.value || "there";
+        const slot = `${days[state.slotDay]}, ${times[state.slotTime]}`;
+        const payLabel = { card: "Card", saved: "Saved card", apple: "Apple Pay", wallet: "Mobile wallet", cod: "Cash on delivery" }[state.payment];
+        FV.cart.clear();
+        document.getElementById("coTitle").textContent = "Order confirmed";
+        root.innerHTML = `
+        <div class="conf">
+          <div class="tick">${FV.icon("check")}</div>
+          <p class="eyebrow" style="justify-content:center">Thank you, ${name}</p>
+          <h2 class="mt-sm">Your table is on its way.</h2>
+          <p class="lead mt-md">We've received your order and started grading your produce. A confirmation is on its way to your inbox.</p>
+          <div class="order-meta">
+            <div><div class="k">Order</div><div class="v">${order}</div></div>
+            <div><div class="k">Delivery</div><div class="v">${slot}</div></div>
+            <div><div class="k">Payment</div><div class="v">${payLabel}</div></div>
+            <div><div class="k">Total</div><div class="v">${FV.money(total)}</div></div>
+          </div>
+          <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem">
+            <a class="btn" href="account.html#orders">Track this order ${arrow}</a>
+            <a class="btn btn--outline" href="products.html">Continue shopping</a>
+          </div>
+        </div>`;
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      render();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terms of Use — Fresh Valley</title>
+  <meta name="description" content="The terms that govern your use of the Fresh Valley website and services.">
+  <meta name="theme-color" content="#1A2A1D">
+  <link rel="canonical" href="https://freshvalley.eg/terms.html">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,400..500&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body data-page="terms">
+  <div id="fv-header"></div>
+
+  <main>
+    <section class="page-header">
+      <div class="container">
+        <nav class="breadcrumb"><a href="index.html">Home</a><span>/</span><span>Terms of Use</span></nav>
+        <p class="eyebrow">The fine print, kept plain</p>
+        <h1>Terms of Use</h1>
+      </div>
+    </section>
+
+    <section class="section section--tight">
+      <div class="container legal-layout">
+        <nav class="legal-toc" id="toc"><div class="t-title">On this page</div></nav>
+        <div class="legal-content">
+          <p class="updated">Last updated: June 2026</p>
+
+          <section id="intro">
+            <h2>Welcome</h2>
+            <p>These terms govern your use of the Fresh Valley website and services. By browsing the site or placing an order, you agree to them. We've tried to keep them clear — if anything is unclear, please <a href="contact.html" style="color:var(--brass-deep)">ask us</a>.</p>
+            <p>Fresh Valley is a premium produce company based in Cairo, Egypt.</p>
+          </section>
+
+          <section id="using">
+            <h2>Using our site</h2>
+            <p>You may use this site to browse, order, and manage your account. In return, you agree to:</p>
+            <ul>
+              <li>provide accurate contact and delivery information;</li>
+              <li>use the site lawfully, and not attempt to disrupt or misuse it;</li>
+              <li>keep your account details private and secure.</li>
+            </ul>
+          </section>
+
+          <section id="orders">
+            <h2>Orders &amp; pricing</h2>
+            <p>All prices are shown in Egyptian Pounds (EGP) and include applicable taxes. Delivery fees are shown at checkout.</p>
+            <p>Because we sell fresh, seasonal produce, availability can change. If an item becomes unavailable after you order, we will offer a suitable substitute or a refund for that item. Box contents adapt to the season by design.</p>
+            <p>An order is confirmed once you receive our confirmation. We reserve the right to decline or cancel an order — for example, if it falls outside our delivery areas or an item is genuinely unavailable.</p>
+          </section>
+
+          <section id="account">
+            <h2>Your account</h2>
+            <p>You are responsible for activity on your account and for keeping your password safe. Tell us promptly if you believe your account has been used without your permission. You can close your account at any time.</p>
+          </section>
+
+          <section id="ip">
+            <h2>Intellectual property</h2>
+            <p>The Fresh Valley name, logo, photography, written content and design are owned by Fresh Valley and protected by law. You may not copy, reproduce or reuse them without our written permission.</p>
+          </section>
+
+          <section id="liability">
+            <h2>Liability</h2>
+            <p>We take great care with your produce and your data. To the extent permitted by law, Fresh Valley is not liable for indirect or unforeseeable losses. Nothing in these terms limits your rights under Egyptian consumer law, or our responsibility for matters that cannot be excluded by law.</p>
+          </section>
+
+          <section id="law">
+            <h2>Governing law</h2>
+            <p>These terms are governed by the laws of the Arab Republic of Egypt, and any dispute will be subject to the jurisdiction of the Egyptian courts.</p>
+          </section>
+
+          <section id="changes">
+            <h2>Changes</h2>
+            <p>We may update these terms from time to time. The latest version will always be posted here, with the date it took effect. Continuing to use the site means you accept the current terms.</p>
+          </section>
+
+          <section id="contact">
+            <h2>Contact</h2>
+            <p>Questions about these terms? Write to <a href="mailto:hello@freshvalley.eg" style="color:var(--brass-deep)">hello@freshvalley.eg</a> or visit our <a href="contact.html" style="color:var(--brass-deep)">contact page</a>.</p>
+          </section>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="fv-footer"></div>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    (function () {
+      const toc = document.getElementById("toc");
+      const secs = Array.from(document.querySelectorAll(".legal-content section"));
+      toc.insertAdjacentHTML("beforeend", secs.map(s => `<a href="#${s.id}">${s.querySelector("h2").textContent}</a>`).join(""));
+      const links = Array.from(toc.querySelectorAll("a"));
+      const io = new IntersectionObserver(es => es.forEach(e => {
+        if (e.isIntersecting) { links.forEach(l => l.classList.toggle("active", l.getAttribute("href") === "#" + e.target.id)); }
+      }), { rootMargin: "-20% 0px -70% 0px" });
+      secs.forEach(s => io.observe(s));
+    })();
+  </script>
+</body>
+</html>

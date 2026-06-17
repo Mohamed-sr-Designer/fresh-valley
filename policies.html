@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Company Policies — Fresh Valley</title>
+  <meta name="description" content="Fresh Valley's policies on quality, delivery, replacements, payment and privacy.">
+  <meta name="theme-color" content="#1A2A1D">
+  <link rel="canonical" href="https://freshvalley.eg/policies.html">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,400..500&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body data-page="policies">
+  <div id="fv-header"></div>
+
+  <main>
+    <section class="page-header">
+      <div class="container">
+        <nav class="breadcrumb"><a href="index.html">Home</a><span>/</span><span>Company Policies</span></nav>
+        <p class="eyebrow">The promises behind the produce</p>
+        <h1>Company Policies</h1>
+      </div>
+    </section>
+
+    <section class="section section--tight">
+      <div class="container legal-layout">
+        <nav class="legal-toc" id="toc"><div class="t-title">On this page</div></nav>
+        <div class="legal-content">
+          <p class="updated">Last updated: June 2026</p>
+
+          <section id="quality">
+            <h2>Freshness &amp; Quality Guarantee</h2>
+            <p>Every order is graded to export standard and cooled within hours of harvest. We stand behind it completely.</p>
+            <p>If anything arrives that is not perfect — bruised, under-ripe, or simply not up to standard — tell us within <strong>24 hours</strong> of delivery. We will replace it on your next order or refund it, whichever you prefer. No long forms, no debate. Quality is the whole promise, and we treat it that way.</p>
+          </section>
+
+          <section id="delivery">
+            <h2>Delivery</h2>
+            <p>We deliver across New Cairo, Sheikh Zayed, October, Madinaty and Rehab.</p>
+            <ul>
+              <li><strong>Complimentary delivery</strong> on orders over EGP 600.</li>
+              <li>A flat <strong>EGP 45</strong> delivery fee on orders below EGP 600.</li>
+              <li>Next-day slots: morning (9–12), midday (12–3), afternoon (3–6) and evening (6–9).</li>
+              <li>You'll receive an SMS update when your produce is on its way.</li>
+            </ul>
+            <p>If you are not home, our driver will call. We keep produce cold in transit, so a short wait does it no harm.</p>
+          </section>
+
+          <section id="replacements">
+            <h2>Returns &amp; Replacements</h2>
+            <p>Because we sell fresh produce, we do not accept general returns for change of mind. What we do offer is simpler and more generous:</p>
+            <ul>
+              <li><strong>Quality issues:</strong> reported within 24 hours are replaced or refunded in full.</li>
+              <li><strong>Wrong or missing items:</strong> we send the correct item, or refund it, right away.</li>
+              <li><strong>Boxes:</strong> contents adapt to the season; if a substitution isn't to your taste, let us know and we'll make it right.</li>
+            </ul>
+          </section>
+
+          <section id="payment">
+            <h2>Payment</h2>
+            <p>We accept credit and debit cards (Visa, Mastercard), Apple Pay, mobile wallets, and cash on delivery.</p>
+            <p>Card payments are processed by a certified payment provider. <strong>We never see or store your full card number</strong> — saved cards are held securely with our provider, not on our servers. Prices are shown in Egyptian Pounds (EGP) and include applicable taxes.</p>
+          </section>
+
+          <section id="subscriptions">
+            <h2>Subscriptions</h2>
+            <p>Any box can be set to a weekly or fortnightly schedule. You are always in control:</p>
+            <ul>
+              <li>Pause, skip or change your delivery day at any time from your account.</li>
+              <li>Cancel whenever you like — there is no minimum commitment.</li>
+              <li>We'll remind you before each charge, so there are never surprises.</li>
+            </ul>
+          </section>
+
+          <section id="privacy">
+            <h2>Privacy</h2>
+            <p>We collect only what we need to deliver your order well: your name, contact details, address and order history. We use it to serve you, and to send the updates and seasonal notes you've asked for.</p>
+            <p>We do not sell your data. You can ask us to update or delete your information at any time by writing to <a href="mailto:hello@freshvalley.eg" style="color:var(--brass-deep)">hello@freshvalley.eg</a>. For the full detail, see our <a href="terms.html" style="color:var(--brass-deep)">Terms of Use</a>.</p>
+          </section>
+
+          <section id="contact">
+            <h2>Questions</h2>
+            <p>If anything here is unclear, please ask. We'd rather explain than leave you guessing — <a href="contact.html" style="color:var(--brass-deep)">get in touch</a>.</p>
+          </section>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="fv-footer"></div>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    (function () {
+      const toc = document.getElementById("toc");
+      const secs = Array.from(document.querySelectorAll(".legal-content section"));
+      toc.insertAdjacentHTML("beforeend", secs.map(s => `<a href="#${s.id}">${s.querySelector("h2").textContent}</a>`).join(""));
+      const links = Array.from(toc.querySelectorAll("a"));
+      const io = new IntersectionObserver(es => es.forEach(e => {
+        if (e.isIntersecting) { links.forEach(l => l.classList.toggle("active", l.getAttribute("href") === "#" + e.target.id)); }
+      }), { rootMargin: "-20% 0px -70% 0px" });
+      secs.forEach(s => io.observe(s));
+    })();
+  </script>
+</body>
+</html>

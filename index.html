@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Fresh Valley — Premium Produce for Better Hosting</title>
+  <meta name="description" content="Export-grade fruits, vegetables and curated produce boxes, delivered across New Cairo, Sheikh Zayed, October, Madinaty and Rehab. Quiet luxury for the modern table.">
+  <meta name="theme-color" content="#1A2A1D">
+  <link rel="canonical" href="https://freshvalley.eg/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Fresh Valley — Premium Produce for Better Hosting">
+  <meta property="og:description" content="Export-grade produce, curated for modern hosting and a quieter kind of luxury.">
+  <meta property="og:image" content="assets/img/banners/home-delivery.jpg">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,400..500&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="preload" as="image" href="assets/img/products/strawberry.jpg" fetchpriority="high">
+  <link rel="stylesheet" href="assets/css/styles.css">
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org","@type":"Organization","name":"Fresh Valley",
+    "url":"https://freshvalley.eg/","logo":"assets/img/logo.png",
+    "description":"Export-grade produce curated for modern hosting and lifestyle.",
+    "areaServed":["New Cairo","Sheikh Zayed","October","Madinaty","Rehab"],
+    "address":{"@type":"PostalAddress","addressCountry":"EG","addressLocality":"Cairo"}
+  }
+  </script>
+
+  <style>
+    /* ---------- HERO · glass commerce stage ---------- */
+    .hero { position: relative; min-height: 100svh; display: flex; flex-direction: column; justify-content: flex-end; color: var(--cream); isolation: isolate; overflow: hidden; }
+    .hero__media { position: absolute; inset: 0; z-index: -2; background: var(--ink); }
+    .hero__media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.1s var(--ease); }
+    .hero__media img.active { opacity: 1; }
+    @media (prefers-reduced-motion: no-preference) { .hero__media img.active { animation: kenburns 9s var(--ease-out) forwards; } }
+    .hero::after { content:""; position:absolute; inset:0; z-index:-1;
+      background: linear-gradient(100deg, rgba(14,20,16,.88) 0%, rgba(14,20,16,.55) 40%, rgba(14,20,16,.12) 72%, rgba(14,20,16,.5) 100%),
+                  linear-gradient(to top, rgba(14,20,16,.75), transparent 35%); }
+    .hero__layout { display: grid; grid-template-columns: 1.2fr .8fr; align-items: end; gap: clamp(2.5rem, 6vw, 7rem);
+      padding-top: calc(var(--header-h) + 8rem); padding-bottom: clamp(6rem, 12vh, 9rem); }
+    .hero h1 { color: var(--cream); font-size: var(--step-6); line-height: .96; letter-spacing: -.02em; margin: .35em 0 0; max-width: 11ch; }
+    .hero h1 em { color: var(--brass); }
+    .hero__proofline { display: flex; align-items: center; gap: .9rem; margin-top: 2rem; flex-wrap: wrap; }
+    .avatar-stack { display: inline-flex; }
+    .avatar-stack b { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center;
+      font-family: var(--font-display); font-weight: 500; font-size: .8rem; color: var(--cream);
+      border: 2px solid rgba(244,236,217,.85); margin-left: -10px; }
+    .avatar-stack b:first-child { margin-left: 0; }
+    .glass-pill.hp { font-size: var(--step--1); color: rgba(237,231,214,.92); }
+    .glass-pill.hp strong { color: var(--cream); }
+    .hp-stars { display: inline-flex; gap: 2px; color: var(--brass); }
+    .hp-stars svg { width: 14px; height: 14px; fill: currentColor; }
+    .hero__sub { margin-top: 1.4rem; max-width: 34ch; color: rgba(237,231,214,.78); font-size: var(--step-0); }
+    .hero__cta { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 2.2rem; }
+
+    .hero-card { justify-self: end; width: min(330px, 100%); padding: .9rem; color: var(--cream); }
+    .hc-media { position: relative; border-radius: calc(var(--radius-lg) - 6px); overflow: hidden; aspect-ratio: 5/4; background: var(--ink); }
+    .hc-media img { width: 100%; height: 100%; object-fit: cover; transition: opacity .5s var(--ease), transform .9s var(--ease-out); }
+    .hc-media img.swap { opacity: 0; transform: scale(1.04); }
+    .hc-tag { position: absolute; top: .7rem; left: .7rem; z-index: 2; background: var(--brass); color: var(--ink);
+      font-size: var(--step--2); font-weight: 700; padding: .45em .85em; border-radius: var(--radius-pill); }
+    .hc-heart { position: absolute; top: .7rem; right: .7rem; z-index: 2; width: 36px; height: 36px; border-radius: 50%;
+      display: grid; place-items: center; background: rgba(14,20,16,.4); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+      border: 1px solid rgba(244,236,217,.3); color: var(--cream); transition: all .25s; }
+    .hc-heart svg { width: 17px; height: 17px; }
+    .hc-heart.active { color: #E8A0A0; } .hc-heart.active svg { fill: #E8A0A0; }
+    .hc-body { padding: .9rem .35rem .35rem; }
+    .hc-name { font-family: var(--font-display); font-size: var(--step-1); font-weight: 500; color: var(--cream); }
+    .hc-meta { font-size: var(--step--2); color: rgba(237,231,214,.62); margin-top: .2rem; }
+    .hc-buy { display: flex; align-items: center; gap: .8rem; margin-top: .95rem; }
+    .hc-qty { display: inline-flex; align-items: center; gap: .15rem; background: rgba(14,20,16,.35); border: 1px solid rgba(244,236,217,.22); border-radius: var(--radius-pill); }
+    .hc-qty button { width: 34px; height: 38px; display: grid; place-items: center; color: var(--cream); }
+    .hc-qty button svg { width: 15px; height: 15px; }
+    .hc-qty span { min-width: 18px; text-align: center; font-weight: 700; font-size: var(--step--1); }
+    .hc-total { flex: 1; text-align: right; line-height: 1.15; }
+    .hc-total span { display: block; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: rgba(237,231,214,.55); }
+    .hc-total strong { font-family: var(--font-display); font-size: var(--step-1); color: var(--cream); }
+    .hc-add { width: 46px; height: 46px; border-radius: 50%; background: var(--brass); color: var(--ink); display: grid; place-items: center; flex-shrink: 0; transition: transform .3s var(--ease-out), background .25s; }
+    .hc-add:hover { transform: scale(1.08); background: var(--cream); }
+    .hc-add svg { width: 20px; height: 20px; }
+
+    .hero__bottom { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; }
+    .hb-inner { display: flex; align-items: center; justify-content: space-between; padding-block: 1.4rem; border-top: 1px solid rgba(244,236,217,.14); }
+    .hb-scroll { display: inline-flex; align-items: center; gap: .8rem; font-size: var(--step--2); letter-spacing: .22em; text-transform: uppercase; color: rgba(237,231,214,.55); }
+    .hb-scroll .line { width: 34px; height: 1px; background: linear-gradient(90deg, var(--brass), transparent); }
+    .hb-controls { display: flex; align-items: center; gap: 1.1rem; }
+    .hb-btn { width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(244,236,217,.3); color: var(--cream); display: grid; place-items: center; transition: all .25s; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); background: rgba(14,20,16,.25); }
+    .hb-btn:hover { background: var(--cream); color: var(--ink); border-color: var(--cream); }
+    .hb-btn svg { width: 17px; height: 17px; }
+    .hb-index { display: flex; align-items: center; gap: .8rem; font-variant-numeric: tabular-nums; font-size: var(--step--1); color: rgba(237,231,214,.85); }
+    .hb-progress { position: relative; width: clamp(60px, 9vw, 130px); height: 2px; background: rgba(244,236,217,.2); border-radius: 999px; overflow: hidden; }
+    .hb-progress i { position: absolute; inset: 0; background: var(--brass); border-radius: 999px; transform: scaleX(0); transform-origin: left; will-change: transform; }
+
+    /* ---------- THE ART OF HOSTING · signature section ---------- */
+    .aoh { position: relative; background:
+      radial-gradient(90% 120% at 85% 0%, rgba(176,138,74,.16), transparent 55%),
+      linear-gradient(160deg, var(--forest-mid), var(--forest) 45%, var(--ink));
+      color: var(--cream); overflow: hidden; }
+    .aoh::before { content: ""; position: absolute; inset: 0; opacity: .35; pointer-events: none;
+      background-image: radial-gradient(rgba(244,236,217,.05) 1px, transparent 1px); background-size: 5px 5px; }
+    .aoh-grid { position: relative; display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(2.5rem, 6vw, 6rem); align-items: center; }
+    .aoh-old { font-family: var(--font-display); font-size: var(--step-3); line-height: 1.12; color: rgba(237,231,214,.42); font-weight: 380; }
+    .aoh-old s { text-decoration: none; position: relative; white-space: nowrap; }
+    .aoh-old s::after { content: ""; position: absolute; left: -2%; top: 55%; height: 2.5px; width: 0; border-radius: 999px;
+      background: var(--brass); transition: width .55s var(--ease-out); }
+    .aoh-copy.in .aoh-old s::after { width: 104%; transition-delay: .45s; }
+    .aoh-copy.in .aoh-old + .aoh-old s::after { transition-delay: .9s; }
+    .aoh h2 { color: var(--cream); font-size: var(--step-4); line-height: 1.02; margin-top: .35em; max-width: 14ch; }
+    .aoh h2 em { color: var(--brass); }
+    .aoh .lead { color: rgba(237,231,214,.8); margin-top: 1.4rem; max-width: 46ch; }
+    .aoh-steps { display: flex; gap: clamp(1.2rem, 3vw, 2.5rem); margin-top: 2.2rem; flex-wrap: wrap; }
+    .aoh-step { flex: 1 1 130px; min-width: 130px; padding-top: 1rem; border-top: 1px solid rgba(244,236,217,.18); }
+    .aoh-step .n { font-family: var(--font-display); font-size: var(--step-2); color: var(--brass); line-height: 1; }
+    .aoh-step p { font-size: var(--step--1); color: rgba(237,231,214,.78); margin-top: .45rem; }
+    .aoh-cta { display: flex; align-items: center; gap: 1.4rem; flex-wrap: wrap; margin-top: 2.4rem; }
+    .aoh-media { position: relative; border-radius: var(--radius-lg); overflow: hidden; aspect-ratio: 4/4.6; box-shadow: var(--shadow-lg); }
+    .aoh-media img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease-out); }
+    .aoh-media:hover img { transform: scale(1.04); }
+    .aoh-media::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(14,20,16,.45), transparent 40%); }
+    .aoh-chip { position: absolute; left: 1.1rem; right: 1.1rem; bottom: 1.1rem; z-index: 2;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.2rem; border-radius: var(--radius); }
+    .aoh-chip .t strong { display: block; font-family: var(--font-display); font-size: var(--step-0); color: var(--cream); }
+    .aoh-chip .t small { font-size: var(--step--2); color: rgba(237,231,214,.7); }
+    .aoh-chip .go { width: 42px; height: 42px; border-radius: 50%; background: var(--brass); color: var(--ink); display: grid; place-items: center; flex-shrink: 0; transition: transform .3s var(--ease-out); }
+    .aoh-chip:hover .go { transform: scale(1.1); }
+    .aoh-chip .go svg { width: 18px; height: 18px; }
+    @media (max-width: 980px) {
+      .aoh-grid { grid-template-columns: 1fr; }
+      .aoh-media { aspect-ratio: 4/3.4; }
+      .aoh-old { font-size: var(--step-2); }
+    }
+
+    /* ---------- Trust chips ---------- */
+    .chips { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(.9rem, 1.6vw, 1.4rem); }
+    .chip-card { background: #FCFAF3; border: 1px solid var(--line-soft); border-radius: var(--radius); padding: 1.15rem 1.25rem; display: flex; gap: .95rem; align-items: center; transition: transform .35s var(--ease-out), box-shadow .35s; }
+    .chip-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+    .chip-card .ic { width: 44px; height: 44px; border-radius: 50%; background: var(--brass-tint); color: var(--brass-deep); display: grid; place-items: center; flex-shrink: 0; }
+    .chip-card .ic svg { width: 22px; height: 22px; }
+    .chip-card strong { display: block; color: var(--forest); font-size: var(--step--1); }
+    .chip-card small { color: var(--text-faint); font-size: var(--step--2); }
+
+    /* ---------- Trusted source · banner cards + glass pills ---------- */
+    .trusted-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(1.2rem, 2vw, 1.8rem); margin-top: var(--space-xl); }
+    .tcard { position: relative; border-radius: var(--radius-lg); overflow: hidden; min-height: 540px; display: flex; align-items: flex-end; box-shadow: var(--shadow-lg); color: var(--cream); }
+    .tcard > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease-out); }
+    .tcard:hover > img { transform: scale(1.04); }
+    .tcard::after { content:""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(14,20,16,.72), rgba(14,20,16,.08) 55%); }
+    .tpills { position: relative; z-index: 2; width: 100%; padding: clamp(1.4rem, 3vw, 2.2rem); display: flex; flex-direction: column; gap: .9rem; }
+    .tpill { display: flex; gap: .9rem; align-items: flex-start; max-width: 330px; padding: .95rem 1.15rem; border-radius: var(--radius); }
+    .tpill:nth-child(even) { align-self: flex-end; }
+    .tpill .ic { color: var(--brass); flex-shrink: 0; margin-top: 2px; }
+    .tpill .ic svg { width: 21px; height: 21px; }
+    .tpill strong { display: block; font-size: var(--step--1); color: var(--cream); }
+    .tpill small { font-size: var(--step--2); color: rgba(237,231,214,.72); line-height: 1.45; }
+    .tcard .t-tag { position: absolute; top: 1.2rem; left: 1.2rem; z-index: 2; font-size: var(--step--2); font-weight: 600; letter-spacing: .06em; }
+    .tcard .t-foot { position: relative; z-index: 2; width: 100%; padding: clamp(1.4rem, 3vw, 2.2rem); }
+    .tcard .t-foot h3 { color: var(--cream); font-size: var(--step-2); max-width: 16ch; }
+    .tcard .t-foot .link-arrow { margin-top: 1rem; }
+
+    /* ---------- Category duo ---------- */
+    .cat-duo { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1.2rem, 2vw, 1.8rem); }
+
+    /* ---------- Reviews · glass carousel over banner ---------- */
+    .rev-stage { position: relative; border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-lg); color: var(--cream); isolation: isolate; }
+    .rev-stage > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; }
+    .rev-stage::after { content:""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(to top, rgba(14,20,16,.78) 0%, rgba(14,20,16,.25) 55%, rgba(14,20,16,.35) 100%); }
+    .rev-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 1.5rem; padding: clamp(1.8rem, 4vw, 3rem) clamp(1.4rem, 3.5vw, 3rem) 0; flex-wrap: wrap; }
+    .rev-head h2 { color: var(--cream); font-size: var(--step-3); max-width: 15ch; }
+    .rev-nav { display: flex; gap: .6rem; }
+    .rev-rail { display: flex; gap: clamp(.9rem, 1.6vw, 1.3rem); padding: clamp(1.8rem, 4vw, 2.6rem) clamp(1.4rem, 3.5vw, 3rem); overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+    .rev-rail::-webkit-scrollbar { display: none; }
+    /* faux glass — 20 cards with real backdrop-filter is too heavy; this reads identically over the photo */
+    .rev-g { flex: 0 0 min(330px, 80vw); scroll-snap-align: start; padding: 1.35rem; display: flex; flex-direction: column; gap: .8rem;
+      background: linear-gradient(150deg, rgba(22,30,23,.82), rgba(22,30,23,.6)) !important;
+      -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+    .rev-g .stars { color: var(--brass); }
+    .rev-g .stars svg { width: 14px; height: 14px; fill: currentColor; }
+    .rev-g blockquote { font-family: var(--font-display); font-size: var(--step-0); line-height: 1.45; color: var(--cream); flex: 1; }
+    .rev-g .ra { display: flex; align-items: center; gap: .7rem; }
+    .rev-g .ra b { width: 36px; height: 36px; border-radius: 50%; background: var(--brass); color: var(--ink); display: grid; place-items: center; font-family: var(--font-display); font-size: .82rem; flex-shrink: 0; }
+    .rev-g .ra strong { display: block; font-size: var(--step--1); color: var(--cream); }
+    .rev-g .ra small { font-size: var(--step--2); color: rgba(237,231,214,.6); }
+
+    @media (max-width: 980px) {
+      .hero__layout { grid-template-columns: 1fr; align-items: start; padding-top: calc(var(--header-h) + 5.5rem); padding-bottom: 8rem; gap: 2.5rem; }
+      .hero h1 { font-size: var(--step-5); }
+      .hero-card { justify-self: stretch; width: 100%; max-width: 420px; }
+      .trusted-grid { grid-template-columns: 1fr; }
+      .tcard { min-height: 460px; }
+      .chips { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 640px) {
+      .hero__layout { padding-bottom: 7.5rem; }
+      .hb-scroll { display: none; }
+      .hb-inner { justify-content: center; }
+      .cat-duo { grid-template-columns: 1fr; }
+      .chips { grid-template-columns: 1fr 1fr; gap: .7rem; }
+      .chip-card { flex-direction: column; align-items: flex-start; gap: .6rem; padding: 1rem; }
+    }
+  </style>
+</head>
+
+<body data-page="home" data-hero="true">
+  <div id="fv-header"></div>
+
+  <main>
+    <!-- ===== HERO ===== -->
+    <section class="hero">
+      <div class="hero__media" id="heroMedia"></div>
+      <div class="container hero__layout">
+        <div class="hero__copy">
+          <p class="eyebrow eyebrow--light" data-reveal>Export-Grade · Egypt</p>
+          <h1 data-reveal data-delay="1">Premium produce for <em>better hosting</em>.</h1>
+          <div class="hero__proofline" data-reveal data-delay="2">
+            <span class="avatar-stack" id="avStack" aria-hidden="true"></span>
+            <span class="glass-pill hp"><span class="hp-stars" id="heroStars"></span><strong>4.9</strong>&nbsp;·&nbsp;1,400+ hosts</span>
+          </div>
+          <p class="hero__sub" data-reveal data-delay="2">Graded like an export house. Delivered like a guest is already on the way.</p>
+          <div class="hero__cta" data-reveal data-delay="3">
+            <a class="btn btn--light btn--lg" href="products.html">Start shopping</a>
+            <a class="btn btn--ghost-light btn--lg" href="hosting.html">The Art of Hosting</a>
+          </div>
+        </div>
+
+        <aside class="hero-card glass" data-reveal data-delay="4" aria-label="Featured product">
+          <div class="hc-media">
+            <span class="hc-tag" id="hcTag"></span>
+            <button class="hc-heart" id="hcHeart" aria-label="Save to wishlist"></button>
+            <a id="hcLink" href="#"><img id="hcImg" src="" alt="" width="540" height="540"></a>
+          </div>
+          <div class="hc-body">
+            <h3 class="hc-name" id="hcName"></h3>
+            <p class="hc-meta" id="hcMeta">Next-day delivery · Cold-chain kept</p>
+            <div class="hc-buy">
+              <span class="hc-qty">
+                <button id="hcDec" aria-label="Decrease"></button>
+                <span id="hcQty">1</span>
+                <button id="hcInc" aria-label="Increase"></button>
+              </span>
+              <span class="hc-total"><span>Total</span><strong id="hcTotal"></strong></span>
+              <button class="hc-add" id="hcAdd" aria-label="Add to cart"></button>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <div class="hero__bottom">
+        <div class="container hb-inner">
+          <span class="hb-scroll"><span class="line"></span>Scroll</span>
+          <div class="hb-controls">
+            <button class="hb-btn" id="hPrev" aria-label="Previous product"></button>
+            <div class="hb-index"><span id="hIdx">01</span><span class="hb-progress"><i id="hProg"></i></span><span id="hLen">06</span></div>
+            <button class="hb-btn" id="hNext" aria-label="Next product"></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Marquee -->
+    <div class="marquee" aria-hidden="true"><div class="track" id="mqTrack"></div></div>
+
+    <!-- ===== THE ART OF HOSTING · our signature ===== -->
+    <section class="aoh section">
+      <div class="container aoh-grid">
+        <div class="aoh-copy" data-reveal>
+          <p class="eyebrow eyebrow--light">Our signature · Only from Fresh Valley</p>
+          <p class="aoh-old" style="margin-top:1.6rem"><s>A bottle of cola.</s></p>
+          <p class="aoh-old"><s>The usual box of sweets.</s></p>
+          <h2>Arrive with <em>the season</em>.</h2>
+          <p class="lead">In Egypt, no one visits empty-handed. Fresh Valley makes what you carry unforgettable — a hand-graded box of fruit or vegetables, wrapped like a gift, set on the table the moment you walk in.</p>
+          <div class="aoh-steps">
+            <div class="aoh-step"><span class="n">01</span><p>Choose your box — fruit, vegetables, or both.</p></div>
+            <div class="aoh-step"><span class="n">02</span><p>We grade, arrange and wrap it by hand.</p></div>
+            <div class="aoh-step"><span class="n">03</span><p>You arrive generous. They remember it.</p></div>
+          </div>
+          <div class="aoh-cta">
+            <a class="btn btn--brass btn--lg btn--shine" href="product.html?box=hosting-box">Gift a hosting box</a>
+            <a class="link-arrow link-arrow--light" href="hosting.html">The full story
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          </div>
+        </div>
+        <a class="aoh-media" href="product.html?box=hosting-box" data-reveal data-delay="2" aria-label="The Hosting Box">
+          <img src="assets/img/banners/door-delivery.jpg" alt="A host receiving a Fresh Valley produce box at the front door" loading="lazy">
+          <span class="aoh-chip glass">
+            <span class="t"><strong>The Hosting Box</strong><small>From EGP 850 · wrapped &amp; ribboned</small></span>
+            <span class="go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          </span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ===== Trust chips ===== -->
+    <section class="section--tight" style="padding-block: var(--space-xl)">
+      <div class="container">
+        <div class="chips" id="chips"></div>
+      </div>
+    </section>
+
+    <!-- ===== Best sellers · slider ===== -->
+    <section class="section section--tight" style="padding-top: var(--space-xl)">
+      <div class="container">
+        <div class="split-head" data-reveal style="margin-bottom: var(--space-lg)">
+          <div class="section-head">
+            <p class="eyebrow">Loved by our tables</p>
+            <h2 class="title">Best Sellers</h2>
+          </div>
+          <div style="display:flex;align-items:center;gap:1.2rem">
+            <a class="link-arrow hide-mobile" href="products.html?collection=best-sellers">View all
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <div class="rail-nav">
+              <button class="rail-btn" id="bsPrev" aria-label="Previous products"></button>
+              <button class="rail-btn" id="bsNext" aria-label="Next products"></button>
+            </div>
+          </div>
+        </div>
+        <div class="rail" id="bestSellers"></div>
+      </div>
+    </section>
+
+    <!-- ===== Categories ===== -->
+    <section class="section section--tight">
+      <div class="container">
+        <div class="cat-duo">
+          <a class="cat-tile" href="products.html?cat=fruits" data-reveal>
+            <img src="assets/img/products/cherry.jpg" alt="Export-grade dark cherries" loading="lazy">
+            <div class="tile-body">
+              <p class="eyebrow eyebrow--light">Category</p>
+              <h3 class="mt-sm">Fruits</h3>
+              <p>Sun-ripened and graded by hand.</p>
+              <span class="btn btn--light btn--sm" style="margin-top:1.2rem">Shop fruits</span>
+            </div>
+          </a>
+          <a class="cat-tile" href="products.html?cat=vegetables" data-reveal data-delay="1">
+            <img src="assets/img/products/cauliflower.jpg" alt="Export-grade cauliflower" loading="lazy">
+            <div class="tile-body">
+              <p class="eyebrow eyebrow--light">Category</p>
+              <h3 class="mt-sm">Vegetables</h3>
+              <p>Crisp, clean and picked at peak.</p>
+              <span class="btn btn--light btn--sm" style="margin-top:1.2rem">Shop vegetables</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Boxes · slider ===== -->
+    <section class="section section--ink">
+      <div class="container">
+        <div class="split-head" data-reveal style="margin-bottom: var(--space-lg)">
+          <div class="section-head">
+            <p class="eyebrow eyebrow--light">Curated &amp; ready to host</p>
+            <h2 class="title">Fresh Valley Boxes</h2>
+            <p class="lead" style="color:var(--on-dark-muted)">Chosen and arranged for you — from a weekly family box to a grand hosting selection.</p>
+          </div>
+          <div class="rail-nav rail-nav--light">
+            <button class="rail-btn" id="bxPrev" aria-label="Previous boxes"></button>
+            <button class="rail-btn" id="bxNext" aria-label="Next boxes"></button>
+          </div>
+        </div>
+        <div class="rail rail--wide" id="boxesGrid"></div>
+      </div>
+    </section>
+
+    <!-- ===== Trusted source ===== -->
+    <section class="section">
+      <div class="container">
+        <div class="section-head section-head--center" data-reveal>
+          <p class="eyebrow no-rule">Why Fresh Valley</p>
+          <h2 class="title">Your trusted source<br>for better hosting</h2>
+          <p class="lead">Export-grade produce, grown with care and delivered with honesty — quality you can see from across the room.</p>
+        </div>
+        <div class="trusted-grid">
+          <article class="tcard" data-reveal>
+            <img src="assets/img/banners/delivery-van.jpg" alt="The Fresh Valley van delivering export-grade produce in New Cairo" loading="lazy">
+            <div class="tpills" id="tpills"></div>
+          </article>
+          <a class="tcard" href="about.html" data-reveal data-delay="1">
+            <img src="assets/img/banners/staff-shirt.jpg" alt="A Fresh Valley team member in a branded linen shirt at the market" loading="lazy">
+            <span class="t-tag glass-pill">About us</span>
+            <div class="t-foot">
+              <h3>Straight from the harvest, honest to the table.</h3>
+              <span class="link-arrow link-arrow--light">Meet Fresh Valley
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Reviews · glass carousel ===== -->
+    <section class="section">
+      <div class="container">
+        <div class="rev-stage" data-reveal>
+          <img src="assets/img/banners/home-delivery.jpg" alt="A host receiving a Fresh Valley crate at the door of a gathering" loading="lazy">
+          <div class="rev-head">
+            <div>
+              <p class="eyebrow eyebrow--light no-rule">★ 4.9 · 1,400+ verified orders</p>
+              <h2 class="mt-sm">Fresh thoughts from our hosts</h2>
+            </div>
+            <div class="rev-nav">
+              <button class="hb-btn" id="rvPrev" aria-label="Previous reviews"></button>
+              <button class="hb-btn" id="rvNext" aria-label="Next reviews"></button>
+            </div>
+          </div>
+          <div class="rev-rail" id="revRail"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Journal ===== -->
+    <section class="section section--tight" style="padding-bottom: var(--space-2xl)">
+      <div class="container">
+        <div class="split-head" data-reveal>
+          <div class="section-head">
+            <p class="eyebrow">Read, cook, host</p>
+            <h2 class="title">The Journal</h2>
+          </div>
+          <a class="link-arrow hide-mobile" href="journal.html">All articles
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </div>
+        <div class="products-grid products-grid--3 mt-xl" id="journal"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="fv-footer"></div>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    (function () {
+      const $id = (x) => document.getElementById(x);
+      const arrowL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>';
+
+      /* ---- Marquee ---- */
+      const phrases = ["The Art of Hosting", "Export-grade, hand-graded", "Next-day across Cairo", "Seasonal — at its peak", "Boxes built to gift"];
+      const mq = `<span>${phrases.map(t => `${t} <i>◆</i>`).join(" ")}</span>`;
+      $id("mqTrack").innerHTML = mq + mq;
+
+      /* ---- Trust chips ---- */
+      const chips = [
+        ["truck", "Free delivery", "On orders over EGP 600"],
+        ["snow", "Cold-chain kept", "From harvest to your door"],
+        ["shield", "Export-grade", "Hand-graded, piece by piece"],
+        ["sparkle", "Next-day slots", "Across our five areas"],
+      ];
+      $id("chips").innerHTML = chips.map((c, i) => `
+        <div class="chip-card" data-reveal data-delay="${i}">
+          <span class="ic">${FV.icon(c[0])}</span>
+          <span><strong>${c[1]}</strong><small>${c[2]}</small></span>
+        </div>`).join("");
+
+      /* ---- Trusted pills ---- */
+      const pills = [
+        ["shield", "Export-grade guarantee", "If it isn't perfect, we replace it. No forms, no debate."],
+        ["truck", "Fast, careful delivery", "Cold-chain kept, next-day slots across Cairo's five areas."],
+        ["leaf", "Seasonal & honest", "Picked at peak — never stored long, never rushed."],
+        ["sparkle", "Packed to present", "Arrives looking like a gift, because that's how it's used."],
+      ];
+      $id("tpills").innerHTML = pills.map((p, i) => `
+        <div class="tpill glass" data-reveal data-delay="${i}">
+          <span class="ic">${FV.icon(p[0])}</span>
+          <span><strong>${p[1]}</strong><small>${p[2]}</small></span>
+        </div>`).join("");
+
+      /* ---- Sliders (rails) ---- */
+      const bs = FV.byCollection("best-sellers");
+      const extras = FV.byCollection("essentials").filter(p => !bs.some(b => b.slug === p.slug)).slice(0, 12 - bs.length);
+      $id("bestSellers").innerHTML = bs.concat(extras).slice(0, 12).map(FV.productCardHTML).join("");
+      $id("boxesGrid").innerHTML = FV.data.boxes.map(FV.boxCardHTML).join("");
+      $id("journal").innerHTML = FV.data.articles.slice(0, 3).map(FV.articleCardHTML).join("");
+
+      // rail cards must be visible without vertical-scroll reveal
+      document.querySelectorAll(".rail [data-reveal]").forEach(e => e.classList.add("in"));
+
+      const railArrowL = arrowL, railArrowR = FV.icon("arrow");
+      $id("bsPrev").innerHTML = railArrowL; $id("bsNext").innerHTML = railArrowR;
+      $id("bxPrev").innerHTML = railArrowL; $id("bxNext").innerHTML = railArrowR;
+      FV.bindRail($id("bestSellers"), $id("bsPrev"), $id("bsNext"));
+      FV.bindRail($id("boxesGrid"), $id("bxPrev"), $id("bxNext"));
+
+      /* ---- Reviews glass rail ---- */
+      $id("revRail").innerHTML = FV.data.reviews.map(r => `
+        <article class="rev-g glass">
+          <span class="stars">${FV.icon("star").repeat(r.stars)}</span>
+          <blockquote>“${r.text}”</blockquote>
+          <div class="ra"><b>${r.name.split(" ").map(w => w[0]).slice(0, 2).join("")}</b>
+            <span><strong>${r.name}</strong><small>${r.area} · ${r.tag}</small></span></div>
+        </article>`).join("");
+      $id("rvPrev").innerHTML = arrowL;
+      $id("rvNext").innerHTML = FV.icon("arrow");
+      const rail = $id("revRail");
+      const step = () => Math.min(rail.clientWidth * .85, 720);
+      $id("rvPrev").addEventListener("click", () => rail.scrollBy({ left: -step(), behavior: "smooth" }));
+      $id("rvNext").addEventListener("click", () => rail.scrollBy({ left: step(), behavior: "smooth" }));
+
+      /* ============ HERO ENGINE ============ */
+      $id("heroStars").innerHTML = FV.icon("star").repeat(5);
+      const avColors = ["var(--forest-mid)", "var(--brass-deep)", "var(--pomegranate)", "var(--forest)"];
+      $id("avStack").innerHTML = FV.data.reviews.slice(0, 4).map((r, i) =>
+        `<b style="background:${avColors[i]}">${r.name.split(" ").map(w => w[0]).slice(0, 2).join("")}</b>`).join("");
+
+      $id("hcDec").innerHTML = FV.icon("minus");
+      $id("hcInc").innerHTML = FV.icon("plus");
+      $id("hcAdd").innerHTML = FV.icon("bag");
+      $id("hcHeart").innerHTML = FV.icon("heart");
+      $id("hPrev").innerHTML = arrowL;
+      $id("hNext").innerHTML = FV.icon("arrow");
+
+      const slides = ["strawberry", "mango", "red-grapes", "medjool-dates", "cherry", "pepper-medley"];
+      const media = $id("heroMedia");
+      media.innerHTML = slides.map((s, i) =>
+        `<img src="${FV.img(s)}" alt="" ${i === 0 ? 'class="active" fetchpriority="high"' : 'loading="lazy"'}>`).join("");
+      const bgImgs = media.querySelectorAll("img");
+      $id("hLen").textContent = String(slides.length).padStart(2, "0");
+
+      let cur = 0, qty = 1, timer = null;
+      const curP = () => FV.find(slides[cur]);
+      const unit = (p) => FV.defaultVariant(p);
+
+      function paintCard(instant) {
+        const p = curP(), dv = unit(p), img = $id("hcImg");
+        const apply = () => {
+          img.src = FV.thumb(p.slug); img.alt = p.name;
+          $id("hcLink").href = "product.html?slug=" + p.slug;
+          $id("hcTag").textContent = FV.money(FV.cardPrice(p).value) + " " + FV.cardPrice(p).per;
+          $id("hcName").textContent = p.name;
+          $id("hcQty").textContent = qty;
+          $id("hcTotal").textContent = FV.money(dv.price * qty);
+          $id("hcHeart").classList.toggle("active", FV.wish.has(p.slug));
+          img.onload = () => img.classList.remove("swap");
+        };
+        if (instant) { apply(); return; }
+        img.classList.add("swap");
+        setTimeout(apply, 180);
+      }
+      function runProgress() {
+        const bar = $id("hProg");
+        bar.style.transition = "none"; bar.style.transform = "scaleX(0)";
+        void bar.offsetWidth;
+        bar.style.transition = "transform 6s linear"; bar.style.transform = "scaleX(1)";
+      }
+      function setSlide(i) {
+        cur = (i + slides.length) % slides.length; qty = 1;
+        bgImgs.forEach((im, k) => im.classList.toggle("active", k === cur));
+        $id("hIdx").textContent = String(cur + 1).padStart(2, "0");
+        paintCard(); runProgress(); restartAuto();
+      }
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      function restartAuto() { clearInterval(timer); if (!reduced) timer = setInterval(() => setSlide(cur + 1), 6000); }
+      $id("hPrev").addEventListener("click", () => setSlide(cur - 1));
+      $id("hNext").addEventListener("click", () => setSlide(cur + 1));
+      $id("hcDec").addEventListener("click", () => { qty = Math.max(1, qty - 1); $id("hcQty").textContent = qty; $id("hcTotal").textContent = FV.money(unit(curP()).price * qty); });
+      $id("hcInc").addEventListener("click", () => { qty++; $id("hcQty").textContent = qty; $id("hcTotal").textContent = FV.money(unit(curP()).price * qty); });
+      $id("hcAdd").addEventListener("click", () => {
+        const p = curP(), dv = unit(p);
+        FV.cart.add({ key: p.slug + "|" + dv.variant, slug: p.slug, type: "product", name: p.name, image: p.slug, variant: dv.variant, price: dv.price, qty });
+        FV.toast(`${p.name} added`, `${qty} × ${dv.variant}`); FV.openCart();
+      });
+      $id("hcHeart").addEventListener("click", () => {
+        const on = FV.wish.toggle(slides[cur]);
+        $id("hcHeart").classList.toggle("active", on);
+        if (on) FV.toast("Saved to wishlist");
+      });
+      const heroEl = document.querySelector(".hero");
+      heroEl.addEventListener("mouseenter", () => clearInterval(timer));
+      heroEl.addEventListener("mouseleave", restartAuto);
+
+      // live cutoff line in the card
+      const meta = () => { $id("hcMeta").textContent = `Next-day delivery · order in ${FV.cutoffText()}`; };
+      meta(); setInterval(meta, 30000);
+
+      paintCard(true); runProgress(); restartAuto();
+
+      FV.observeReveals();
+      FV.updateWishUI();
+    })();
+  </script>
+</body>
+</html>

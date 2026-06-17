@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact — Fresh Valley</title>
+  <meta name="description" content="Talk to Fresh Valley. Delivery across New Cairo, Sheikh Zayed, October, Madinaty and Rehab. We're glad to help.">
+  <meta name="theme-color" content="#1A2A1D">
+  <link rel="canonical" href="https://freshvalley.eg/contact.html">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,400..500&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <style>
+    .contact-grid { display:grid; grid-template-columns: 1.1fr .9fr; gap: clamp(2rem,5vw,4.5rem); align-items:start; }
+    .contact-card { background:#FCFAF3; border:1px solid var(--line-soft); border-radius:var(--radius-lg); padding: clamp(1.5rem,3vw,2.2rem); }
+    .info-block { padding:1.4rem 0; border-bottom:1px solid var(--line-soft); display:flex; gap:1rem; align-items:flex-start; }
+    .info-block:last-child { border-bottom:none; }
+    .info-block .ic { width:44px; height:44px; border-radius:var(--radius-pill); background:var(--brass-tint); color:var(--brass-deep); display:grid; place-items:center; flex-shrink:0; }
+    .info-block .ic svg { width:22px; height:22px; }
+    .info-block h4 { font-size:var(--step-0); color:var(--forest); }
+    .info-block p { font-size:var(--step--1); color:var(--text-muted); margin-top:.2rem; }
+    .info-block a { color:var(--brass-deep); }
+    .area-chips { display:flex; flex-wrap:wrap; gap:.6rem; margin-top:var(--space-md); }
+    .area-chips .chip { display:inline-flex; align-items:center; gap:.5rem; padding:.7em 1.1em; background:#FCFAF3; border:1px solid var(--line-soft); border-radius:var(--radius-pill); font-size:var(--step--1); font-weight:500; color:var(--forest); }
+    .area-chips .chip svg { width:16px; height:16px; color:var(--brass-deep); }
+    @media (max-width:820px){ .contact-grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+
+<body data-page="contact">
+  <div id="fv-header"></div>
+
+  <main>
+    <section class="page-header">
+      <div class="container">
+        <nav class="breadcrumb"><a href="index.html">Home</a><span>/</span><span>Contact</span></nav>
+        <p class="eyebrow">We're glad to help</p>
+        <h1>Talk to Fresh Valley</h1>
+        <p>A question about an order, a hosting idea, or a wholesale enquiry — we read everything, and we reply like people.</p>
+      </div>
+    </section>
+
+    <section class="section section--tight">
+      <div class="container contact-grid">
+        <!-- form -->
+        <div class="contact-card">
+          <h2 style="font-size:var(--step-1);margin-bottom:1.4rem">Send a message</h2>
+          <form id="contactForm">
+            <div class="grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+              <div class="field"><label>First name</label><input class="input" name="first" required></div>
+              <div class="field"><label>Last name</label><input class="input" name="last" required></div>
+              <div class="field"><label>Email</label><input class="input" type="email" name="email" required></div>
+              <div class="field"><label>Phone</label><input class="input" name="phone" placeholder="Optional"></div>
+              <div class="field" style="grid-column:1/-1"><label>Subject</label>
+                <select class="select" name="subject">
+                  <option>An order</option><option>A product question</option><option>Hosting &amp; events</option><option>Wholesale &amp; partnerships</option><option>Something else</option>
+                </select></div>
+              <div class="field" style="grid-column:1/-1"><label>Message</label><textarea class="textarea" name="message" required placeholder="How can we help?"></textarea></div>
+            </div>
+            <button class="btn btn--lg" type="submit" style="margin-top:1.2rem">Send message
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+            <p class="muted" style="font-size:var(--step--2);margin-top:1rem">We usually reply within one working day.</p>
+          </form>
+        </div>
+
+        <!-- info -->
+        <div>
+          <div class="info-block" id="infoWhatsApp"></div>
+          <div class="info-block" id="infoEmail"></div>
+          <div class="info-block" id="infoHours"></div>
+          <div class="info-block" id="infoSocial"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AREAS -->
+    <section class="section section--bone" id="areas">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <p class="eyebrow">Where we deliver</p>
+          <h2 class="title">Delivery areas</h2>
+          <p class="muted measure">We keep our delivery close to home, so the cold chain stays short and the service stays personal. Complimentary delivery on orders over EGP 600; a flat EGP 45 below that.</p>
+        </div>
+        <div class="area-chips" id="areaChips"></div>
+        <p class="muted" style="font-size:var(--step--2);margin-top:1.5rem">Outside these areas? <a href="#" style="color:var(--brass-deep);text-decoration:underline">Tell us where you are</a> — we're expanding.</p>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section">
+      <div class="container container-narrow">
+        <div class="section-head section-head--center" data-reveal style="margin-bottom:var(--space-xl)">
+          <p class="eyebrow">Good to know</p>
+          <h2 class="title">Common questions</h2>
+        </div>
+        <div class="accordion" id="faq"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="fv-footer"></div>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    (function () {
+      const info = [
+        ["infoWhatsApp", "user", "WhatsApp &amp; phone", `<a href="tel:+201000000000">+20 100 000 0000</a><br>Fastest for anything about a live order.`],
+        ["infoEmail", "sparkle", "Email", `<a href="mailto:hello@freshvalley.eg">hello@freshvalley.eg</a><br>For everything else.`],
+        ["infoHours", "snow", "Hours", "Saturday – Thursday, 9am – 9pm<br>Friday, 1pm – 9pm"],
+        ["infoSocial", "leaf", "Follow along", "Seasonal notes and hosting ideas on Instagram &amp; TikTok — @freshvalley.eg"],
+      ];
+      info.forEach(([id, ic, h, p]) => {
+        document.getElementById(id).innerHTML = `<div class="ic">${FV.icon(ic)}</div><div><h4>${h}</h4><p>${p}</p></div>`;
+      });
+
+      const areas = ["New Cairo", "Sheikh Zayed", "October", "Madinaty", "Rehab"];
+      document.getElementById("areaChips").innerHTML = areas.map(a => `<span class="chip">${FV.icon("pin")} ${a}</span>`).join("");
+
+      const faqs = [
+        ["When will my order arrive?", "Choose a next-day delivery slot at checkout — morning, midday, afternoon or evening. We'll send an update by SMS when your produce is on the way."],
+        ["What does 'export-grade' mean?", "It is the standard the export market demands: each piece graded by hand for size, colour, firmness and ripeness. Anything that doesn't pass is set aside, so what reaches you is consistent and beautiful."],
+        ["What if something isn't perfect?", "Then it isn't on us to keep. Tell us within 24 hours and we'll replace it or refund it — no debate. Quality is the whole promise."],
+        ["Do you offer subscriptions?", "Yes. Any box can be set to a weekly or fortnightly schedule from your account, and you can pause or change it any time."],
+        ["How is delivery priced?", "Complimentary on orders over EGP 600, and a flat EGP 45 below that, across all our areas."],
+      ];
+      document.getElementById("faq").innerHTML = faqs.map(([q, a]) => `
+        <details><summary>${q} <span class="ico"></span></summary><div class="panel">${a}</div></details>`).join("");
+
+      document.getElementById("contactForm").addEventListener("submit", e => {
+        e.preventDefault();
+        if (!e.target.checkValidity()) { e.target.reportValidity(); return; }
+        e.target.reset();
+        FV.toast("Thank you — we'll be in touch", "Usually within a working day");
+      });
+
+      FV.observeReveals();
+    })();
+  </script>
+</body>
+</html>

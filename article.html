@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Journal — Fresh Valley</title>
+  <meta name="description" content="A note from the Fresh Valley Journal.">
+  <meta name="theme-color" content="#1A2A1D">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,400..500&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <style>
+    .article-head { padding-top: calc(var(--header-h) + 2.5rem); text-align:center; }
+    .article-head .a-cat { font-size:var(--step--2); letter-spacing:.16em; text-transform:uppercase; color:var(--brass-deep); font-weight:600; }
+    .article-head h1 { font-size: var(--step-5); max-width: 18ch; margin: .6rem auto 1rem; line-height:1.04; }
+    .article-head .meta { font-size: var(--step--1); color: var(--text-faint); }
+    .article-hero { margin: var(--space-xl) auto 0; max-width: var(--container); }
+    .article-hero .frame { border-radius: var(--radius-lg); overflow:hidden; aspect-ratio: 16/9; box-shadow: var(--shadow-lg); }
+    .article-hero img { width:100%; height:100%; object-fit:cover; }
+    .article-body { max-width: 70ch; margin: var(--space-2xl) auto 0; }
+    .article-body p { font-size: var(--step-1); line-height: 1.7; color: var(--text); margin-bottom: 1.4em; }
+    .article-body p:first-child::first-letter { font-family: var(--font-display); font-size: 3.4em; line-height: .8; float: left; padding: .05em .12em 0 0; color: var(--brass-deep); }
+    .article-foot { max-width: 70ch; margin: var(--space-2xl) auto 0; padding-top: var(--space-lg); border-top: 1px solid var(--line-soft); display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; }
+  </style>
+</head>
+
+<body data-page="journal">
+  <div id="fv-header"></div>
+  <main id="artRoot"></main>
+  <div id="fv-footer"></div>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    (function () {
+      const root = document.getElementById("artRoot");
+      const slug = new URLSearchParams(location.search).get("slug");
+      const a = FV.data.articles.find(x => x.slug === slug);
+      const arrow = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+
+      if (!a) {
+        root.innerHTML = `<section class="section" style="padding-top:calc(var(--header-h)+4rem);text-align:center">
+          <div class="container"><h1>Article not found</h1>
+          <a class="btn mt-lg" href="journal.html" style="margin-top:1.5rem">Back to the Journal ${arrow}</a></div></section>`;
+        return;
+      }
+      document.title = `${a.title} — Fresh Valley Journal`;
+
+      const related = FV.data.articles.filter(x => x.slug !== a.slug).slice(0, 3);
+
+      root.innerHTML = `
+      <article>
+        <header class="article-head">
+          <div class="container">
+            <nav class="breadcrumb" style="justify-content:center"><a href="index.html">Home</a><span>/</span><a href="journal.html">Journal</a><span>/</span><span>${a.category}</span></nav>
+            <p class="a-cat">${a.category}</p>
+            <h1>${a.title}</h1>
+            <p class="meta">${a.author} · ${a.date} · ${a.read}</p>
+          </div>
+        </header>
+
+        <div class="article-hero">
+          <div class="container"><div class="frame"><img src="${FV.img(a.image)}" alt="${a.title}" fetchpriority="high"></div></div>
+        </div>
+
+        <div class="container">
+          <div class="article-body">
+            ${a.body.map(p => `<p>${p}</p>`).join("")}
+          </div>
+          <div class="article-foot">
+            <a class="link-arrow" href="journal.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> All articles</a>
+            <div class="social-row" style="--x:0">
+              <span style="font-size:var(--step--2);color:var(--text-faint);align-self:center">Share</span>
+            </div>
+          </div>
+        </div>
+
+        <section class="section section--paper2" style="margin-top:var(--space-2xl)">
+          <div class="container">
+            <div class="section-head" data-reveal style="margin-bottom:var(--space-lg)">
+              <p class="eyebrow">Keep reading</p><h2 class="title" style="font-size:var(--step-2)">More from the Journal</h2>
+            </div>
+            <div class="products-grid products-grid--3" id="more"></div>
+          </div>
+        </section>
+      </article>`;
+
+      document.getElementById("more").innerHTML = related.map(FV.articleCardHTML).join("");
+      FV.observeReveals();
+
+      const ld = document.createElement("script");
+      ld.type = "application/ld+json";
+      ld.textContent = JSON.stringify({
+        "@context": "https://schema.org", "@type": "Article",
+        headline: a.title, description: a.excerpt,
+        image: [location.origin + "/" + FV.img(a.image)],
+        articleSection: a.category,
+        author: { "@type": "Organization", name: a.author },
+        publisher: { "@type": "Organization", name: "Fresh Valley", logo: { "@type": "ImageObject", url: location.origin + "/assets/img/logo.png" } }
+      });
+      document.head.appendChild(ld);
+    })();
+  </script>
+</body>
+</html>

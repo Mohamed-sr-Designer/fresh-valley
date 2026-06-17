@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Art of Hosting — Fresh Valley</title>
+  <meta name="description" content="Fruit and vegetables are no longer just groceries. They are part of hospitality. The story of how Fresh Valley elevates the modern table.">
+  <meta name="theme-color" content="#1A2A1D">
+  <link rel="canonical" href="https://freshvalley.eg/hosting.html">
+  <meta property="og:title" content="The Art of Hosting — Fresh Valley">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="assets/img/products/red-grapes.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,400..500&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preload" as="image" href="assets/img/products/red-grapes.jpg" fetchpriority="high">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <style>
+    .h-hero { position: relative; min-height: 88vh; display: flex; align-items: flex-end; color: var(--cream); isolation: isolate; }
+    .h-hero__media { position: absolute; inset: 0; z-index: -2; }
+    .h-hero__media img { width: 100%; height: 100%; object-fit: cover; }
+    .h-hero::after { content:""; position:absolute; inset:0; z-index:-1; background: linear-gradient(180deg, rgba(14,20,16,.6) 0%, rgba(14,20,16,.25) 40%, rgba(14,20,16,.85) 100%); }
+    .h-hero .container { padding-bottom: clamp(3rem,8vh,6rem); padding-top: 10rem; }
+    .h-hero h1 { color: var(--cream); font-size: var(--step-6); line-height: .98; max-width: 14ch; margin-top: .4em; }
+    .h-hero h1 em { color: var(--brass); font-style: italic; }
+    .h-hero .lead { color: rgba(237,231,214,.85); max-width: 52ch; margin-top: 1.5rem; }
+
+    .manifesto { font-family: var(--font-display); font-size: var(--step-3); line-height: 1.22; color: var(--forest); font-weight: 360; max-width: 22ch; }
+    .manifesto em { color: var(--brass-deep); font-style: italic; }
+
+    .story-block { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem,5vw,5rem); align-items: center; }
+    .story-block + .story-block { margin-top: var(--space-3xl); }
+    .story-block .s-media { border-radius: var(--radius-lg); overflow: hidden; aspect-ratio: 4/5; box-shadow: var(--shadow-lg); }
+    .story-block.rev .s-media { order: 2; }
+    .story-block .s-media img { width:100%; height:100%; object-fit: cover; transition: transform 1.2s var(--ease-out); }
+    .story-block:hover .s-media img { transform: scale(1.04); }
+    .story-block .s-num { font-family: var(--font-display); font-size: var(--step-4); color: var(--brass); line-height: 1; opacity: .85; }
+    .story-block h2 { font-size: var(--step-3); margin: .4rem 0 1rem; }
+
+    .pullquote { text-align: center; max-width: 26ch; margin-inline: auto; font-family: var(--font-display); font-size: var(--step-4); line-height: 1.12; color: var(--cream); font-weight: 380; }
+    .pullquote em { color: var(--brass); font-style: italic; }
+    .pullquote .by { display:block; font-family: var(--font-sans); font-size: var(--step--1); letter-spacing:.14em; text-transform:uppercase; color: var(--on-dark-muted); margin-top: 2rem; font-weight: 600; }
+
+    .moments { display:grid; grid-template-columns: repeat(4,1fr); gap: clamp(1rem,2vw,1.6rem); }
+    .principles { display:grid; grid-template-columns: repeat(3,1fr); gap: var(--space-lg); }
+    .principle { padding-top: 1.4rem; border-top: 1px solid var(--line); }
+    .principle .p-k { font-family: var(--font-display); font-size: var(--step-2); color: var(--forest); }
+    .principle p { color: var(--text-muted); font-size: var(--step--1); margin-top: .6rem; }
+
+    @media (max-width: 920px){
+      .story-block { grid-template-columns: 1fr; }
+      .story-block.rev .s-media { order: 0; }
+      .moments { grid-template-columns: 1fr 1fr; }
+      .principles { grid-template-columns: 1fr; gap: 0; }
+      .principle { margin-top: 1.4rem; }
+    }
+  </style>
+</head>
+
+<body data-page="hosting" data-hero="true">
+  <div id="fv-header"></div>
+
+  <main>
+    <!-- HERO -->
+    <section class="h-hero">
+      <div class="h-hero__media" data-kenburns><img src="assets/img/products/red-grapes.jpg" alt="A still life of dark grapes on a warmly lit hosting table" fetchpriority="high"></div>
+      <div class="container">
+        <p class="eyebrow eyebrow--light">The Fresh Valley Philosophy</p>
+        <h1>The Art of <em>Hosting</em></h1>
+        <p class="lead">Fruit and vegetables are no longer just groceries. They have become part of how we welcome people — part of the gathering, part of the moment, part of the table.</p>
+      </div>
+    </section>
+
+    <!-- MANIFESTO -->
+    <section class="section">
+      <div class="container intro-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:clamp(2rem,6vw,6rem);align-items:start">
+        <p class="manifesto" data-reveal>A quiet change is happening in how we host. The table is set <em>earlier</em>. And produce sits at the centre of it.</p>
+        <div data-reveal data-delay="1">
+          <p class="lead">For a long time, fruit and vegetables were something you cooked with and put away. Today, they are something you present. A bowl of perfect fruit sits out before anyone arrives. A board of grapes and dates greets a guest at the door.</p>
+          <p class="muted mt-md">This is not about excess. It is about intention — the small, generous gesture of having something beautiful ready for the people you care about. Fresh Valley exists to make that gesture effortless.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- STORY BLOCKS -->
+    <section class="section section--paper2">
+      <div class="container">
+        <div class="story-block" data-reveal>
+          <div class="s-media"><img src="assets/img/products/medjool-dates.jpg" alt="Medjool dates arranged on a dark table"></div>
+          <div>
+            <span class="s-num">01</span>
+            <h2>Produce has left the kitchen.</h2>
+            <p class="lead">It used to live in the fridge until it was needed. Now it sits on the counter, on the table, in the centre of the room — chosen as much for how it looks as for how it tastes.</p>
+            <p class="muted mt-md">When produce becomes part of the décor of an evening, quality stops being a private matter. A guest can see a perfect strawberry from across the room. That is a new kind of standard to live up to — and the one we built Fresh Valley around.</p>
+          </div>
+        </div>
+
+        <div class="story-block rev" data-reveal>
+          <div class="s-media"><img src="assets/img/products/green-apple.jpg" alt="Export-grade green apples, graded for colour"></div>
+          <div>
+            <span class="s-num">02</span>
+            <h2>Quality you can see.</h2>
+            <p class="lead">Presentation begins long before the table. It begins with grading — with choosing fruit of an even size, a true colour, a clean skin.</p>
+            <p class="muted mt-md">An export-grade apple does not need styling. Piled simply in a bowl, it already looks considered, because every piece is consistent. This is the quiet luxury of produce that has been properly selected: it makes you look like you tried, when really you just chose well.</p>
+          </div>
+        </div>
+
+        <div class="story-block" data-reveal>
+          <div class="s-media"><img src="assets/img/products/pepper-medley.jpg" alt="A colourful arrangement of peppers for hosting"></div>
+          <div>
+            <span class="s-num">03</span>
+            <h2>We do the curating.</h2>
+            <p class="lead">Hosting well should not feel like work. So we arrange the produce for you — a hosting box of fruit, colour and a few quiet luxuries, delivered ready for the table.</p>
+            <p class="muted mt-md">You open the box, set it out, and the room changes. No planning, no second trip to the market. Just a generous, beautiful start to the evening, chosen by people who think about this all day.</p>
+            <a class="btn mt-lg" href="products.html?cat=boxes" style="margin-top:1.6rem">Explore the boxes
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PULLQUOTE -->
+    <section class="section section--forest">
+      <div class="container">
+        <p class="pullquote" data-reveal>When the produce is this good, hosting feels <em>generous</em> before you have done a thing.
+          <span class="by">The Fresh Valley belief</span></p>
+      </div>
+    </section>
+
+    <!-- MOMENTS -->
+    <section class="section">
+      <div class="container">
+        <div class="section-head section-head--center" data-reveal>
+          <p class="eyebrow">Where it matters</p>
+          <h2 class="title">Made for every kind of moment</h2>
+        </div>
+        <div class="moments mt-xl" id="moments"></div>
+      </div>
+    </section>
+
+    <!-- PRINCIPLES -->
+    <section class="section section--bone">
+      <div class="container">
+        <div class="section-head" data-reveal style="margin-bottom:var(--space-xl)">
+          <p class="eyebrow">How we think about it</p>
+          <h2 class="title">Three principles of better hosting</h2>
+        </div>
+        <div class="principles">
+          <div class="principle" data-reveal><div class="p-k">Be ready, not busy</div><p>The best hosts are not the busiest. They are the ones who prepared a little, so the evening can feel easy. Keep good produce in the house and you are always ready.</p></div>
+          <div class="principle" data-reveal data-delay="1"><div class="p-k">Let quality speak</div><p>You do not need to over-arrange or over-explain. Produce this good carries the table on its own. Set it out simply and let it do the work.</p></div>
+          <div class="principle" data-reveal data-delay="2"><div class="p-k">Make it generous</div><p>Generosity is the whole point. A full bowl, a varied board, a little more than enough — that is how a guest knows they are welcome.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section section--ink">
+      <div class="container text-center" data-reveal>
+        <p class="eyebrow eyebrow--light" style="justify-content:center">Begin</p>
+        <h2 class="mt-sm" style="max-width:18ch;margin-inline:auto">Set a better table this week.</h2>
+        <p class="lead mx-auto mt-md" style="color:var(--on-dark-muted);max-width:46ch">Start with a hosting box, or build your own selection from the collection. Either way, hosting just got easier.</p>
+        <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:2rem">
+          <a class="btn btn--brass btn--lg" href="products.html?cat=boxes">Shop the boxes</a>
+          <a class="btn btn--ghost-light btn--lg" href="products.html">Browse the collection</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="fv-footer"></div>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    (function () {
+      const moments = [
+        ["cantaloupe", "Gatherings", "Long lunches and unplanned evenings."],
+        ["cherry", "Guests", "A board that welcomes before you speak."],
+        ["apple-medley", "Everyday", "The morning bowl, the after-school plate."],
+        ["orange", "Gifting", "A box that says more than flowers."],
+      ];
+      document.getElementById("moments").innerHTML = moments.map(m => `
+        <a class="cat-tile" href="products.html" data-reveal style="min-height:340px">
+          <img src="${FV.img(m[0])}" alt="${m[1]}">
+          <div class="tile-body"><h3 style="font-size:var(--step-2)">${m[1]}</h3><p>${m[2]}</p></div>
+        </a>`).join("");
+      FV.observeReveals();
+    })();
+  </script>
+</body>
+</html>

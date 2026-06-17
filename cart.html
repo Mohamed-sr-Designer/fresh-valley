@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Selection — Fresh Valley</title>
+  <meta name="description" content="Review your selection of export-grade produce and curated boxes.">
+  <meta name="theme-color" content="#1A2A1D">
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,400..500&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <style>
+    .cart-layout { display:grid; grid-template-columns: 1fr 380px; gap: clamp(2rem,4vw,3.5rem); align-items:start; }
+    .cart-lines .line { display:grid; grid-template-columns: 110px 1fr auto; gap:1.4rem; padding:1.6rem 0; border-bottom:1px solid var(--line-soft); }
+    .cart-lines .line .l-media { width:110px; height:110px; border-radius:var(--radius); overflow:hidden; background:var(--ink); }
+    .cart-lines .line .l-media img { width:100%; height:100%; object-fit:cover; }
+    .cart-lines .line .l-name { font-family:var(--font-display); font-size:var(--step-1); color:var(--forest); }
+    .cart-lines .line .l-var { font-size:var(--step--2); color:var(--text-faint); margin-top:.2rem; }
+    .cart-lines .line .l-origin { font-size:var(--step--2); color:var(--text-faint); }
+    .cart-lines .line .l-controls { display:flex; align-items:center; gap:1rem; margin-top:1rem; }
+    .cart-lines .line .l-remove { font-size:var(--step--2); color:var(--text-faint); text-decoration:underline; text-underline-offset:2px; }
+    .cart-lines .line .l-remove:hover { color:var(--pomegranate); }
+    .cart-lines .line .l-price { font-family:var(--font-display); font-size:var(--step-1); color:var(--forest); text-align:right; white-space:nowrap; }
+    .cart-lines .line .l-each { font-size:var(--step--2); color:var(--text-faint); text-align:right; }
+    .summary-card { background:#FCFAF3; border:1px solid var(--line-soft); border-radius:var(--radius-lg); padding:1.8rem; position:sticky; top:calc(var(--header-h) + 1.5rem); }
+    .summary-card h3 { font-size:var(--step-1); margin-bottom:1rem; }
+    .free-meter { height:6px; border-radius:999px; background:var(--bone); overflow:hidden; margin:.6rem 0 1rem; }
+    .free-meter span { display:block; height:100%; background:linear-gradient(90deg,var(--brass),var(--brass-deep)); border-radius:999px; transition:width .5s var(--ease); }
+    .trust-mini { display:grid; gap:.6rem; margin-top:1.2rem; padding-top:1.2rem; border-top:1px solid var(--line-soft); }
+    .trust-mini .t { display:flex; gap:.6rem; align-items:center; font-size:var(--step--2); color:var(--text-muted); }
+    .trust-mini svg { width:18px; height:18px; color:var(--brass-deep); flex-shrink:0; }
+    @media (max-width:860px){ .cart-layout { grid-template-columns:1fr; } .summary-card { position:static; } .cart-lines .line { grid-template-columns:84px 1fr; } .cart-lines .line .l-media{width:84px;height:84px} .cart-lines .line .l-price-wrap{grid-column:2;text-align:left} }
+  </style>
+</head>
+
+<body data-page="cart">
+  <div id="fv-header"></div>
+
+  <main>
+    <section class="page-header" style="padding-bottom:var(--space-lg)">
+      <div class="container">
+        <nav class="breadcrumb"><a href="index.html">Home</a><span>/</span><span>Your Selection</span></nav>
+        <h1>Your Selection</h1>
+      </div>
+    </section>
+
+    <section class="section section--tight">
+      <div class="container">
+        <div id="cartWrap"></div>
+      </div>
+    </section>
+
+    <!-- Suggested additions -->
+    <section class="section section--paper2" id="suggestSection">
+      <div class="container">
+        <div class="section-head" data-reveal style="margin-bottom:var(--space-lg)">
+          <p class="eyebrow">Complete your table</p>
+          <h2 class="title" style="font-size:var(--step-2)">You might also like</h2>
+        </div>
+        <div class="products-grid" id="suggest"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="fv-footer"></div>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    (function () {
+      const wrap = document.getElementById("cartWrap");
+      const FREE = 600;
+
+      function lineMedia(it) {
+        if (it.noPhoto) return `<div class="l-media" style="display:grid;place-items:center;background:var(--forest);color:var(--brass)">${FV.icon("leaf2")}</div>`;
+        return `<div class="l-media"><img src="${FV.img(it.image)}" alt=""></div>`;
+      }
+
+      function render() {
+        const items = FV.cart.items();
+        if (!items.length) {
+          wrap.innerHTML = `<div class="empty-state" style="padding:5rem 1rem">${FV.icon("bag")}
+            <h3 style="margin:1rem 0 .4rem">Your selection is empty</h3>
+            <p>Nothing here yet — let's fix that.</p>
+            <a class="btn mt-lg" href="products.html" style="margin-top:1.5rem">Browse the collection
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>`;
+          document.getElementById("suggestSection").style.display = "none";
+          return;
+        }
+        const sub = FV.cart.subtotal();
+        const remain = Math.max(0, FREE - sub);
+        const pct = Math.min(100, (sub / FREE) * 100);
+
+        wrap.innerHTML = `
+        <div class="cart-layout">
+          <div class="cart-lines">
+            ${items.map(it => `
+              <div class="line">
+                ${lineMedia(it)}
+                <div>
+                  <div class="l-name">${it.name}</div>
+                  <div class="l-var">${it.type === "box" ? "Box · " : ""}${it.variant}</div>
+                  <div class="l-controls">
+                    <div class="qty" style="transform:scale(.9);transform-origin:left">
+                      <button data-dec="${it.key}" aria-label="Decrease">${FV.icon("minus")}</button>
+                      <input value="${it.qty}" readonly aria-label="Quantity">
+                      <button data-inc="${it.key}" aria-label="Increase">${FV.icon("plus")}</button>
+                    </div>
+                    <button class="l-remove" data-rm="${it.key}">Remove</button>
+                  </div>
+                </div>
+                <div class="l-price-wrap">
+                  <div class="l-price">${FV.money(it.price * it.qty)}</div>
+                  ${it.qty > 1 ? `<div class="l-each">${FV.money(it.price)} each</div>` : ""}
+                </div>
+              </div>`).join("")}
+            <div style="margin-top:1.5rem"><a class="link-arrow" href="products.html">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> Continue shopping</a></div>
+          </div>
+
+          <aside class="summary-card">
+            <h3>Order summary</h3>
+            ${remain > 0
+              ? `<p style="font-size:var(--step--2);color:var(--text-muted)">Add <strong>${FV.money(remain)}</strong> for complimentary delivery.</p>
+                 <div class="free-meter"><span style="width:${pct}%"></span></div>`
+              : `<p style="font-size:var(--step--2);color:var(--forest-mid);display:flex;gap:.4rem;align-items:center">${FV.icon("check")} You've earned complimentary delivery.</p>`}
+            <div class="sum-row"><span class="muted">Subtotal</span><span>${FV.money(sub)}</span></div>
+            <div class="sum-row"><span class="muted">Delivery</span><span>${remain > 0 ? "Calculated at checkout" : "Free"}</span></div>
+            <div class="sum-row total"><span>${remain > 0 ? "Subtotal" : "Total"}</span><span>${FV.money(sub)}</span></div>
+            <a class="btn btn--block btn--lg" href="checkout.html" style="margin-top:1.2rem">Checkout
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <div class="trust-mini">
+              <div class="t">${FV.icon("snow")} Cold-chain from harvest to door</div>
+              <div class="t">${FV.icon("shield")} Not perfect? We replace it.</div>
+              <div class="t">${FV.icon("truck")} Next-day delivery slots</div>
+            </div>
+          </aside>
+        </div>`;
+        document.getElementById("suggestSection").style.display = "";
+        FV.observeReveals();
+      }
+
+      // Suggested = products not already in cart
+      function renderSuggest() {
+        const inCart = new Set(FV.cart.items().map(i => i.slug));
+        const picks = FV.byCollection("best-sellers").concat(FV.byCollection("hosting"))
+          .filter((p, i, arr) => arr.findIndex(x => x.slug === p.slug) === i)
+          .filter(p => !inCart.has(p.slug)).slice(0, 4);
+        document.getElementById("suggest").innerHTML = picks.map(FV.productCardHTML).join("");
+        FV.updateWishUI(); FV.observeReveals();
+      }
+
+      render(); renderSuggest();
+      document.addEventListener("fv:cart", () => { render(); renderSuggest(); });
+    })();
+  </script>
+</body>
+</html>

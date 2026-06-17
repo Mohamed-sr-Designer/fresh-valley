@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Account — Fresh Valley</title>
+  <meta name="theme-color" content="#1A2A1D">
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,400..500&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <style>
+    .acct-layout { display:grid; grid-template-columns: 250px 1fr; gap: clamp(1.5rem,4vw,3rem); align-items:start; }
+    .acct-nav { position:sticky; top:calc(var(--header-h) + 1.5rem); display:flex; flex-direction:column; gap:.2rem; }
+    .acct-nav .greet { padding:0 .9rem 1rem; }
+    .acct-nav .greet .hi { font-family:var(--font-display); font-size:var(--step-1); color:var(--forest); }
+    .acct-nav .greet .em { font-size:var(--step--2); color:var(--text-faint); }
+    .acct-nav button { display:flex; align-items:center; gap:.7rem; padding:.75rem .9rem; border-radius:var(--radius); font-size:var(--step--1); font-weight:500; color:var(--text-muted); text-align:left; transition:all .2s; }
+    .acct-nav button:hover { background:var(--bone); color:var(--forest); }
+    .acct-nav button[aria-current="true"] { background:var(--forest); color:var(--cream); }
+    .acct-nav button svg { width:18px; height:18px; flex-shrink:0; }
+    .acct-nav .signout { margin-top:.6rem; color:var(--text-faint); }
+    .panel { display:none; }
+    .panel.active { display:block; }
+    .panel h2 { font-size:var(--step-2); margin-bottom:.4rem; }
+    .panel .sub { color:var(--text-muted); margin-bottom:var(--space-lg); }
+    .card-box { background:#FCFAF3; border:1px solid var(--line-soft); border-radius:var(--radius-lg); padding:1.6rem; }
+    .card-box + .card-box { margin-top:1rem; }
+    .addr-grid, .pay-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .order-card { background:#FCFAF3; border:1px solid var(--line-soft); border-radius:var(--radius-lg); padding:1.5rem; margin-bottom:1rem; }
+    .order-card .oc-head { display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; flex-wrap:wrap; padding-bottom:1rem; border-bottom:1px solid var(--line-soft); margin-bottom:1rem; }
+    .order-card .oc-id { font-weight:600; color:var(--forest); }
+    .order-card .oc-meta { font-size:var(--step--2); color:var(--text-faint); }
+    .status { font-size:var(--step--2); font-weight:600; padding:.35em .8em; border-radius:var(--radius-pill); }
+    .status.delivered { background:#E2E8D5; color:var(--forest-mid); }
+    .status.transit { background:var(--brass-tint); color:var(--brass-deep); }
+    .order-card .oc-items { display:flex; gap:.6rem; flex-wrap:wrap; margin-bottom:1rem; }
+    .order-card .oc-items img { width:54px; height:54px; border-radius:var(--radius-sm); object-fit:cover; background:var(--ink); }
+    .order-card .oc-foot { display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; }
+    .sub-card { display:grid; grid-template-columns:90px 1fr auto; gap:1.2rem; align-items:center; }
+    .sub-card img { width:90px; height:90px; border-radius:var(--radius); object-fit:cover; }
+    .field-static { padding:.85em 1em; background:var(--bone); border-radius:var(--radius-sm); color:var(--text); font-size:var(--step-0); }
+    .toggle-pill { width:46px; height:26px; border-radius:999px; background:var(--line); position:relative; transition:background .25s; flex-shrink:0; }
+    .toggle-pill[aria-pressed="true"] { background:var(--forest); }
+    .toggle-pill::after { content:""; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; transition:transform .25s; }
+    .toggle-pill[aria-pressed="true"]::after { transform:translateX(20px); }
+    .set-row { display:flex; justify-content:space-between; align-items:center; gap:1rem; padding:1rem 0; border-bottom:1px solid var(--line-soft); }
+    @media (max-width:820px){
+      .acct-layout { grid-template-columns:1fr; }
+      .acct-nav { position:static; flex-direction:row; overflow-x:auto; gap:.4rem; padding-bottom:.5rem; }
+      .acct-nav .greet, .acct-nav .signout { display:none; }
+      .acct-nav button { white-space:nowrap; }
+      .addr-grid, .pay-grid { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+
+<body data-page="account">
+  <div id="fv-header"></div>
+
+  <main>
+    <section class="page-header" style="padding-bottom:var(--space-lg)">
+      <div class="container">
+        <nav class="breadcrumb"><a href="index.html">Home</a><span>/</span><span>My Account</span></nav>
+        <h1>My Account</h1>
+      </div>
+    </section>
+
+    <section class="section section--tight">
+      <div class="container acct-layout">
+        <nav class="acct-nav" id="acctNav"></nav>
+        <div id="panels"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="fv-footer"></div>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    (function () {
+      const user = { name: "Nour El-Din", first: "Nour", email: "nour@example.com", phone: "+20 10 1234 5678", since: "2024" };
+      const orders = [
+        { id: "FV204881", date: "2 June 2026", status: "transit", items: ["strawberry","red-grapes","medjool-dates"], total: 0, slot: "Wed, 3–6" },
+        { id: "FV198450", date: "24 May 2026", status: "delivered", items: ["orange","carrot","tomato","cucumber"], total: 0 },
+        { id: "FV191207", date: "11 May 2026", status: "delivered", items: ["mango","green-grapes","banana"], total: 0 },
+      ];
+      const lineFor = (slug, qty) => { const p = FV.find(slug); const v = FV.defaultVariant(p); return { p, v, qty }; };
+      orders.forEach(o => o.total = o.items.reduce((s, sl) => s + FV.defaultVariant(FV.find(sl)).price, 0) + 45);
+
+      const NAV = [
+        ["profile","user","Profile"], ["addresses","pin","Addresses"], ["orders","bag","Orders"],
+        ["wishlist","heart","Wishlist"], ["cards","shield","Saved Cards"], ["subscriptions","leaf","Subscriptions"],
+        ["reorder","truck","Reorder"], ["settings","sparkle","Settings"],
+      ];
+
+      // ---- Nav ----
+      const navEl = document.getElementById("acctNav");
+      navEl.innerHTML = `<div class="greet"><div class="hi">Hello, ${user.first}</div><div class="em">${user.email}</div></div>` +
+        NAV.map(n => `<button data-tab="${n[0]}">${FV.icon(n[1])} ${n[2]}</button>`).join("") +
+        `<button class="signout">${FV.icon("arrow")} Sign out</button>`;
+
+      // ---- Panels ----
+      const orderItemsHtml = o => o.items.map(s => `<img src="${FV.img(s)}" alt="${FV.find(s).name}" title="${FV.find(s).name}">`).join("");
+      const panelsEl = document.getElementById("panels");
+      const arrow = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+
+      panelsEl.innerHTML = `
+      <div class="panel" data-panel="profile">
+        <h2>Profile</h2><p class="sub">Your details, kept simple.</p>
+        <div class="card-box">
+          <div class="addr-grid">
+            <div class="field"><label>First name</label><div class="field-static">${user.first}</div></div>
+            <div class="field"><label>Last name</label><div class="field-static">El-Din</div></div>
+            <div class="field"><label>Email</label><div class="field-static">${user.email}</div></div>
+            <div class="field"><label>Phone</label><div class="field-static">${user.phone}</div></div>
+          </div>
+          <button class="btn btn--outline btn--sm" style="margin-top:1.2rem">Edit details</button>
+        </div>
+      </div>
+
+      <div class="panel" data-panel="addresses">
+        <h2>Addresses</h2><p class="sub">Where we bring your produce.</p>
+        <div class="pay-grid">
+          <div class="card-box"><div style="display:flex;justify-content:space-between"><strong style="color:var(--forest)">Home</strong><span class="status delivered">Default</span></div>
+            <p class="muted" style="margin-top:.6rem;font-size:var(--step--1)">Villa 22, South Lake<br>New Cairo, Cairo</p>
+            <div style="margin-top:1rem;display:flex;gap:.8rem"><a class="link-arrow" style="font-size:var(--step--2)">Edit</a><a class="link-arrow" style="font-size:var(--step--2)">Remove</a></div></div>
+          <div class="card-box"><strong style="color:var(--forest)">Office</strong>
+            <p class="muted" style="margin-top:.6rem;font-size:var(--step--1)">Building 4, Beverly Hills<br>Sheikh Zayed, Giza</p>
+            <div style="margin-top:1rem;display:flex;gap:.8rem"><a class="link-arrow" style="font-size:var(--step--2)">Edit</a><a class="link-arrow" style="font-size:var(--step--2)">Remove</a></div></div>
+        </div>
+        <button class="btn btn--outline btn--sm" style="margin-top:1rem">${FV.icon("plus")} Add an address</button>
+      </div>
+
+      <div class="panel" data-panel="orders">
+        <h2>Orders</h2><p class="sub">Everything you've ordered, and where it is.</p>
+        ${orders.map(o => `
+          <div class="order-card">
+            <div class="oc-head">
+              <div><div class="oc-id">${o.id}</div><div class="oc-meta">${o.date}${o.slot ? " · arriving " + o.slot : ""}</div></div>
+              <span class="status ${o.status}">${o.status === "transit" ? "In transit" : "Delivered"}</span>
+            </div>
+            <div class="oc-items">${orderItemsHtml(o)}</div>
+            <div class="oc-foot">
+              <strong style="color:var(--forest)">${FV.money(o.total)}</strong>
+              <div style="display:flex;gap:.6rem">
+                <button class="btn btn--outline btn--sm" data-reorder="${o.id}">Reorder</button>
+                ${o.status === "transit" ? `<button class="btn btn--sm" data-track>Track</button>` : `<button class="btn btn--sm" style="--bg:var(--bone);--fg:var(--forest);--bd:var(--bone)">View</button>`}
+              </div>
+            </div>
+          </div>`).join("")}
+      </div>
+
+      <div class="panel" data-panel="wishlist">
+        <h2>Wishlist</h2><p class="sub">Saved for the right moment.</p>
+        <div id="wishMini"></div>
+      </div>
+
+      <div class="panel" data-panel="cards">
+        <h2>Saved Cards</h2><p class="sub">For a faster checkout. We never store full card numbers.</p>
+        <div class="pay-grid">
+          <div class="card-box"><div style="display:flex;justify-content:space-between;align-items:center"><strong style="color:var(--forest)">Visa •••• 4291</strong><span class="status delivered">Default</span></div>
+            <p class="muted" style="margin-top:.6rem;font-size:var(--step--1)">Expires 09 / 27</p></div>
+          <div class="card-box"><strong style="color:var(--forest)">Mastercard •••• 7730</strong>
+            <p class="muted" style="margin-top:.6rem;font-size:var(--step--1)">Expires 03 / 28</p></div>
+        </div>
+        <button class="btn btn--outline btn--sm" style="margin-top:1rem">${FV.icon("plus")} Add a card</button>
+        <p class="secure-note" style="display:flex;gap:.5rem;align-items:center;font-size:var(--step--2);color:var(--text-faint);margin-top:1rem">${FV.icon("shield")} Stored securely with our payment provider — never on our servers.</p>
+      </div>
+
+      <div class="panel" data-panel="subscriptions">
+        <h2>Subscriptions</h2><p class="sub">Your produce, on a quiet schedule.</p>
+        <div class="card-box">
+          <div class="sub-card">
+            <img src="${FV.img("orange")}" alt="">
+            <div><strong style="color:var(--forest);font-family:var(--font-display);font-size:var(--step-1)">The Family Box · Weekly</strong>
+              <p class="muted" style="font-size:var(--step--1);margin-top:.3rem">Next delivery: Wednesday · ${FV.money(650)} / week</p>
+              <span class="status delivered" style="margin-top:.6rem;display:inline-block">Active</span></div>
+            <div style="display:flex;flex-direction:column;gap:.5rem"><button class="btn btn--outline btn--sm">Manage</button><button class="btn btn--sm" style="--bg:var(--bone);--fg:var(--forest);--bd:var(--bone)">Pause</button></div>
+          </div>
+        </div>
+        <div class="card-box" style="text-align:center">
+          <p class="muted" style="font-size:var(--step--1)">Add a hosting or organic reserve box on a schedule, and save the planning.</p>
+          <a class="btn btn--brass btn--sm" href="products.html?cat=boxes" style="margin-top:.8rem">Explore subscriptions ${arrow}</a>
+        </div>
+      </div>
+
+      <div class="panel" data-panel="reorder">
+        <h2>Reorder</h2><p class="sub">Your regulars, one tap away.</p>
+        <div class="card-box" style="margin-bottom:1.4rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">
+          <div><strong style="color:var(--forest)">Reorder your last order</strong><div class="oc-meta" style="font-size:var(--step--2);color:var(--text-faint)">${orders[0].id} · ${orders[0].items.length} items</div></div>
+          <button class="btn btn--sm" data-reorder="${orders[0].id}">Add all to cart</button>
+        </div>
+        <p class="eyebrow" style="margin-bottom:1rem">Your most-ordered</p>
+        <div class="products-grid" id="reorderGrid"></div>
+      </div>
+
+      <div class="panel" data-panel="settings">
+        <h2>Settings</h2><p class="sub">Notifications and preferences.</p>
+        <div class="card-box">
+          <div class="set-row"><div><strong style="color:var(--forest)">Order updates</strong><div class="oc-meta" style="font-size:var(--step--2);color:var(--text-faint)">Delivery status by SMS</div></div><button class="toggle-pill" aria-pressed="true" aria-label="Toggle"></button></div>
+          <div class="set-row"><div><strong style="color:var(--forest)">The Fresh Valley Letter</strong><div class="oc-meta" style="font-size:var(--step--2);color:var(--text-faint)">A monthly note, what's in season</div></div><button class="toggle-pill" aria-pressed="true" aria-label="Toggle"></button></div>
+          <div class="set-row" style="border-bottom:none"><div><strong style="color:var(--forest)">Seasonal reminders</strong><div class="oc-meta" style="font-size:var(--step--2);color:var(--text-faint)">A nudge when your favourites are at their peak</div></div><button class="toggle-pill" aria-pressed="false" aria-label="Toggle"></button></div>
+        </div>
+      </div>`;
+
+      // ---- Wishlist mini ----
+      function renderWishMini() {
+        const el = document.getElementById("wishMini");
+        const items = FV.wish.items().map(FV.find).filter(Boolean);
+        if (!items.length) el.innerHTML = `<div class="card-box" style="text-align:center"><p class="muted">Nothing saved yet.</p><a class="btn btn--outline btn--sm" href="products.html" style="margin-top:1rem">Browse the collection</a></div>`;
+        else { el.innerHTML = `<div class="products-grid">${items.slice(0, 8).map(FV.productCardHTML).join("")}</div>`; FV.updateWishUI(); }
+      }
+
+      // ---- Reorder grid ----
+      document.getElementById("reorderGrid").innerHTML =
+        FV.byCollection("best-sellers").slice(0, 4).map(FV.productCardHTML).join("");
+
+      // ---- Tabs ----
+      function show(tab) {
+        navEl.querySelectorAll("[data-tab]").forEach(b => b.setAttribute("aria-current", b.dataset.tab === tab));
+        panelsEl.querySelectorAll(".panel").forEach(p => p.classList.toggle("active", p.dataset.panel === tab));
+        if (tab === "wishlist") renderWishMini();
+        history.replaceState({}, "", "#" + tab);
+        window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
+        FV.observeReveals(); FV.updateWishUI();
+      }
+      navEl.querySelectorAll("[data-tab]").forEach(b => b.addEventListener("click", () => show(b.dataset.tab)));
+
+      // Reorder + track
+      panelsEl.addEventListener("click", e => {
+        const ro = e.target.closest("[data-reorder]");
+        if (ro) { const o = orders.find(x => x.id === ro.dataset.reorder); o.items.forEach(s => FV.quickAdd(s)); return; }
+        if (e.target.closest("[data-track]")) { FV.toast("Your order is on the way", "Arriving " + orders[0].slot); }
+        const t = e.target.closest(".toggle-pill");
+        if (t) t.setAttribute("aria-pressed", t.getAttribute("aria-pressed") !== "true");
+      });
+
+      const initial = (location.hash || "#profile").slice(1);
+      show(NAV.some(n => n[0] === initial) ? initial : "profile");
+    })();
+  </script>
+</body>
+</html>
