@@ -79,9 +79,9 @@
     .moment .m-b { position: relative; z-index: 2; padding: 1rem 1.1rem; }
     .moment .m-b strong { font-family: var(--font-display); font-size: var(--step-1); display: block; line-height: 1.1; }
     .moment .m-b span { font-size: var(--step--2); color: rgba(244,239,228,.8); }
-    .moment.lg { grid-column: span 3; grid-row: span 2; }
-    .moment.md { grid-column: span 3; }
-    .moment.sm { grid-column: span 2; }
+    /* clean 6-col tiling: lead tile 4×2 left, two tall tiles right, three across the bottom — no gaps */
+    .moment.lg { grid-column: span 4; grid-row: span 2; }
+    .moment.md, .moment.sm { grid-column: span 2; grid-row: span 1; }
 
     /* ===== 6 · SIGNATURE BOXES ===== */
     .hh-boxes .head { text-align: center; max-width: 42ch; margin: 0 auto clamp(2rem,4vw,3rem); }
@@ -153,9 +153,8 @@
       .timeline { grid-template-columns: repeat(2, 1fr); gap: 1.6rem 1rem; }
       .timeline::before { display: none; }
       .hh-proof .grid { grid-template-columns: 1fr; }
-      .moments { grid-template-columns: repeat(2, 1fr); grid-auto-rows: clamp(150px, 40vw, 200px); }
-      .moment.lg, .moment.md, .moment.sm { grid-column: span 1; grid-row: span 1; }
-      .moment.lg { grid-column: span 2; grid-row: span 1; }
+      .moments { grid-template-columns: repeat(2, 1fr); grid-auto-rows: clamp(160px, 42vw, 210px); }
+      .moment.lg, .moment.md, .moment.sm { grid-column: span 1 !important; grid-row: span 1 !important; }
     }
     @media (max-width: 540px) {
       .hh-hero-img { aspect-ratio: 4/3; }
