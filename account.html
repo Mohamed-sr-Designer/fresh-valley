@@ -46,6 +46,25 @@
     .toggle-pill::after { content:""; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; transition:transform .25s; }
     .toggle-pill[aria-pressed="true"]::after { transform:translateX(20px); }
     .set-row { display:flex; justify-content:space-between; align-items:center; gap:1rem; padding:1rem 0; border-bottom:1px solid var(--line-soft); }
+
+    /* ---- Auth (sign in / create account) ---- */
+    .auth-wrap { display:grid; grid-template-columns:1fr 1fr; gap:clamp(1.5rem,4vw,3rem); align-items:stretch; max-width:960px; margin-inline:auto; }
+    .auth-card { background:var(--surface); border:1px solid var(--line-soft); border-radius:var(--radius-lg); padding:clamp(1.6rem,3vw,2.4rem); box-shadow:var(--shadow-sm); }
+    .auth-tabs { display:flex; background:var(--bone); border-radius:var(--radius-pill); padding:.3rem; gap:.3rem; margin-bottom:1.5rem; }
+    .auth-tabs button { flex:1; padding:.7em 1em; border-radius:var(--radius-pill); font-size:var(--step--1); font-weight:600; color:var(--text-muted); transition:all .25s; }
+    .auth-tabs button[aria-current="true"] { background:var(--surface); color:var(--forest); box-shadow:var(--shadow-sm); }
+    .auth-card .field { margin-bottom:1rem; }
+    .auth-alt { font-size:var(--step--1); color:var(--text-muted); margin-top:1.1rem; text-align:center; }
+    .auth-alt a { color:var(--brass-deep); font-weight:600; cursor:pointer; text-decoration:underline; text-underline-offset:2px; }
+    .auth-note { font-size:var(--step--2); color:var(--text-faint); margin-top:1.2rem; text-align:center; line-height:1.5; }
+    .auth-aside { position:relative; border-radius:var(--radius-lg); overflow:hidden; min-height:380px; display:flex; align-items:flex-end; color:var(--cream); }
+    .auth-aside img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+    .auth-aside::after { content:""; position:absolute; inset:0; background:linear-gradient(to top, rgba(10,26,17,.85), rgba(10,26,17,.2) 70%); }
+    .auth-aside-b { position:relative; z-index:2; padding:clamp(1.5rem,3vw,2.2rem); }
+    .auth-aside-b h2 { color:var(--cream); font-size:var(--step-2); }
+    .auth-aside-b p { color:rgba(244,239,228,.82); font-size:var(--step--1); margin-top:.5rem; max-width:32ch; }
+    @media (max-width:760px){ .auth-wrap { grid-template-columns:1fr; } .auth-aside { min-height:170px; order:-1; } }
+
     @media (max-width:820px){
       .acct-layout { grid-template-columns:1fr; }
       .acct-nav { position:static; flex-direction:row; overflow-x:auto; gap:.4rem; padding-bottom:.5rem; }
@@ -62,17 +81,47 @@
   <main>
     <section class="page-header" style="padding-bottom:var(--space-lg)">
       <div class="container">
-        <nav class="breadcrumb"><a href="index.html">Home</a><span>/</span><span>My Account</span></nav>
-        <h1>My Account</h1>
+        <nav class="breadcrumb"><a href="index.html">Home</a><span>/</span><span id="acctCrumb">My Account</span></nav>
+        <h1 id="acctTitle">My Account</h1>
       </div>
     </section>
 
-    <section class="section section--tight">
-      <div class="container acct-layout">
-        <nav class="acct-nav" id="acctNav"></nav>
-        <div id="panels"></div>
+    <!-- Auth gate (shown when signed out) -->
+    <section class="section section--tight" id="authGate" style="display:none">
+      <div class="container auth-wrap">
+        <div class="auth-card">
+          <div class="auth-tabs">
+            <button type="button" data-auth="signin" aria-current="true">Sign in</button>
+            <button type="button" data-auth="signup">Create account</button>
+          </div>
+          <form id="authForm" novalidate>
+            <div class="field auth-name" hidden><label>Full name</label><input class="input" name="name" autocomplete="name" placeholder="Your name"></div>
+            <div class="field"><label>Email</label><input class="input" type="email" name="email" autocomplete="email" placeholder="you@email.com" required></div>
+            <div class="field"><label>Password</label><input class="input" type="password" name="password" autocomplete="current-password" placeholder="••••••••" required minlength="4"></div>
+            <button class="btn btn--brass btn--block btn--lg" type="submit" id="authSubmit">Sign in</button>
+            <p class="auth-alt" id="authAlt">New here? <a data-auth-switch="signup">Create an account</a></p>
+          </form>
+          <p class="auth-note">Demo experience — no real password is stored or sent. Your name and email stay in this browser only.</p>
+        </div>
+        <aside class="auth-aside">
+          <img src="assets/img/banners/packaging.jpg" alt="Fresh Valley produce wrapped as a gift" loading="lazy">
+          <div class="auth-aside-b">
+            <h2>Welcome to Fresh Valley</h2>
+            <p>Track orders, save favourites, reorder in a tap, and manage your hosting boxes.</p>
+          </div>
+        </aside>
       </div>
     </section>
+
+    <!-- Dashboard (shown when signed in) -->
+    <div id="dashWrap">
+      <section class="section section--tight">
+        <div class="container acct-layout">
+          <nav class="acct-nav" id="acctNav"></nav>
+          <div id="panels"></div>
+        </div>
+      </section>
+    </div>
   </main>
 
   <div id="fv-footer"></div>
@@ -81,7 +130,44 @@
   <script src="assets/js/app.js"></script>
   <script>
     (function () {
-      const user = { name: "Nour El-Din", first: "Nour", email: "nour@example.com", phone: "+20 10 1234 5678", since: "2024" };
+      function currentUser(){ try { return JSON.parse(localStorage.getItem("fv_user")); } catch { return null; } }
+      const stored = currentUser();
+      const authGate = document.getElementById("authGate");
+      const dashWrap = document.getElementById("dashWrap");
+
+      if (!stored) {
+        dashWrap.style.display = "none"; authGate.style.display = "";
+        document.getElementById("acctTitle").textContent = "Welcome";
+        document.getElementById("acctCrumb").textContent = "Sign in";
+        wireAuth();
+        return;
+      }
+      authGate.style.display = "none"; dashWrap.style.display = "";
+
+      function wireAuth() {
+        const form = document.getElementById("authForm"), submit = document.getElementById("authSubmit"), altP = document.getElementById("authAlt"), nameF = form.querySelector(".auth-name");
+        let mode = "signin";
+        function setMode(m) { mode = m;
+          document.querySelectorAll("[data-auth]").forEach(b => b.setAttribute("aria-current", b.dataset.auth === m));
+          nameF.hidden = m !== "signup"; nameF.querySelector("input").required = m === "signup";
+          submit.textContent = m === "signup" ? "Create account" : "Sign in";
+          altP.innerHTML = m === "signup" ? 'Already have an account? <a data-auth-switch="signin">Sign in</a>' : 'New here? <a data-auth-switch="signup">Create an account</a>';
+        }
+        document.querySelectorAll("[data-auth]").forEach(b => b.addEventListener("click", () => setMode(b.dataset.auth)));
+        document.addEventListener("click", e => { const s = e.target.closest("[data-auth-switch]"); if (s) { e.preventDefault(); setMode(s.dataset.authSwitch); } });
+        form.addEventListener("submit", e => { e.preventDefault();
+          if (!form.checkValidity()) { form.reportValidity(); return; }
+          const email = form.email.value.trim();
+          const name = (mode === "signup" && form.name.value.trim()) ? form.name.value.trim()
+            : email.split("@")[0].replace(/[._-]+/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+          localStorage.setItem("fv_user", JSON.stringify({ name, email }));
+          FV.toast("Welcome, " + name.split(" ")[0]);
+          location.reload();
+        });
+        setMode("signin");
+      }
+
+      const user = { name: stored.name || "Guest", first: (stored.name || "Guest").split(" ")[0], email: stored.email || "", phone: "+20 10 1234 5678", since: "2026" };
       const orders = [
         { id: "FV204881", date: "2 June 2026", status: "transit", items: ["strawberry","red-grapes","medjool-dates"], total: 0, slot: "Wed, 3–6" },
         { id: "FV198450", date: "24 May 2026", status: "delivered", items: ["orange","carrot","tomato","cucumber"], total: 0 },
@@ -101,6 +187,7 @@
       navEl.innerHTML = `<div class="greet"><div class="hi">Hello, ${user.first}</div><div class="em">${user.email}</div></div>` +
         NAV.map(n => `<button data-tab="${n[0]}">${FV.icon(n[1])} ${n[2]}</button>`).join("") +
         `<button class="signout">${FV.icon("arrow")} Sign out</button>`;
+      navEl.querySelector(".signout").addEventListener("click", () => { localStorage.removeItem("fv_user"); location.assign("account.html"); });
 
       // ---- Panels ----
       const orderItemsHtml = o => o.items.map(s => `<img src="${FV.img(s)}" alt="${FV.find(s).name}" title="${FV.find(s).name}">`).join("");

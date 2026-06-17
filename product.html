@@ -324,7 +324,7 @@
         // ---- interactivity ----
         let grams = 1000, qty = 1;
         const unitPrice = () => isKg ? FV.priceForWeight(p, grams) : p.pricePerUnit;
-        const variantLabel = () => isKg ? (grams >= 1000 ? (grams / 1000) + " kg" : grams + " g") : (p.unit === "bunch" ? "per bunch" : "each");
+        const variantLabel = () => isKg ? FV.weightLabel(grams) : (p.unit === "bunch" ? "per bunch" : "each");
         function refresh() {
           const up = unitPrice();
           document.getElementById("price").firstChild.textContent = FV.money(up) + " ";

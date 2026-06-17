@@ -407,6 +407,13 @@ window.FV_DATA = (function () {
     { name:"Amr Fathy", area:"October", stars:5, text:"You can taste the grading. Nothing bruised, nothing off-size. This is how produce should be sold.", tag:"Quality" },
     { name:"Nadia Wahba", area:"New Cairo", stars:5, text:"The hosting culture they talk about is real. My gatherings feel more generous, and I barely lifted a finger.", tag:"The Art of Hosting" },
     { name:"Hossam Darwish", area:"Madinaty", stars:5, text:"Subscribed to the weekly family box three months ago. Best small decision I've made for the house.", tag:"Subscription" },
+    { name:"Aya Soliman", area:"New Cairo", stars:5, text:"I brought a hosting box instead of the usual chocolates. My friend texted me the next morning just to say thank you.", tag:"Hosting Box" },
+    { name:"Khaled Mansour", area:"Sheikh Zayed", stars:5, text:"The wrapping alone is worth it. It arrives looking like something from a boutique, not a grocery.", tag:"The details" },
+    { name:"Mona Reda", area:"October", stars:5, text:"Figs, grapes and dates, all perfect, all in one box. My mother thought I spent the whole day preparing.", tag:"Premium Fruit Box" },
+    { name:"Sara El-Gohary", area:"Rehab", stars:4, text:"Genuinely the freshest produce I've had in Cairo. The only problem is now I can't go back to the supermarket.", tag:"Vegetables" },
+    { name:"Tamer Fouad", area:"Madinaty", stars:5, text:"Ordered at midnight, arrived the next afternoon, cold and flawless. The delivery is faster than I expected.", tag:"Delivery" },
+    { name:"Reem Adel", area:"New Cairo", stars:5, text:"I keep a box on the counter just for how it looks. Then guests arrive and it does the rest of the work.", tag:"The Art of Hosting" },
+    { name:"Youssef Halim", area:"Sheikh Zayed", stars:5, text:"Gave the organic reserve box as a corporate gift. Three clients asked me where it was from. Quietly impressive.", tag:"Organic Reserve" },
   ];
 
   /* ----- Journal / blog ------------------------------------------- */

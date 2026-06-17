@@ -43,15 +43,19 @@
   const money = (n) => "EGP " + Math.round(n).toLocaleString("en-US");
 
   const weightOptions = [
-    { g: 250,  label: "250 g" },
-    { g: 500,  label: "500 g" },
+    { g: 500,  label: "½ kg" },
     { g: 1000, label: "1 kg", default: true },
     { g: 2000, label: "2 kg" },
+    { g: 3000, label: "3 kg" },
+    { g: 4000, label: "4 kg" },
   ];
+  const weightLabel = (grams) => grams === 500 ? "½ kg" : (grams / 1000) + " kg";
 
   function priceForWeight(product, grams) {
-    const factor = grams >= 2000 ? 0.95 : 1; // gentle value at scale
-    return Math.round(product.pricePerKg * (grams / 1000) * factor);
+    const kg = grams / 1000;
+    // gentle bulk value at larger sizes — rewards bigger baskets
+    const factor = kg >= 4 ? 0.92 : kg >= 3 ? 0.94 : kg >= 2 ? 0.97 : 1;
+    return Math.round(product.pricePerKg * kg * factor);
   }
   // Headline price shown on cards
   function cardPrice(p) {
@@ -66,7 +70,7 @@
   }
 
   const FV = window.FV = {
-    data: D, icon: (n) => I[n] || "", money, weightOptions, priceForWeight, cardPrice, defaultVariant,
+    data: D, icon: (n) => I[n] || "", money, weightOptions, weightLabel, priceForWeight, cardPrice, defaultVariant,
     img: (slug) => D.IMG + slug + ".jpg",
     thumb: (slug) => D.IMG + "sm/" + slug + ".jpg",
     find: (slug) => D.products.find((p) => p.slug === slug),
