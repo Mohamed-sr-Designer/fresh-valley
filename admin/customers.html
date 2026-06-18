@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customers — Fresh Valley Admin</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,400..500&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+</head>
+<body class="ad-body">
+  <div id="adRoot"></div>
+
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/admin.js"></script>
+  <script>
+    (function () {
+      const A = window.ADMIN, I = A.I;
+      if (!A.requireAuth("customers")) return;
+      const root = A.mountShell("customers");
+
+      let status = "all", q = "", sort = "spent";
+      const TABS = ["all", "vip", "active", "pending", "lead"];
+
+      function list() {
+        let c = A.clients();
+        if (status !== "all") c = c.filter(x => x.status === status);
+        if (q) { const qq = q.toLowerCase(); c = c.filter(x => (x.name + x.email + x.area).toLowerCase().includes(qq)); }
+        c.sort((a, b) => sort === "spent" ? b.spent - a.spent : sort === "orders" ? b.orders - a.orders
+          : new Date(b.last || b.joined) - new Date(a.last || a.joined));
+        return c;
+      }
+
+      function strip() {
+        const c = A.clients();
+        const vip = c.filter(x => x.status === "vip").length;
+        const pend = c.filter(x => x.status === "pending").length;
+        const spent = c.reduce((s2, x) => s2 + x.spent, 0);
+        return `<div class="grid grid-kpi" style="margin-bottom:1rem">
+          ${A.kpiCard({ icon: "users", label: "Customers", value: A.num(c.length) })}
+          ${A.kpiCard({ icon: "money", tone: "brass", label: "Lifetime value", value: A.money(spent) })}
+          ${A.kpiCard({ icon: "chart", tone: "warn", label: "VIP customers", value: A.num(vip) })}
+          ${A.kpiCard({ icon: "bell", tone: "info", label: "Pending / no order", value: A.num(pend) })}
+        </div>`;
+      }
+      const initials = n => n.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase();
+
+      function rowHtml(c) {
+        return `<tr data-id="${encodeURIComponent(c.email)}" style="cursor:pointer">
+          <td><div class="t-prod"><span class="ava-sm">${initials(c.name)}</span><div><div class="cell-main">${c.name}</div><div class="cell-sub">${c.email}</div></div></div></td>
+          <td><span class="tag-soft">${c.area || "—"}</span></td>
+          <td class="muted" style="font-size:.82rem">${A.fmtDate(c.joined)}</td>
+          <td class="num">${A.num(c.orders)}</td>
+          <td class="num"><strong>${A.money(c.spent)}</strong></td>
+          <td class="muted" style="font-size:.82rem">${c.last ? A.timeAgo(c.last) : "—"}</td>
+          <td>${A.pill(c.status)}</td>
+          <td><div class="row-actions"><button class="icon-act">${I.eye}</button></div></td>
+        </tr>`;
+      }
+
+      function tableCard() {
+        const rows = list();
+        return `<div class="card">
+          <div class="toolbar">
+            <div class="seg" id="stSeg">${TABS.map(t => `<button data-s="${t}" class="${t === status ? "on" : ""}">${t === "all" ? "All" : A.cap(t)}</button>`).join("")}</div>
+            <div class="t-search">${I.search}<input id="cq" placeholder="Search name, email, area…" value="${q}"></div>
+            <div class="right">
+              <select class="sel" id="sortSel">
+                <option value="spent" ${sort === "spent" ? "selected" : ""}>Top spenders</option>
+                <option value="orders" ${sort === "orders" ? "selected" : ""}>Most orders</option>
+                <option value="recent" ${sort === "recent" ? "selected" : ""}>Recently active</option>
+              </select>
+              <button class="btn btn--ghost btn--sm" id="expBtn">${I.download} Export</button>
+            </div>
+          </div>
+          <div class="table-wrap"><table class="ad-table">
+            <thead><tr><th>Customer</th><th>Area</th><th>Joined</th><th class="num">Orders</th><th class="num">Spent</th><th>Last order</th><th>Status</th><th></th></tr></thead>
+            <tbody>${rows.length ? rows.map(rowHtml).join("") : `<tr><td colspan="8"><div class="empty">${I.users}<p>No customers match.</p></div></td></tr>`}</tbody>
+          </table></div>
+          <div class="flex-between" style="padding:1rem 1.3rem;border-top:1px solid var(--ad-line)"><span class="muted" style="font-size:.82rem">Showing ${rows.length} customers</span></div>
+        </div>`;
+      }
+
+      function draw() {
+        root.innerHTML = A.pageHead("Customers", "Everyone who has registered or ordered — who buys, who's pending.",
+          `<button class="btn btn--primary btn--sm" id="expTop">${I.download} Export customers</button>`) + strip() + tableCard();
+        wire();
+      }
+      function wire() {
+        document.getElementById("stSeg").addEventListener("click", e => { const b = e.target.closest("[data-s]"); if (b) { status = b.dataset.s; draw(); } });
+        const cq = document.getElementById("cq"); cq.addEventListener("input", () => { q = cq.value; redraw(); });
+        document.getElementById("sortSel").addEventListener("change", e => { sort = e.target.value; redraw(); });
+        document.getElementById("expBtn").addEventListener("click", exportCSV);
+        document.getElementById("expTop").addEventListener("click", exportCSV);
+        document.querySelectorAll("tbody tr[data-id]").forEach(tr => tr.addEventListener("click", () => openCust(decodeURIComponent(tr.dataset.id))));
+      }
+      function redraw() {
+        document.querySelector(".card").outerHTML = tableCard();
+        document.getElementById("stSeg").addEventListener("click", e => { const b = e.target.closest("[data-s]"); if (b) { status = b.dataset.s; draw(); } });
+        const cq = document.getElementById("cq"); cq.focus(); cq.setSelectionRange(cq.value.length, cq.value.length);
+        cq.addEventListener("input", () => { q = cq.value; redraw(); });
+        document.getElementById("sortSel").addEventListener("change", e => { sort = e.target.value; redraw(); });
+        document.getElementById("expBtn").addEventListener("click", exportCSV);
+        document.querySelectorAll("tbody tr[data-id]").forEach(tr => tr.addEventListener("click", () => openCust(decodeURIComponent(tr.dataset.id))));
+      }
+
+      function exportCSV() {
+        const rows = [["Name", "Email", "Phone", "Area", "Joined", "Orders", "Total spent", "Last order", "Status"]];
+        list().forEach(c => rows.push([c.name, c.email, c.phone || "", c.area || "", A.fmtDate(c.joined), c.orders, c.spent, c.last ? A.fmtDate(c.last) : "", c.status]));
+        A.downloadCSV("fresh-valley-customers.csv", rows); A.toast(list().length + " customers exported");
+      }
+
+      function openCust(email) {
+        const c = A.clients().find(x => x.email === email); if (!c) return;
+        const myOrders = A.orders().filter(o => o.customer.email === email);
+        const aov = c.orders ? c.spent / c.orders : 0;
+        history.replaceState({}, "", "customers.html?id=" + encodeURIComponent(email));
+        let dr = document.getElementById("custDrawer");
+        if (!dr) { dr = document.createElement("div"); dr.id = "custDrawer"; dr.className = "ad-drawer"; document.body.appendChild(dr); }
+        let scrim = document.getElementById("drScrim");
+        if (!scrim) { scrim = document.createElement("div"); scrim.id = "drScrim"; scrim.className = "ad-scrim"; document.body.appendChild(scrim); }
+        dr.innerHTML = `
+          <div class="dr-head"><div class="flex"><span class="ad-ava" style="width:46px;height:46px;border-radius:12px">${initials(c.name)}</span>
+            <div><h3 style="font-size:1.1rem">${c.name}</h3><div class="cell-sub">${A.pill(c.status)} · member since ${A.fmtDate(c.joined)}</div></div></div>
+            <button class="dr-close">${I.close}</button></div>
+          <div class="dr-body">
+            <div class="grid grid-3" style="gap:.7rem">
+              <div class="card card-pad" style="text-align:center"><div class="kpi-val" style="font-size:1.4rem">${A.num(c.orders)}</div><div class="cell-sub">Orders</div></div>
+              <div class="card card-pad" style="text-align:center"><div class="kpi-val" style="font-size:1.4rem">${A.money(c.spent)}</div><div class="cell-sub">Spent</div></div>
+              <div class="card card-pad" style="text-align:center"><div class="kpi-val" style="font-size:1.4rem">${A.money(aov)}</div><div class="cell-sub">Avg order</div></div>
+            </div>
+            <div class="card card-pad">
+              <div class="card-title" style="font-size:.95rem;margin-bottom:.8rem">Contact</div>
+              <div class="kv"><span class="k">Email</span><span class="v">${c.email}</span></div>
+              <div class="kv"><span class="k">Phone</span><span class="v">${c.phone || "—"}</span></div>
+              <div class="kv"><span class="k">Area</span><span class="v">${c.area || "—"}</span></div>
+              <div class="kv"><span class="k">Last order</span><span class="v">${c.last ? A.fmtDate(c.last) : "No orders yet"}</span></div>
+            </div>
+            <div class="card">
+              <div class="card-pad" style="padding-bottom:.4rem"><div class="card-title" style="font-size:.95rem">Order history</div></div>
+              <div style="padding:0 1rem .6rem">
+                ${myOrders.length ? myOrders.map(o => `<a class="dr-line" href="orders.html?id=${o.id}" style="grid-template-columns:1fr auto auto;gap:1rem">
+                  <div><div class="cell-main">${o.id}</div><div class="cell-sub">${A.fmtDate(o.date)} · ${o.items.length} items</div></div>
+                  ${A.pill(o.status)}<strong>${A.money(o.total)}</strong></a>`).join("")
+                  : `<div class="empty" style="padding:1.5rem">${I.bag}<p>Registered, no orders yet.</p></div>`}
+              </div>
+            </div>
+            <div class="flex" style="gap:.6rem">
+              <a class="btn btn--ghost btn--block" href="mailto:${c.email}">Email customer</a>
+              <button class="btn btn--primary btn--block" id="vipBtn">${c.status === "vip" ? "Remove VIP" : "Mark as VIP"}</button>
+            </div>
+          </div>`;
+        requestAnimationFrame(() => { dr.classList.add("open"); scrim.classList.add("show"); });
+        const close = () => { dr.classList.remove("open"); scrim.classList.remove("show"); history.replaceState({}, "", "customers.html"); };
+        scrim.onclick = close; dr.querySelector(".dr-close").onclick = close;
+        dr.querySelector("#vipBtn").onclick = () => {
+          const regs = A.rawClients(); let r = regs.find(x => x.email === email);
+          if (!r) { r = { id: c.id, name: c.name, email: c.email, phone: c.phone, area: c.area, joined: c.joined, status: "active" }; regs.push(r); }
+          r.status = r.status === "vip" ? "active" : "vip"; A.saveClients(regs);
+          A.toast(r.status === "vip" ? "Marked VIP" : "VIP removed"); openCust(email); redraw();
+        };
+      }
+
+      draw();
+      const qid = new URLSearchParams(location.search).get("id");
+      if (qid) openCust(decodeURIComponent(qid));
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team &amp; Users — Fresh Valley Admin</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,400..500&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+</head>
+<body class="ad-body">
+  <div id="adRoot"></div>
+
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/admin.js"></script>
+  <script>
+    (function () {
+      const A = window.ADMIN, I = A.I;
+      if (!A.requireAuth("users")) return;
+      const root = A.mountShell("users");
+      const me = A.session() || {};
+
+      const roleName = r => (A.ROLES[r] || {}).label || r;
+      const initials = n => (n || "?").split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase();
+
+      function strip() {
+        const u = A.users();
+        return `<div class="grid grid-3" style="margin-bottom:1rem">
+          ${A.kpiCard({ icon: "users", label: "Team members", value: A.num(u.length) })}
+          ${A.kpiCard({ icon: "shield", tone: "brass", label: "Super admins", value: A.num(u.filter(x => x.role === "super-admin").length) })}
+          ${A.kpiCard({ icon: "brush", tone: "info", label: "Design & SEO admins", value: A.num(u.filter(x => x.role === "admin").length) })}
+        </div>`;
+      }
+
+      function rolesInfo() {
+        return `<div class="card card-pad" style="margin-bottom:1rem;background:var(--ad-accent-soft);border-color:transparent">
+          <div class="grid grid-2" style="gap:1.2rem">
+            <div class="flex" style="align-items:flex-start;gap:.7rem">
+              <span class="kpi-ico brass" style="background:#fff">${I.shield}</span>
+              <div><strong style="font-size:.92rem">Super Admin</strong>
+              <p class="muted" style="font-size:.83rem;margin-top:.2rem">Full control — dashboard, orders, customers, analytics, products, content, appearance, images, settings, and managing the team.</p></div>
+            </div>
+            <div class="flex" style="align-items:flex-start;gap:.7rem">
+              <span class="kpi-ico info" style="background:#fff">${I.brush}</span>
+              <div><strong style="font-size:.92rem">Admin · Design &amp; SEO</strong>
+              <p class="muted" style="font-size:.83rem;margin-top:.2rem">Limited to <b>Products</b>, <b>Appearance</b>, <b>Images</b> and <b>Content</b>. No access to orders, customers, analytics, settings or the team.</p></div>
+            </div>
+          </div>
+        </div>`;
+      }
+
+      function rowHtml(u) {
+        const isMe = u.email === me.email;
+        return `<tr data-id="${u.id}">
+          <td><div class="t-prod"><span class="ava-sm" style="${u.role === "super-admin" ? "background:var(--ad-accent);color:var(--ad-brass)" : ""}">${initials(u.name)}</span>
+            <div><div class="cell-main">${u.name} ${isMe ? '<span class="tag-soft" style="margin-left:.3rem">You</span>' : ""}</div><div class="cell-sub">${u.email}</div></div></div></td>
+          <td>${u.role === "super-admin" ? `<span class="pill pill--gold">${roleName(u.role)}</span>` : `<span class="pill pill--info">Design &amp; SEO</span>`}</td>
+          <td class="muted" style="font-size:.82rem">${u.created ? A.fmtDate(u.created) : "—"}</td>
+          <td><div class="row-actions">
+            <button class="icon-act" data-edit="${u.id}" title="Edit">${I.gear}</button>
+            ${isMe ? "" : `<button class="icon-act" data-del="${u.id}" title="Remove" style="color:var(--ad-bad)">${I.trash}</button>`}
+          </div></td>
+        </tr>`;
+      }
+
+      function tableCard() {
+        const u = A.users();
+        return `<div class="card">
+          <div class="card-head"><div class="card-title">Team members</div>
+            <button class="btn btn--primary btn--sm" id="addBtn">${I.plus} Add user</button></div>
+          <div class="table-wrap"><table class="ad-table">
+            <thead><tr><th>Member</th><th>Role</th><th>Added</th><th></th></tr></thead>
+            <tbody>${u.map(rowHtml).join("")}</tbody>
+          </table></div>
+        </div>`;
+      }
+
+      function draw() {
+        root.innerHTML = A.pageHead("Team &amp; Users", "Add teammates and control what they can access. Only Super Admins manage the team.",
+          `<button class="btn btn--primary btn--sm" id="addTop">${I.plus} Add user</button>`)
+          + strip() + rolesInfo() + tableCard();
+        wire();
+      }
+
+      function wire() {
+        document.getElementById("addBtn").addEventListener("click", () => openEditor(null));
+        document.getElementById("addTop").addEventListener("click", () => openEditor(null));
+        document.querySelectorAll("[data-edit]").forEach(b => b.addEventListener("click", () => openEditor(b.dataset.edit)));
+        document.querySelectorAll("[data-del]").forEach(b => b.addEventListener("click", () => {
+          const u = A.users().find(x => x.id === b.dataset.del);
+          if (u && confirm("Remove " + u.name + " from the team? They will lose all access.")) { A.removeUser(u.id); A.toast("User removed"); draw(); }
+        }));
+      }
+
+      function openEditor(id) {
+        const u = id ? A.users().find(x => x.id === id) : null;
+        let dr = document.getElementById("userDrawer");
+        if (!dr) { dr = document.createElement("div"); dr.id = "userDrawer"; dr.className = "ad-drawer"; document.body.appendChild(dr); }
+        let scrim = document.getElementById("drScrim");
+        if (!scrim) { scrim = document.createElement("div"); scrim.id = "drScrim"; scrim.className = "ad-scrim"; document.body.appendChild(scrim); }
+        dr.innerHTML = `
+          <div class="dr-head"><div><h3>${u ? "Edit user" : "Add user"}</h3><div class="cell-sub">${u ? "Update role or details" : "Invite a teammate to the console"}</div></div>
+            <button class="dr-close">${I.close}</button></div>
+          <div class="dr-body">
+            <div class="card card-pad">
+              <div class="field"><label>Full name</label><input class="inp" id="u_name" value="${esc(u ? u.name : "")}" placeholder="e.g. Sara Designer"></div>
+              <div class="field"><label>Email</label><input class="inp" id="u_email" type="email" value="${esc(u ? u.email : "")}" placeholder="name@freshvalley.eg" ${u ? "disabled" : ""}></div>
+              <div class="field"><label>Password</label><input class="inp" id="u_pass" type="text" value="${esc(u ? u.password : "")}" placeholder="Set a password"></div>
+              <div class="field" style="margin-bottom:0"><label>Role</label>
+                <select class="sel-full" id="u_role">
+                  <option value="admin" ${u && u.role === "admin" ? "selected" : ""}>Admin · Design &amp; SEO (Products, Appearance, Images, Content)</option>
+                  <option value="super-admin" ${u && u.role === "super-admin" ? "selected" : ""}>Super Admin (full access)</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn btn--primary btn--block" id="u_save">${u ? "Save changes" : "Add user"}</button>
+            <p id="u_err" style="color:var(--ad-bad);font-size:.82rem;display:none"></p>
+          </div>`;
+        requestAnimationFrame(() => { dr.classList.add("open"); scrim.classList.add("show"); });
+        const close = () => { dr.classList.remove("open"); scrim.classList.remove("show"); };
+        scrim.onclick = close; dr.querySelector(".dr-close").onclick = close;
+        dr.querySelector("#u_save").onclick = () => {
+          const name = dr.querySelector("#u_name").value.trim();
+          const email = dr.querySelector("#u_email").value.trim();
+          const pass = dr.querySelector("#u_pass").value;
+          const role = dr.querySelector("#u_role").value;
+          const err = dr.querySelector("#u_err");
+          if (!name || !email.includes("@") || pass.length < 4) { err.textContent = "Enter a name, valid email and a 4+ char password."; err.style.display = "block"; return; }
+          if (u) { A.updateUser(u.id, { name, password: pass, role }); A.toast("User updated"); }
+          else { if (!A.addUser({ name, email, password: pass, role })) { err.textContent = "A user with that email already exists."; err.style.display = "block"; return; } A.toast("User added"); }
+          close(); draw();
+        };
+      }
+      function esc(s) { return String(s == null ? "" : s).replace(/"/g, "&quot;").replace(/</g, "&lt;"); }
+
+      draw();
+    })();
+  </script>
+</body>
+</html>

@@ -90,7 +90,9 @@
   <script>
     (function () {
       const root = document.getElementById("coRoot");
-      const FREE = 600;
+      const SET = (window.FV && FV.settings) ? FV.settings : { freeThreshold: 600, deliveryFee: 45 };
+      const FREE = SET.freeThreshold;
+      const FEE = SET.deliveryFee;
       function currentUser(){ try { return JSON.parse(localStorage.getItem("fv_user")); } catch { return null; } }
       let user = currentUser();
       const nameParts = (n) => { const p = (n || "").trim().split(/\s+/); return { first: p[0] || "", last: p.slice(1).join(" ") }; };
@@ -116,7 +118,7 @@
       function summaryHtml() {
         const items = FV.cart.items(), sub = FV.cart.subtotal();
         const remain = Math.max(0, FREE - sub);
-        const delivery = remain > 0 ? 45 : 0;
+        const delivery = remain > 0 ? FEE : 0;
         const total = sub + delivery;
         return `<aside class="co-summary">
           <h3>Order summary</h3>
@@ -197,8 +199,6 @@
                   <span class="radio"></span><span class="label">Apple&nbsp;Pay</span><span class="tag">One-touch</span></div>
                 <div class="pay-opt" data-pay="wallet" aria-pressed="${state.payment === "wallet"}">
                   <span class="radio"></span><span class="label">Mobile wallet</span><span class="tag">Vodafone · Instapay</span></div>
-                <div class="pay-opt" data-pay="cod" aria-pressed="${state.payment === "cod"}">
-                  <span class="radio"></span><span class="label">Cash on delivery</span><span class="tag">Pay at your door</span></div>
 
                 <div class="card-fields ${state.payment === "card" ? "show" : ""}" id="cardFields">
                   <div class="grid-2">
@@ -226,7 +226,7 @@
 
       function wire() {
         const sub = FV.cart.subtotal();
-        const delivery = sub >= FREE ? 0 : 45;
+        const delivery = sub >= FREE ? 0 : FEE;
         document.getElementById("placeTotal").textContent = FV.money(sub + delivery);
 
         root.querySelectorAll("[data-mode]").forEach(b => b.addEventListener("click", () => { state.mode = b.dataset.mode; render(); }));
@@ -261,12 +261,31 @@
 
       function placeOrder(form) {
         const sub = FV.cart.subtotal();
-        const delivery = sub >= FREE ? 0 : 45;
+        const delivery = sub >= FREE ? 0 : FEE;
         const total = sub + delivery;
         const order = "FV" + Math.floor(100000 + Math.random() * 899999);
         const name = form.first.value || "there";
         const slot = `${days[state.slotDay]}, ${times[state.slotTime]}`;
         const payLabel = { card: "Card", saved: "Saved card", apple: "Apple Pay", wallet: "Mobile wallet", cod: "Cash on delivery" }[state.payment];
+
+        // Record the order & customer so it appears in the admin dashboard
+        let orderObj = null;
+        if (window.FV && FV.orders) {
+          const customer = {
+            name: (form.first.value + " " + form.last.value).trim() || name,
+            email: form.email.value.trim(), phone: form.phone.value.trim(), area: form.area.value || "",
+          };
+          const items = FV.cart.items().map((it) => ({ slug: it.slug, kind: it.type, name: it.name, variant: it.variant, price: it.price, qty: it.qty, image: it.image, noPhoto: !!it.noPhoto }));
+          orderObj = {
+            id: order, date: new Date().toISOString(), customer, items,
+            subtotal: sub, delivery, total, status: "pending",
+            payment: payLabel, channel: "Website", slot,
+            address: [form.street.value, form.district.value, form.area.value].filter(Boolean).join(", "),
+          };
+          FV.orders.record(orderObj);
+          FV.clients.upsert(Object.assign({}, customer, { status: "active" }));
+        }
+
         FV.cart.clear();
         document.getElementById("coTitle").textContent = "Order confirmed";
         root.innerHTML = `
@@ -283,9 +302,11 @@
           </div>
           <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem">
             <a class="btn" href="account.html#orders">Track this order ${arrow}</a>
+            ${orderObj ? `<button class="btn btn--outline" id="dlReceipt">Download receipt</button>` : ""}
             <a class="btn btn--outline" href="products.html">Continue shopping</a>
           </div>
         </div>`;
+        if (orderObj) document.getElementById("dlReceipt")?.addEventListener("click", () => FV.receipt.open(orderObj));
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
 

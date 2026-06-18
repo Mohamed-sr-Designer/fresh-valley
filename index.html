@@ -191,11 +191,11 @@
     <section class="hero">
       <div class="container hero-grid">
         <div class="hero-copy">
-          <p class="eyebrow" data-reveal>Export-grade · Delivered next-day</p>
-          <h1 data-reveal data-delay="1">Egypt's premium <em>produce market</em>.</h1>
-          <p class="lead" data-reveal data-delay="2">Hand-graded fruits, vegetables and curated boxes — the quality you'd only find abroad, at your door tomorrow.</p>
+          <p class="eyebrow" data-reveal data-fv="hero_eyebrow">Export-grade · Delivered next-day</p>
+          <h1 data-reveal data-delay="1" data-fv="hero_title">Egypt's premium <em>produce market</em>.</h1>
+          <p class="lead" data-reveal data-delay="2" data-fv="hero_sub">Hand-graded fruits, vegetables and curated boxes — the quality you'd only find abroad, at your door tomorrow.</p>
           <div class="hero-cta" data-reveal data-delay="2">
-            <a class="btn btn--brass btn--lg" href="products.html">Shop the market</a>
+            <a class="btn btn--brass btn--lg" href="products.html" data-fv="hero_cta">Shop the market</a>
             <a class="btn btn--outline btn--lg" href="products.html?cat=boxes">Build a box</a>
           </div>
           <div class="hero-proof" data-reveal data-delay="3">
@@ -224,10 +224,10 @@
     </section>
 
     <!-- ===== Category strip ===== -->
-    <section class="section--tight" style="padding-top: var(--space-lg); padding-bottom: var(--space-lg)">
+    <section class="section--tight" data-fv-section="categories" style="padding-top: var(--space-lg); padding-bottom: var(--space-lg)">
       <div class="container">
         <div class="split-head" data-reveal style="margin-bottom: var(--space-md)">
-          <h2 class="title" style="font-size: var(--step-2)">Shop by category</h2>
+          <h2 class="title" style="font-size: var(--step-2)" data-fv="cat_title">Shop by category</h2>
           <a class="link-arrow hide-mobile" href="products.html">All produce
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         </div>
@@ -236,12 +236,12 @@
     </section>
 
     <!-- ===== Best sellers slider ===== -->
-    <section class="section--tight" style="padding-block: var(--space-lg)">
+    <section class="section--tight" data-fv-section="bestsellers" style="padding-block: var(--space-lg)">
       <div class="container">
         <div class="split-head" data-reveal style="margin-bottom: var(--space-md)">
           <div class="section-head">
-            <p class="eyebrow">Loved by our tables</p>
-            <h2 class="title" style="font-size: var(--step-3)">Best Sellers</h2>
+            <p class="eyebrow" data-fv="bs_eyebrow">Loved by our tables</p>
+            <h2 class="title" style="font-size: var(--step-3)" data-fv="bs_title">Best Sellers</h2>
           </div>
           <div style="display:flex;align-items:center;gap:1rem">
             <a class="link-arrow hide-mobile" href="products.html?collection=best-sellers">View all
@@ -254,14 +254,14 @@
     </section>
 
     <!-- ===== THE ART OF HOSTING ===== -->
-    <section class="aoh section section--tight">
+    <section class="aoh section section--tight" data-fv-section="aoh">
       <div class="container aoh-grid">
         <div class="aoh-copy" data-reveal>
-          <p class="eyebrow">Our signature · only from Fresh Valley</p>
+          <p class="eyebrow" data-fv="aoh_eyebrow">Our signature · only from Fresh Valley</p>
           <p class="aoh-old" style="margin-top:1.2rem"><s>A bottle of cola.</s></p>
           <p class="aoh-old"><s>The usual box of sweets.</s></p>
-          <h2>Arrive with <em>the season</em>.</h2>
-          <p class="lead">No one visits empty-handed. We make what you carry unforgettable — a hand-graded box of produce, wrapped like a gift, set on the table the moment you walk in.</p>
+          <h2 data-fv="aoh_title">Arrive with <em>the season</em>.</h2>
+          <p class="lead" data-fv="aoh_lead">No one visits empty-handed. We make what you carry unforgettable — a hand-graded box of produce, wrapped like a gift, set on the table the moment you walk in.</p>
           <div class="aoh-steps">
             <div class="aoh-step"><span class="n">01</span><p>Choose your box — fruit, veg, or both.</p></div>
             <div class="aoh-step"><span class="n">02</span><p>We grade, arrange &amp; wrap by hand.</p></div>
@@ -284,17 +284,17 @@
     </section>
 
     <!-- ===== Trust bar ===== -->
-    <section class="section--tight" style="padding-block: var(--space-md)">
+    <section class="section--tight" data-fv-section="trusted" style="padding-block: var(--space-md)">
       <div class="container"><div class="trust-bar" id="trustBar" data-reveal></div></div>
     </section>
 
     <!-- ===== BOXES · flagship ===== -->
-    <section class="section section--tight">
+    <section class="section section--tight" data-fv-section="boxes">
       <div class="container">
         <div class="split-head" data-reveal style="margin-bottom: var(--space-lg)">
           <div class="section-head">
-            <p class="eyebrow">Our flagship</p>
-            <h2 class="title" style="font-size: var(--step-3)">Fresh Valley Boxes</h2>
+            <p class="eyebrow" data-fv="boxes_eyebrow">Our flagship</p>
+            <h2 class="title" style="font-size: var(--step-3)" data-fv="boxes_title">Fresh Valley Boxes</h2>
           </div>
           <a class="link-arrow hide-mobile" href="products.html?cat=boxes">All boxes
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
@@ -311,19 +311,19 @@
       <div class="container why-grid">
         <div class="why-media" data-reveal><img src="assets/img/banners/packaging.jpg" alt="Fresh Valley produce wrapped in branded paper" loading="lazy"></div>
         <div data-reveal data-delay="1">
-          <p class="eyebrow">Why Fresh Valley</p>
-          <h2 class="title" style="font-size: var(--step-3); margin-top: .3em">Graded like an export house.<br>Delivered like a guest.</h2>
+          <p class="eyebrow" data-fv="why_eyebrow">Why Fresh Valley</p>
+          <h2 class="title" style="font-size: var(--step-3); margin-top: .3em" data-fv="why_title">Graded like an export house.<br>Delivered like a guest.</h2>
           <div class="why-list" id="whyList"></div>
         </div>
       </div>
     </section>
 
     <!-- ===== REVIEWS · 3-row auto-loop wall ===== -->
-    <section class="section section--tight rev-sec">
+    <section class="section section--tight rev-sec" data-fv-section="reviews">
       <div class="container">
         <div class="section-head section-head--center" data-reveal style="margin-bottom: var(--space-lg)">
-          <p class="eyebrow no-rule" style="justify-content:center">★ 4.9 · 1,400+ verified orders</p>
-          <h2 class="title" style="font-size: var(--step-3)">Loved across Cairo</h2>
+          <p class="eyebrow no-rule" style="justify-content:center" data-fv="rev_eyebrow">★ 4.9 · 1,400+ verified orders</p>
+          <h2 class="title" style="font-size: var(--step-3)" data-fv="rev_title">Loved across Cairo</h2>
         </div>
       </div>
       <div class="rev-wall" id="revWall" aria-label="What our hosts say">

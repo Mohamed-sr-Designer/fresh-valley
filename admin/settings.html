@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings — Fresh Valley Admin</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,400..500&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+</head>
+<body class="ad-body">
+  <div id="adRoot"></div>
+
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/admin.js"></script>
+  <script>
+    (function () {
+      const A = window.ADMIN, I = A.I;
+      if (!A.requireAuth("settings")) return;
+      const root = A.mountShell("settings");
+      const s = A.settings();
+
+      function draw() {
+        root.innerHTML = A.pageHead("Settings", "Store rules, reports and data.",
+          `<button class="btn btn--primary btn--sm" id="saveBtn">Save settings</button>`)
+          + `<div class="grid grid-2">
+            <div class="stack">
+              ${storeCard()}
+              ${commerceCard()}
+              ${adminCard()}
+            </div>
+            <div class="stack">
+              ${reportsCard()}
+              ${dataCard()}
+            </div>
+          </div>`;
+        wire();
+      }
+
+      function storeCard() {
+        return `<div class="card">
+          <div class="card-head"><div class="card-title">Store</div></div>
+          <div class="card-pad">
+            <div class="set-row"><div class="lbl"><strong>Store status</strong><span>When closed, the storefront shows a notice and disables checkout</span></div>
+              <button class="switch" id="sw_open" role="switch" aria-checked="${s.storeOpen ? "true" : "false"}"></button></div>
+            <div class="form-grid" style="margin-top:1rem">
+              <div class="field"><label>Store name</label><input class="inp" id="f_storeName" value="${esc(s.storeName)}"></div>
+              <div class="field"><label>Currency</label>
+                <select class="sel-full" id="f_currency">
+                  ${["EGP", "USD", "EUR", "GBP", "SAR", "AED"].map(c => `<option ${s.currency === c ? "selected" : ""}>${c}</option>`).join("")}
+                </select></div>
+            </div>
+          </div>
+        </div>`;
+      }
+
+      function commerceCard() {
+        return `<div class="card">
+          <div class="card-head"><div class="card-title">Commerce rules</div></div>
+          <div class="card-pad">
+            <div class="form-grid">
+              <div class="field"><label>Delivery fee</label><div class="inp-money"><span class="cur">${s.currency}</span><input class="inp" type="number" id="f_deliveryFee" value="${s.deliveryFee}"></div></div>
+              <div class="field"><label>Free delivery over</label><div class="inp-money"><span class="cur">${s.currency}</span><input class="inp" type="number" id="f_freeThreshold" value="${s.freeThreshold}"></div></div>
+              <div class="field"><label>Tax / VAT rate (%)</label><input class="inp" type="number" step="0.1" id="f_taxRate" value="${s.taxRate}"></div>
+              <div class="field"><label>Low-stock alert at</label><input class="inp" type="number" id="f_lowStockAt" value="${s.lowStockAt}"></div>
+            </div>
+            <p class="hint">Delivery fee &amp; free-delivery threshold apply on the live storefront cart &amp; checkout.</p>
+          </div>
+        </div>`;
+      }
+
+      function adminCard() {
+        const sess = A.store.get(A.K.session, {});
+        return `<div class="card">
+          <div class="card-head"><div class="card-title">Admin account</div></div>
+          <div class="card-pad">
+            <div class="flex" style="gap:.8rem;margin-bottom:1rem">
+              <span class="ad-ava" style="width:46px;height:46px;border-radius:12px">MT</span>
+              <div><strong>Mohamed Tarek</strong><div class="cell-sub">${esc(sess.email || s.adminEmail)} · Super Admin</div></div>
+            </div>
+            <div class="field"><label>Admin email</label><input class="inp" id="f_adminEmail" value="${esc(s.adminEmail)}"></div>
+            <div class="field" style="margin-bottom:0"><label>Console password</label><input class="inp" type="text" id="f_adminPass" value="${esc(s.adminPass)}"></div>
+          </div>
+        </div>`;
+      }
+
+      function reportsCard() {
+        const k = A.kpis();
+        return `<div class="card">
+          <div class="card-head"><div class="card-title">Reports &amp; export</div></div>
+          <div class="card-pad stack" style="gap:.7rem">
+            <div class="flex-between"><div><strong style="font-size:.9rem">Orders</strong><div class="cell-sub">${A.num(k.orders)} records</div></div><button class="btn btn--ghost btn--sm" data-exp="orders">${I.download} CSV</button></div>
+            <div class="divider"></div>
+            <div class="flex-between"><div><strong style="font-size:.9rem">Customers</strong><div class="cell-sub">${A.num(k.clients)} records</div></div><button class="btn btn--ghost btn--sm" data-exp="customers">${I.download} CSV</button></div>
+            <div class="divider"></div>
+            <div class="flex-between"><div><strong style="font-size:.9rem">Catalog &amp; prices</strong><div class="cell-sub">${A.num(A.allItems().length)} items</div></div><button class="btn btn--ghost btn--sm" data-exp="catalog">${I.download} CSV</button></div>
+            <div class="divider"></div>
+            <div class="flex-between"><div><strong style="font-size:.9rem">Full summary report</strong><div class="cell-sub">KPIs + top products + breakdowns</div></div><button class="btn btn--primary btn--sm" data-exp="report">${I.download} Export</button></div>
+          </div>
+        </div>`;
+      }
+
+      function dataCard() {
+        return `<div class="card">
+          <div class="card-head"><div class="card-title">Data</div></div>
+          <div class="card-pad stack" style="gap:.8rem">
+            <p class="muted" style="font-size:.85rem">This console stores everything in your browser. Use these to manage the demo data and your overrides.</p>
+            <button class="btn btn--ghost btn--block" id="reseedBtn">Regenerate sample orders &amp; customers</button>
+            <button class="btn btn--ghost btn--block" id="clearOverridesBtn">Clear all price / theme / content overrides</button>
+            <button class="btn btn--danger btn--block" id="wipeBtn">Wipe everything &amp; start fresh</button>
+          </div>
+        </div>`;
+      }
+
+      function esc(s) { return String(s == null ? "" : s).replace(/"/g, "&quot;").replace(/</g, "&lt;"); }
+
+      function wire() {
+        document.getElementById("sw_open").addEventListener("click", e => e.currentTarget.setAttribute("aria-checked", e.currentTarget.getAttribute("aria-checked") !== "true"));
+        document.getElementById("saveBtn").addEventListener("click", save);
+        document.querySelectorAll("[data-exp]").forEach(b => b.addEventListener("click", () => doExport(b.dataset.exp)));
+        document.getElementById("reseedBtn").addEventListener("click", () => { if (confirm("Regenerate the sample orders & customers? Your real captured orders in this browser will be replaced.")) { A.resetData(); A.toast("Sample data regenerated"); } });
+        document.getElementById("clearOverridesBtn").addEventListener("click", () => {
+          if (confirm("Clear all price, theme and content overrides? The storefront returns to its original look & prices.")) {
+            [A.K.prices, A.K.pmeta, A.K.theme, A.K.content].forEach(k => localStorage.removeItem(k)); A.toast("All overrides cleared");
+          }
+        });
+        document.getElementById("wipeBtn").addEventListener("click", () => {
+          if (confirm("Wipe ALL console data (orders, customers, settings, overrides) and sign out?")) {
+            Object.values(A.K).forEach(k => localStorage.removeItem(k)); location.href = "login.html";
+          }
+        });
+      }
+
+      function save() {
+        const v = id => document.getElementById(id).value;
+        A.saveSettings({
+          storeOpen: document.getElementById("sw_open").getAttribute("aria-checked") === "true",
+          storeName: v("f_storeName").trim() || s.storeName,
+          currency: v("f_currency"),
+          deliveryFee: +v("f_deliveryFee") || 0,
+          freeThreshold: +v("f_freeThreshold") || 0,
+          taxRate: +v("f_taxRate") || 0,
+          lowStockAt: +v("f_lowStockAt") || 0,
+          adminEmail: v("f_adminEmail").trim(),
+          adminPass: v("f_adminPass"),
+        });
+        A.toast("Settings saved");
+        setTimeout(() => location.reload(), 600);
+      }
+
+      function doExport(kind) {
+        if (kind === "orders") {
+          const rows = [["Order", "Date", "Customer", "Email", "Area", "Channel", "Payment", "Status", "Total"]];
+          A.orders().forEach(o => rows.push([o.id, A.fmtDate(o.date), o.customer.name, o.customer.email, o.customer.area, o.channel, o.payment, o.status, o.total]));
+          A.downloadCSV("fresh-valley-orders.csv", rows);
+        } else if (kind === "customers") {
+          const rows = [["Name", "Email", "Phone", "Area", "Orders", "Spent", "Status"]];
+          A.clients().forEach(c => rows.push([c.name, c.email, c.phone || "", c.area || "", c.orders, c.spent, c.status]));
+          A.downloadCSV("fresh-valley-customers.csv", rows);
+        } else if (kind === "catalog") {
+          const rows = [["Product", "Category", "Type", "Price", "Unit", "Stock", "Active"]];
+          A.allItems().forEach(p => { const m = A.pmeta(p.slug); rows.push([p.name, p.category, p.kind, A.effectivePrice(p), A.priceUnit(p), p.kind === "box" ? "" : m.stock, m.active]); });
+          A.downloadCSV("fresh-valley-catalog.csv", rows);
+        } else {
+          const k = A.kpis();
+          const rows = [["Fresh Valley — Full report", new Date().toLocaleString("en-GB")], [],
+            ["Revenue (total)", A.money(k.revenue)], ["Revenue (30d)", A.money(k.revenue30)], ["Orders", k.orders],
+            ["Customers", k.clients], ["AOV", A.money(k.aov)], ["Units sold", k.units], [],
+            ["Top products", "Units", "Revenue"], ...A.topProducts(15).map(t => [t.name, t.units, Math.round(t.revenue)]), [],
+            ["By category", "Amount"], ...A.revenueByCategory().map(c => [c.label, Math.round(c.value)]), [],
+            ["By area", "Amount"], ...A.revenueByArea().map(c => [c.label, Math.round(c.value)])];
+          A.downloadCSV("fresh-valley-full-report.csv", rows);
+        }
+        A.toast("Exported");
+      }
+
+      draw();
+    })();
+  </script>
+</body>
+</html>

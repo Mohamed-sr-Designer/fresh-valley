@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Appearance — Fresh Valley Admin</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,400..500&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+  <style>
+    .prev { border-radius:16px; overflow:hidden; border:1px solid var(--ad-line); }
+    .prev-stage { padding:1.6rem; background:var(--p-paper); color:var(--p-text); font-family:"Hanken Grotesk",sans-serif; }
+    .prev-hd { display:flex; align-items:center; justify-content:space-between; padding:.7rem 1rem; border-radius:12px; background:var(--p-forest); color:#fff; margin-bottom:1.2rem; }
+    .prev-hd strong { font-family:"Fraunces",serif; }
+    .prev-hd .dot { width:9px;height:9px;border-radius:50%;background:var(--p-brass); }
+    .prev-card { background:var(--p-surface); border:1px solid rgba(0,0,0,.06); border-radius:14px; padding:1rem; box-shadow:0 8px 24px -14px rgba(0,0,0,.2); }
+    .prev-badge { display:inline-block; font-size:.7rem; font-weight:700; padding:.22rem .55rem; border-radius:20px; background:var(--p-forest); color:#fff; }
+    .prev-badge.s { background:var(--p-pom); }
+    .prev-price { font-family:"Fraunces",serif; font-size:1.3rem; color:var(--p-text); margin:.5rem 0; }
+    .prev-btn { background:var(--p-brass); color:#fff; border:none; padding:.55rem 1rem; border-radius:10px; font-weight:600; font-size:.85rem; }
+    .prev-btn.o { background:transparent; border:1px solid var(--p-forest); color:var(--p-forest); }
+    .prev-h { font-family:"Fraunces",serif; font-size:1.5rem; color:var(--p-text); }
+    .prev-mut { color:var(--p-text); opacity:.6; font-size:.85rem; }
+    .theme-presets { display:grid; grid-template-columns:repeat(2,1fr); gap:.6rem; }
+    .preset { display:flex; align-items:center; gap:.6rem; padding:.7rem; border:1px solid var(--ad-line); border-radius:11px; cursor:pointer; transition:all .15s; text-align:left; }
+    .preset:hover { border-color:var(--ad-brass); background:var(--ad-surface-2); }
+    .preset .sw { display:flex; }
+    .preset .sw i { width:18px; height:18px; border-radius:50%; margin-left:-6px; border:2px solid #fff; }
+    .preset strong { font-size:.85rem; }
+  </style>
+</head>
+<body class="ad-body">
+  <div id="adRoot"></div>
+
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/admin.js"></script>
+  <script>
+    (function () {
+      const A = window.ADMIN, I = A.I;
+      if (!A.requireAuth("appearance")) return;
+      const root = A.mountShell("appearance");
+
+      // Base brand defaults (must match storefront :root)
+      const BASE = { forest: "#10261D", brass: "#C89B5C", paper: "#FBF8F2", cream: "#F6F1E8", text: "#1A1A1A", pomegranate: "#6B1F1C", surface: "#FFFFFF" };
+      const PRESETS = {
+        "Forest & Brass": { forest: "#10261D", brass: "#C89B5C", paper: "#FBF8F2", cream: "#F6F1E8", text: "#1A1A1A", pomegranate: "#6B1F1C" },
+        "Charcoal & Gold": { forest: "#1C1B18", brass: "#C9A227", paper: "#FAF8F3", cream: "#F2EFE7", text: "#171717", pomegranate: "#7A2E1E" },
+        "Olive Grove": { forest: "#2E3B1F", brass: "#B98A3E", paper: "#F8F6EE", cream: "#EEEBDD", text: "#22251C", pomegranate: "#6B2A1C" },
+        "Burgundy": { forest: "#3A1A1F", brass: "#C08A54", paper: "#FBF6F2", cream: "#F3E9E2", text: "#241416", pomegranate: "#7C2230" },
+        "Midnight": { forest: "#13243A", brass: "#C7A15A", paper: "#F7F8FB", cream: "#EAEEF4", text: "#15202E", pomegranate: "#7A2230" },
+        "Terracotta": { forest: "#1E3A2B", brass: "#CB7A45", paper: "#FBF6F0", cream: "#F1E7DC", text: "#231a14", pomegranate: "#8A3A20" },
+      };
+      const FIELDS = [
+        ["forest", "Primary (forest)", "Headers, footer, dark accents & buttons"],
+        ["brass", "Accent (gold)", "Buy buttons, highlights, prices"],
+        ["paper", "Page background", "The main surface behind everything"],
+        ["cream", "Soft surface", "Section bands & subtle fills"],
+        ["text", "Body text", "Default reading colour"],
+        ["pomegranate", "Seasonal accent", "Sale & 'in season' tags"],
+      ];
+
+      let current = Object.assign({}, BASE, savedColors());
+      function savedColors() {
+        const t = A.theme(); const out = {};
+        Object.keys(BASE).forEach(k => { if (t["--" + tokenMap(k)]) out[k] = t["--" + tokenMap(k)]; });
+        return out;
+      }
+      function tokenMap(k) { return k; } // base token names match
+
+      function draw() {
+        root.innerHTML = A.pageHead("Appearance", "Recolour the whole storefront. Changes apply live across every page.",
+          `<button class="btn btn--ghost btn--sm" id="resetBtn">Reset to default</button><button class="btn btn--primary btn--sm" id="applyBtn">Apply to store</button>`)
+          + `<div class="grid grid-2">
+            <div class="stack">
+              <div class="card">
+                <div class="card-head"><div class="card-title">Theme presets</div></div>
+                <div class="card-pad"><div class="theme-presets">
+                  ${Object.entries(PRESETS).map(([name, p]) => `<button class="preset" data-preset="${name}">
+                    <span class="sw">${["forest", "brass", "pomegranate"].map(k => `<i style="background:${p[k]}"></i>`).join("")}</span>
+                    <strong>${name}</strong></button>`).join("")}
+                </div></div>
+              </div>
+              <div class="card">
+                <div class="card-head"><div class="card-title">Brand colours</div></div>
+                <div class="card-pad" id="swatches">
+                  ${FIELDS.map(f => swatchRow(f[0], f[1], f[2])).join("")}
+                </div>
+              </div>
+            </div>
+            <div class="stack">
+              <div class="card">
+                <div class="card-head"><div class="card-title">Live preview</div><span class="sub muted" style="font-size:.8rem">storefront</span></div>
+                <div class="card-pad"><div class="prev" id="prevBox">${previewHtml()}</div></div>
+              </div>
+              <div class="card card-pad" style="background:var(--ad-accent-soft);border-color:transparent">
+                <div class="flex" style="gap:.6rem;align-items:flex-start">
+                  <span class="kpi-ico" style="background:#fff">${I.brush}</span>
+                  <div><strong style="font-size:.9rem">Tip</strong>
+                  <p class="muted" style="font-size:.83rem;margin-top:.2rem">Click <b>Apply to store</b>, then open the storefront in a new tab — every page picks up your palette instantly. Use <b>Reset</b> to return to the original Fresh Valley look.</p></div>
+                </div>
+              </div>
+            </div>
+          </div>`;
+        wire();
+      }
+
+      function swatchRow(key, label, desc) {
+        const v = current[key];
+        return `<div class="swatch-row">
+          <label class="swatch"><input type="color" value="${v}" data-k="${key}"></label>
+          <div class="swatch-meta"><strong>${label}</strong><span>${desc}</span></div>
+          <input class="swatch-hex" value="${v}" data-hex="${key}">
+        </div>`;
+      }
+
+      function previewHtml() {
+        const c = current;
+        return `<div class="prev-stage" style="--p-paper:${c.paper};--p-forest:${c.forest};--p-brass:${c.brass};--p-cream:${c.cream};--p-text:${c.text};--p-pom:${c.pomegranate};--p-surface:${c.surface}">
+          <div class="prev-hd"><strong>Fresh Valley</strong><span class="dot"></span></div>
+          <div class="prev-h">Arrive with the season.</div>
+          <p class="prev-mut" style="margin:.3rem 0 1rem">Export-grade produce, curated for hosting.</p>
+          <div class="prev-card">
+            <span class="prev-badge">Export-Grade</span> <span class="prev-badge s">In season</span>
+            <div class="prev-price">EGP 120 <span style="font-size:.8rem;opacity:.6">/ kg</span></div>
+            <div style="display:flex;gap:.5rem"><button class="prev-btn">Add to cart</button><button class="prev-btn o">Details</button></div>
+          </div>
+        </div>`;
+      }
+
+      function refreshPreview() { document.getElementById("prevBox").innerHTML = previewHtml(); }
+
+      function wire() {
+        document.querySelectorAll('input[type="color"]').forEach(inp => inp.addEventListener("input", () => {
+          current[inp.dataset.k] = inp.value;
+          const hex = document.querySelector(`[data-hex="${inp.dataset.k}"]`); if (hex) hex.value = inp.value;
+          refreshPreview();
+        }));
+        document.querySelectorAll("[data-hex]").forEach(inp => inp.addEventListener("change", () => {
+          let v = inp.value.trim(); if (!/^#?[0-9a-fA-F]{6}$/.test(v)) { inp.value = current[inp.dataset.hex]; return; }
+          if (v[0] !== "#") v = "#" + v; current[inp.dataset.hex] = v; inp.value = v;
+          const col = document.querySelector(`input[type=color][data-k="${inp.dataset.hex}"]`); if (col) col.value = v;
+          refreshPreview();
+        }));
+        document.querySelectorAll("[data-preset]").forEach(b => b.addEventListener("click", () => {
+          current = Object.assign({}, BASE, PRESETS[b.dataset.preset]); draw(); A.toast(b.dataset.preset + " preview");
+        }));
+        document.getElementById("applyBtn").addEventListener("click", apply);
+        document.getElementById("resetBtn").addEventListener("click", () => {
+          localStorage.removeItem(A.K.theme); A.toast("Theme reset to default"); current = Object.assign({}, BASE); draw();
+        });
+      }
+
+      /* ---- colour math to derive the full token set ---- */
+      function clamp(n) { return Math.max(0, Math.min(255, n)); }
+      function hex2rgb(h) { h = h.replace("#", ""); return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)]; }
+      function rgb2hex(r) { return "#" + r.map(x => clamp(Math.round(x)).toString(16).padStart(2, "0")).join(""); }
+      function shade(hex, amt) { const [r, g, b] = hex2rgb(hex); const f = amt < 0 ? 1 + amt : 1; const t = amt < 0 ? 0 : 255 * amt; return rgb2hex([r * f + t, g * f + t, b * f + t]); }
+
+      function apply() {
+        const c = current;
+        const theme = {
+          "--forest": c.forest, "--forest-mid": shade(c.forest, .14), "--forest-soft": shade(c.forest, .26),
+          "--charcoal": shade(c.forest, -.12), "--ink": shade(c.forest, -.3),
+          "--brass": c.brass, "--gold": c.brass, "--brass-deep": shade(c.brass, -.18),
+          "--brass-soft": shade(c.brass, .22), "--brass-tint": shade(c.brass, .5),
+          "--paper": c.paper, "--paper-2": shade(c.paper, -.03), "--cream": c.cream,
+          "--bone": shade(c.cream, -.05), "--surface": c.surface, "--line": shade(c.cream, -.08), "--line-soft": shade(c.cream, -.03),
+          "--text": c.text, "--pomegranate": c.pomegranate,
+        };
+        A.setTheme(theme);
+        A.toast("Palette applied · live on store");
+      }
+
+      draw();
+    })();
+  </script>
+</body>
+</html>

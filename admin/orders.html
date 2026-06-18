@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orders — Fresh Valley Admin</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,400..500&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+</head>
+<body class="ad-body">
+  <div id="adRoot"></div>
+
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/admin.js"></script>
+  <script>
+    (function () {
+      const A = window.ADMIN, I = A.I;
+      if (!A.requireAuth("orders")) return;
+      const root = A.mountShell("orders");
+      const s = A.settings();
+
+      const STATUSES = ["all", "pending", "processing", "transit", "delivered", "cancelled"];
+      let filter = { status: "all", q: "", channel: "all", sort: "new" };
+
+      function list() {
+        let o = A.orders().slice();
+        if (filter.status !== "all") o = o.filter(x => x.status === filter.status);
+        if (filter.channel !== "all") o = o.filter(x => x.channel === filter.channel);
+        if (filter.q) { const q = filter.q.toLowerCase(); o = o.filter(x => (x.id + x.customer.name + x.customer.email + x.customer.area).toLowerCase().includes(q)); }
+        o.sort((a, b) => filter.sort === "new" ? new Date(b.date) - new Date(a.date)
+          : filter.sort === "high" ? b.total - a.total : a.total - b.total);
+        return o;
+      }
+
+      function statStrip() {
+        const all = A.orders();
+        const rev = all.filter(A.paid).reduce((s2, o) => s2 + o.total, 0);
+        const pend = all.filter(o => o.status === "pending" || o.status === "processing").length;
+        const deliv = all.filter(o => o.status === "delivered").length;
+        return `<div class="grid grid-kpi" style="margin-bottom:1rem">
+          ${A.kpiCard({ icon: "bag", label: "All orders", value: A.num(all.length) })}
+          ${A.kpiCard({ icon: "money", tone: "brass", label: "Revenue", value: A.money(rev) })}
+          ${A.kpiCard({ icon: "bell", tone: "warn", label: "Needs action", value: A.num(pend) })}
+          ${A.kpiCard({ icon: "chart", tone: "info", label: "Delivered", value: A.num(deliv) })}
+        </div>`;
+      }
+
+      function thumbs(o) {
+        return o.items.slice(0, 4).map(it => it.kind === "box" || !it.noPhoto
+          ? `<img class="t-thumb" style="width:30px;height:30px;margin-left:-8px;border:2px solid #fff" src="../assets/img/products/${it.image}.jpg" onerror="this.style.display='none'">`
+          : `<span class="t-herb" style="width:30px;height:30px;margin-left:-8px;border:2px solid #fff">${I.leaf}</span>`).join("")
+          + (o.items.length > 4 ? `<span class="tag-soft" style="margin-left:.4rem">+${o.items.length - 4}</span>` : "");
+      }
+
+      function tableCard() {
+        const rows = list();
+        return `<div class="card">
+          <div class="toolbar">
+            <div class="seg" id="statusSeg">${STATUSES.map(st => `<button data-s="${st}" class="${st === filter.status ? "on" : ""}">${st === "all" ? "All" : A.cap(st)}</button>`).join("")}</div>
+            <div class="t-search">${I.search}<input id="oq" placeholder="Search order, name, area…" value="${filter.q}"></div>
+            <div class="right">
+              <select class="sel" id="chFilter">
+                <option value="all">All channels</option>
+                ${["Website", "Mobile App", "WhatsApp", "Phone"].map(c => `<option ${filter.channel === c ? "selected" : ""}>${c}</option>`).join("")}
+              </select>
+              <select class="sel" id="sortSel">
+                <option value="new" ${filter.sort === "new" ? "selected" : ""}>Newest</option>
+                <option value="high" ${filter.sort === "high" ? "selected" : ""}>Highest value</option>
+                <option value="low" ${filter.sort === "low" ? "selected" : ""}>Lowest value</option>
+              </select>
+              <button class="btn btn--ghost btn--sm" id="expBtn">${I.download} Export</button>
+            </div>
+          </div>
+          <div class="table-wrap"><table class="ad-table">
+            <thead><tr><th>Order</th><th>Customer</th><th>Items</th><th>Channel</th><th>Payment</th><th>Status</th><th class="num">Total</th><th></th></tr></thead>
+            <tbody>${rows.length ? rows.map(rowHtml).join("") : `<tr><td colspan="8"><div class="empty">${I.bag}<p>No orders match these filters.</p></div></td></tr>`}</tbody>
+          </table></div>
+          <div class="flex-between" style="padding:1rem 1.3rem;border-top:1px solid var(--ad-line)">
+            <span class="muted" style="font-size:.82rem">Showing ${rows.length} of ${A.orders().length} orders</span>
+          </div>
+        </div>`;
+      }
+
+      function rowHtml(o) {
+        return `<tr data-id="${o.id}" style="cursor:pointer">
+          <td><span class="cell-id">${o.id}</span><div class="cell-sub">${A.fmtDate(o.date)}</div></td>
+          <td><div class="t-prod"><span class="ava-sm">${o.customer.name.split(" ").map(w => w[0]).slice(0, 2).join("")}</span><div><div class="cell-main">${o.customer.name}</div><div class="cell-sub">${o.customer.area}</div></div></div></td>
+          <td><div class="flex" style="padding-left:8px">${thumbs(o)}</div></td>
+          <td><span class="tag-soft">${o.channel}</span></td>
+          <td class="muted" style="font-size:.82rem">${o.payment}</td>
+          <td>${A.pill(o.status)}</td>
+          <td class="num"><strong>${A.money(o.total)}</strong></td>
+          <td><div class="row-actions"><button class="icon-act" title="View">${I.eye}</button></div></td>
+        </tr>`;
+      }
+
+      function draw() {
+        root.innerHTML = A.pageHead("Orders", "Track, fulfil and manage every order.",
+          `<button class="btn btn--ghost btn--sm" id="expAll">${I.download} Export all (CSV)</button>`)
+          + statStrip() + tableCard();
+        wire();
+      }
+
+      function wire() {
+        document.getElementById("statusSeg").addEventListener("click", e => { const b = e.target.closest("[data-s]"); if (b) { filter.status = b.dataset.s; draw(); } });
+        const oq = document.getElementById("oq");
+        oq.addEventListener("input", () => { filter.q = oq.value; refreshTable(); });
+        document.getElementById("chFilter").addEventListener("change", e => { filter.channel = e.target.value; refreshTable(); });
+        document.getElementById("sortSel").addEventListener("change", e => { filter.sort = e.target.value; refreshTable(); });
+        document.getElementById("expBtn").addEventListener("click", exportCSV);
+        document.getElementById("expAll").addEventListener("click", exportCSV);
+        document.querySelectorAll("tbody tr[data-id]").forEach(tr => tr.addEventListener("click", () => openOrder(tr.dataset.id)));
+      }
+      function refreshTable() {
+        const card = document.querySelector(".card");
+        card.outerHTML = tableCard();
+        // re-wire only table bits
+        document.getElementById("statusSeg").addEventListener("click", e => { const b = e.target.closest("[data-s]"); if (b) { filter.status = b.dataset.s; draw(); } });
+        const oq = document.getElementById("oq"); oq.focus(); oq.setSelectionRange(oq.value.length, oq.value.length);
+        oq.addEventListener("input", () => { filter.q = oq.value; refreshTable(); });
+        document.getElementById("chFilter").addEventListener("change", e => { filter.channel = e.target.value; refreshTable(); });
+        document.getElementById("sortSel").addEventListener("change", e => { filter.sort = e.target.value; refreshTable(); });
+        document.getElementById("expBtn").addEventListener("click", exportCSV);
+        document.querySelectorAll("tbody tr[data-id]").forEach(tr => tr.addEventListener("click", () => openOrder(tr.dataset.id)));
+      }
+
+      function exportCSV() {
+        const rows = [["Order", "Date", "Customer", "Email", "Phone", "Area", "Items", "Channel", "Payment", "Status", "Subtotal", "Delivery", "Total"]];
+        list().forEach(o => rows.push([o.id, A.fmtDate(o.date), o.customer.name, o.customer.email, o.customer.phone, o.customer.area,
+          o.items.map(i => `${i.qty}x ${i.name}`).join("; "), o.channel, o.payment, o.status, o.subtotal, o.delivery, o.total]));
+        A.downloadCSV("fresh-valley-orders-" + new Date().toISOString().slice(0, 10) + ".csv", rows);
+        A.toast(list().length + " orders exported");
+      }
+
+      /* ---------- Order drawer + receipt ---------- */
+      function openOrder(id) {
+        const o = A.orders().find(x => x.id === id); if (!o) return;
+        history.replaceState({}, "", "orders.html?id=" + id);
+        let dr = document.getElementById("orderDrawer");
+        if (!dr) { dr = document.createElement("div"); dr.id = "orderDrawer"; dr.className = "ad-drawer"; document.body.appendChild(dr); }
+        let scrim = document.getElementById("drScrim");
+        if (!scrim) { scrim = document.createElement("div"); scrim.id = "drScrim"; scrim.className = "ad-scrim"; document.body.appendChild(scrim); }
+        dr.innerHTML = receiptHtml(o);
+        requestAnimationFrame(() => { dr.classList.add("open"); scrim.classList.add("show"); });
+        const close = () => { dr.classList.remove("open"); scrim.classList.remove("show"); history.replaceState({}, "", "orders.html"); };
+        scrim.onclick = close;
+        dr.querySelector(".dr-close").onclick = close;
+        dr.querySelector("#stSel").addEventListener("change", e => {
+          A.updateOrder(o.id, { status: e.target.value }); A.toast("Order " + o.id + " → <b>" + A.cap(e.target.value) + "</b>");
+          openOrder(o.id); refreshTable();
+        });
+        dr.querySelector("#printBtn").onclick = () => A.openReceipt(o, true);
+        dr.querySelector("#dlBtn").onclick = () => { A.downloadReceiptHTML(o); A.toast("Receipt downloaded"); };
+      }
+
+      function steps(status) {
+        const order = ["pending", "processing", "transit", "delivered"];
+        const labels = { pending: "Order placed", processing: "Preparing & grading", transit: "Out for delivery", delivered: "Delivered" };
+        if (status === "cancelled" || status === "refunded")
+          return `<div class="tl-item done"><strong>Order placed</strong><span>Received</span></div><div class="tl-item cur" style="--c:bad"><strong>${A.cap(status)}</strong><span>Closed</span></div>`;
+        const idx = order.indexOf(status);
+        return order.map((st, i) => `<div class="tl-item ${i < idx ? "done" : i === idx ? "cur" : ""}"><strong>${labels[st]}</strong><span>${i <= idx ? "✓ done" : "pending"}</span></div>`).join("");
+      }
+
+      function receiptHtml(o) {
+        const lineImg = it => it.kind === "box" || !it.noPhoto
+          ? `<img src="../assets/img/products/${it.image}.jpg" onerror="this.style.opacity=0">` : `<span class="t-herb">${I.leaf}</span>`;
+        return `
+        <div class="dr-head no-print">
+          <div><h3>${o.id}</h3><div class="cell-sub">${A.fmtDateTime(o.date)} · ${o.channel}</div></div>
+          <button class="dr-close">${I.close}</button>
+        </div>
+        <div class="dr-body receipt" id="receiptArea">
+          <div class="flex-between">
+            <div>${A.pill(o.status)}</div>
+            <select class="sel-full no-print" id="stSel" style="width:auto;padding:.45rem 2rem .45rem .8rem">
+              ${["pending", "processing", "transit", "delivered", "cancelled", "refunded"].map(st => `<option value="${st}" ${o.status === st ? "selected" : ""}>${A.cap(st)}</option>`).join("")}
+            </select>
+          </div>
+
+          <div class="card card-pad">
+            <div class="flex-between" style="align-items:flex-start">
+              <div><div class="cell-sub">Customer</div><div class="cell-main" style="font-size:1rem">${o.customer.name}</div>
+                <div class="cell-sub">${o.customer.email}</div><div class="cell-sub">${o.customer.phone}</div></div>
+              <div class="right"><div class="cell-sub">Deliver to</div><div class="cell-main" style="font-size:.9rem">${o.address || o.customer.area}</div>
+                <div class="cell-sub">${o.slot || "—"}</div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-pad" style="padding-bottom:.4rem"><div class="card-title" style="font-size:.95rem">Items</div></div>
+            <div style="padding:0 1.4rem 1rem">
+              ${o.items.map(it => `<div class="dr-line">${lineImg(it)}
+                <div><div class="cell-main">${it.name}</div><div class="cell-sub">${it.variant} · ×${it.qty}</div></div>
+                <strong>${A.money(it.price * it.qty)}</strong></div>`).join("")}
+              <div class="kv" style="margin-top:.5rem"><span class="k">Subtotal</span><span class="v">${A.money(o.subtotal)}</span></div>
+              <div class="kv"><span class="k">Delivery</span><span class="v">${o.delivery ? A.money(o.delivery) : "Free"}</span></div>
+              <div class="kv"><span class="k">Payment</span><span class="v">${o.payment}</span></div>
+              <div class="kv total"><span class="k">Total</span><span class="v">${A.money(o.total)}</span></div>
+            </div>
+          </div>
+
+          <div class="card card-pad no-print">
+            <div class="card-title" style="font-size:.95rem;margin-bottom:1rem">Fulfilment</div>
+            <div class="timeline">${steps(o.status)}</div>
+          </div>
+
+          <div class="flex no-print" style="gap:.6rem">
+            <button class="btn btn--ghost btn--block" id="dlBtn">${I.download} Download receipt</button>
+            <button class="btn btn--primary btn--block" id="printBtn">${I.doc} Print receipt</button>
+          </div>
+        </div>`;
+      }
+
+      draw();
+      // deep-link ?id=
+      const qid = new URLSearchParams(location.search).get("id");
+      if (qid) openOrder(qid);
+    })();
+  </script>
+</body>
+</html>

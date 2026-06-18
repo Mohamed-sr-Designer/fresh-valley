@@ -9,6 +9,36 @@
   const D = window.FV_DATA;
 
   /* ------------------------------------------------------------------ *
+   * Admin overrides — shared localStorage contract with admin.js.
+   * Applied here so every storefront page reflects the dashboard live:
+   * prices, theme colours, currency, store rules, content & sections.
+   * (Same browser only — swap for an API in production.)
+   * ------------------------------------------------------------------ */
+  const _AK = { orders: "fv_orders", clients: "fv_clients", theme: "fv_admin_theme", prices: "fv_admin_prices", pmeta: "fv_admin_pmeta", content: "fv_admin_content", images: "fv_admin_images", settings: "fv_admin_settings" };
+  function _ag(k, fb) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? fb : v; } catch { return fb; } }
+  function _as(k, v) { localStorage.setItem(k, JSON.stringify(v)); }
+  const ADMIN = {
+    settings: Object.assign({ storeName: "Fresh Valley", currency: "EGP", storeOpen: true, deliveryFee: 45, freeThreshold: 600, taxRate: 0 }, _ag(_AK.settings, {})),
+    content: _ag(_AK.content, {}),
+  };
+  // 1) price overrides → mutate the catalog so every render uses new prices
+  (function () {
+    const p = _ag(_AK.prices, {});
+    if (D && D.products) D.products.forEach((prod) => { if (p[prod.slug] != null) { if (prod.unit === "kg") prod.pricePerKg = +p[prod.slug]; else prod.pricePerUnit = +p[prod.slug]; } });
+    if (D && D.boxes) D.boxes.forEach((b) => { if (p[b.slug] != null) { const min = Math.min(...b.tiers.map((t) => t.price)); const delta = +p[b.slug] - min; b.tiers.forEach((t) => t.price = Math.max(0, Math.round(t.price + delta))); } });
+  })();
+  // 2) hide products switched off in the admin
+  (function () {
+    const m = _ag(_AK.pmeta, {});
+    if (D && D.products) D.products = D.products.filter((prod) => !(m[prod.slug] && m[prod.slug].active === false));
+  })();
+  // 3) theme tokens → apply to :root immediately (no flash of original palette)
+  (function () {
+    const t = _ag(_AK.theme, {}); const r = document.documentElement;
+    Object.keys(t).forEach((k) => r.style.setProperty(k, t[k]));
+  })();
+
+  /* ------------------------------------------------------------------ *
    * Icons (inline SVG, 24px, currentColor)
    * ------------------------------------------------------------------ */
   const I = {
@@ -40,7 +70,7 @@
   /* ------------------------------------------------------------------ *
    * Money + pricing
    * ------------------------------------------------------------------ */
-  const money = (n) => "EGP " + Math.round(n).toLocaleString("en-US");
+  const money = (n) => ADMIN.settings.currency + " " + Math.round(n).toLocaleString("en-US");
 
   const weightOptions = [
     { g: 500,  label: "½ kg" },
@@ -140,6 +170,57 @@
     return 70 + (h % 19);
   };
 
+  /* Store rules + order/client capture (feeds the admin dashboard) */
+  FV.settings = ADMIN.settings;
+  FV.orders = {
+    all: () => _ag(_AK.orders, []),
+    record(order) { const o = _ag(_AK.orders, []); o.unshift(order); _as(_AK.orders, o); return order; },
+  };
+  FV.clients = {
+    all: () => _ag(_AK.clients, []),
+    upsert(c) {
+      if (!c || !c.email) return;
+      const list = _ag(_AK.clients, []);
+      let r = list.find((x) => x.email === c.email);
+      if (r) { r.name = c.name || r.name; r.phone = c.phone || r.phone; r.area = c.area || r.area; }
+      else list.push({ id: "C" + String(Date.now()).slice(-6), name: c.name || c.email.split("@")[0], email: c.email, phone: c.phone || "", area: c.area || "", joined: new Date().toISOString(), status: c.status || "active" });
+      _as(_AK.clients, list);
+    },
+  };
+
+  /* Designed, printable receipt for the customer (account & confirmation) */
+  function receiptDoc(o) {
+    const cur = ADMIN.settings.currency, store = ADMIN.settings.storeName;
+    const m = (n) => cur + " " + Math.round(n || 0).toLocaleString("en-US");
+    const date = new Date(o.date);
+    const rows = o.items.map((it) => `<tr><td><div class="ri-n">${it.name}</div><div class="ri-v">${it.variant || ""}</div></td><td class="c">${it.qty}</td><td class="r b">${m(it.price * it.qty)}</td></tr>`).join("");
+    return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Receipt ${o.id} · ${store}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>*{box-sizing:border-box;margin:0}body{font-family:"Hanken Grotesk",system-ui,sans-serif;background:#EDE7DA;color:#1B2620;padding:28px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.rc{max-width:600px;margin:0 auto;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px -30px rgba(10,26,17,.4)}
+.h{background:#10261D;color:#F6F1E8;padding:24px 30px;display:flex;justify-content:space-between;align-items:flex-start}
+.h .b{display:flex;align-items:center;gap:10px}.h .lg{width:40px;height:40px;border-radius:11px;background:rgba(255,255,255,.1);display:grid;place-items:center;color:#C89B5C}.h .lg svg{width:22px;height:22px}
+.h h1{font-family:"Fraunces",serif;font-size:20px}.h p{font-size:11px;color:#B7B3A4}.h .m{text-align:right}.h .lab{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#C89B5C;font-weight:700}.h .id{font-family:"Fraunces",serif;font-size:18px}.h .dt{font-size:12px;color:#B7B3A4}
+.bd{padding:26px 30px}.pt{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding-bottom:20px;border-bottom:1px solid #E8E2D6}.pt .lab{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#8B978D;font-weight:700;margin-bottom:4px}.pt strong{font-size:14px;display:block}.pt span{font-size:12px;color:#5C6B61;display:block;line-height:1.5}
+table{width:100%;border-collapse:collapse;margin:20px 0}th{text-align:left;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#8B978D;font-weight:700;padding:0 0 10px;border-bottom:1px solid #E8E2D6}th.c,td.c{text-align:center}th.r,td.r{text-align:right}td{padding:11px 0;border-bottom:1px solid #F0EBE0;font-size:14px}.ri-n{font-weight:600}.ri-v{font-size:12px;color:#8B978D}td.b{font-weight:700}
+.tot{margin-left:auto;width:240px;margin-top:16px}.tot .row{display:flex;justify-content:space-between;padding:5px 0;font-size:14px;color:#5C6B61}.tot .g{border-top:2px solid #10261D;margin-top:6px;padding-top:11px;font-family:"Fraunces",serif;font-size:19px;color:#10261D;font-weight:600}
+.ft{text-align:center;padding:22px 30px 28px;border-top:1px solid #E8E2D6;color:#8B978D;font-size:12px}.ft .ty{font-family:"Fraunces",serif;font-size:16px;color:#10261D;margin-bottom:5px}
+.ac{max-width:600px;margin:16px auto 0;display:flex;gap:10px;justify-content:center}.ac button{font:inherit;font-weight:600;font-size:14px;padding:11px 22px;border-radius:11px;border:none;cursor:pointer}.ac .p{background:#10261D;color:#fff}.ac .c{background:#fff;border:1px solid #E8E2D6;color:#1B2620}
+@media print{body{background:#fff;padding:0}.rc{box-shadow:none;border-radius:0}.ac{display:none}}</style></head><body>
+<div class="rc"><div class="h"><div class="b"><span class="lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 21c-4 0-7-3-7-8 0-6 6-9 13-9 0 8-3 13-8 14-2 .4-3-1-3-3 0-3 3-5 6-6"/></svg></span><div><h1>${store}</h1><p>Export-grade produce · Cairo</p></div></div>
+<div class="m"><div class="lab">Receipt</div><div class="id">${o.id}</div><div class="dt">${date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</div></div></div>
+<div class="bd"><div class="pt"><div><div class="lab">Billed to</div><strong>${o.customer.name}</strong><span>${o.customer.email}</span><span>${o.customer.phone || ""}</span></div>
+<div><div class="lab">Deliver to</div><strong>${o.customer.area || ""}</strong><span>${o.address || ""}</span><span>${o.slot ? "Slot: " + o.slot : ""}</span></div></div>
+<table><thead><tr><th>Item</th><th class="c">Qty</th><th class="r">Amount</th></tr></thead><tbody>${rows}</tbody></table>
+<div class="tot"><div class="row"><span>Subtotal</span><span>${m(o.subtotal)}</span></div><div class="row"><span>Delivery</span><span>${o.delivery ? m(o.delivery) : "Free"}</span></div><div class="row g"><span>Total</span><span>${m(o.total)}</span></div></div></div>
+<div class="ft"><div class="ty">Thank you for hosting with ${store}.</div><div>Payment: ${o.payment || "Prepaid"} · A confirmation of your order.</div></div></div>
+<div class="ac"><button class="c" onclick="window.close()">Close</button><button class="p" onclick="window.print()">Print / Save as PDF</button></div></body></html>`;
+  }
+  FV.receipt = {
+    open(o) { const w = window.open("", "_blank", "width=680,height=900"); if (!w) { toast("Allow pop-ups to view the receipt"); return; } w.document.open(); w.document.write(receiptDoc(o)); w.document.close(); },
+    download(o) { const b = new Blob([receiptDoc(o)], { type: "text/html;charset=utf-8" }); const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "receipt-" + o.id + ".html"; document.body.appendChild(a); a.click(); a.remove(); },
+  };
+
   /* Quick add a product (default variant) */
   FV.quickAdd = function (slug) {
     const p = FV.find(slug); if (!p) return;
@@ -211,7 +292,7 @@
           <div class="inner">
             <div>
               <p class="eyebrow">The Fresh Valley Letter</p>
-              <h2>Eat with the season.<br>Host a little better.</h2>
+              <h2 data-fv="footer_news_title">Eat with the season.<br>Host a little better.</h2>
             </div>
             <div>
               <p class="muted" style="color:var(--on-dark-muted)">A quiet note each month — what is at its peak, a recipe worth keeping, and an idea for your next table. No noise.</p>
@@ -225,7 +306,7 @@
         <div class="footer-grid">
           <div class="footer-brand">
             <span class="brand-fallback" style="font-family:var(--font-display);font-size:1.6rem">Fresh Valley</span>
-            <p>Export-grade produce, curated for modern hosting and a quieter kind of luxury. Grown well, graded by hand, delivered with care.</p>
+            <p data-fv="footer_blurb">Export-grade produce, curated for modern hosting and a quieter kind of luxury. Grown well, graded by hand, delivered with care.</p>
           </div>
           <div class="footer-col">
             <h5>Shop</h5>
@@ -255,6 +336,7 @@
             <a href="account.html#orders">Orders</a>
             <a href="wishlist.html">Wishlist</a>
             <a href="account.html#subscriptions">Subscriptions</a>
+            <a href="admin/login.html">Admin Console</a>
           </div>
         </div>
         <div class="footer-bottom">
@@ -387,7 +469,7 @@
       </div>`).join("");
 
     const sub = FV.cart.subtotal();
-    const freeAt = 600, remain = Math.max(0, freeAt - sub);
+    const freeAt = ADMIN.settings.freeThreshold, remain = Math.max(0, freeAt - sub);
     foot.innerHTML = `
       ${remain > 0
         ? `<p style="font-size:var(--step--2);color:var(--text-muted);margin-bottom:.6rem">Add <strong>${money(remain)}</strong> more for complimentary delivery.</p>`
@@ -678,6 +760,54 @@
   }
 
   /* ------------------------------------------------------------------ *
+   * Apply admin content — store name, hero copy, section toggles,
+   * announcement bar & store-closed notice. Runs after the shell mounts.
+   * ------------------------------------------------------------------ */
+  function applyContent() {
+    const c = ADMIN.content || {}, s = ADMIN.settings;
+
+    // Store name across header, footer & title
+    if (s.storeName && s.storeName !== "Fresh Valley") {
+      $$(".brand-fallback").forEach((el) => el.textContent = s.storeName);
+      const gl2 = $(".gl2"); if (gl2) gl2.textContent = s.storeName;
+      document.title = document.title.replace(/Fresh Valley/g, s.storeName);
+    }
+
+    // Editable copy hooks: any [data-fv="key"] gets its text from content[key]
+    $$("[data-fv]").forEach((el) => { const k = el.dataset.fv; if (c[k]) el.textContent = c[k]; });
+
+    // Section visibility: [data-fv-section="key"] hidden when sec_key === false
+    $$("[data-fv-section]").forEach((el) => { if (c["sec_" + el.dataset.fvSection] === false) el.style.display = "none"; });
+
+    // Banner image overrides: replace any /banners/<key>.<ext> img + [data-fv-img] hooks
+    const imgs = _ag(_AK.images, {});
+    if (Object.keys(imgs).length) {
+      $$("img").forEach((img) => {
+        const k = img.getAttribute("data-fv-img");
+        if (k && imgs[k]) { img.src = imgs[k]; img.removeAttribute("srcset"); return; }
+        const m = (img.getAttribute("src") || "").match(/\/banners\/([a-z0-9-]+)\.(?:jpe?g|png|webp)/i);
+        if (m && imgs[m[1]]) { img.src = imgs[m[1]]; img.removeAttribute("srcset"); }
+      });
+    }
+
+    // Top bars: announcement + store-closed notice (stacked, header offset auto-measured)
+    const bars = [];
+    if (c.announce_on && c.announce_text) bars.push(["var(--forest)", "var(--cream)", c.announce_text]);
+    if (s.storeOpen === false) bars.push(["var(--pomegranate)", "#fff", "We're temporarily closed for new orders — checkout will reopen soon."]);
+    if (bars.length) {
+      const wrap = document.createElement("div"); wrap.id = "fvTopBars";
+      wrap.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:200";
+      wrap.innerHTML = bars.map((b) => `<div style="background:${b[0]};color:${b[1]};text-align:center;font-size:var(--step--2);font-weight:500;padding:.5rem 1rem;line-height:1.3">${b[2]}</div>`).join("");
+      document.body.appendChild(wrap);
+      requestAnimationFrame(() => {
+        const h = wrap.offsetHeight;
+        const hdr = $("#siteHeader"); if (hdr) hdr.style.top = h + "px";
+        document.body.style.paddingTop = h + "px";
+      });
+    }
+  }
+
+  /* ------------------------------------------------------------------ *
    * Boot
    * ------------------------------------------------------------------ */
   function boot() {
@@ -697,6 +827,7 @@
     if (foot) foot.innerHTML = buildFooter();
     document.body.insertAdjacentHTML("beforeend", buildDrawers());
     wire();
+    applyContent();
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();

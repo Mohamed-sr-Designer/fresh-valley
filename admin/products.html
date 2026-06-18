@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Products — Fresh Valley Admin</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,400..500&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+</head>
+<body class="ad-body">
+  <div id="adRoot"></div>
+
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/admin.js"></script>
+  <script>
+    (function () {
+      const A = window.ADMIN, I = A.I;
+      if (!A.requireAuth("products")) return;
+      const root = A.mountShell("products");
+      const s = A.settings();
+      const sold = {}; A.topProducts(999).forEach(t => sold[t.slug] = t.units);
+
+      let cat = "all", q = new URLSearchParams(location.search).get("q") || "", sort = "name";
+      const CATS = ["all", "fruits", "vegetables", "herbs", "boxes"];
+
+      function items() {
+        let list = A.allItems();
+        if (cat !== "all") list = list.filter(p => p.category === cat);
+        if (q) { const qq = q.toLowerCase(); list = list.filter(p => p.name.toLowerCase().includes(qq)); }
+        list.sort((a, b) => sort === "name" ? a.name.localeCompare(b.name)
+          : sort === "price" ? A.effectivePrice(b) - A.effectivePrice(a)
+          : sort === "sold" ? (sold[b.slug] || 0) - (sold[a.slug] || 0)
+          : A.pmeta(a.slug).stock - A.pmeta(b.slug).stock);
+        return list;
+      }
+
+      function strip() {
+        const all = A.allItems();
+        const active = all.filter(p => A.pmeta(p.slug).active).length;
+        const low = all.filter(p => { const m = A.pmeta(p.slug); return m.active && m.stock <= s.lowStockAt; }).length;
+        const edited = Object.keys(A.prices()).length;
+        return `<div class="grid grid-kpi" style="margin-bottom:1rem">
+          ${A.kpiCard({ icon: "box", label: "Catalog items", value: A.num(all.length) })}
+          ${A.kpiCard({ icon: "grid", tone: "info", label: "Active on site", value: A.num(active) })}
+          ${A.kpiCard({ icon: "bell", tone: "warn", label: "Low stock", value: A.num(low) })}
+          ${A.kpiCard({ icon: "money", tone: "brass", label: "Price overrides", value: A.num(edited) })}
+        </div>`;
+      }
+
+      function pthumb(p) {
+        if (p.kind === "box") return `<img class="t-thumb" src="../assets/img/products/${p.image}.jpg" onerror="this.style.display='none'">`;
+        if (p.noPhoto) return `<span class="t-herb">${I.leaf}</span>`;
+        return `<img class="t-thumb" src="../assets/img/products/sm/${p.slug}.jpg" onerror="this.onerror=null;this.src='../assets/img/products/${p.slug}.jpg'">`;
+      }
+
+      function stockBar(stock) {
+        const pctv = Math.min(100, stock / 10), tone = stock <= s.lowStockAt ? "var(--ad-bad)" : stock <= 300 ? "var(--ad-warn)" : "var(--ad-ok)";
+        return `<div style="min-width:120px"><div class="flex-between" style="font-size:.78rem"><span class="muted">${A.num(stock)} in stock</span></div>
+          <div class="hbar-track" style="margin-top:.3rem"><i style="width:${pctv}%;background:${tone}"></i></div></div>`;
+      }
+
+      function rowHtml(p) {
+        const m = A.pmeta(p.slug), price = A.effectivePrice(p), overridden = A.prices()[p.slug] != null;
+        return `<tr data-slug="${p.slug}">
+          <td><div class="t-prod">${pthumb(p)}<div><div class="cell-main">${p.name}</div><div class="cell-sub">${p.kind === "box" ? "Box" : A.cap(p.category)} · ${p.slug}</div></div></div></td>
+          <td><span class="tag-soft">${A.cap(p.category)}</span></td>
+          <td><div class="inp-money" style="width:128px"><span class="cur">${s.currency}</span>
+            <input class="inp price-inp" type="number" min="0" step="1" value="${price}" data-slug="${p.slug}" data-base="${A.basePrice(p)}" style="padding:.4rem .5rem .4rem 2.7rem;${overridden ? "border-color:var(--ad-brass);background:var(--ad-brass-soft)" : ""}">
+            </div><div class="cell-sub" style="margin-top:.2rem">${A.priceUnit(p)}${overridden ? ` · base ${A.money(A.basePrice(p))}` : ""}</div></td>
+          <td>${p.kind === "box" ? '<span class="muted" style="font-size:.8rem">—</span>' : `<input class="inp stock-inp" type="number" min="0" value="${m.stock}" data-slug="${p.slug}" style="width:92px;padding:.4rem .5rem">`}</td>
+          <td class="num">${A.num(sold[p.slug] || 0)}</td>
+          <td><button class="icon-act feat-btn ${m.featured ? "on" : ""}" data-slug="${p.slug}" title="Feature" style="${m.featured ? "color:var(--ad-brass)" : ""}">${star(m.featured)}</button></td>
+          <td><button class="switch active-sw" data-slug="${p.slug}" role="switch" aria-checked="${m.active}"></button></td>
+        </tr>`;
+      }
+      const star = on => `<svg viewBox="0 0 24 24" fill="${on ? "currentColor" : "none"}" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 3l2.6 5.6 6 .7-4.4 4.1 1.2 6L12 16.8 6.6 19.5l1.2-6L3.4 9.3l6-.7z"/></svg>`;
+
+      function tableCard() {
+        const list = items();
+        return `<div class="card">
+          <div class="toolbar">
+            <div class="seg" id="catSeg">${CATS.map(c => `<button data-c="${c}" class="${c === cat ? "on" : ""}">${c === "all" ? "All" : A.cap(c)}</button>`).join("")}</div>
+            <div class="t-search">${I.search}<input id="pq" placeholder="Search products…" value="${q}"></div>
+            <div class="right">
+              <select class="sel" id="sortSel">
+                <option value="name" ${sort === "name" ? "selected" : ""}>Name A–Z</option>
+                <option value="price" ${sort === "price" ? "selected" : ""}>Price high–low</option>
+                <option value="sold" ${sort === "sold" ? "selected" : ""}>Best selling</option>
+                <option value="stock" ${sort === "stock" ? "selected" : ""}>Stock low–high</option>
+              </select>
+              <button class="btn btn--ghost btn--sm" id="resetBtn">Reset prices</button>
+              <button class="btn btn--ghost btn--sm" id="expBtn">${I.download} Export</button>
+            </div>
+          </div>
+          <div class="table-wrap"><table class="ad-table">
+            <thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th class="num">Sold</th><th>Featured</th><th>Active</th></tr></thead>
+            <tbody>${list.map(rowHtml).join("")}</tbody>
+          </table></div>
+          <div class="flex-between" style="padding:1rem 1.3rem;border-top:1px solid var(--ad-line)">
+            <span class="muted" style="font-size:.82rem">${list.length} items · changes apply to the live storefront instantly</span>
+          </div>
+        </div>`;
+      }
+
+      function draw() {
+        root.innerHTML = A.pageHead("Products", "Set prices, stock and visibility. Edits go live on the storefront.",
+          `<button class="btn btn--primary btn--sm" id="expTop">${I.download} Export catalog</button>`) + strip() + tableCard();
+        wire();
+      }
+
+      function wire() {
+        document.getElementById("catSeg").addEventListener("click", e => { const b = e.target.closest("[data-c]"); if (b) { cat = b.dataset.c; draw(); } });
+        const pq = document.getElementById("pq");
+        pq.addEventListener("input", () => { q = pq.value; redraw(); });
+        document.getElementById("sortSel").addEventListener("change", e => { sort = e.target.value; redraw(); });
+        document.getElementById("expBtn").addEventListener("click", exportCSV);
+        document.getElementById("expTop").addEventListener("click", exportCSV);
+        document.getElementById("resetBtn").addEventListener("click", () => {
+          if (confirm("Remove all price overrides and restore original prices?")) { localStorage.removeItem(A.K.prices); A.toast("Prices reset to original"); draw(); }
+        });
+        bindRows();
+      }
+      function redraw() {
+        const c = document.querySelector(".card"); c.outerHTML = tableCard();
+        document.getElementById("catSeg").addEventListener("click", e => { const b = e.target.closest("[data-c]"); if (b) { cat = b.dataset.c; draw(); } });
+        const pq = document.getElementById("pq"); pq.focus(); pq.setSelectionRange(pq.value.length, pq.value.length);
+        pq.addEventListener("input", () => { q = pq.value; redraw(); });
+        document.getElementById("sortSel").addEventListener("change", e => { sort = e.target.value; redraw(); });
+        document.getElementById("expBtn").addEventListener("click", exportCSV);
+        document.getElementById("resetBtn").addEventListener("click", () => { if (confirm("Remove all price overrides?")) { localStorage.removeItem(A.K.prices); A.toast("Prices reset"); draw(); } });
+        bindRows();
+      }
+
+      function bindRows() {
+        document.querySelectorAll(".price-inp").forEach(inp => inp.addEventListener("change", () => {
+          const base = +inp.dataset.base, val = Math.max(0, Math.round(+inp.value || 0));
+          if (val === base) A.setPrice(inp.dataset.slug, null); else A.setPrice(inp.dataset.slug, val);
+          A.toast("Price updated · live on store");
+          if (val === base) inp.style.cssText = "padding:.4rem .5rem .4rem 2.7rem";
+          else inp.style.cssText = "padding:.4rem .5rem .4rem 2.7rem;border-color:var(--ad-brass);background:var(--ad-brass-soft)";
+        }));
+        document.querySelectorAll(".stock-inp").forEach(inp => inp.addEventListener("change", () => {
+          A.setPmeta(inp.dataset.slug, { stock: Math.max(0, Math.round(+inp.value || 0)) }); A.toast("Stock updated");
+        }));
+        document.querySelectorAll(".active-sw").forEach(sw => sw.addEventListener("click", () => {
+          const on = sw.getAttribute("aria-checked") !== "true"; sw.setAttribute("aria-checked", on);
+          A.setPmeta(sw.dataset.slug, { active: on }); A.toast(on ? "Now visible on store" : "Hidden from store");
+        }));
+        document.querySelectorAll(".feat-btn").forEach(b => b.addEventListener("click", () => {
+          const on = !b.classList.contains("on"); b.classList.toggle("on", on); b.style.color = on ? "var(--ad-brass)" : "";
+          b.innerHTML = star(on); A.setPmeta(b.dataset.slug, { featured: on }); A.toast(on ? "Featured" : "Unfeatured");
+        }));
+      }
+
+      function exportCSV() {
+        const rows = [["Product", "Slug", "Category", "Type", "Price", "Unit", "Base price", "Stock", "Active", "Featured", "Units sold"]];
+        items().forEach(p => { const m = A.pmeta(p.slug); rows.push([p.name, p.slug, p.category, p.kind, A.effectivePrice(p), A.priceUnit(p), A.basePrice(p), p.kind === "box" ? "" : m.stock, m.active, m.featured, sold[p.slug] || 0]); });
+        A.downloadCSV("fresh-valley-catalog.csv", rows); A.toast("Catalog exported");
+      }
+
+      draw();
+    })();
+  </script>
+</body>
+</html>

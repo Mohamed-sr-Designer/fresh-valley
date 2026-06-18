@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign in — Fresh Valley Admin</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,400..500&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+</head>
+<body class="ad-body">
+  <div class="ad-login">
+    <aside class="ad-login-aside">
+      <div class="l-brand">
+        <span class="ad-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 21c-4 0-7-3-7-8 0-6 6-9 13-9 0 8-3 13-8 14-2 .4-3-1-3-3 0-3 3-5 6-6"/></svg></span>
+        <strong>Fresh Valley</strong>
+      </div>
+      <div class="l-copy">
+        <h2>The whole store,<br>under your control.</h2>
+        <p>Orders, customers, prices, content and the brand itself — manage every part of Fresh Valley from one quiet console.</p>
+        <div class="l-stats">
+          <div><strong id="sRev">—</strong><span>Revenue tracked</span></div>
+          <div><strong id="sOrd">—</strong><span>Orders</span></div>
+          <div><strong id="sCli">—</strong><span>Customers</span></div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="ad-login-main">
+      <div class="ad-login-card card card-pad">
+        <h1>Welcome back</h1>
+        <p class="lead">Sign in to the Super Admin console.</p>
+        <form id="loginForm" novalidate>
+          <div class="field">
+            <label>Email</label>
+            <input class="inp" type="email" name="email" id="lEmail" placeholder="you@freshvalley.eg" autocomplete="username" required>
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <input class="inp" type="password" name="password" id="lPass" placeholder="••••••••" autocomplete="current-password" required>
+          </div>
+          <div class="flex-between" style="margin:.2rem 0 1.3rem">
+            <label class="flex" style="font-size:.82rem;color:var(--ad-muted);cursor:pointer"><input type="checkbox" id="lRemember" checked style="accent-color:var(--ad-forest)"> Keep me signed in</label>
+            <a href="#" style="font-size:.82rem;color:var(--ad-forest);font-weight:600">Forgot?</a>
+          </div>
+          <button class="btn btn--primary btn--block" type="submit" style="padding:.75rem">Sign in to console</button>
+          <p id="lErr" style="color:var(--ad-bad);font-size:.82rem;margin-top:.8rem;display:none"></p>
+        </form>
+        <p class="login-note">Demo console — sign in with <b>admin@freshvalley.eg</b> / <b>fresh-admin</b><br>(or any email &amp; a 4+ char password). Your session stays in this browser only.</p>
+      </div>
+    </main>
+  </div>
+
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/admin.js"></script>
+  <script>
+    (function () {
+      const A = window.ADMIN;
+      // If already signed in, go straight to the dashboard
+      const sess = A.store.get(A.K.session, null);
+      if (sess && sess.t && (Date.now() - sess.t < 6048e5)) { location.replace("index.html"); return; }
+
+      // Live stats from the seeded data
+      const k = A.kpis();
+      document.getElementById("sRev").textContent = A.money(k.revenue).replace(/,\d{3}$/, "k").replace(/(\d)\d{3}$/, "$1k");
+      document.getElementById("sRev").textContent = A.settings().currency + " " + Math.round(k.revenue / 1000) + "k";
+      document.getElementById("sOrd").textContent = A.num(k.orders);
+      document.getElementById("sCli").textContent = A.num(k.clients);
+
+      const form = document.getElementById("loginForm"), err = document.getElementById("lErr");
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const email = document.getElementById("lEmail").value.trim();
+        const pass = document.getElementById("lPass").value;
+        if (!email.includes("@") || pass.length < 1) {
+          err.textContent = "Enter your email and password.";
+          err.style.display = "block"; return;
+        }
+        const u = A.authUser(email, pass);
+        if (!u) { err.textContent = "Those credentials don't match a team member. Check with your Super Admin."; err.style.display = "block"; return; }
+        A.store.set(A.K.session, { email: u.email, t: Date.now(), name: u.name, role: u.role });
+        location.href = A.roleHome(u.role);
+      });
+    })();
+  </script>
+</body>
+</html>

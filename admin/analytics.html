@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics — Fresh Valley Admin</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,400..500&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+</head>
+<body class="ad-body">
+  <div id="adRoot"></div>
+
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/admin.js"></script>
+  <script>
+    (function () {
+      const A = window.ADMIN, I = A.I;
+      if (!A.requireAuth("analytics")) return;
+      const root = A.mountShell("analytics");
+      const k = A.kpis();
+      let range = 30;
+
+      function strip() {
+        const repeat = (() => {
+          const c = A.clients(); const rep = c.filter(x => x.orders > 1).length; const buyers = c.filter(x => x.orders > 0).length;
+          return buyers ? rep / buyers * 100 : 0;
+        })();
+        return `<div class="grid grid-kpi" style="margin-bottom:1rem">
+          ${A.kpiCard({ icon: "money", label: "Total revenue", value: A.money(k.revenue), grow: k.revenueGrow })}
+          ${A.kpiCard({ icon: "box", tone: "brass", label: "Units sold", value: A.num(k.units) })}
+          ${A.kpiCard({ icon: "chart", tone: "info", label: "Avg. order value", value: A.money(k.aov), grow: k.aovGrow })}
+          ${A.kpiCard({ icon: "users", tone: "warn", label: "Repeat rate", value: repeat.toFixed(0) + "%" })}
+        </div>`;
+      }
+
+      function revCard() {
+        const data = A.revenueByDay(range);
+        return `<div class="card">
+          <div class="card-head"><div class="card-title">Revenue trend<span class="sub">last ${range} days</span></div>
+            <div class="seg" id="rangeSeg">${[7, 30, 90].map(r => `<button data-r="${r}" class="${r === range ? "on" : ""}">${r}d</button>`).join("")}</div></div>
+          <div class="card-pad">${A.lineChart(data, { h: 250 })}</div>
+        </div>`;
+      }
+
+      function bestCard() {
+        const top = A.topProducts(8);
+        const max = Math.max(1, ...top.map(t => t.revenue));
+        return `<div class="card">
+          <div class="card-head"><div class="card-title">Best selling products</div><button class="card-link" id="expProd">${I.download} Export</button></div>
+          <div class="table-wrap"><table class="ad-table">
+            <thead><tr><th>#</th><th>Product</th><th class="num">Units</th><th class="num">Revenue</th><th style="width:30%">Share</th></tr></thead>
+            <tbody>${top.map((t, i) => `<tr>
+              <td class="muted">${i + 1}</td>
+              <td><div class="t-prod">${thumb(t)}<div><div class="cell-main">${t.name}</div><div class="cell-sub">${t.kind === "box" ? "Box" : "Product"}</div></div></div></td>
+              <td class="num">${A.num(t.units)}</td>
+              <td class="num"><strong>${A.money(t.revenue)}</strong></td>
+              <td><div class="hbar-track"><i style="width:${t.revenue / max * 100}%"></i></div></td>
+            </tr>`).join("")}</tbody>
+          </table></div>
+        </div>`;
+      }
+      function thumb(t) {
+        if (t.kind === "box" || !t.noPhoto) return `<img class="t-thumb" style="width:34px;height:34px" src="../assets/img/products/${t.image || t.slug}.jpg" onerror="this.style.display='none'">`;
+        return `<span class="t-herb" style="width:34px;height:34px">${I.leaf}</span>`;
+      }
+
+      function catCard() {
+        const cats = A.revenueByCategory();
+        const colors = ["var(--ad-forest)", "var(--ad-brass)", "#3478C7", "#7BA98C", "#C99F6A", "#9DB7A6"];
+        const total = cats.reduce((s2, c) => s2 + c.value, 0) || 1;
+        const max = Math.max(1, ...cats.map(c => c.value));
+        return `<div class="card">
+          <div class="card-head"><div class="card-title">Revenue by category</div></div>
+          <div class="card-pad" style="text-align:center">
+            ${A.donut(cats, { size: 184, colors, center: A.settings().currency + " " + Math.round(total / 1000) + "k", centerLabel: "total revenue" })}
+            <div style="display:flex;flex-direction:column;gap:.85rem;margin-top:1.4rem;text-align:left">
+              ${cats.map((c, i) => `<div>
+                <div class="flex-between" style="font-size:.86rem;margin-bottom:.35rem">
+                  <span class="flex" style="gap:.5rem"><i style="width:9px;height:9px;border-radius:3px;background:${colors[i % colors.length]};flex-shrink:0"></i>${c.label}</span>
+                  <span><strong>${A.money(c.value)}</strong> <span class="faint" style="font-size:.78rem">· ${Math.round(c.value / total * 100)}%</span></span>
+                </div>
+                <div class="hbar-track"><i style="width:${c.value / max * 100}%;background:${colors[i % colors.length]}"></i></div>
+              </div>`).join("")}
+            </div>
+          </div>
+        </div>`;
+      }
+
+      function areaCard() {
+        return `<div class="card">
+          <div class="card-head"><div class="card-title">Revenue by area</div></div>
+          <div class="card-pad">${A.hbars(A.revenueByArea(), { money: true })}</div>
+        </div>`;
+      }
+      function channelCard() {
+        return `<div class="card">
+          <div class="card-head"><div class="card-title">Revenue by channel</div></div>
+          <div class="card-pad">${A.hbars(A.revenueByChannel(), { money: true })}</div>
+        </div>`;
+      }
+      function dowCard() {
+        const orders = A.orders();
+        const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        const buckets = days.map((label, i) => ({ label, value: orders.filter(o => new Date(o.date).getDay() === i).length }));
+        return `<div class="card">
+          <div class="card-head"><div class="card-title">Orders by day of week</div></div>
+          <div class="card-pad">${A.barChart(buckets, { h: 200 })}</div>
+        </div>`;
+      }
+
+      function draw() {
+        root.innerHTML = A.pageHead("Analytics", "Profits, best sellers and where your growth comes from.",
+          `<button class="btn btn--primary btn--sm" id="expAll">${I.download} Full export</button>`)
+          + strip()
+          + `<div style="margin-bottom:1rem">${revCard()}</div>`
+          + `<div class="grid grid-wide" style="margin-bottom:1rem">${bestCard()}${catCard()}</div>`
+          + `<div class="grid grid-3">${areaCard()}${channelCard()}${dowCard()}</div>`;
+        document.getElementById("rangeSeg").addEventListener("click", e => { const b = e.target.closest("[data-r]"); if (b) { range = +b.dataset.r; draw(); } });
+        document.getElementById("expProd").addEventListener("click", expProducts);
+        document.getElementById("expAll").addEventListener("click", expAll);
+      }
+      function expProducts() {
+        const rows = [["Product", "Type", "Units sold", "Revenue"]];
+        A.topProducts(999).forEach(t => rows.push([t.name, t.kind, t.units, Math.round(t.revenue)]));
+        A.downloadCSV("fresh-valley-best-sellers.csv", rows); A.toast("Best sellers exported");
+      }
+      function expAll() {
+        const rows = [["Fresh Valley analytics", new Date().toLocaleString("en-GB")], [],
+          ["Revenue by category", "Amount"], ...A.revenueByCategory().map(c => [c.label, Math.round(c.value)]), [],
+          ["Revenue by area", "Amount"], ...A.revenueByArea().map(c => [c.label, Math.round(c.value)]), [],
+          ["Revenue by channel", "Amount"], ...A.revenueByChannel().map(c => [c.label, Math.round(c.value)]), [],
+          ["Best sellers", "Units", "Revenue"], ...A.topProducts(999).map(t => [t.name, t.units, Math.round(t.revenue)])];
+        A.downloadCSV("fresh-valley-analytics.csv", rows); A.toast("Analytics exported");
+      }
+      draw();
+    })();
+  </script>
+</body>
+</html>

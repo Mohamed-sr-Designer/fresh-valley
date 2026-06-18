@@ -161,6 +161,7 @@
           const name = (mode === "signup" && form.name.value.trim()) ? form.name.value.trim()
             : email.split("@")[0].replace(/[._-]+/g, " ").replace(/\b\w/g, c => c.toUpperCase());
           localStorage.setItem("fv_user", JSON.stringify({ name, email }));
+          if (FV.clients) FV.clients.upsert({ name, email, status: mode === "signup" ? "pending" : "active" });
           FV.toast("Welcome, " + name.split(" ")[0]);
           location.reload();
         });
@@ -168,13 +169,24 @@
       }
 
       const user = { name: stored.name || "Guest", first: (stored.name || "Guest").split(" ")[0], email: stored.email || "", phone: "+20 10 1234 5678", since: "2026" };
-      const orders = [
+      // Real orders this customer has placed (captured at checkout) take priority;
+      // fall back to sample orders so the demo account still looks populated.
+      const realOrders = (FV.orders ? FV.orders.all() : [])
+        .filter(o => o.customer && o.customer.email === user.email)
+        .map(o => ({
+          id: o.id,
+          date: new Date(o.date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }),
+          status: o.status === "delivered" ? "delivered" : "transit",
+          items: o.items.map(i => i.slug).filter(sl => FV.find(sl)),
+          total: o.total, slot: o.slot,
+        }));
+      const sampleOrders = [
         { id: "FV204881", date: "2 June 2026", status: "transit", items: ["strawberry","red-grapes","medjool-dates"], total: 0, slot: "Wed, 3–6" },
         { id: "FV198450", date: "24 May 2026", status: "delivered", items: ["orange","carrot","tomato","cucumber"], total: 0 },
         { id: "FV191207", date: "11 May 2026", status: "delivered", items: ["mango","green-grapes","banana"], total: 0 },
       ];
-      const lineFor = (slug, qty) => { const p = FV.find(slug); const v = FV.defaultVariant(p); return { p, v, qty }; };
-      orders.forEach(o => o.total = o.items.reduce((s, sl) => s + FV.defaultVariant(FV.find(sl)).price, 0) + 45);
+      sampleOrders.forEach(o => o.total = o.items.reduce((s, sl) => s + FV.defaultVariant(FV.find(sl)).price, 0) + 45);
+      const orders = realOrders.length ? realOrders : sampleOrders;
 
       const NAV = [
         ["profile","user","Profile"], ["addresses","pin","Addresses"], ["orders","bag","Orders"],
@@ -232,9 +244,10 @@
             <div class="oc-items">${orderItemsHtml(o)}</div>
             <div class="oc-foot">
               <strong style="color:var(--forest)">${FV.money(o.total)}</strong>
-              <div style="display:flex;gap:.6rem">
+              <div style="display:flex;gap:.6rem;flex-wrap:wrap">
                 <button class="btn btn--outline btn--sm" data-reorder="${o.id}">Reorder</button>
-                ${o.status === "transit" ? `<button class="btn btn--sm" data-track>Track</button>` : `<button class="btn btn--sm" style="--bg:var(--bone);--fg:var(--forest);--bd:var(--bone)">View</button>`}
+                <button class="btn btn--sm" data-receipt="${o.id}" style="--bg:var(--bone);--fg:var(--forest);--bd:var(--bone)">Receipt</button>
+                ${o.status === "transit" ? `<button class="btn btn--sm" data-track>Track</button>` : ``}
               </div>
             </div>
           </div>`).join("")}
@@ -317,9 +330,24 @@
       navEl.querySelectorAll("[data-tab]").forEach(b => b.addEventListener("click", () => show(b.dataset.tab)));
 
       // Reorder + track
+      // Build a full order object for the designed receipt (real order if captured, else from sample)
+      function fullOrder(o) {
+        const real = (FV.orders ? FV.orders.all() : []).find(x => x.id === o.id);
+        if (real) return real;
+        const items = o.items.map(sl => { const p = FV.find(sl); const v = FV.defaultVariant(p); return { name: p.name, variant: v.variant, qty: 1, price: v.price }; });
+        const sub = items.reduce((s, i) => s + i.price * i.qty, 0);
+        const delivery = sub >= (FV.settings ? FV.settings.freeThreshold : 600) ? 0 : (FV.settings ? FV.settings.deliveryFee : 45);
+        return { id: o.id, date: new Date().toISOString(), status: o.status,
+          customer: { name: user.name, email: user.email, phone: user.phone, area: "New Cairo" },
+          address: "New Cairo", slot: o.slot, payment: "Credit card", channel: "Website",
+          items, subtotal: sub, delivery, total: sub + delivery };
+      }
+
       panelsEl.addEventListener("click", e => {
         const ro = e.target.closest("[data-reorder]");
         if (ro) { const o = orders.find(x => x.id === ro.dataset.reorder); o.items.forEach(s => FV.quickAdd(s)); return; }
+        const rc = e.target.closest("[data-receipt]");
+        if (rc && FV.receipt) { const o = orders.find(x => x.id === rc.dataset.receipt); if (o) FV.receipt.open(fullOrder(o)); return; }
         if (e.target.closest("[data-track]")) { FV.toast("Your order is on the way", "Arriving " + orders[0].slot); }
         const t = e.target.closest(".toggle-pill");
         if (t) t.setAttribute("aria-pressed", t.getAttribute("aria-pressed") !== "true");

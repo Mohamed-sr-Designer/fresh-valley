@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Fresh Valley Admin</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,400..500&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+</head>
+<body class="ad-body">
+  <div id="adRoot"></div>
+
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/admin.js"></script>
+  <script>
+    (function () {
+      const A = window.ADMIN, I = A.I;
+      if (!A.requireAuth("dashboard")) return;
+      const root = A.mountShell("dashboard");
+      const k = A.kpis();
+      const s = A.settings();
+
+      let range = 30;
+
+      function sparkVals(days) { return A.revenueByDay(days).map(d => d.value); }
+
+      function kpiRow() {
+        return `<div class="grid grid-kpi" style="margin-bottom:1rem">
+          ${A.kpiCard({ icon: "money", tone: "", label: "Total revenue", value: A.money(k.revenue), grow: k.revenueGrow, spark: A.sparkline(sparkVals(14)) })}
+          ${A.kpiCard({ icon: "bag", tone: "brass", label: "Orders", value: A.num(k.orders), grow: k.ordersGrow, spark: A.sparkline(A.ordersByDay(14).map(d => d.value)) })}
+          ${A.kpiCard({ icon: "users", tone: "info", label: "Customers", value: A.num(k.clients), grow: 8.3 })}
+          ${A.kpiCard({ icon: "chart", tone: "warn", label: "Avg. order value", value: A.money(k.aov), grow: k.aovGrow })}
+        </div>`;
+      }
+
+      function salesCard() {
+        const data = A.revenueByDay(range);
+        const total = data.reduce((s2, d) => s2 + d.value, 0);
+        return `<div class="card">
+          <div class="card-head">
+            <div class="card-title">Sales overview
+              <span class="sub">Revenue, last ${range} days</span>
+            </div>
+            <div class="seg" id="rangeSeg">
+              ${[7, 30, 90].map(r => `<button data-r="${r}" class="${r === range ? "on" : ""}">${r}d</button>`).join("")}
+            </div>
+          </div>
+          <div class="card-pad">
+            <div class="flex-between" style="margin-bottom:.6rem">
+              <div><div class="kpi-val" style="font-size:1.7rem">${A.money(total)}</div>
+              <span class="muted" style="font-size:.82rem">${A.num(data.filter(d=>d.value>0).length)} active days · peak ${A.money(Math.max(...data.map(d=>d.value)))}</span></div>
+              <span class="kpi-trend up">${I.up}${A.pct(k.revenueGrow)}</span>
+            </div>
+            ${A.lineChart(data, { h: 240 })}
+          </div>
+        </div>`;
+      }
+
+      function weekCard() {
+        const data = A.ordersByDay(7);
+        const total = data.reduce((s2, d) => s2 + d.value, 0);
+        return `<div class="card">
+          <div class="card-head"><div class="card-title">Orders this week<span class="sub">by day</span></div></div>
+          <div class="card-pad">
+            <div class="kpi-val" style="font-size:1.7rem">${A.num(total)}</div>
+            <span class="muted" style="font-size:.82rem">${A.num(k.pendingOrders)} awaiting fulfilment</span>
+            ${A.barChart(data, { h: 210 })}
+          </div>
+        </div>`;
+      }
+
+      function distCard() {
+        const cats = A.revenueByCategory();
+        const colors = ["var(--ad-forest)", "var(--ad-brass)", "#3478C7", "#7BA98C", "#C99F6A", "#9DB7A6"];
+        const total = cats.reduce((s2, c) => s2 + c.value, 0) || 1;
+        const max = Math.max(1, ...cats.map(c => c.value));
+        return `<div class="card">
+          <div class="card-head"><div class="card-title">Revenue by category</div><a class="card-link" href="analytics.html">Details ${I.arrow}</a></div>
+          <div class="card-pad">
+            <div style="display:flex;gap:1.6rem;align-items:center;flex-wrap:wrap">
+              <div style="flex:0 0 150px;margin-inline:auto">${A.donut(cats, { size: 150, colors, center: s.currency + " " + Math.round(total / 1000) + "k", centerLabel: "total" })}</div>
+              <div style="flex:1;min-width:190px;display:flex;flex-direction:column;gap:.9rem">
+                ${cats.map((c, i) => `<div>
+                  <div class="flex-between" style="font-size:.86rem;margin-bottom:.35rem">
+                    <span class="flex" style="gap:.5rem"><i style="width:9px;height:9px;border-radius:3px;background:${colors[i % colors.length]};flex-shrink:0"></i>${c.label}</span>
+                    <span><strong>${A.money(c.value)}</strong> <span class="faint" style="font-size:.78rem">· ${Math.round(c.value / total * 100)}%</span></span>
+                  </div>
+                  <div class="hbar-track"><i style="width:${c.value / max * 100}%;background:${colors[i % colors.length]}"></i></div>
+                </div>`).join("")}
+              </div>
+            </div>
+          </div>
+        </div>`;
+      }
+
+      function recentOrders() {
+        const orders = A.orders().slice(0, 6);
+        return `<div class="card">
+          <div class="card-head"><div class="card-title">Recent orders</div><a class="card-link" href="orders.html">View all ${I.arrow}</a></div>
+          <div class="table-wrap"><table class="ad-table">
+            <thead><tr><th>Order</th><th>Customer</th><th>Status</th><th class="num">Total</th></tr></thead>
+            <tbody>${orders.map(o => `<tr style="cursor:pointer" onclick="location.href='orders.html?id=${o.id}'">
+              <td><span class="cell-id">${o.id}</span><div class="cell-sub">${A.timeAgo(o.date)}</div></td>
+              <td><div class="t-prod"><span class="ava-sm">${initials(o.customer.name)}</span><div><div class="cell-main">${o.customer.name}</div><div class="cell-sub">${o.customer.area}</div></div></div></td>
+              <td>${A.pill(o.status)}</td>
+              <td class="num"><strong>${A.money(o.total)}</strong></td>
+            </tr>`).join("")}</tbody>
+          </table></div>
+        </div>`;
+      }
+
+      function topProductsCard() {
+        const top = A.topProducts(5);
+        const max = Math.max(1, ...top.map(t => t.revenue));
+        return `<div class="card">
+          <div class="card-head"><div class="card-title">Top selling</div><a class="card-link" href="analytics.html">Analytics ${I.arrow}</a></div>
+          <div class="card-pad stack" style="gap:1rem">
+            ${top.map((t, i) => `<div class="flex" style="gap:.8rem">
+              ${thumb(t)}
+              <div style="flex:1;min-width:0">
+                <div class="flex-between"><span class="cell-main" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.name}</span><strong style="font-size:.85rem">${A.money(t.revenue)}</strong></div>
+                <div class="hbar-track" style="margin-top:.4rem"><i style="width:${t.revenue / max * 100}%"></i></div>
+                <div class="cell-sub" style="margin-top:.25rem">${A.num(t.units)} units sold</div>
+              </div>
+            </div>`).join("")}
+          </div>
+        </div>`;
+      }
+
+      function channelCard() {
+        const ch = A.revenueByChannel();
+        const total = ch.reduce((s2, c) => s2 + c.value, 0);
+        const icons = { "Website": "grid", "Mobile App": "box", "WhatsApp": "users", "Phone": "bell" };
+        return `<div class="card">
+          <div class="card-head"><div class="card-title">Sales by channel</div></div>
+          <div class="table-wrap"><table class="ad-table">
+            <thead><tr><th>Channel</th><th class="num">Share</th><th class="num">Revenue</th></tr></thead>
+            <tbody>${ch.map(c => `<tr>
+              <td><div class="t-prod"><span class="kpi-ico" style="width:34px;height:34px">${I[icons[c.label] || "grid"]}</span><span class="cell-main">${c.label}</span></div></td>
+              <td class="num">${Math.round(c.value / total * 100)}%</td>
+              <td class="num"><strong>${A.money(c.value)}</strong></td>
+            </tr>`).join("")}</tbody>
+          </table></div>
+        </div>`;
+      }
+
+      function initials(n) { return n.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase(); }
+      function thumb(t) {
+        if (t.kind === "box" || !t.noPhoto) return `<img class="t-thumb" src="../assets/img/products/${t.image || t.slug}.jpg" alt="" onerror="this.style.display='none'">`;
+        return `<span class="t-herb">${I.leaf}</span>`;
+      }
+
+      function draw() {
+        root.innerHTML =
+          A.pageHead(`Good ${new Date().getHours() < 12 ? "morning" : new Date().getHours() < 18 ? "afternoon" : "evening"}, Mohamed`,
+            `Here's what's happening at ${s.storeName} today.`,
+            `<button class="btn btn--ghost btn--sm" id="btnReset">Reset demo data</button><button class="btn btn--primary btn--sm" id="btnExport">${I.download} Export report</button>`)
+          + kpiRow()
+          + `<div class="grid grid-main" style="margin-bottom:1rem">${salesCard()}${weekCard()}</div>`
+          + `<div class="grid grid-wide" style="margin-bottom:1rem">${recentOrders()}${distCard()}</div>`
+          + `<div class="grid grid-2">${topProductsCard()}${channelCard()}</div>`;
+
+        document.getElementById("rangeSeg").addEventListener("click", (e) => {
+          const b = e.target.closest("[data-r]"); if (!b) return; range = +b.dataset.r; draw();
+        });
+        document.getElementById("btnExport").addEventListener("click", exportReport);
+        document.getElementById("btnReset").addEventListener("click", () => {
+          if (confirm("Reset all demo orders & customers to the seeded sample data?")) { A.resetData(); location.reload(); }
+        });
+      }
+
+      function exportReport() {
+        const rows = [["Fresh Valley — Summary report", new Date().toLocaleString("en-GB")], [],
+          ["Metric", "Value"],
+          ["Total revenue", A.money(k.revenue)],
+          ["Revenue (30d)", A.money(k.revenue30)],
+          ["Orders", k.orders],
+          ["Pending / processing", k.pendingOrders],
+          ["Customers", k.clients],
+          ["Avg. order value", A.money(k.aov)],
+          ["Units sold", k.units], [],
+          ["Top products", "Units", "Revenue"],
+          ...A.topProducts(10).map(t => [t.name, t.units, Math.round(t.revenue)]), [],
+          ["Revenue by category", "Amount"],
+          ...A.revenueByCategory().map(c => [c.label, Math.round(c.value)]),
+        ];
+        A.downloadCSV("fresh-valley-report-" + new Date().toISOString().slice(0, 10) + ".csv", rows);
+        A.toast("Report exported");
+      }
+
+      draw();
+    })();
+  </script>
+</body>
+</html>

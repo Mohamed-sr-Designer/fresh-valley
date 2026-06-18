@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Images — Fresh Valley Admin</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,400..500&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+  <style>
+    .img-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:1rem; }
+    @media (max-width:900px){ .img-grid { grid-template-columns:1fr; } }
+    .img-card .preview { aspect-ratio:16/9; background:var(--ad-surface-2); border-radius:12px 12px 0 0; overflow:hidden; position:relative; }
+    .img-card .preview img { width:100%; height:100%; object-fit:cover; }
+    .img-card .preview .ph { position:absolute; inset:0; display:grid; place-items:center; color:var(--ad-faint); }
+    .img-card .edited-tag { position:absolute; top:.6rem; left:.6rem; background:var(--ad-brass); color:#fff; font-size:.68rem; font-weight:700; padding:.2rem .5rem; border-radius:6px; }
+    .img-card .body { padding:1rem 1.1rem; }
+  </style>
+</head>
+<body class="ad-body">
+  <div id="adRoot"></div>
+
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/admin.js"></script>
+  <script>
+    (function () {
+      const A = window.ADMIN, I = A.I;
+      if (!A.requireAuth("images")) return;
+      const root = A.mountShell("images");
+
+      // Manageable image slots (banner filename = key, matched on the storefront)
+      const SLOTS = [
+        ["door-delivery", "Door delivery", "Homepage · The Art of Hosting + hosting page", "16/9"],
+        ["packaging", "Packaging / gift wrap", "Homepage · Why band + About + Account", "16/9"],
+        ["home-delivery", "Home delivery", "Hosting page + editorial quote", "16/9"],
+        ["delivery-van", "Delivery van", "Trusted-source banner", "16/9"],
+        ["staff-shirt", "Team / staff", "Trusted-source 'About us' card", "16/9"],
+        ["juice-bottles", "Juice bottles", "Reserved lifestyle banner", "16/9"],
+      ];
+      const PATH = "../assets/img/banners/";
+      const eff = (key) => { const o = A.images()[key]; return o || (PATH + key + ".jpg"); };
+
+      function card(s) {
+        const key = s[0], over = A.images()[key];
+        return `<div class="card img-card" data-key="${key}">
+          <div class="preview">
+            <img src="${eff(key)}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">
+            <div class="ph" style="display:none">${I.image}</div>
+            ${over ? `<span class="edited-tag">Custom</span>` : ""}
+          </div>
+          <div class="body">
+            <strong style="font-size:.95rem">${s[1]}</strong>
+            <div class="cell-sub" style="margin:.15rem 0 .8rem">${s[2]}</div>
+            <div class="field" style="margin-bottom:.6rem"><label>Image URL</label>
+              <input class="inp url-inp" data-key="${key}" value="${over && over.indexOf('data:') !== 0 ? over : ''}" placeholder="Paste an image URL…"></div>
+            <div class="flex" style="gap:.5rem;flex-wrap:wrap">
+              <label class="btn btn--ghost btn--sm" style="cursor:pointer">${I.upload} Upload
+                <input type="file" accept="image/*" class="file-inp" data-key="${key}" hidden></label>
+              <button class="btn btn--ghost btn--sm reset-btn" data-key="${key}" ${over ? "" : "disabled"}>Reset</button>
+              <a class="btn btn--soft btn--sm" href="../index.html" target="_blank">${I.eye} View store</a>
+            </div>
+          </div>
+        </div>`;
+      }
+
+      function draw() {
+        const edited = Object.keys(A.images()).length;
+        root.innerHTML = A.pageHead("Images", "Swap the storefront's banner &amp; lifestyle photography. Changes go live everywhere instantly.",
+          `${edited ? `<button class="btn btn--ghost btn--sm" id="resetAll">Reset all (${edited})</button>` : ""}`)
+          + `<div class="card card-pad" style="margin-bottom:1rem;background:var(--ad-accent-soft);border-color:transparent">
+              <div class="flex" style="gap:.7rem;align-items:flex-start">
+                <span class="kpi-ico" style="background:#fff">${I.image}</span>
+                <div><strong style="font-size:.9rem">Two ways to replace an image</strong>
+                <p class="muted" style="font-size:.83rem;margin-top:.2rem">Paste a hosted <b>image URL</b>, or <b>upload</b> a file from your computer. Uploaded images are stored with the site. To change product photos, use the Products page.</p></div>
+              </div>
+            </div>`
+          + `<div class="img-grid">${SLOTS.map(card).join("")}</div>`;
+        wire();
+      }
+
+      function wire() {
+        const ra = document.getElementById("resetAll");
+        if (ra) ra.addEventListener("click", () => { if (confirm("Reset every image back to the original photography?")) { localStorage.removeItem(A.K.images); A.toast("All images reset"); draw(); } });
+        document.querySelectorAll(".url-inp").forEach(inp => inp.addEventListener("change", () => {
+          const v = inp.value.trim(); A.setImage(inp.dataset.key, v || null); A.toast(v ? "Image updated · live on store" : "Image reset"); draw();
+        }));
+        document.querySelectorAll(".file-inp").forEach(inp => inp.addEventListener("change", (e) => {
+          const f = e.target.files[0]; if (!f) return;
+          if (f.size > 2.5 * 1024 * 1024) { A.toast("Please use an image under 2.5 MB"); return; }
+          const r = new FileReader();
+          r.onload = () => { A.setImage(inp.dataset.key, r.result); A.toast("Image uploaded · live on store"); draw(); };
+          r.readAsDataURL(f);
+        }));
+        document.querySelectorAll(".reset-btn").forEach(b => b.addEventListener("click", () => { A.setImage(b.dataset.key, null); A.toast("Reset to original"); draw(); }));
+      }
+
+      draw();
+    })();
+  </script>
+</body>
+</html>
