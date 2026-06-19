@@ -31,13 +31,14 @@
       const root = A.mountShell("images");
 
       // Manageable image slots (banner filename = key, matched on the storefront)
+      // [key, label, where-used, target page to view it on]
       const SLOTS = [
-        ["door-delivery", "Door delivery", "Homepage · The Art of Hosting + hosting page", "16/9"],
-        ["packaging", "Packaging / gift wrap", "Homepage · Why band + About + Account", "16/9"],
-        ["home-delivery", "Home delivery", "Hosting page + editorial quote", "16/9"],
-        ["delivery-van", "Delivery van", "Trusted-source banner", "16/9"],
-        ["staff-shirt", "Team / staff", "Trusted-source 'About us' card", "16/9"],
-        ["juice-bottles", "Juice bottles", "Reserved lifestyle banner", "16/9"],
+        ["door-delivery", "Door delivery", "Homepage · The Art of Hosting", "../index.html"],
+        ["packaging", "Packaging / gift wrap", "Homepage · Why band + About", "../index.html"],
+        ["home-delivery", "Home delivery", "The Art of Hosting page", "../hosting.html"],
+        ["delivery-van", "Delivery van", "The Art of Hosting page", "../hosting.html"],
+        ["staff-shirt", "Team / staff", "About page", "../about.html"],
+        ["juice-bottles", "Juice bottles", "Reserved lifestyle banner", "../index.html"],
       ];
       const PATH = "../assets/img/banners/";
       const eff = (key) => { const o = A.images()[key]; return o || (PATH + key + ".jpg"); };
@@ -59,7 +60,7 @@
               <label class="btn btn--ghost btn--sm" style="cursor:pointer">${I.upload} Upload
                 <input type="file" accept="image/*" class="file-inp" data-key="${key}" hidden></label>
               <button class="btn btn--ghost btn--sm reset-btn" data-key="${key}" ${over ? "" : "disabled"}>Reset</button>
-              <a class="btn btn--soft btn--sm" href="../index.html" target="_blank">${I.eye} View store</a>
+              <a class="btn btn--soft btn--sm" href="${s[3]}" target="_blank">${I.eye} See on site</a>
             </div>
           </div>
         </div>`;

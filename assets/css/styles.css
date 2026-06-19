@@ -330,7 +330,7 @@ p { text-wrap: pretty; }
     transition: transform .3s var(--ease-out);
   }
   .app-bar .ab-center:active { transform: scale(.9); }
-  .app-bar .ab-center svg { width: 24px; height: 24px; }
+  .app-bar .ab-center svg { width: 24px; height: 24px; display: block; margin: 0 auto; }
   .app-bar .ab-count {
     position: absolute; top: -3px; right: -5px; min-width: 17px; height: 17px; padding: 0 4px;
     background: var(--pomegranate); color: var(--cream); border-radius: 999px;
@@ -751,6 +751,12 @@ body[data-hero="true"] .site-header.transparent:not(.scrolled) { --hdr-fg: var(-
   /* App top bar: transparent, avatar + greeting + circular search only */
   .site-header { padding: .65rem 1.1rem 0; }
   .header-inner { background: transparent !important; border: 0 !important; box-shadow: none !important; -webkit-backdrop-filter: none; backdrop-filter: none; padding: 0; min-height: 52px; }
+  /* Once scrolled, give the whole bar a solid frosted background so page content
+     never shows through the greeting / logo / search. */
+  .site-header.scrolled { padding-bottom: .55rem; background: rgba(248,243,231,.92);
+    -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2);
+    box-shadow: 0 6px 22px -14px rgba(16,38,29,.35); }
+  .site-header.scrolled .h-greet { color: var(--text); }
   .brand { display: none; }
   .header-inner { grid-template-columns: 1fr auto; }
   .h-greet { display: flex; }

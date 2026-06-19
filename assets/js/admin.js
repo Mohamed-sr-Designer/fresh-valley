@@ -42,8 +42,26 @@
 
   const store = {
     get(k, fb) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? fb : v; } catch { return fb; } },
-    set(k, v) { localStorage.setItem(k, JSON.stringify(v)); },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { console.warn("Storage write failed for " + k, e); try { window.ADMIN && ADMIN.toast && ADMIN.toast("Couldn't save — storage is full. Try a smaller image."); } catch (_) {} return false; } },
   };
+
+  // Safety net — never leave a blank white admin screen. If an uncaught error
+  // fires before the shell (or login) mounts, show a recovery panel instead.
+  window.addEventListener("error", function () {
+    setTimeout(function () {
+      if (document.querySelector(".ad-sidebar") || document.querySelector(".ad-login") || document.getElementById("adFatal")) return;
+      var d = document.createElement("div"); d.id = "adFatal";
+      d.style.cssText = "max-width:460px;margin:14vh auto;padding:2rem;font-family:system-ui,sans-serif;text-align:center;color:#1B2620";
+      d.innerHTML = '<h2 style="font-family:Georgia,serif;margin:0 0 .5rem;font-size:1.5rem">Something hiccupped</h2>'
+        + '<p style="color:#5C6B61;margin:0 0 1.3rem;font-size:.92rem">The console hit an unexpected error. Reload, or reset the demo data if it keeps happening.</p>'
+        + '<div style="display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap">'
+        + '<button onclick="location.reload()" style="font:inherit;padding:.6rem 1.1rem;border:1px solid #E8E2D6;border-radius:10px;background:#fff;cursor:pointer">Reload</button>'
+        + '<button onclick="try{[\'fv_orders\',\'fv_clients\',\'fv_admin_seeded\'].forEach(function(k){localStorage.removeItem(k)})}catch(e){};location.reload()" style="font:inherit;padding:.6rem 1.1rem;border:0;border-radius:10px;background:#16361F;color:#fff;cursor:pointer">Reset demo data</button>'
+        + '<a href="login.html" style="font:inherit;padding:.6rem 1.1rem;border:1px solid #E8E2D6;border-radius:10px;background:#fff;cursor:pointer;text-decoration:none;color:inherit">Sign in again</a>'
+        + '</div>';
+      (document.body || document.documentElement).appendChild(d);
+    }, 80);
+  });
 
   /* ------------------------------------------------------------------ *
    * Deterministic PRNG — so seeded demo data is identical every load
@@ -236,8 +254,9 @@
     const regs = store.get(K.clients, []);
     const orders = store.get(K.orders, []);
     const byEmail = {};
-    regs.forEach((c) => { byEmail[c.email] = Object.assign({ orders: 0, spent: 0, last: null }, c); });
+    regs.forEach((c) => { if (c && c.email) byEmail[c.email] = Object.assign({ orders: 0, spent: 0, last: null }, c); });
     orders.forEach((o) => {
+      if (!o || !o.customer || !o.customer.email) return;   // skip malformed orders
       const e = o.customer.email;
       if (!byEmail[e]) byEmail[e] = { id: o.customer.id || "C" + (Math.random() * 9000 | 0), name: o.customer.name, email: e, phone: o.customer.phone, area: o.customer.area, joined: o.date, status: "active", orders: 0, spent: 0, last: null };
       const c = byEmail[e];
@@ -254,7 +273,7 @@
   /* ------------------------------------------------------------------ *
    * Analytics roll-ups
    * ------------------------------------------------------------------ */
-  function paid(o) { return o.status !== "cancelled" && o.status !== "refunded"; }
+  function paid(o) { return o && o.status !== "cancelled" && o.status !== "refunded"; }
 
   function revenueByDay(days) {
     const orders = store.get(K.orders, []).filter(paid);
@@ -282,7 +301,7 @@
   function topProducts(limit) {
     const orders = store.get(K.orders, []).filter(paid);
     const map = {};
-    orders.forEach((o) => o.items.forEach((it) => {
+    orders.forEach((o) => (o.items || []).forEach((it) => {
       const k = it.slug;
       if (!map[k]) map[k] = { slug: k, name: it.name, kind: it.kind, image: it.image, noPhoto: it.noPhoto, units: 0, revenue: 0 };
       map[k].units += it.qty; map[k].revenue += it.price * it.qty;
@@ -292,7 +311,7 @@
   function revenueByCategory() {
     const orders = store.get(K.orders, []).filter(paid);
     const map = {};
-    orders.forEach((o) => o.items.forEach((it) => {
+    orders.forEach((o) => (o.items || []).forEach((it) => {
       const item = findItem(it.slug);
       const cat = it.kind === "box" ? "Boxes" : (item ? cap(item.category) : "Other");
       map[cat] = (map[cat] || 0) + it.price * it.qty;
@@ -569,6 +588,26 @@
       toast(next ? "Store is now <b>open</b>" : "Store is now <b>closed</b> · maintenance page is live");
       setTimeout(() => location.reload(), 700);
     });
+
+    // Notifications panel
+    const bell = document.getElementById("adBell");
+    bell?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      let p = document.getElementById("adNotif");
+      if (p) { p.remove(); return; }
+      const orders = store.get(K.orders, []);
+      const pending = orders.filter((o) => o.status === "pending" || o.status === "processing");
+      const low = allItems().filter((x) => x.kind !== "box").filter((x) => { const m = pmeta(x.slug); return m.active && m.stock <= settings().lowStockAt; });
+      const rows = [];
+      pending.slice(0, 6).forEach((o) => rows.push(`<a class="nf-row" href="orders.html?id=${o.id}"><span class="nf-ic" style="background:var(--ad-warn-bg);color:var(--ad-warn)">${I.bag}</span><span class="nf-tx"><strong>${o.id} · ${o.customer.name}</strong><em>${money(o.total)} · ${cap(o.status)} · ${timeAgo(o.date)}</em></span></a>`));
+      low.slice(0, 5).forEach((x) => rows.push(`<a class="nf-row" href="products.html?q=${encodeURIComponent(x.name)}"><span class="nf-ic" style="background:var(--ad-bad-bg);color:var(--ad-bad)">${I.box}</span><span class="nf-tx"><strong>Low stock · ${x.name}</strong><em>${num(pmeta(x.slug).stock)} left</em></span></a>`));
+      p = document.createElement("div"); p.id = "adNotif"; p.className = "ad-notif";
+      p.innerHTML = `<div class="nf-head"><strong>Notifications</strong><span>${rows.length} alerts</span></div>
+        <div class="nf-body">${rows.length ? rows.join("") : `<div class="nf-empty">${I.bell}<p>All caught up — nothing needs you right now.</p></div>`}</div>`;
+      document.querySelector(".ad-topbar").appendChild(p);
+      requestAnimationFrame(() => p.classList.add("open"));
+    });
+    document.addEventListener("click", (e) => { const p = document.getElementById("adNotif"); if (p && !e.target.closest("#adNotif") && !e.target.closest("#adBell")) p.remove(); });
     document.getElementById("adUser")?.addEventListener("click", (e) => { e.currentTarget.classList.toggle("open"); });
     // global search
     const si = document.getElementById("adSearch"), res = document.getElementById("adSearchRes");
@@ -621,7 +660,10 @@
   }
   const session = () => store.get(K.session, null);
   const currentRole = () => { const s = session(); return s ? (s.role || "super-admin") : null; };
-  const roleHome = (role) => ((ROLES[role] || ROLES["super-admin"]).pages[0]) + ".html";
+  // page key → actual file (the dashboard key lives in index.html, not dashboard.html)
+  const PAGE_FILE = { dashboard: "index.html", orders: "orders.html", customers: "customers.html", analytics: "analytics.html", products: "products.html", content: "content.html", appearance: "appearance.html", images: "images.html", users: "users.html", settings: "settings.html" };
+  const pageFile = (key) => PAGE_FILE[key] || "index.html";
+  const roleHome = (role) => pageFile((ROLES[role] || ROLES["super-admin"]).pages[0]);
 
   function requireAuth(pageKey) {
     const sess = store.get(K.session, null);
@@ -676,7 +718,7 @@
   /* ------------------------------------------------------------------ *
    * Designed, printable receipt (brand-styled standalone HTML)
    * ------------------------------------------------------------------ */
-  function receiptDoc(o, autoprint) {
+  function receiptDoc(o, autoprint, embedded) {
     const s = settings();
     const cur = s.currency;
     const m = (n) => cur + " " + Math.round(n || 0).toLocaleString("en-US");
@@ -757,15 +799,33 @@
     <div class="rc-foot"><div class="ty">Thank you for hosting with ${s.storeName}.</div>
       <div>This is a confirmation of your order. Questions? Reply to your order email anytime.</div></div>
   </div>
-  <div class="rc-actions"><button class="c" onclick="window.close()">Close</button><button class="p" onclick="window.print()">Print / Save as PDF</button></div>
+  ${embedded ? "" : `<div class="rc-actions"><button class="c" onclick="window.close()">Close</button><button class="p" onclick="window.print()">Print / Save as PDF</button></div>`}
   ${autoprint ? "<script>window.addEventListener('load',function(){setTimeout(function(){window.print()},400)})<\/script>" : ""}
 </body></html>`;
   }
 
+  // In-page receipt viewer — renders into a visible iframe (no pop-ups), with
+  // Print/Save-as-PDF + download. Reliable everywhere, unlike window.open.
   function openReceipt(o, autoprint) {
-    const w = window.open("", "_blank", "width=720,height=900");
-    if (!w) { toast("Allow pop-ups to open the receipt"); return; }
-    w.document.open(); w.document.write(receiptDoc(o, autoprint)); w.document.close();
+    let ov = document.getElementById("rcOverlay"); if (ov) ov.remove();
+    ov = document.createElement("div"); ov.id = "rcOverlay";
+    ov.style.cssText = "position:fixed;inset:0;z-index:9999;background:rgba(10,26,17,.55);display:flex;flex-direction:column;align-items:center;padding:22px;overflow:auto";
+    ov.innerHTML = `
+      <div style="width:100%;max-width:680px;display:flex;gap:.5rem;justify-content:flex-end;margin-bottom:12px">
+        <button class="btn btn--ghost btn--sm" id="rcClose" style="background:#fff">${I.close} Close</button>
+        <button class="btn btn--ghost btn--sm" id="rcDl" style="background:#fff">${I.download} .html</button>
+        <button class="btn btn--primary btn--sm" id="rcPrint">${I.download} Save as PDF</button>
+      </div>
+      <iframe id="rcFrame" title="Receipt" style="width:100%;max-width:680px;height:80vh;border:0;border-radius:14px;background:#fff;box-shadow:0 30px 70px -30px rgba(0,0,0,.6)"></iframe>`;
+    document.body.appendChild(ov);
+    const f = ov.querySelector("#rcFrame");
+    f.srcdoc = receiptDoc(o, false, true);
+    const doPrint = () => { try { f.contentWindow.focus(); f.contentWindow.print(); } catch (e) {} };
+    ov.querySelector("#rcPrint").onclick = doPrint;
+    ov.querySelector("#rcDl").onclick = () => downloadReceiptHTML(o);
+    ov.querySelector("#rcClose").onclick = () => ov.remove();
+    ov.addEventListener("click", (e) => { if (e.target === ov) ov.remove(); });
+    if (autoprint) f.addEventListener("load", () => setTimeout(doPrint, 500), { once: true });
   }
   function downloadReceiptHTML(o) {
     const blob = new Blob([receiptDoc(o, false)], { type: "text/html;charset=utf-8" });

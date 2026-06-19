@@ -137,6 +137,24 @@
 .ad-icon-btn svg { width: 19px; height: 19px; }
 .ad-icon-btn .dot { position: absolute; top: 9px; right: 10px; width: 7px; height: 7px; border-radius: 50%;
   background: var(--ad-brass); border: 1.5px solid #fff; }
+
+/* Notifications panel */
+.ad-notif { position: absolute; top: 60px; right: clamp(1rem, 3vw, 2rem); width: min(360px, 92vw); background: #fff;
+  border: 1px solid var(--ad-line); border-radius: 14px; box-shadow: var(--ad-shadow); z-index: 50;
+  opacity: 0; transform: translateY(-8px); transition: all .18s var(--ad-ease); overflow: hidden; }
+.ad-notif.open { opacity: 1; transform: none; }
+.nf-head { display: flex; align-items: center; justify-content: space-between; padding: .9rem 1.1rem; border-bottom: 1px solid var(--ad-line); }
+.nf-head strong { font-size: .95rem; } .nf-head span { font-size: .76rem; color: var(--ad-faint); }
+.nf-body { max-height: 60vh; overflow-y: auto; padding: .4rem; }
+.nf-row { display: flex; align-items: center; gap: .7rem; padding: .6rem .65rem; border-radius: 10px; }
+.nf-row:hover { background: var(--ad-surface-2); }
+.nf-ic { width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; flex-shrink: 0; }
+.nf-ic svg { width: 17px; height: 17px; }
+.nf-tx { display: flex; flex-direction: column; min-width: 0; }
+.nf-tx strong { font-size: .84rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nf-tx em { font-style: normal; font-size: .76rem; color: var(--ad-faint); }
+.nf-empty { text-align: center; padding: 2rem 1rem; color: var(--ad-faint); }
+.nf-empty svg { width: 32px; height: 32px; margin: 0 auto .6rem; opacity: .5; }
 .ad-user { display: flex; align-items: center; gap: .55rem; padding: .3rem .5rem .3rem .35rem; border-radius: 12px;
   cursor: pointer; position: relative; transition: background .18s; }
 .ad-user:hover { background: var(--ad-surface-2); }

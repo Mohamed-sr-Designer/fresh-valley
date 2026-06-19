@@ -198,7 +198,7 @@
   };
 
   /* Designed, printable receipt for the customer (account & confirmation) */
-  function receiptDoc(o) {
+  function receiptDoc(o, embedded) {
     const cur = ADMIN.settings.currency, store = ADMIN.settings.storeName;
     const m = (n) => cur + " " + Math.round(n || 0).toLocaleString("en-US");
     const date = new Date(o.date);
@@ -223,10 +223,24 @@ table{width:100%;border-collapse:collapse;margin:20px 0}th{text-align:left;font-
 <table><thead><tr><th>Item</th><th class="c">Qty</th><th class="r">Amount</th></tr></thead><tbody>${rows}</tbody></table>
 <div class="tot"><div class="row"><span>Subtotal</span><span>${m(o.subtotal)}</span></div><div class="row"><span>Delivery</span><span>${o.delivery ? m(o.delivery) : "Free"}</span></div><div class="row g"><span>Total</span><span>${m(o.total)}</span></div></div></div>
 <div class="ft"><div class="ty">Thank you for hosting with ${store}.</div><div>Payment: ${o.payment || "Prepaid"} · A confirmation of your order.</div></div></div>
-<div class="ac"><button class="c" onclick="window.close()">Close</button><button class="p" onclick="window.print()">Print / Save as PDF</button></div></body></html>`;
+${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Close</button><button class="p" onclick="window.print()">Print / Save as PDF</button></div>`}</body></html>`;
   }
   FV.receipt = {
-    open(o) { const w = window.open("", "_blank", "width=680,height=900"); if (!w) { toast("Allow pop-ups to view the receipt"); return; } w.document.open(); w.document.write(receiptDoc(o)); w.document.close(); },
+    // In-page overlay + iframe (no pop-up blockers) with Print / Save-as-PDF + download
+    open(o) {
+      let ov = document.getElementById("fvRcOverlay"); if (ov) ov.remove();
+      ov = document.createElement("div"); ov.id = "fvRcOverlay";
+      ov.style.cssText = "position:fixed;inset:0;z-index:9999;background:rgba(10,26,17,.6);display:flex;flex-direction:column;align-items:center;padding:20px;overflow:auto";
+      ov.innerHTML = `<div style="width:100%;max-width:640px;display:flex;gap:.5rem;justify-content:flex-end;margin-bottom:10px">
+          <button class="btn btn--sm" id="fvRcClose" style="--bg:#fff;--fg:var(--forest);--bd:#fff">Close</button>
+          <button class="btn btn--brass btn--sm" id="fvRcPrint">Save as PDF</button></div>
+        <iframe id="fvRcFrame" title="Receipt" style="width:100%;max-width:640px;height:80vh;border:0;border-radius:14px;background:#fff;box-shadow:0 30px 70px -30px rgba(0,0,0,.6)"></iframe>`;
+      document.body.appendChild(ov);
+      const f = ov.querySelector("#fvRcFrame"); f.srcdoc = receiptDoc(o, true);
+      ov.querySelector("#fvRcPrint").onclick = () => { try { f.contentWindow.focus(); f.contentWindow.print(); } catch (e) {} };
+      ov.querySelector("#fvRcClose").onclick = () => ov.remove();
+      ov.addEventListener("click", (e) => { if (e.target === ov) ov.remove(); });
+    },
     download(o) { const b = new Blob([receiptDoc(o)], { type: "text/html;charset=utf-8" }); const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "receipt-" + o.id + ".html"; document.body.appendChild(a); a.click(); a.remove(); },
   };
 
