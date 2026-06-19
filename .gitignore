@@ -4,6 +4,12 @@ Thumbs.db
 desktop.ini
 *.log
 
-# Node (no deps today, kept for safety)
+# Node
 node_modules/
 npm-debug.log*
+
+# Backend secrets & runtime data (NEVER commit these)
+server/.env
+server/node_modules/
+server/data/
+server/uploads/
