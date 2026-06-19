@@ -518,7 +518,7 @@
     return `
     <aside class="ad-sidebar" id="adSidebar">
       <div class="ad-brand">
-        <img class="ad-brand-logo" src="../assets/img/logo.png" alt="Fresh Valley">
+        <a href="../index.html" title="Back to storefront" style="display:flex"><img class="ad-brand-logo" src="../assets/img/logo.png" alt="Fresh Valley"></a>
         <span class="ad-brand-tag">${role === "super-admin" ? "Console" : "Design & SEO"}</span>
         <button class="ad-side-close" id="adSideClose" aria-label="Close menu">${I.close}</button>
       </div>

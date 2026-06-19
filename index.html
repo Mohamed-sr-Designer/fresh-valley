@@ -243,13 +243,14 @@
             <p class="eyebrow" data-fv="bs_eyebrow">Loved by our tables</p>
             <h2 class="title" style="font-size: var(--step-3)" data-fv="bs_title">Best Sellers</h2>
           </div>
-          <div style="display:flex;align-items:center;gap:1rem">
-            <a class="link-arrow hide-mobile" href="products.html?collection=best-sellers">View all
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-            <div class="rail-nav"><button class="rail-btn" id="bsPrev" aria-label="Previous"></button><button class="rail-btn" id="bsNext" aria-label="Next"></button></div>
-          </div>
+          <a class="link-arrow hide-mobile" href="products.html?collection=best-sellers">View all
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         </div>
-        <div class="rail" id="bestSellers"></div>
+        <div class="rail-wrap">
+          <button class="rail-side rail-side--prev" id="bsPrev" aria-label="Previous products"></button>
+          <div class="rail" id="bestSellers"></div>
+          <button class="rail-side rail-side--next" id="bsNext" aria-label="Next products"></button>
+        </div>
       </div>
     </section>
 

@@ -13,24 +13,21 @@
 <body class="ad-body">
   <div class="ad-login">
     <aside class="ad-login-aside">
-      <div class="l-brand">
+      <a class="l-brand" href="../index.html" title="Back to Fresh Valley" style="text-decoration:none">
         <img src="../assets/img/logo-cream.png" alt="Fresh Valley" style="height:46px;width:auto">
-      </div>
+      </a>
       <div class="l-copy">
         <h2>The whole store,<br>under your control.</h2>
         <p>Orders, customers, prices, content and the brand itself — manage every part of Fresh Valley from one quiet console.</p>
-        <div class="l-stats">
-          <div><strong id="sRev">—</strong><span>Revenue tracked</span></div>
-          <div><strong id="sOrd">—</strong><span>Orders</span></div>
-          <div><strong id="sCli">—</strong><span>Customers</span></div>
-        </div>
+        <a href="../index.html" style="display:inline-flex;align-items:center;gap:.45rem;margin-top:1.8rem;color:var(--ad-brass);font-size:.88rem;font-weight:600">&larr; Back to the website</a>
       </div>
     </aside>
 
     <main class="ad-login-main">
       <div class="ad-login-card card card-pad">
+        <a href="../index.html" style="display:inline-flex;align-items:center;gap:.4rem;color:var(--ad-muted);font-size:.82rem;font-weight:600;margin-bottom:1.1rem">&larr; Back to website</a>
         <h1>Welcome back</h1>
-        <p class="lead">Sign in to the Super Admin console.</p>
+        <p class="lead">Sign in to the Fresh Valley console.</p>
         <form id="loginForm" novalidate>
           <div class="field">
             <label>Email</label>
@@ -65,13 +62,6 @@
       // If already signed in, go straight to the dashboard
       const sess = A.store.get(A.K.session, null);
       if (sess && sess.t && (Date.now() - sess.t < 6048e5)) { location.replace("index.html"); return; }
-
-      // Live stats from the seeded data
-      const k = A.kpis();
-      document.getElementById("sRev").textContent = A.money(k.revenue).replace(/,\d{3}$/, "k").replace(/(\d)\d{3}$/, "$1k");
-      document.getElementById("sRev").textContent = A.settings().currency + " " + Math.round(k.revenue / 1000) + "k";
-      document.getElementById("sOrd").textContent = A.num(k.orders);
-      document.getElementById("sCli").textContent = A.num(k.clients);
 
       document.querySelectorAll(".demo-fill").forEach(b => b.addEventListener("click", () => {
         document.getElementById("lEmail").value = b.dataset.email;
