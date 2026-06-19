@@ -9,6 +9,16 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,400..500&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../assets/css/admin.css">
+  <style>
+    .ctabs { display:flex; gap:.4rem; flex-wrap:wrap; background:var(--ad-surface); border:1px solid var(--ad-line); border-radius:14px; padding:.4rem; margin-bottom:1.2rem; box-shadow:var(--ad-shadow-sm); position:sticky; top:72px; z-index:20; }
+    .ctab { display:flex; align-items:center; gap:.5rem; padding:.6rem 1rem; border-radius:10px; font-size:.88rem; font-weight:600; color:var(--ad-muted); transition:all .15s; }
+    .ctab:hover { background:var(--ad-surface-2); color:var(--ad-text); }
+    .ctab.on { background:var(--ad-accent); color:#fff; }
+    .ctab.on svg { color:var(--ad-brass); }
+    .ctab svg { width:17px; height:17px; }
+    .cpanel { display:none; }
+    .cpanel.on { display:block; }
+  </style>
 </head>
 <body class="ad-body">
   <div id="adRoot"></div>
@@ -23,122 +33,133 @@
       const c = A.content();
       const s = A.settings();
 
-      // [key, label, placeholder(default), multiline?]
-      const GROUPS = [
-        ["Brand", [
-          ["__storeName", "Store name", s.storeName],
-          ["tagline", "Tagline", "Export-grade produce for better hosting"],
-        ]],
-        ["Homepage hero", [
-          ["hero_eyebrow", "Eyebrow", "Export-grade · Delivered next-day"],
-          ["hero_title", "Headline", "Egypt's premium produce market."],
-          ["hero_sub", "Sub-text", "Hand-graded fruits, vegetables and curated boxes…", true],
-          ["hero_cta", "Primary button label", "Shop the market"],
-        ]],
-        ["Section headings", [
-          ["cat_title", "Categories — title", "Shop by category"],
-          ["bs_eyebrow", "Best sellers — eyebrow", "Loved by our tables"],
-          ["bs_title", "Best sellers — title", "Best Sellers"],
-          ["boxes_eyebrow", "Boxes — eyebrow", "Our flagship"],
-          ["boxes_title", "Boxes — title", "Fresh Valley Boxes"],
-          ["why_eyebrow", "Why — eyebrow", "Why Fresh Valley"],
-          ["why_title", "Why — title", "Graded like an export house. Delivered like a guest."],
-          ["rev_eyebrow", "Reviews — eyebrow", "★ 4.9 · 1,400+ verified orders"],
-          ["rev_title", "Reviews — title", "Loved across Cairo"],
-        ]],
-        ["The Art of Hosting", [
-          ["aoh_eyebrow", "Eyebrow", "Our signature · only from Fresh Valley"],
-          ["aoh_title", "Headline", "Arrive with the season."],
-          ["aoh_lead", "Lead paragraph", "No one visits empty-handed. We make what you carry unforgettable…", true],
-        ]],
-        ["Footer", [
-          ["footer_news_title", "Newsletter heading", "Eat with the season. Host a little better."],
-          ["footer_blurb", "Brand blurb", "Export-grade produce, curated for modern hosting…", true],
-        ]],
-        ["Cart & promo", [
-          ["promo_text", "Free-delivery line", "Shown in the cart — leave blank for default"],
-        ]],
-      ];
-
-      const SECTIONS = [
-        ["aoh", "The Art of Hosting", "Signature brand section"],
-        ["bestsellers", "Best sellers slider", "Top products rail"],
-        ["categories", "Category strip", "Shop-by-category tiles"],
-        ["boxes", "Boxes flagship", "Curated produce boxes"],
-        ["trusted", "Trusted source", "Delivery & trust banner"],
-        ["reviews", "Customer reviews", "Loved across Cairo wall"],
-      ];
-
       const val = (k) => c[k] != null ? c[k] : "";
       const esc = (x) => String(x == null ? "" : x).replace(/"/g, "&quot;").replace(/</g, "&lt;");
       const on = (k) => c["sec_" + k] !== false;
 
+      // Per-page tabs. f: [key, label, placeholder(default), multiline?]
+      const TABS = [
+        { id: "home", label: "Home", icon: "grid", groups: [
+          { title: "Hero", fields: [
+            ["hero_eyebrow", "Eyebrow", "Export-grade · Delivered next-day"],
+            ["hero_title", "Headline", "Egypt's premium produce market."],
+            ["hero_sub", "Sub-text", "Hand-graded fruits, vegetables and curated boxes…", true],
+            ["hero_cta", "Primary button label", "Shop the market"],
+          ] },
+          { title: "Section headings", fields: [
+            ["cat_title", "Categories — title", "Shop by category"],
+            ["bs_eyebrow", "Best sellers — eyebrow", "Loved by our tables"],
+            ["bs_title", "Best sellers — title", "Best Sellers"],
+            ["boxes_eyebrow", "Boxes — eyebrow", "Our flagship"],
+            ["boxes_title", "Boxes — title", "Fresh Valley Boxes"],
+            ["why_eyebrow", "Why — eyebrow", "Why Fresh Valley"],
+            ["why_title", "Why — title", "Graded like an export house. Delivered like a guest."],
+            ["rev_eyebrow", "Reviews — eyebrow", "★ 4.9 · 1,400+ verified orders"],
+            ["rev_title", "Reviews — title", "Loved across Cairo"],
+          ] },
+          { title: "Homepage Art-of-Hosting block", fields: [
+            ["aoh_eyebrow", "Eyebrow", "Our signature · only from Fresh Valley"],
+            ["aoh_title", "Headline", "Arrive with the season."],
+            ["aoh_lead", "Lead", "No one visits empty-handed…", true],
+          ] },
+          { title: "Sections — show / hide", sections: [
+            ["aoh", "The Art of Hosting"], ["bestsellers", "Best sellers slider"], ["categories", "Category strip"],
+            ["boxes", "Boxes flagship"], ["trusted", "Trusted source"], ["reviews", "Customer reviews"],
+          ] },
+        ] },
+        { id: "aoh", label: "Art of Hosting", icon: "doc", groups: [
+          { title: "Page hero", fields: [
+            ["aoh_page_eyebrow", "Eyebrow", "The Art of Hosting"],
+            ["aoh_page_title", "Headline", "Arrive with something they'll remember."],
+            ["aoh_page_sub", "Sub-text", "In Egypt, no one visits empty-handed…", true],
+          ] },
+        ] },
+        { id: "about", label: "About", icon: "doc", groups: [
+          { title: "About hero", fields: [
+            ["about_eyebrow", "Eyebrow", "Our Story"],
+            ["about_title", "Headline", "Produce, treated with the care it deserves."],
+            ["about_lead", "Lead paragraph", "Fresh Valley is a premium produce company…", true],
+          ] },
+        ] },
+        { id: "contact", label: "Contact", icon: "doc", groups: [
+          { title: "Contact hero", fields: [
+            ["contact_eyebrow", "Eyebrow", "We're glad to help"],
+            ["contact_title", "Headline", "Talk to Fresh Valley"],
+            ["contact_sub", "Sub-text", "A question about an order, a hosting idea…", true],
+          ] },
+        ] },
+        { id: "global", label: "Footer & Global", icon: "gear", groups: [
+          { title: "Brand", fields: [
+            ["__storeName", "Store name", s.storeName],
+            ["tagline", "Tagline", "Export-grade produce for better hosting"],
+          ] },
+          { title: "Footer", fields: [
+            ["footer_news_title", "Newsletter heading", "Eat with the season. Host a little better."],
+            ["footer_blurb", "Brand blurb", "Export-grade produce, curated for modern hosting…", true],
+          ] },
+          { title: "Announcement bar", announce: true },
+          { title: "Cart & promo", fields: [
+            ["promo_text", "Free-delivery line", "Shown in the cart — leave blank for default"],
+          ] },
+        ] },
+      ];
+
       function field(f) {
         const [key, label, ph, multi] = f;
         const v = key === "__storeName" ? s.storeName : val(key);
-        return `<div class="field">
-          <label>${label}</label>
+        return `<div class="field"><label>${label}</label>
           ${multi ? `<textarea class="ta" data-k="${key}" placeholder="${esc(ph)}">${esc(v)}</textarea>`
-            : `<input class="inp" data-k="${key}" value="${esc(v)}" placeholder="${esc(ph)}">`}
-        </div>`;
+            : `<input class="inp" data-k="${key}" value="${esc(v)}" placeholder="${esc(ph)}">`}</div>`;
       }
-
       function groupCard(g) {
-        return `<div class="card"><div class="card-head"><div class="card-title">${g[0]}</div></div>
-          <div class="card-pad">${g[1].map(field).join("")}</div></div>`;
+        if (g.announce) {
+          return `<div class="card"><div class="card-head"><div class="card-title">${g.title}</div>
+            <button class="switch" id="annSw" role="switch" aria-checked="${c.announce_on ? "true" : "false"}"></button></div>
+            <div class="card-pad"><div class="field" style="margin-bottom:0"><label>Bar text</label>
+              <input class="inp" data-k="announce_text" value="${esc(val("announce_text"))}" placeholder="e.g. Free delivery on orders over EGP 600"></div></div></div>`;
+        }
+        if (g.sections) {
+          return `<div class="card"><div class="card-head"><div class="card-title">${g.title}</div></div>
+            <div class="card-pad" style="padding-top:.3rem">
+              ${g.sections.map(x => `<div class="set-row"><div class="lbl"><strong>${x[1]}</strong></div>
+                <button class="switch sec-sw" data-k="${x[0]}" role="switch" aria-checked="${on(x[0]) ? "true" : "false"}"></button></div>`).join("")}
+            </div></div>`;
+        }
+        return `<div class="card"><div class="card-head"><div class="card-title">${g.title}</div></div>
+          <div class="card-pad">${g.fields.map(field).join("")}</div></div>`;
       }
 
       function draw() {
-        root.innerHTML = A.pageHead("Content", "Edit every headline and piece of copy on the storefront. Blank fields keep the built-in text.",
-          `<a class="btn btn--ghost btn--sm" href="../index.html" target="_blank">${I.eye} Preview</a><button class="btn btn--primary btn--sm" id="saveBtn">Save changes</button>`)
-          + `<div class="grid grid-2"><div class="stack">
-              ${announceCard()}
-              ${GROUPS.slice(0, 3).map(groupCard).join("")}
-            </div><div class="stack">
-              ${GROUPS.slice(3).map(groupCard).join("")}
-              ${sectionsCard()}
-            </div></div>
-            <div style="position:sticky;bottom:0;padding:1rem 0;margin-top:1rem;background:linear-gradient(transparent,var(--ad-bg) 40%);display:flex;justify-content:flex-end">
-              <button class="btn btn--primary" id="saveBtn2">Save all changes</button>
-            </div>`;
+        root.innerHTML = A.pageHead("Content", "Pick a page, edit its words. Everything goes live on the storefront when you save.",
+          `<a class="btn btn--ghost btn--sm" href="../index.html" target="_blank">${I.eye} Preview</a><button class="btn btn--primary btn--sm" id="saveBtn">Save all</button>`)
+          + `<div class="ctabs" id="ctabs">${TABS.map((t, i) => `<button class="ctab ${i === 0 ? "on" : ""}" data-tab="${t.id}">${I[t.icon]} ${t.label}</button>`).join("")}</div>`
+          + `<div id="cContent">${TABS.map((t, i) => `<div class="cpanel ${i === 0 ? "on" : ""}" data-panel="${t.id}"><div class="stack">${t.groups.map(groupCard).join("")}</div></div>`).join("")}</div>`
+          + `<div style="position:sticky;bottom:0;padding:1rem 0;margin-top:1rem;background:linear-gradient(transparent,var(--ad-bg) 40%);display:flex;justify-content:flex-end">
+              <button class="btn btn--primary" id="saveBtn2">Save all changes</button></div>`;
         wire();
       }
 
-      function announceCard() {
-        return `<div class="card">
-          <div class="card-head"><div class="card-title">Announcement bar</div>
-            <button class="switch" id="annSw" role="switch" aria-checked="${c.announce_on ? "true" : "false"}"></button></div>
-          <div class="card-pad"><div class="field" style="margin-bottom:0"><label>Bar text</label>
-            <input class="inp" data-k="announce_text" value="${esc(val("announce_text"))}" placeholder="e.g. Free delivery on orders over EGP 600"></div></div>
-        </div>`;
-      }
-
-      function sectionsCard() {
-        return `<div class="card">
-          <div class="card-head"><div class="card-title">Homepage sections</div><span class="sub muted" style="font-size:.8rem">show / hide</span></div>
-          <div class="card-pad" style="padding-top:.3rem">
-            ${SECTIONS.map(x => `<div class="set-row"><div class="lbl"><strong>${x[1]}</strong><span>${x[2]}</span></div>
-              <button class="switch sec-sw" data-k="${x[0]}" role="switch" aria-checked="${on(x[0]) ? "true" : "false"}"></button></div>`).join("")}
-          </div>
-        </div>`;
-      }
-
       function wire() {
-        document.getElementById("annSw").addEventListener("click", e => e.currentTarget.setAttribute("aria-checked", e.currentTarget.getAttribute("aria-checked") !== "true"));
-        document.querySelectorAll(".sec-sw").forEach(sw => sw.addEventListener("click", () => sw.setAttribute("aria-checked", sw.getAttribute("aria-checked") !== "true")));
+        document.getElementById("ctabs").addEventListener("click", e => {
+          const b = e.target.closest("[data-tab]"); if (!b) return;
+          document.querySelectorAll(".ctab").forEach(x => x.classList.toggle("on", x === b));
+          document.querySelectorAll(".cpanel").forEach(p => p.classList.toggle("on", p.dataset.panel === b.dataset.tab));
+        });
+        document.querySelectorAll(".switch").forEach(sw => sw.addEventListener("click", () => sw.setAttribute("aria-checked", sw.getAttribute("aria-checked") !== "true")));
         document.getElementById("saveBtn").addEventListener("click", save);
         document.getElementById("saveBtn2").addEventListener("click", save);
       }
 
       function save() {
         const patch = {};
-        document.querySelectorAll("[data-k]").forEach(el => {
+        document.querySelectorAll("#cContent [data-k]").forEach(el => {
           if (el.classList.contains("switch")) return;
           const k = el.dataset.k;
           if (k === "__storeName") { A.saveSettings({ storeName: el.value.trim() || s.storeName }); return; }
+          if (el.classList.contains("sec-sw")) return;
           patch[k] = el.value.trim();
         });
-        patch.announce_on = document.getElementById("annSw").getAttribute("aria-checked") === "true";
+        const ann = document.getElementById("annSw"); if (ann) patch.announce_on = ann.getAttribute("aria-checked") === "true";
         document.querySelectorAll(".sec-sw").forEach(sw => { patch["sec_" + sw.dataset.k] = sw.getAttribute("aria-checked") === "true"; });
         A.setContent(patch);
         A.toast("Content saved · live on store");

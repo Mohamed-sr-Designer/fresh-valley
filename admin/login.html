@@ -14,8 +14,7 @@
   <div class="ad-login">
     <aside class="ad-login-aside">
       <div class="l-brand">
-        <span class="ad-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 21c-4 0-7-3-7-8 0-6 6-9 13-9 0 8-3 13-8 14-2 .4-3-1-3-3 0-3 3-5 6-6"/></svg></span>
-        <strong>Fresh Valley</strong>
+        <img src="../assets/img/logo-cream.png" alt="Fresh Valley" style="height:46px;width:auto">
       </div>
       <div class="l-copy">
         <h2>The whole store,<br>under your control.</h2>
@@ -48,7 +47,12 @@
           <button class="btn btn--primary btn--block" type="submit" style="padding:.75rem">Sign in to console</button>
           <p id="lErr" style="color:var(--ad-bad);font-size:.82rem;margin-top:.8rem;display:none"></p>
         </form>
-        <p class="login-note">Demo console — sign in with <b>admin@freshvalley.eg</b> / <b>fresh-admin</b><br>(or any email &amp; a 4+ char password). Your session stays in this browser only.</p>
+        <div class="login-note">
+          <p style="margin-bottom:.5rem;font-weight:600;color:var(--ad-muted)">Demo logins</p>
+          <button type="button" class="demo-fill" data-email="admin@freshvalley.eg" data-pass="fresh-admin"><b>Super Admin</b> · admin@freshvalley.eg / fresh-admin</button>
+          <button type="button" class="demo-fill" data-email="designer@freshvalley.eg" data-pass="design123"><b>Admin · Design &amp; SEO</b> · designer@freshvalley.eg / design123</button>
+          <p style="margin-top:.6rem">Click a row to autofill. Your session stays in this browser only.</p>
+        </div>
       </div>
     </main>
   </div>
@@ -68,6 +72,11 @@
       document.getElementById("sRev").textContent = A.settings().currency + " " + Math.round(k.revenue / 1000) + "k";
       document.getElementById("sOrd").textContent = A.num(k.orders);
       document.getElementById("sCli").textContent = A.num(k.clients);
+
+      document.querySelectorAll(".demo-fill").forEach(b => b.addEventListener("click", () => {
+        document.getElementById("lEmail").value = b.dataset.email;
+        document.getElementById("lPass").value = b.dataset.pass;
+      }));
 
       const form = document.getElementById("loginForm"), err = document.getElementById("lErr");
       form.addEventListener("submit", (e) => {

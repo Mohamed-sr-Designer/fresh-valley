@@ -173,18 +173,26 @@
 
   /* Store rules + order/client capture (feeds the admin dashboard) */
   FV.settings = ADMIN.settings;
+  // Strip angle brackets from customer-entered strings so they can never
+  // become markup when the admin later renders them (stored-XSS defence).
+  const _clean = (s) => typeof s === "string" ? s.replace(/[<>]/g, "").slice(0, 200) : s;
   FV.orders = {
     all: () => _ag(_AK.orders, []),
-    record(order) { const o = _ag(_AK.orders, []); o.unshift(order); _as(_AK.orders, o); return order; },
+    record(order) {
+      if (order && order.customer) { ["name", "email", "phone", "area", "id"].forEach((k) => order.customer[k] = _clean(order.customer[k])); }
+      if (order) order.address = _clean(order.address);
+      const o = _ag(_AK.orders, []); o.unshift(order); _as(_AK.orders, o); return order;
+    },
   };
   FV.clients = {
     all: () => _ag(_AK.clients, []),
     upsert(c) {
       if (!c || !c.email) return;
+      const name = _clean(c.name), phone = _clean(c.phone), area = _clean(c.area), email = _clean(c.email);
       const list = _ag(_AK.clients, []);
-      let r = list.find((x) => x.email === c.email);
-      if (r) { r.name = c.name || r.name; r.phone = c.phone || r.phone; r.area = c.area || r.area; }
-      else list.push({ id: "C" + String(Date.now()).slice(-6), name: c.name || c.email.split("@")[0], email: c.email, phone: c.phone || "", area: c.area || "", joined: new Date().toISOString(), status: c.status || "active" });
+      let r = list.find((x) => x.email === email);
+      if (r) { r.name = name || r.name; r.phone = phone || r.phone; r.area = area || r.area; }
+      else list.push({ id: "C" + String(Date.now()).slice(-6), name: name || email.split("@")[0], email, phone: phone || "", area: area || "", joined: new Date().toISOString(), status: c.status || "active" });
       _as(_AK.clients, list);
     },
   };
@@ -338,7 +346,6 @@ table{width:100%;border-collapse:collapse;margin:20px 0}th{text-align:left;font-
             <a href="account.html#orders">Orders</a>
             <a href="wishlist.html">Wishlist</a>
             <a href="account.html#subscriptions">Subscriptions</a>
-            <a href="admin/login.html">Admin Console</a>
           </div>
         </div>
         <div class="footer-bottom">
@@ -676,7 +683,7 @@ table{width:100%;border-collapse:collapse;margin:20px 0}th{text-align:left;font-
     sessionStorage.setItem("fv_splash", "1");
     const el = document.createElement("div");
     el.id = "fvSplash";
-    el.innerHTML = `<div class="sp-inner"><img src="assets/img/logo-cream.png" alt="Fresh Valley"><span class="sp-bar"><i></i></span></div>`;
+    el.innerHTML = `<div class="sp-inner"><img src="assets/img/logo.png" alt="Fresh Valley"><span class="sp-bar"><i></i></span></div>`;
     document.body.appendChild(el);
     document.body.classList.add("no-scroll");
     const t0 = performance.now();
@@ -792,14 +799,17 @@ table{width:100%;border-collapse:collapse;margin:20px 0}th{text-align:left;font-
       });
     }
 
-    // Top bars: announcement + store-closed notice (stacked, header offset auto-measured)
-    const bars = [];
-    if (c.announce_on && c.announce_text) bars.push(["var(--forest)", "var(--cream)", c.announce_text]);
-    if (s.storeOpen === false) bars.push(["var(--pomegranate)", "#fff", "We're temporarily closed for new orders — checkout will reopen soon."]);
-    if (bars.length) {
+    // Store closed → full maintenance screen for customers (the /admin area is separate & still reachable)
+    if (s.storeOpen === false) { showMaintenance(s); return; }
+
+    // Announcement bar (header offset auto-measured). textContent — never innerHTML — to avoid injection.
+    if (c.announce_on && c.announce_text) {
       const wrap = document.createElement("div"); wrap.id = "fvTopBars";
       wrap.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:200";
-      wrap.innerHTML = bars.map((b) => `<div style="background:${b[0]};color:${b[1]};text-align:center;font-size:var(--step--2);font-weight:500;padding:.5rem 1rem;line-height:1.3">${b[2]}</div>`).join("");
+      const bar = document.createElement("div");
+      bar.style.cssText = "background:var(--forest);color:var(--cream);text-align:center;font-size:var(--step--2);font-weight:500;padding:.5rem 1rem;line-height:1.3";
+      bar.textContent = c.announce_text;
+      wrap.appendChild(bar);
       document.body.appendChild(wrap);
       requestAnimationFrame(() => {
         const h = wrap.offsetHeight;
@@ -807,6 +817,22 @@ table{width:100%;border-collapse:collapse;margin:20px 0}th{text-align:left;font-
         document.body.style.paddingTop = h + "px";
       });
     }
+  }
+
+  /* Full-screen, on-brand maintenance screen when the store is switched off */
+  function showMaintenance(s) {
+    document.body.classList.add("no-scroll");
+    const el = document.createElement("div");
+    el.id = "fvMaintenance";
+    el.style.cssText = "position:fixed;inset:0;z-index:9999;display:grid;place-items:center;text-align:center;padding:2rem;background:radial-gradient(130% 100% at 50% 0,var(--forest-mid),var(--ink));color:var(--cream)";
+    el.innerHTML = `<div style="max-width:580px">
+      <img src="assets/img/logo-cream.png" alt="${s.storeName}" style="height:62px;width:auto;margin:0 auto 2.2rem" onerror="this.style.display='none'">
+      <p style="font-size:var(--step--1);letter-spacing:.2em;text-transform:uppercase;color:var(--brass);margin-bottom:1rem">We'll be right back</p>
+      <h1 style="font-family:var(--font-display);font-size:var(--step-5);line-height:1.05;color:var(--cream);margin-bottom:1.2rem">We're tidying the shelves.</h1>
+      <p style="font-size:var(--step-0);color:rgba(244,239,228,.82);max-width:46ch;margin:0 auto 2.2rem;line-height:1.6">${s.storeName} is briefly closed for maintenance. We're making everything fresher and will reopen very soon — thank you for your patience.</p>
+      <a href="admin/login.html" style="font-size:var(--step--1);color:var(--brass);text-decoration:underline;text-underline-offset:3px">Staff sign in</a>
+    </div>`;
+    document.body.appendChild(el);
   }
 
   /* ------------------------------------------------------------------ *

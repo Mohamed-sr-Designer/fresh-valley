@@ -132,36 +132,49 @@
               <div class="card card-pad" style="text-align:center"><div class="kpi-val" style="font-size:1.4rem">${A.money(aov)}</div><div class="cell-sub">Avg order</div></div>
             </div>
             <div class="card card-pad">
-              <div class="card-title" style="font-size:.95rem;margin-bottom:.8rem">Contact</div>
-              <div class="kv"><span class="k">Email</span><span class="v">${c.email}</span></div>
-              <div class="kv"><span class="k">Phone</span><span class="v">${c.phone || "—"}</span></div>
-              <div class="kv"><span class="k">Area</span><span class="v">${c.area || "—"}</span></div>
-              <div class="kv"><span class="k">Last order</span><span class="v">${c.last ? A.fmtDate(c.last) : "No orders yet"}</span></div>
+              <div class="card-title" style="font-size:.95rem;margin-bottom:.9rem">Customer details</div>
+              <div class="field"><label>Full name</label><input class="inp" id="c_name" value="${escAttr(c.name)}"></div>
+              <div class="field"><label>Email</label><input class="inp" value="${escAttr(c.email)}" disabled></div>
+              <div class="form-grid">
+                <div class="field"><label>Phone</label><input class="inp" id="c_phone" value="${escAttr(c.phone || "")}"></div>
+                <div class="field"><label>Area</label><select class="sel-full" id="c_area">
+                  <option value="">—</option>
+                  ${["New Cairo", "Sheikh Zayed", "October", "Madinaty", "Rehab"].map(a => `<option ${c.area === a ? "selected" : ""}>${a}</option>`).join("")}
+                </select></div>
+              </div>
+              <div class="field" style="margin-bottom:.8rem"><label>Status</label><select class="sel-full" id="c_status">
+                ${["active", "vip", "pending", "lead"].map(st => `<option value="${st}" ${c.status === st ? "selected" : ""}>${A.cap(st)}</option>`).join("")}
+              </select></div>
+              <button class="btn btn--primary btn--block" id="saveCust">Save customer</button>
             </div>
             <div class="card">
-              <div class="card-pad" style="padding-bottom:.4rem"><div class="card-title" style="font-size:.95rem">Order history</div></div>
-              <div style="padding:0 1rem .6rem">
-                ${myOrders.length ? myOrders.map(o => `<a class="dr-line" href="orders.html?id=${o.id}" style="grid-template-columns:1fr auto auto;gap:1rem">
-                  <div><div class="cell-main">${o.id}</div><div class="cell-sub">${A.fmtDate(o.date)} · ${o.items.length} items</div></div>
-                  ${A.pill(o.status)}<strong>${A.money(o.total)}</strong></a>`).join("")
+              <div class="card-pad" style="padding-bottom:.4rem"><div class="card-title" style="font-size:.95rem">Orders · change status inline</div></div>
+              <div style="padding:0 1.1rem .8rem">
+                ${myOrders.length ? myOrders.map(o => `<div class="dr-line" style="grid-template-columns:1fr auto;gap:.8rem;align-items:center">
+                  <div><div class="cell-main">${o.id} · <a href="orders.html?id=${o.id}" style="color:var(--ad-forest);font-weight:600">view</a></div><div class="cell-sub">${A.fmtDate(o.date)} · ${o.items.length} items · ${A.money(o.total)}</div></div>
+                  <select class="sel-full ord-status" data-id="${o.id}" style="width:auto;padding:.4rem 1.8rem .4rem .7rem;font-size:.8rem">
+                    ${["pending", "processing", "transit", "delivered", "cancelled", "refunded"].map(st => `<option value="${st}" ${o.status === st ? "selected" : ""}>${A.cap(st)}</option>`).join("")}
+                  </select></div>`).join("")
                   : `<div class="empty" style="padding:1.5rem">${I.bag}<p>Registered, no orders yet.</p></div>`}
               </div>
             </div>
-            <div class="flex" style="gap:.6rem">
-              <a class="btn btn--ghost btn--block" href="mailto:${c.email}">Email customer</a>
-              <button class="btn btn--primary btn--block" id="vipBtn">${c.status === "vip" ? "Remove VIP" : "Mark as VIP"}</button>
-            </div>
+            <a class="btn btn--ghost btn--block" href="mailto:${c.email}">Email customer</a>
           </div>`;
         requestAnimationFrame(() => { dr.classList.add("open"); scrim.classList.add("show"); });
         const close = () => { dr.classList.remove("open"); scrim.classList.remove("show"); history.replaceState({}, "", "customers.html"); };
         scrim.onclick = close; dr.querySelector(".dr-close").onclick = close;
-        dr.querySelector("#vipBtn").onclick = () => {
+        dr.querySelector("#saveCust").onclick = () => {
           const regs = A.rawClients(); let r = regs.find(x => x.email === email);
-          if (!r) { r = { id: c.id, name: c.name, email: c.email, phone: c.phone, area: c.area, joined: c.joined, status: "active" }; regs.push(r); }
-          r.status = r.status === "vip" ? "active" : "vip"; A.saveClients(regs);
-          A.toast(r.status === "vip" ? "Marked VIP" : "VIP removed"); openCust(email); redraw();
+          const patch = { name: dr.querySelector("#c_name").value.trim() || c.name, phone: dr.querySelector("#c_phone").value.trim(), area: dr.querySelector("#c_area").value, status: dr.querySelector("#c_status").value };
+          if (!r) { r = { id: c.id, email: c.email, joined: c.joined }; regs.push(r); }
+          Object.assign(r, patch); A.saveClients(regs);
+          A.toast("Customer updated"); openCust(email); redraw();
         };
+        dr.querySelectorAll(".ord-status").forEach(sel => sel.addEventListener("change", () => {
+          A.updateOrder(sel.dataset.id, { status: sel.value }); A.toast("Order " + sel.dataset.id + " → <b>" + A.cap(sel.value) + "</b>"); openCust(email); redraw();
+        }));
       }
+      function escAttr(s) { return String(s == null ? "" : s).replace(/"/g, "&quot;").replace(/</g, "&lt;"); }
 
       draw();
       const qid = new URLSearchParams(location.search).get("id");

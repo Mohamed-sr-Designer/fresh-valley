@@ -152,8 +152,8 @@
           A.updateOrder(o.id, { status: e.target.value }); A.toast("Order " + o.id + " → <b>" + A.cap(e.target.value) + "</b>");
           openOrder(o.id); refreshTable();
         });
-        dr.querySelector("#printBtn").onclick = () => A.openReceipt(o, true);
-        dr.querySelector("#dlBtn").onclick = () => { A.downloadReceiptHTML(o); A.toast("Receipt downloaded"); };
+        dr.querySelector("#openBtn").onclick = () => A.openReceipt(o, false);
+        dr.querySelector("#dlBtn").onclick = () => { A.openReceipt(o, true); A.toast("Opening invoice — choose <b>Save as PDF</b>"); };
       }
 
       function steps(status) {
@@ -209,8 +209,8 @@
           </div>
 
           <div class="flex no-print" style="gap:.6rem">
-            <button class="btn btn--ghost btn--block" id="dlBtn">${I.download} Download receipt</button>
-            <button class="btn btn--primary btn--block" id="printBtn">${I.doc} Print receipt</button>
+            <button class="btn btn--ghost btn--block" id="openBtn">${I.eye} Open receipt</button>
+            <button class="btn btn--primary btn--block" id="dlBtn">${I.download} Download invoice (PDF)</button>
           </div>
         </div>`;
       }

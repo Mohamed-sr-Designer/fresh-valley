@@ -4,5 +4,6 @@ Disallow: /cart.html
 Disallow: /checkout.html
 Disallow: /account.html
 Disallow: /wishlist.html
+Disallow: /admin/
 
 Sitemap: https://freshvalley.eg/sitemap.xml

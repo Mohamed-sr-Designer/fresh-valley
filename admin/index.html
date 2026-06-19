@@ -81,7 +81,7 @@
           <div class="card-head"><div class="card-title">Revenue by category</div><a class="card-link" href="analytics.html">Details ${I.arrow}</a></div>
           <div class="card-pad">
             <div style="display:flex;gap:1.6rem;align-items:center;flex-wrap:wrap">
-              <div style="flex:0 0 150px;margin-inline:auto">${A.donut(cats, { size: 150, colors, center: s.currency + " " + Math.round(total / 1000) + "k", centerLabel: "total" })}</div>
+              <div style="flex:0 0 150px;margin-inline:auto">${A.donut(cats, { size: 150, colors })}</div>
               <div style="flex:1;min-width:190px;display:flex;flex-direction:column;gap:.9rem">
                 ${cats.map((c, i) => `<div>
                   <div class="flex-between" style="font-size:.86rem;margin-bottom:.35rem">

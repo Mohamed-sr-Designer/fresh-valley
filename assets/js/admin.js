@@ -68,7 +68,7 @@
     freeThreshold: 600,
     taxRate: 0,
     lowStockAt: 120,
-    adminEmail: "mohamed.tarek.ahmed1@gmail.com",
+    adminEmail: "admin@freshvalley.eg",
     adminPass: "fresh-admin",
   };
   function settings() { return Object.assign({}, SETTINGS_DEFAULT, store.get(K.settings, {})); }
@@ -518,8 +518,8 @@
     return `
     <aside class="ad-sidebar" id="adSidebar">
       <div class="ad-brand">
-        <span class="ad-logo">${I.leaf}</span>
-        <span class="ad-brand-txt"><strong>${s.storeName}</strong><em>${role === "super-admin" ? "Admin Console" : "Design & SEO"}</em></span>
+        <img class="ad-brand-logo" src="../assets/img/logo.png" alt="Fresh Valley">
+        <span class="ad-brand-tag">${role === "super-admin" ? "Console" : "Design & SEO"}</span>
         <button class="ad-side-close" id="adSideClose" aria-label="Close menu">${I.close}</button>
       </div>
       <nav class="ad-nav">${navHtml}</nav>
@@ -531,7 +531,7 @@
         <button class="ad-burger" id="adBurger" aria-label="Menu">${I.grid}</button>
         <div class="ad-search"><span class="ad-search-i">${I.search}</span><input type="search" id="adSearch" placeholder="Search orders, customers, products…" autocomplete="off"><div class="ad-search-res" id="adSearchRes"></div></div>
         <div class="ad-top-actions">
-          <span class="ad-store-state ${s.storeOpen ? "on" : "off"}"><i></i>${s.storeOpen ? "Store open" : "Store closed"}</span>
+          <button class="ad-store-state ${s.storeOpen ? "on" : "off"}" id="adStoreToggle" title="Click to ${s.storeOpen ? "close" : "open"} the store"><i></i>${s.storeOpen ? "Store open" : "Store closed"}<span class="ad-store-sw" aria-hidden="true"></span></button>
           <button class="ad-icon-btn" id="adBell" aria-label="Alerts">${I.bell}<span class="dot"></span></button>
           <div class="ad-user" id="adUser">
             <span class="ad-ava">${initials}</span>
@@ -564,6 +564,11 @@
     document.getElementById("adSideClose")?.addEventListener("click", () => open(false));
     scrim?.addEventListener("click", () => open(false));
     document.getElementById("adLogout")?.addEventListener("click", () => { localStorage.removeItem(K.session); location.href = "login.html"; });
+    document.getElementById("adStoreToggle")?.addEventListener("click", () => {
+      const s = settings(); const next = !s.storeOpen; saveSettings({ storeOpen: next });
+      toast(next ? "Store is now <b>open</b>" : "Store is now <b>closed</b> · maintenance page is live");
+      setTimeout(() => location.reload(), 700);
+    });
     document.getElementById("adUser")?.addEventListener("click", (e) => { e.currentTarget.classList.toggle("open"); });
     // global search
     const si = document.getElementById("adSearch"), res = document.getElementById("adSearchRes");
@@ -590,7 +595,10 @@
     let u = store.get(K.users, []);
     if (!u || !u.length) {
       const s = settings();
-      u = [{ id: "U1", name: "Mohamed Tarek", email: s.adminEmail || "admin@freshvalley.eg", password: s.adminPass || "fresh-admin", role: "super-admin", created: new Date().toISOString() }];
+      u = [
+        { id: "U1", name: "Mohamed Tarek", email: s.adminEmail || "admin@freshvalley.eg", password: s.adminPass || "fresh-admin", role: "super-admin", created: new Date().toISOString() },
+        { id: "U2", name: "Salma · Design & SEO", email: "designer@freshvalley.eg", password: "design123", role: "admin", created: new Date().toISOString() },
+      ];
       store.set(K.users, u);
     }
     return u;

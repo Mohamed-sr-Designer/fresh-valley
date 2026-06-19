@@ -46,6 +46,23 @@ swap the `FVStore`/`FV.orders`/`FV.clients` read-write methods (and the override
 readers in `app.js`) for calls to a backend API + database. The entire dashboard
 UI stays exactly the same — only the data layer changes.
 
+## Security notes
+
+This is a **front-end demo**, so the login is a convenience gate, not a real
+security boundary — auth state and the demo passwords live in the browser and a
+technical user can bypass the role checks via devtools. Treat `/admin/` as
+public until a real backend is added. What *is* hardened for the demo:
+
+- **No stored XSS from customers.** Angle brackets are stripped from all
+  customer-entered fields (`FV.orders.record` / `FV.clients.upsert`), and admin
+  copy is rendered with `textContent`, so a malicious name/address can't run
+  script in the dashboard.
+- `/admin/` is `Disallow`-ed in `robots.txt` and every admin page is `noindex`.
+
+For production you must add: server-side authentication & sessions, hashed
+passwords, server-side role enforcement on every API call, CSRF protection, and
+server-side input validation. The client checks here are UX, not enforcement.
+
 ## Files
 
 ```
