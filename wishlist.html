@@ -61,17 +61,21 @@
       const empty = document.getElementById("empty");
       const addAll = document.getElementById("addAll");
 
+      let rendering = false;
       function render() {
+        if (rendering) return;            // updateWishUI() re-fires fv:wish — guard the loop
+        rendering = true;
         const slugs = FV.wish.items();
         const items = slugs.map(FV.find).filter(Boolean);
         if (!items.length) {
           grid.innerHTML = ""; empty.hidden = false; addAll.style.display = "none";
-          return;
+        } else {
+          empty.hidden = true;
+          addAll.style.display = "";
+          grid.innerHTML = items.map(FV.productCardHTML).join("");
+          FV.updateWishUI(); FV.observeReveals();
         }
-        empty.hidden = true;
-        addAll.style.display = "";
-        grid.innerHTML = items.map(FV.productCardHTML).join("");
-        FV.updateWishUI(); FV.observeReveals();
+        rendering = false;
       }
 
       addAll.addEventListener("click", () => {

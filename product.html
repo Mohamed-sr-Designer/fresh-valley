@@ -202,7 +202,7 @@
                 <div class="buy-row">
                   <div class="qty">
                     <button id="qDec" aria-label="Decrease">${FV.icon("minus")}</button>
-                    <input id="qVal" value="1" readonly aria-label="Quantity">
+                    <input id="qVal" type="text" inputmode="numeric" value="1" aria-label="Quantity">
                     <button id="qInc" aria-label="Increase">${FV.icon("plus")}</button>
                   </div>
                   <button class="btn btn--lg" id="addBtn">Add to cart · <span id="btnTotal">${FV.money(isKg ? FV.priceForWeight(p, 1000) : p.pricePerUnit)}</span></button>
@@ -345,6 +345,10 @@
         }));
         document.getElementById("qDec").addEventListener("click", () => { qty = Math.max(1, qty - 1); document.getElementById("qVal").value = qty; refresh(); });
         document.getElementById("qInc").addEventListener("click", () => { qty++; document.getElementById("qVal").value = qty; refresh(); });
+        (function () { const q = document.getElementById("qVal");
+          q.addEventListener("input", () => { const v = q.value.replace(/[^0-9]/g, ""); q.value = v; qty = Math.max(1, parseInt(v || "1", 10)); refresh(); });
+          q.addEventListener("blur", () => { if (!q.value || +q.value < 1) { qty = 1; q.value = 1; refresh(); } });
+        })();
         document.getElementById("addBtn").addEventListener("click", addToCart);
         document.getElementById("psAdd").addEventListener("click", addToCart);
 
@@ -412,7 +416,7 @@
                 <div class="buy-row">
                   <div class="qty">
                     <button id="qDec" aria-label="Decrease">${FV.icon("minus")}</button>
-                    <input id="qVal" value="1" readonly aria-label="Quantity">
+                    <input id="qVal" type="text" inputmode="numeric" value="1" aria-label="Quantity">
                     <button id="qInc" aria-label="Increase">${FV.icon("plus")}</button>
                   </div>
                   <button class="btn btn--lg" id="addBtn">Add box · <span id="btnTotal">${FV.money(b.tiers[0].price)}</span></button>
@@ -460,6 +464,10 @@
         }));
         document.getElementById("qDec").addEventListener("click", () => { qty = Math.max(1, qty - 1); document.getElementById("qVal").value = qty; refresh(); });
         document.getElementById("qInc").addEventListener("click", () => { qty++; document.getElementById("qVal").value = qty; refresh(); });
+        (function () { const q = document.getElementById("qVal");
+          q.addEventListener("input", () => { const v = q.value.replace(/[^0-9]/g, ""); q.value = v; qty = Math.max(1, parseInt(v || "1", 10)); refresh(); });
+          q.addEventListener("blur", () => { if (!q.value || +q.value < 1) { qty = 1; q.value = 1; refresh(); } });
+        })();
         document.getElementById("addBtn").addEventListener("click", () => {
           const t = b.tiers[tierIdx];
           FV.cart.add({ key: b.slug + "|" + t.label, slug: b.slug, type: "box",

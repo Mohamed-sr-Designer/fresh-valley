@@ -482,7 +482,7 @@ body[data-hero="true"] .site-header.transparent:not(.scrolled) { --hdr-fg: var(-
 .rail-btn { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: #FCFAF3; color: var(--forest); display: grid; place-items: center; transition: all .25s; }
 .rail-btn:hover { background: var(--forest); border-color: var(--forest); color: var(--cream); }
 .rail-btn svg { width: 17px; height: 17px; }
-.rail-btn[disabled] { opacity: .3; pointer-events: none; }
+.rail-btn[disabled] { opacity: .45; pointer-events: none; background: var(--bone); color: var(--text-faint); }
 .rail-nav--light .rail-btn { background: rgba(14,20,16,.25); border-color: rgba(244,236,217,.3); color: var(--cream); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
 .rail-nav--light .rail-btn:hover { background: var(--cream); color: var(--ink); border-color: var(--cream); }
 @media (max-width: 640px) {
