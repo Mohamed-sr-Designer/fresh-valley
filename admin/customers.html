@@ -16,9 +16,10 @@
   <script src="../assets/js/data.js"></script>
   <script src="../assets/js/admin.js"></script>
   <script>
-    (function () {
+    (async function () {
       const A = window.ADMIN, I = A.I;
       if (!A.requireAuth("customers")) return;
+      await A.boot();
       const root = A.mountShell("customers");
 
       let status = "all", q = "", sort = "spent";
@@ -168,6 +169,7 @@
           const patch = { name: dr.querySelector("#c_name").value.trim() || c.name, phone: dr.querySelector("#c_phone").value.trim(), area: dr.querySelector("#c_area").value, status: dr.querySelector("#c_status").value };
           if (!r) { r = { id: c.id, email: c.email, joined: c.joined }; regs.push(r); }
           Object.assign(r, patch); A.saveClients(regs);
+          if (c.id != null) A.updateCustomer(c.id, patch);   // sync to server (no-op in local mode)
           A.toast("Customer updated"); openCust(email); redraw();
         };
         dr.querySelectorAll(".ord-status").forEach(sel => sel.addEventListener("change", () => {

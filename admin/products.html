@@ -16,11 +16,13 @@
   <script src="../assets/js/data.js"></script>
   <script src="../assets/js/admin.js"></script>
   <script>
-    (function () {
+    (async function () {
       const A = window.ADMIN, I = A.I;
       if (!A.requireAuth("products")) return;
+      await A.boot();
       const root = A.mountShell("products");
       const s = A.settings();
+      const isSuper = (A.session() || {}).role === "super-admin";
       const sold = {}; A.topProducts(999).forEach(t => sold[t.slug] = t.units);
 
       let cat = "all", q = new URLSearchParams(location.search).get("q") || "", sort = "name";
@@ -74,6 +76,7 @@
           <td class="num">${A.num(sold[p.slug] || 0)}</td>
           <td><button class="icon-act feat-btn ${m.featured ? "on" : ""}" data-slug="${p.slug}" title="Feature" style="${m.featured ? "color:var(--ad-brass)" : ""}">${star(m.featured)}</button></td>
           <td><button class="switch active-sw" data-slug="${p.slug}" role="switch" aria-checked="${m.active}"></button></td>
+          <td><div class="row-actions"><button class="icon-act" data-edit="${p.slug}" title="Edit">${I.gear}</button>${isSuper ? `<button class="icon-act" data-del="${p.slug}" title="Delete" style="color:var(--ad-bad)">${I.trash}</button>` : ""}</div></td>
         </tr>`;
       }
       const star = on => `<svg viewBox="0 0 24 24" fill="${on ? "currentColor" : "none"}" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 3l2.6 5.6 6 .7-4.4 4.1 1.2 6L12 16.8 6.6 19.5l1.2-6L3.4 9.3l6-.7z"/></svg>`;
@@ -96,7 +99,7 @@
             </div>
           </div>
           <div class="table-wrap"><table class="ad-table">
-            <thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th class="num">Sold</th><th>Featured</th><th>Active</th></tr></thead>
+            <thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th class="num">Sold</th><th>Featured</th><th>Active</th><th></th></tr></thead>
             <tbody>${list.map(rowHtml).join("")}</tbody>
           </table></div>
           <div class="flex-between" style="padding:1rem 1.3rem;border-top:1px solid var(--ad-line)">
@@ -107,7 +110,7 @@
 
       function draw() {
         root.innerHTML = A.pageHead("Products", "Set prices, stock and visibility. Edits go live on the storefront.",
-          `<button class="btn btn--primary btn--sm" id="expTop">${I.download} Export catalog</button>`) + strip() + tableCard();
+          `${isSuper ? `<button class="btn btn--primary btn--sm" id="addProd">${I.plus} Add product</button>` : ""}<button class="btn btn--ghost btn--sm" id="expTop">${I.download} Export catalog</button>`) + strip() + tableCard();
         wire();
       }
 
@@ -118,6 +121,7 @@
         document.getElementById("sortSel").addEventListener("change", e => { sort = e.target.value; redraw(); });
         document.getElementById("expBtn").addEventListener("click", exportCSV);
         document.getElementById("expTop").addEventListener("click", exportCSV);
+        if (isSuper) document.getElementById("addProd")?.addEventListener("click", () => openEditor(null));
         document.getElementById("resetBtn").addEventListener("click", () => {
           if (confirm("Remove all price overrides and restore original prices?")) { localStorage.removeItem(A.K.prices); A.toast("Prices reset to original"); draw(); }
         });
@@ -153,7 +157,62 @@
           const on = !b.classList.contains("on"); b.classList.toggle("on", on); b.style.color = on ? "var(--ad-brass)" : "";
           b.innerHTML = star(on); A.setPmeta(b.dataset.slug, { featured: on }); A.toast(on ? "Featured" : "Unfeatured");
         }));
+        document.querySelectorAll("[data-edit]").forEach(b => b.addEventListener("click", () => openEditor(b.dataset.edit)));
+        document.querySelectorAll("[data-del]").forEach(b => b.addEventListener("click", () => {
+          const p = A.findItem(b.dataset.del); if (!p) return;
+          if (confirm("Delete “" + p.name + "”? " + (A.isCustom(b.dataset.del) ? "This removes it permanently." : "This hides it from the storefront."))) {
+            A.deleteProduct(b.dataset.del); A.toast("Product removed"); draw();
+          }
+        }));
       }
+
+      function openEditor(slug) {
+        const p = slug ? A.findItem(slug) : null;
+        const custom = slug ? A.isCustom(slug) : true;   // new + custom = full edit; seeded = limited
+        const m = slug ? A.pmeta(slug) : { stock: 0 };
+        let dr = document.getElementById("prodDrawer");
+        if (!dr) { dr = document.createElement("div"); dr.id = "prodDrawer"; dr.className = "ad-drawer"; document.body.appendChild(dr); }
+        let scrim = document.getElementById("drScrim");
+        if (!scrim) { scrim = document.createElement("div"); scrim.id = "drScrim"; scrim.className = "ad-scrim"; document.body.appendChild(scrim); }
+        const cats = ["fruits", "vegetables", "herbs", "seasonal", "organic-reserve"];
+        const units = [["kg", "per kg"], ["bunch", "per bunch"], ["each", "each"]];
+        const curUnit = p ? p.unit : "kg";
+        dr.innerHTML = `
+          <div class="dr-head"><div><h3>${p ? "Edit product" : "Add product"}</h3><div class="cell-sub">${p ? (custom ? "Custom product" : "Catalog product") : "New catalog product"}</div></div>
+            <button class="dr-close">${I.close}</button></div>
+          <div class="dr-body">
+            <div class="card card-pad">
+              <div class="field"><label>Name</label><input class="inp" id="p_name" value="${esc(p ? p.name : "")}" placeholder="e.g. Red Apples"></div>
+              <div class="form-grid">
+                <div class="field"><label>Category</label><select class="sel-full" id="p_cat">${cats.map(c => `<option value="${c}" ${p && p.category === c ? "selected" : ""}>${A.cap(c)}</option>`).join("")}</select></div>
+                <div class="field"><label>Unit</label><select class="sel-full" id="p_unit" ${(p && !custom) ? "disabled" : ""}>${units.map(u => `<option value="${u[0]}" ${curUnit === u[0] ? "selected" : ""}>${u[1]}</option>`).join("")}</select></div>
+              </div>
+              <div class="form-grid">
+                <div class="field"><label>Price (${s.currency})</label><input class="inp" id="p_price" type="number" min="0" value="${p ? A.effectivePrice(p) : ""}" placeholder="0"></div>
+                <div class="field"><label>Stock</label><input class="inp" id="p_stock" type="number" min="0" value="${p ? (m.stock || 0) : ""}" placeholder="0"></div>
+              </div>
+              <div class="field" style="margin-bottom:0"><label>Image URL <span class="faint">(optional)</span></label><input class="inp" id="p_img" value="${esc(p && custom && p.image && p.image !== p.slug ? p.image : "")}" placeholder="https://… or leave blank"></div>
+            </div>
+            <button class="btn btn--primary btn--block" id="p_save">${p ? "Save changes" : "Add product"}</button>
+            ${p && custom && isSuper ? `<button class="btn btn--danger btn--block" id="p_del">Delete product</button>` : ""}
+            <p id="p_err" style="color:var(--ad-bad);font-size:.82rem;display:none"></p>
+          </div>`;
+        requestAnimationFrame(() => { dr.classList.add("open"); scrim.classList.add("show"); });
+        const close = () => { dr.classList.remove("open"); scrim.classList.remove("show"); };
+        scrim.onclick = close; dr.querySelector(".dr-close").onclick = close;
+        dr.querySelector("#p_save").onclick = () => {
+          const name = dr.querySelector("#p_name").value.trim();
+          const obj = { name, category: dr.querySelector("#p_cat").value, unit: dr.querySelector("#p_unit").value,
+            price: dr.querySelector("#p_price").value, stock: dr.querySelector("#p_stock").value, image: dr.querySelector("#p_img").value.trim() };
+          if (!name) { const e = dr.querySelector("#p_err"); e.textContent = "Enter a product name."; e.style.display = "block"; return; }
+          if (p) { A.updateProductInfo(slug, obj); A.toast("Product updated · live on store"); }
+          else { A.createProduct(obj); A.toast("Product added · live on store"); }
+          close(); draw();
+        };
+        const del = dr.querySelector("#p_del");
+        if (del) del.onclick = () => { if (confirm("Delete “" + p.name + "” permanently?")) { A.deleteProduct(slug); A.toast("Product removed"); close(); draw(); } };
+      }
+      function esc(s) { return String(s == null ? "" : s).replace(/"/g, "&quot;").replace(/</g, "&lt;"); }
 
       function exportCSV() {
         const rows = [["Product", "Slug", "Category", "Type", "Price", "Unit", "Base price", "Stock", "Active", "Featured", "Units sold"]];

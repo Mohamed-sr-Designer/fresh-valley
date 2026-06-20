@@ -41,7 +41,7 @@
             <label class="flex" style="font-size:.82rem;color:var(--ad-muted);cursor:pointer"><input type="checkbox" id="lRemember" checked style="accent-color:var(--ad-forest)"> Keep me signed in</label>
             <a href="#" style="font-size:.82rem;color:var(--ad-forest);font-weight:600">Forgot?</a>
           </div>
-          <button class="btn btn--primary btn--block" type="submit" style="padding:.75rem">Sign in to console</button>
+          <button class="btn btn--primary btn--block" type="submit" id="lBtn" style="padding:.75rem">Sign in to console</button>
           <p id="lErr" style="color:var(--ad-bad);font-size:.82rem;margin-top:.8rem;display:none"></p>
         </form>
         <div class="login-note">
@@ -59,28 +59,37 @@
   <script>
     (function () {
       const A = window.ADMIN;
-      // If already signed in, go straight to the dashboard
+      // If already signed in, go straight to your home page
       const sess = A.store.get(A.K.session, null);
-      if (sess && sess.t && (Date.now() - sess.t < 6048e5)) { location.replace("index.html"); return; }
+      if (sess && sess.t && (Date.now() - sess.t < 6048e5)) { location.replace(A.roleHome(sess.role)); return; }
 
       document.querySelectorAll(".demo-fill").forEach(b => b.addEventListener("click", () => {
         document.getElementById("lEmail").value = b.dataset.email;
         document.getElementById("lPass").value = b.dataset.pass;
       }));
 
-      const form = document.getElementById("loginForm"), err = document.getElementById("lErr");
-      form.addEventListener("submit", (e) => {
+      const form = document.getElementById("loginForm"), err = document.getElementById("lErr"), btn = document.getElementById("lBtn");
+      async function apiUp() {
+        try { const c = new AbortController(); const t = setTimeout(() => c.abort(), 3000);
+          const h = await fetch("/api/health", { cache: "no-store", signal: c.signal }).finally(() => clearTimeout(t));
+          return h.ok; } catch { return false; }
+      }
+      form.addEventListener("submit", async (e) => {
         e.preventDefault();
         const email = document.getElementById("lEmail").value.trim();
         const pass = document.getElementById("lPass").value;
-        if (!email.includes("@") || pass.length < 1) {
-          err.textContent = "Enter your email and password.";
-          err.style.display = "block"; return;
+        if (!email.includes("@") || pass.length < 1) { err.textContent = "Enter your email and password."; err.style.display = "block"; return; }
+        err.style.display = "none"; if (btn) btn.disabled = true;
+        let user = null;
+        if (await apiUp()) {                       // real backend → server auth only
+          try { user = await A.apiLogin(email, pass); }
+          catch (ex) { err.textContent = ex.message || "Login failed"; err.style.display = "block"; if (btn) btn.disabled = false; return; }
+        } else {                                    // offline / static demo → localStorage
+          user = A.authUser(email, pass);
+          if (!user) { err.textContent = "Those credentials don't match a team member. Check with your Super Admin."; err.style.display = "block"; if (btn) btn.disabled = false; return; }
         }
-        const u = A.authUser(email, pass);
-        if (!u) { err.textContent = "Those credentials don't match a team member. Check with your Super Admin."; err.style.display = "block"; return; }
-        A.store.set(A.K.session, { email: u.email, t: Date.now(), name: u.name, role: u.role });
-        location.href = A.roleHome(u.role);
+        A.store.set(A.K.session, { email: user.email, t: Date.now(), name: user.name, role: user.role });
+        location.href = A.roleHome(user.role);
       });
     })();
   </script>

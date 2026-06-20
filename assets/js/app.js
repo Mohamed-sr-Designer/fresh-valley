@@ -14,13 +14,18 @@
    * prices, theme colours, currency, store rules, content & sections.
    * (Same browser only — swap for an API in production.)
    * ------------------------------------------------------------------ */
-  const _AK = { orders: "fv_orders", clients: "fv_clients", theme: "fv_admin_theme", prices: "fv_admin_prices", pmeta: "fv_admin_pmeta", content: "fv_admin_content", images: "fv_admin_images", settings: "fv_admin_settings" };
+  const _AK = { orders: "fv_orders", clients: "fv_clients", theme: "fv_admin_theme", prices: "fv_admin_prices", pmeta: "fv_admin_pmeta", custom: "fv_admin_custom", content: "fv_admin_content", images: "fv_admin_images", settings: "fv_admin_settings" };
   function _ag(k, fb) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? fb : v; } catch { return fb; } }
   function _as(k, v) { localStorage.setItem(k, JSON.stringify(v)); }
   const ADMIN = {
     settings: Object.assign({ storeName: "Fresh Valley", currency: "EGP", storeOpen: true, deliveryFee: 45, freeThreshold: 600, taxRate: 0 }, _ag(_AK.settings, {})),
     content: _ag(_AK.content, {}),
   };
+  // 0) merge admin-added products into the catalog (same-browser; cross-device via API)
+  (function () {
+    const custom = _ag(_AK.custom, []);
+    if (D && D.products && custom.length) custom.forEach((c) => { if (!D.products.some((p) => p.slug === c.slug)) D.products.push(c); });
+  })();
   // 1) price overrides → mutate the catalog so every render uses new prices
   (function () {
     const p = _ag(_AK.prices, {});
@@ -69,6 +74,17 @@
   };
 
   /* ------------------------------------------------------------------ *
+   * Payment brand marks (white card chips — work on light & dark)
+   * ------------------------------------------------------------------ */
+  const PAY = {
+    visa: '<svg viewBox="0 0 40 26" class="pay-mark" role="img" aria-label="Visa"><rect width="40" height="26" rx="4" fill="#fff"/><text x="20" y="17.5" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-style="italic" font-size="10.5" letter-spacing=".4" fill="#1434CB">VISA</text></svg>',
+    mastercard: '<svg viewBox="0 0 40 26" class="pay-mark" role="img" aria-label="Mastercard"><rect width="40" height="26" rx="4" fill="#fff"/><circle cx="16.5" cy="13" r="7" fill="#EB001B"/><circle cx="23.5" cy="13" r="7" fill="#F79E1B"/><path d="M20 7.7a7 7 0 0 1 0 10.6 7 7 0 0 1 0-10.6Z" fill="#FF5F00"/></svg>',
+    apple: '<svg viewBox="0 0 40 26" class="pay-mark" role="img" aria-label="Apple Pay"><rect width="40" height="26" rx="4" fill="#fff"/><g fill="#000"><path d="M13.9 9.2c.4-.5.7-1.2.6-1.9-.6 0-1.3.4-1.7.9-.4.4-.7 1.1-.6 1.8.7.1 1.3-.3 1.7-.8Zm.6 1c-.9-.1-1.7.5-2.1.5-.4 0-1.1-.5-1.8-.5-.9 0-1.8.5-2.2 1.4-1 1.6-.3 4 .7 5.3.5.6 1 1.3 1.8 1.3.7 0 .9-.5 1.8-.5.8 0 1 .5 1.8.4.7 0 1.2-.6 1.7-1.3.5-.7.7-1.4.7-1.4s-1.3-.5-1.3-2c0-1.2 1-1.8 1.1-1.8-.6-.9-1.5-1-1.9-1Z"/></g><text x="23.5" y="17" font-family="Arial,Helvetica,sans-serif" font-weight="600" font-size="9.5" fill="#000">Pay</text></svg>',
+    wallet: '<svg viewBox="0 0 40 26" class="pay-mark" role="img" aria-label="Mobile wallet"><rect width="40" height="26" rx="4" fill="#fff"/><g fill="none" stroke="#1C3A29" stroke-width="1.5" stroke-linejoin="round"><rect x="10" y="8" width="20" height="11" rx="2"/><path d="M10 11h20"/></g><circle cx="25" cy="15" r="1.4" fill="#C89B5C"/></svg>',
+  };
+  const PAY_MARKS = PAY.visa + PAY.mastercard + PAY.apple + PAY.wallet;
+
+  /* ------------------------------------------------------------------ *
    * Money + pricing
    * ------------------------------------------------------------------ */
   const money = (n) => ADMIN.settings.currency + " " + Math.round(n).toLocaleString("en-US");
@@ -101,7 +117,8 @@
   }
 
   const FV = window.FV = {
-    data: D, icon: (n) => I[n] || "", money, weightOptions, weightLabel, priceForWeight, cardPrice, defaultVariant,
+    data: D, icon: (n) => I[n] || "", payMark: (k) => PAY[k] || "", payMarks: PAY_MARKS,
+    money, weightOptions, weightLabel, priceForWeight, cardPrice, defaultVariant,
     img: (slug) => D.IMG + slug + ".jpg",
     thumb: (slug) => D.IMG + "sm/" + slug + ".jpg",
     find: (slug) => D.products.find((p) => p.slug === slug),
@@ -194,6 +211,27 @@
       if (r) { r.name = name || r.name; r.phone = phone || r.phone; r.area = area || r.area; }
       else list.push({ id: "C" + String(Date.now()).slice(-6), name: name || email.split("@")[0], email, phone: phone || "", area: area || "", joined: new Date().toISOString(), status: c.status || "active" });
       _as(_AK.clients, list);
+    },
+  };
+
+  /* Optional live backend — auto-detected. Used by checkout to place real,
+     cross-device orders. Falls back to the localStorage demo when offline. */
+  FV.api = {
+    base: (window.FV_CONFIG && window.FV_CONFIG.apiBase) || "/api",
+    _up: null,
+    async up() {
+      if (FV.api._up != null) return FV.api._up;
+      try {
+        const c = new AbortController(); const t = setTimeout(() => c.abort(), 3000);
+        const h = await fetch(FV.api.base + "/health", { cache: "no-store", signal: c.signal }).finally(() => clearTimeout(t));
+        FV.api._up = h.ok;
+      } catch { FV.api._up = false; }
+      return FV.api._up;
+    },
+    async checkout(order) {
+      const res = await fetch(FV.api.base + "/orders", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(order) });
+      if (!res.ok) { let e = {}; try { e = await res.json(); } catch {} throw new Error(e.error || ("HTTP " + res.status)); }
+      return res.json();
     },
   };
 
@@ -364,9 +402,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
         </div>
         <div class="footer-bottom">
           <span>© ${new Date().getFullYear()} Fresh Valley. Cairo, Egypt. All rights reserved.</span>
-          <div class="pay-row">
-            <span>Visa</span><span>Mastercard</span><span>Apple Pay</span><span>Wallet</span><span>Cash</span>
-          </div>
+          <div class="pay-row" aria-label="Accepted payment methods">${PAY_MARKS}</div>
           <div class="social-row">
             <a href="#" aria-label="Instagram">${I.instagram}</a>
             <a href="#" aria-label="Facebook">${I.facebook}</a>

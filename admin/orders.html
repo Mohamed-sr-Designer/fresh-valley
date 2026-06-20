@@ -16,9 +16,10 @@
   <script src="../assets/js/data.js"></script>
   <script src="../assets/js/admin.js"></script>
   <script>
-    (function () {
+    (async function () {
       const A = window.ADMIN, I = A.I;
       if (!A.requireAuth("orders")) return;
+      await A.boot();
       const root = A.mountShell("orders");
       const s = A.settings();
 

@@ -44,6 +44,8 @@
     .pay-opt[aria-pressed="true"] .radio::after { content:""; width:10px; height:10px; border-radius:50%; background:var(--forest); }
     .pay-opt .label { flex:1; font-weight:500; color:var(--forest); }
     .pay-opt .tag { font-size:var(--step--2); color:var(--text-faint); }
+    .pay-opt-marks { display:flex; gap:.35rem; margin-left:auto; align-items:center; flex-shrink:0; }
+    .pay-opt-marks .pay-mark { height:24px; width:auto; border:1px solid var(--line); border-radius:4px; }
     .card-fields { margin-top:1rem; padding-top:1rem; border-top:1px solid var(--line-soft); display:none; }
     .card-fields.show { display:block; }
     .secure-note { display:flex; gap:.5rem; align-items:center; font-size:var(--step--2); color:var(--text-faint); margin-top:1rem; }
@@ -192,13 +194,13 @@
                 <div class="step-head"><span class="step-n">3</span><h2>Payment</h2></div>
                 ${state.mode === "account" ? `
                   <div class="pay-opt" data-pay="saved" aria-pressed="${state.payment === "saved"}">
-                    <span class="radio"></span><span class="label">Visa ending 4291</span><span class="tag">Saved card</span></div>` : ``}
+                    <span class="radio"></span><span class="label">Visa ending 4291</span><span class="pay-opt-marks">${FV.payMark("visa")}</span></div>` : ``}
                 <div class="pay-opt" data-pay="card" aria-pressed="${state.payment === "card"}">
-                  <span class="radio"></span><span class="label">Credit or debit card</span><span class="tag">Visa · Mastercard</span></div>
+                  <span class="radio"></span><span class="label">Credit or debit card</span><span class="pay-opt-marks">${FV.payMark("visa")}${FV.payMark("mastercard")}</span></div>
                 <div class="pay-opt" data-pay="apple" aria-pressed="${state.payment === "apple"}">
-                  <span class="radio"></span><span class="label">Apple&nbsp;Pay</span><span class="tag">One-touch</span></div>
+                  <span class="radio"></span><span class="label">Apple&nbsp;Pay</span><span class="pay-opt-marks">${FV.payMark("apple")}</span></div>
                 <div class="pay-opt" data-pay="wallet" aria-pressed="${state.payment === "wallet"}">
-                  <span class="radio"></span><span class="label">Mobile wallet</span><span class="tag">Vodafone · Instapay</span></div>
+                  <span class="radio"></span><span class="label">Mobile wallet</span><span class="pay-opt-marks">${FV.payMark("wallet")}</span></div>
 
                 <div class="card-fields ${state.payment === "card" ? "show" : ""}" id="cardFields">
                   <div class="grid-2">
@@ -259,32 +261,35 @@
         });
       }
 
-      function placeOrder(form) {
+      async function placeOrder(form) {
         const sub = FV.cart.subtotal();
         const delivery = sub >= FREE ? 0 : FEE;
-        const total = sub + delivery;
-        const order = "FV" + Math.floor(100000 + Math.random() * 899999);
         const name = form.first.value || "there";
         const slot = `${days[state.slotDay]}, ${times[state.slotTime]}`;
         const payLabel = { card: "Card", saved: "Saved card", apple: "Apple Pay", wallet: "Mobile wallet", cod: "Cash on delivery" }[state.payment];
+        const customer = {
+          name: (form.first.value + " " + form.last.value).trim() || name,
+          email: form.email.value.trim(), phone: form.phone.value.trim(), area: form.area.value || "",
+        };
+        const address = [form.street.value, form.district.value, form.area.value].filter(Boolean).join(", ");
+        const items = FV.cart.items().map((it) => ({ slug: it.slug, kind: it.type, name: it.name, variant: it.variant, price: it.price, qty: it.qty, image: it.image, noPhoto: !!it.noPhoto }));
 
-        // Record the order & customer so it appears in the admin dashboard
-        let orderObj = null;
-        if (window.FV && FV.orders) {
-          const customer = {
-            name: (form.first.value + " " + form.last.value).trim() || name,
-            email: form.email.value.trim(), phone: form.phone.value.trim(), area: form.area.value || "",
-          };
-          const items = FV.cart.items().map((it) => ({ slug: it.slug, kind: it.type, name: it.name, variant: it.variant, price: it.price, qty: it.qty, image: it.image, noPhoto: !!it.noPhoto }));
-          orderObj = {
-            id: order, date: new Date().toISOString(), customer, items,
-            subtotal: sub, delivery, total, status: "pending",
-            payment: payLabel, channel: "Website", slot,
-            address: [form.street.value, form.district.value, form.area.value].filter(Boolean).join(", "),
-          };
-          FV.orders.record(orderObj);
-          FV.clients.upsert(Object.assign({}, customer, { status: "active" }));
+        let orderObj = {
+          id: "FV" + Math.floor(100000 + Math.random() * 899999), date: new Date().toISOString(),
+          customer, items, subtotal: sub, delivery, total: sub + delivery, status: "pending",
+          payment: payLabel, channel: "Website", slot, address,
+        };
+
+        // Try the real backend (cross-device, server-priced); fall back to the local demo.
+        let placed = false;
+        if (FV.api && await FV.api.up()) {
+          try {
+            orderObj = await FV.api.checkout({ customer, address, slot, payment: payLabel,
+              items: items.map((i) => ({ slug: i.slug, qty: i.qty, variant: i.variant })) });
+            placed = true;
+          } catch (e) { FV.toast("Couldn't reach the server — saved locally"); }
         }
+        if (!placed && FV.orders) { FV.orders.record(orderObj); FV.clients.upsert(Object.assign({}, customer, { status: "active" })); }
 
         FV.cart.clear();
         document.getElementById("coTitle").textContent = "Order confirmed";
@@ -295,18 +300,18 @@
           <h2 class="mt-sm">Your table is on its way.</h2>
           <p class="lead mt-md">We've received your order and started grading your produce. A confirmation is on its way to your inbox.</p>
           <div class="order-meta">
-            <div><div class="k">Order</div><div class="v">${order}</div></div>
+            <div><div class="k">Order</div><div class="v">${orderObj.id}</div></div>
             <div><div class="k">Delivery</div><div class="v">${slot}</div></div>
             <div><div class="k">Payment</div><div class="v">${payLabel}</div></div>
-            <div><div class="k">Total</div><div class="v">${FV.money(total)}</div></div>
+            <div><div class="k">Total</div><div class="v">${FV.money(orderObj.total)}</div></div>
           </div>
           <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem">
             <a class="btn" href="account.html#orders">Track this order ${arrow}</a>
-            ${orderObj ? `<button class="btn btn--outline" id="dlReceipt">Download receipt</button>` : ""}
+            <button class="btn btn--outline" id="dlReceipt">Download receipt</button>
             <a class="btn btn--outline" href="products.html">Continue shopping</a>
           </div>
         </div>`;
-        if (orderObj) document.getElementById("dlReceipt")?.addEventListener("click", () => FV.receipt.open(orderObj));
+        document.getElementById("dlReceipt")?.addEventListener("click", () => FV.receipt.open(orderObj));
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
 

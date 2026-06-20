@@ -37,9 +37,10 @@
   <script src="../assets/js/data.js"></script>
   <script src="../assets/js/admin.js"></script>
   <script>
-    (function () {
+    (async function () {
       const A = window.ADMIN, I = A.I;
       if (!A.requireAuth("appearance")) return;
+      await A.boot();
       const root = A.mountShell("appearance");
 
       // Base brand defaults (must match storefront :root)

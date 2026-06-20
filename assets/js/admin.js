@@ -23,7 +23,8 @@
     clients:  "fv_clients",
     theme:    "fv_admin_theme",
     prices:   "fv_admin_prices",
-    pmeta:    "fv_admin_pmeta",     // per-product { active, stock, featured }
+    pmeta:    "fv_admin_pmeta",     // per-product { active, stock, featured, name?, category? }
+    custom:   "fv_admin_custom",    // admin-added products [{ slug, name, category, ... }]
     content:  "fv_admin_content",
     images:   "fv_admin_images",    // banner/image src overrides { key: url }
     settings: "fv_admin_settings",
@@ -90,7 +91,7 @@
     adminPass: "fresh-admin",
   };
   function settings() { return Object.assign({}, SETTINGS_DEFAULT, store.get(K.settings, {})); }
-  function saveSettings(s) { store.set(K.settings, Object.assign({}, settings(), s)); }
+  function saveSettings(s) { store.set(K.settings, Object.assign({}, settings(), s)); if (typeof apiBg === "function") apiBg("PATCH", "/site/settings", s); }
 
   function money(n) {
     const s = settings();
@@ -102,11 +103,17 @@
   /* ------------------------------------------------------------------ *
    * Catalog helpers (read-through admin price/meta overrides)
    * ------------------------------------------------------------------ */
-  const allItems = () => [
-    ...D.products.map((p) => ({ ...p, kind: "product" })),
-    ...D.boxes.map((b) => ({ ...b, kind: "box", category: "boxes" })),
-  ];
+  function allItems() {
+    const meta = store.get(K.pmeta, {});
+    const ovr = (p) => { const m = meta[p.slug]; if (!m) return p; const o = Object.assign({}, p); if (m.name) o.name = m.name; if (m.category) o.category = m.category; return o; };
+    return [
+      ...D.products.map((p) => ovr({ ...p, kind: "product" })),
+      ...D.boxes.map((b) => ovr({ ...b, kind: "box", category: "boxes" })),
+      ...store.get(K.custom, []).map((p) => Object.assign({ kind: "product" }, ovr(p))),
+    ];
+  }
   const findItem = (slug) => allItems().find((p) => p.slug === slug);
+  const isCustom = (slug) => store.get(K.custom, []).some((p) => p.slug === slug);
 
   function basePrice(item) {
     if (item.kind === "box") return Math.min(...item.tiers.map((t) => t.price));
@@ -647,10 +654,10 @@
     const list = seedUsers();
     if (list.some((x) => x.email.toLowerCase() === (u.email || "").toLowerCase())) return false;
     list.push({ id: "U" + String(Date.now()).slice(-6), name: u.name, email: u.email, password: u.password, role: u.role || "admin", created: new Date().toISOString() });
-    store.set(K.users, list); return true;
+    store.set(K.users, list); apiBg("POST", "/users", { name: u.name, email: u.email, password: u.password, role: u.role || "admin" }); return true;
   }
-  function removeUser(id) { store.set(K.users, seedUsers().filter((x) => x.id !== id)); }
-  function updateUser(id, patch) { const list = seedUsers(); const x = list.find((u) => u.id === id); if (x) Object.assign(x, patch); store.set(K.users, list); }
+  function removeUser(id) { store.set(K.users, seedUsers().filter((x) => String(x.id) !== String(id))); apiBg("DELETE", "/users/" + id); }
+  function updateUser(id, patch) { const list = seedUsers(); const x = list.find((u) => String(u.id) === String(id)); if (x) Object.assign(x, patch); store.set(K.users, list); apiBg("PATCH", "/users/" + id, patch); }
   function authUser(email, password) {
     const u = seedUsers().find((x) => x.email.toLowerCase() === (email || "").toLowerCase() && x.password === password);
     if (u) return u;
@@ -852,25 +859,122 @@
   const fmtDateTime = (iso) => new Date(iso).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 
   /* ------------------------------------------------------------------ *
+   * Optional live backend (auto-detected). If a real API is reachable we
+   * mirror its data into the SAME localStorage keys the engine already
+   * reads, and mirror every write back to the server. If not (e.g. the
+   * static GitHub Pages demo) we silently stay in localStorage mode —
+   * so nothing can break. See /server + HANDOFF.md.
+   * ------------------------------------------------------------------ */
+  const API_BASE = (window.FV_CONFIG && window.FV_CONFIG.apiBase) || "/api";
+  let MODE = "local";
+  const apiTok = () => localStorage.getItem("fv_api_token") || "";
+  async function apiReq(method, path, body) {
+    const headers = {}; const t = apiTok(); if (t) headers.Authorization = "Bearer " + t;
+    if (body !== undefined) headers["Content-Type"] = "application/json";
+    const res = await fetch(API_BASE + path, { method, headers, body: body !== undefined ? JSON.stringify(body) : undefined });
+    if (!res.ok) { let e = {}; try { e = await res.json(); } catch {} throw new Error(e.error || ("HTTP " + res.status)); }
+    return res.status === 204 ? null : res.json();
+  }
+  // fire-and-forget write to the server (UI already updated optimistically)
+  function apiBg(method, path, body) { if (MODE === "api") apiReq(method, path, body).catch((e) => toast("Sync failed · " + e.message)); }
+
+  async function apiLogin(email, password) {
+    const r = await apiReq("POST", "/auth/login", { email, password });
+    localStorage.setItem("fv_api_token", r.token);
+    return r.user;
+  }
+
+  async function boot() {
+    if (!API_BASE) return "local";
+    try {
+      const ctrl = new AbortController(); const to = setTimeout(() => ctrl.abort(), 3500);
+      const h = await fetch(API_BASE + "/health", { cache: "no-store", signal: ctrl.signal }).finally(() => clearTimeout(to));
+      if (!h.ok) throw 0;
+      MODE = "api";
+      const site = await apiReq("GET", "/site");
+      if (site) { if (site.settings) store.set(K.settings, site.settings); store.set(K.content, site.content || {}); store.set(K.theme, site.theme || {}); store.set(K.images, site.images || {}); }
+      const products = await apiReq("GET", "/products");
+      if (products) {
+        const prices = {}, meta = {}, custom = [];
+        const baseSlugs = new Set([...D.products.map((p) => p.slug), ...D.boxes.map((b) => b.slug)]);
+        products.forEach((p) => {
+          if (p.priceOverride != null) prices[p.slug] = p.price;
+          meta[p.slug] = { active: p.active, stock: p.stock, featured: p.featured };
+          if (!baseSlugs.has(p.slug)) custom.push({ slug: p.slug, name: p.name, category: p.category, kind: p.kind || "product", unit: p.unit,
+            pricePerKg: p.unit === "kg" ? p.basePrice : undefined, pricePerUnit: p.unit !== "kg" ? p.basePrice : undefined,
+            origin: "Egypt", rating: 5, reviews: 0, short: "", badges: [], collections: [], image: p.image, noPhoto: p.noPhoto, custom: true });
+        });
+        store.set(K.prices, prices); store.set(K.pmeta, meta); store.set(K.custom, custom);
+      }
+      if (currentRole() === "super-admin") {
+        try { const o = await apiReq("GET", "/orders"); if (o) store.set(K.orders, o); } catch {}
+        try { const c = await apiReq("GET", "/customers"); if (c) store.set(K.clients, c.map((x) => ({ id: x.id, name: x.name, email: x.email, phone: x.phone, area: x.area, status: x.status, joined: x.joined }))); } catch {}
+        try { const u = await apiReq("GET", "/users"); if (u) store.set(K.users, u.map((x) => ({ id: x.id, name: x.name, email: x.email, role: x.role, created: x.created_at }))); } catch {}
+      }
+    } catch { MODE = "local"; }
+    return MODE;
+  }
+  const mode = () => MODE;
+
+  /* ------------------------------------------------------------------ *
    * Public API
    * ------------------------------------------------------------------ */
   window.ADMIN = {
     K, store, I, settings, saveSettings,
     money, num, pct, cap, timeAgo, fmtDate, fmtDateTime,
     seedIfEmpty,
+    // live backend (no-op in localStorage mode)
+    boot, apiLogin, mode,
     // data
     orders: () => store.get(K.orders, []),
     saveOrders: (o) => store.set(K.orders, o),
-    updateOrder: (id, patch) => { const o = store.get(K.orders, []); const i = o.findIndex((x) => x.id === id); if (i > -1) { Object.assign(o[i], patch); store.set(K.orders, o); } return o[i]; },
+    updateOrder: (id, patch) => { const o = store.get(K.orders, []); const i = o.findIndex((x) => x.id === id); if (i > -1) { Object.assign(o[i], patch); store.set(K.orders, o); } apiBg("PATCH", "/orders/" + id, patch); return o[i]; },
     clients, rawClients: () => store.get(K.clients, []), saveClients: (c) => store.set(K.clients, c),
+    updateCustomer: (id, patch) => { const list = store.get(K.clients, []); const r = list.find((x) => String(x.id) === String(id)); if (r) { Object.assign(r, patch); store.set(K.clients, list); } apiBg("PATCH", "/customers/" + id, patch); return r; },
     allItems, findItem, basePrice, effectivePrice, priceUnit, pmeta,
-    setPrice: (slug, val) => { const p = store.get(K.prices, {}); if (val == null || val === "") delete p[slug]; else p[slug] = +val; store.set(K.prices, p); },
-    setPmeta: (slug, patch) => { const m = store.get(K.pmeta, {}); m[slug] = Object.assign({}, m[slug], patch); store.set(K.pmeta, m); },
+    setPrice: (slug, val) => { const p = store.get(K.prices, {}); const v = (val == null || val === "") ? null : +val; if (v == null) delete p[slug]; else p[slug] = v; store.set(K.prices, p); apiBg("PATCH", "/products/" + slug, { price: v }); },
+    setPmeta: (slug, patch) => { const m = store.get(K.pmeta, {}); m[slug] = Object.assign({}, m[slug], patch); store.set(K.pmeta, m); apiBg("PATCH", "/products/" + slug, patch); },
     prices: () => store.get(K.prices, {}),
-    theme: () => store.get(K.theme, {}), setTheme: (t) => store.set(K.theme, t),
-    content: () => store.get(K.content, {}), setContent: (c) => store.set(K.content, Object.assign({}, store.get(K.content, {}), c)),
+    isCustom,
+    createProduct: (obj) => {
+      const slugify = (s) => (s || "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      let slug = obj.slug || slugify(obj.name); if (!slug) return null;
+      if (allItems().some((p) => p.slug === slug)) slug += "-" + String(Date.now()).slice(-4);
+      const unit = obj.unit || "kg"; const price = Math.max(0, +obj.price || 0);
+      const p = { slug, name: obj.name, category: obj.category || "fruits", kind: "product", unit,
+        origin: obj.origin || "Egypt", rating: 5, reviews: 0, short: obj.short || "", desc: obj.short || "", storage: "", season: "",
+        badges: [], collections: [], image: obj.image || slug, noPhoto: !obj.image, custom: true };
+      if (unit === "kg") p.pricePerKg = price; else p.pricePerUnit = price;
+      const list = store.get(K.custom, []); list.push(p); store.set(K.custom, list);
+      const meta = store.get(K.pmeta, {}); meta[slug] = { active: true, stock: Math.max(0, +obj.stock || 0), featured: false }; store.set(K.pmeta, meta);
+      apiBg("POST", "/products", { slug, name: p.name, category: p.category, kind: "product", basePrice: price, unit, stock: Math.max(0, +obj.stock || 0), image: p.image, noPhoto: p.noPhoto, data: p });
+      return p;
+    },
+    updateProductInfo: (slug, patch) => {
+      if (isCustom(slug)) {
+        const list = store.get(K.custom, []); const p = list.find((x) => x.slug === slug);
+        if (p) { if (patch.name != null) p.name = patch.name; if (patch.category != null) p.category = patch.category;
+          if (patch.unit) p.unit = patch.unit;
+          if (patch.price != null && patch.price !== "") { const v = Math.max(0, +patch.price); if (p.unit === "kg") { p.pricePerKg = v; delete p.pricePerUnit; } else { p.pricePerUnit = v; delete p.pricePerKg; } }
+          if (patch.image != null) { p.image = patch.image || slug; p.noPhoto = !patch.image; }
+          store.set(K.custom, list); }
+      } else {
+        const m = store.get(K.pmeta, {}); m[slug] = Object.assign({}, m[slug]);
+        if (patch.name != null) m[slug].name = patch.name; if (patch.category != null) m[slug].category = patch.category; store.set(K.pmeta, m);
+        if (patch.price != null) { const pr = store.get(K.prices, {}); const v = patch.price === "" ? null : +patch.price; if (v == null) delete pr[slug]; else pr[slug] = v; store.set(K.prices, pr); }
+      }
+      if (patch.stock != null && patch.stock !== "") { const m = store.get(K.pmeta, {}); m[slug] = Object.assign({}, m[slug], { stock: Math.max(0, +patch.stock || 0) }); store.set(K.pmeta, m); }
+      apiBg("PATCH", "/products/" + slug, { name: patch.name, category: patch.category, unit: patch.unit, price: patch.price === "" ? null : patch.price, stock: patch.stock });
+    },
+    deleteProduct: (slug) => {
+      if (isCustom(slug)) store.set(K.custom, store.get(K.custom, []).filter((p) => p.slug !== slug));
+      else { const m = store.get(K.pmeta, {}); m[slug] = Object.assign({}, m[slug], { active: false }); store.set(K.pmeta, m); }
+      apiBg("DELETE", "/products/" + slug);
+    },
+    theme: () => store.get(K.theme, {}), setTheme: (t) => { store.set(K.theme, t); apiBg("PUT", "/site/theme", t); },
+    content: () => store.get(K.content, {}), setContent: (c) => { store.set(K.content, Object.assign({}, store.get(K.content, {}), c)); apiBg("PATCH", "/site/content", c); },
     images: () => store.get(K.images, {}),
-    setImage: (key, url) => { const m = store.get(K.images, {}); if (url == null || url === "") delete m[key]; else m[key] = url; store.set(K.images, m); },
+    setImage: (key, url) => { const m = store.get(K.images, {}); if (url == null || url === "") delete m[key]; else m[key] = url; store.set(K.images, m); apiBg("PATCH", "/site/images", { key, url: url || "" }); },
     // users / auth
     ROLES, users, addUser, removeUser, updateUser, authUser, session, currentRole, seedUsers, roleHome,
     // analytics

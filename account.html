@@ -209,28 +209,12 @@
       panelsEl.innerHTML = `
       <div class="panel" data-panel="profile">
         <h2>Profile</h2><p class="sub">Your details, kept simple.</p>
-        <div class="card-box">
-          <div class="addr-grid">
-            <div class="field"><label>First name</label><div class="field-static">${user.first}</div></div>
-            <div class="field"><label>Last name</label><div class="field-static">El-Din</div></div>
-            <div class="field"><label>Email</label><div class="field-static">${user.email}</div></div>
-            <div class="field"><label>Phone</label><div class="field-static">${user.phone}</div></div>
-          </div>
-          <button class="btn btn--outline btn--sm" style="margin-top:1.2rem">Edit details</button>
-        </div>
+        <div id="profileBox"></div>
       </div>
 
       <div class="panel" data-panel="addresses">
         <h2>Addresses</h2><p class="sub">Where we bring your produce.</p>
-        <div class="pay-grid">
-          <div class="card-box"><div style="display:flex;justify-content:space-between"><strong style="color:var(--forest)">Home</strong><span class="status delivered">Default</span></div>
-            <p class="muted" style="margin-top:.6rem;font-size:var(--step--1)">Villa 22, South Lake<br>New Cairo, Cairo</p>
-            <div style="margin-top:1rem;display:flex;gap:.8rem"><a class="link-arrow" style="font-size:var(--step--2)">Edit</a><a class="link-arrow" style="font-size:var(--step--2)">Remove</a></div></div>
-          <div class="card-box"><strong style="color:var(--forest)">Office</strong>
-            <p class="muted" style="margin-top:.6rem;font-size:var(--step--1)">Building 4, Beverly Hills<br>Sheikh Zayed, Giza</p>
-            <div style="margin-top:1rem;display:flex;gap:.8rem"><a class="link-arrow" style="font-size:var(--step--2)">Edit</a><a class="link-arrow" style="font-size:var(--step--2)">Remove</a></div></div>
-        </div>
-        <button class="btn btn--outline btn--sm" style="margin-top:1rem">${FV.icon("plus")} Add an address</button>
+        <div id="addrBox"></div>
       </div>
 
       <div class="panel" data-panel="orders">
@@ -260,27 +244,13 @@
 
       <div class="panel" data-panel="cards">
         <h2>Saved Cards</h2><p class="sub">For a faster checkout. We never store full card numbers.</p>
-        <div class="pay-grid">
-          <div class="card-box"><div style="display:flex;justify-content:space-between;align-items:center"><strong style="color:var(--forest)">Visa •••• 4291</strong><span class="status delivered">Default</span></div>
-            <p class="muted" style="margin-top:.6rem;font-size:var(--step--1)">Expires 09 / 27</p></div>
-          <div class="card-box"><strong style="color:var(--forest)">Mastercard •••• 7730</strong>
-            <p class="muted" style="margin-top:.6rem;font-size:var(--step--1)">Expires 03 / 28</p></div>
-        </div>
-        <button class="btn btn--outline btn--sm" style="margin-top:1rem">${FV.icon("plus")} Add a card</button>
+        <div id="cardsBox"></div>
         <p class="secure-note" style="display:flex;gap:.5rem;align-items:center;font-size:var(--step--2);color:var(--text-faint);margin-top:1rem">${FV.icon("shield")} Stored securely with our payment provider — never on our servers.</p>
       </div>
 
       <div class="panel" data-panel="subscriptions">
         <h2>Subscriptions</h2><p class="sub">Your produce, on a quiet schedule.</p>
-        <div class="card-box">
-          <div class="sub-card">
-            <img src="${FV.img("orange")}" alt="">
-            <div><strong style="color:var(--forest);font-family:var(--font-display);font-size:var(--step-1)">The Family Box · Weekly</strong>
-              <p class="muted" style="font-size:var(--step--1);margin-top:.3rem">Next delivery: Wednesday · ${FV.money(650)} / week</p>
-              <span class="status delivered" style="margin-top:.6rem;display:inline-block">Active</span></div>
-            <div style="display:flex;flex-direction:column;gap:.5rem"><button class="btn btn--outline btn--sm">Manage</button><button class="btn btn--sm" style="--bg:var(--bone);--fg:var(--forest);--bd:var(--bone)">Pause</button></div>
-          </div>
-        </div>
+        <div id="subsBox"></div>
         <div class="card-box" style="text-align:center">
           <p class="muted" style="font-size:var(--step--1)">Add a hosting or organic reserve box on a schedule, and save the planning.</p>
           <a class="btn btn--brass btn--sm" href="products.html?cat=boxes" style="margin-top:.8rem">Explore subscriptions ${arrow}</a>
@@ -317,6 +287,113 @@
       // ---- Reorder grid ----
       document.getElementById("reorderGrid").innerHTML =
         FV.byCollection("best-sellers").slice(0, 4).map(FV.productCardHTML).join("");
+
+      /* ---- Editable account sections (saved per-browser; map to /api/me in prod) ---- */
+      const acct = { get(k, fb) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? fb : v; } catch { return fb; } }, set(k, v) { localStorage.setItem(k, JSON.stringify(v)); } };
+      const gv = (id) => { const e = document.getElementById(id); return e ? String(e.value).trim() : ""; };
+      const esc = (s) => String(s == null ? "" : s).replace(/"/g, "&quot;").replace(/</g, "&lt;");
+      const $b = (id) => document.getElementById(id);
+      const nameParts = (user.name || "").split(/\s+/);
+      let addrs = acct.get("fv_addresses", [
+        { id: 1, label: "Home", line: "Villa 22, South Lake", area: "New Cairo, Cairo", default: true },
+        { id: 2, label: "Office", line: "Building 4, Beverly Hills", area: "Sheikh Zayed, Giza", default: false }]);
+      let pcards = acct.get("fv_cards", [
+        { id: 1, brand: "Visa", last4: "4291", exp: "09 / 27", default: true },
+        { id: 2, brand: "Mastercard", last4: "7730", exp: "03 / 28", default: false }]);
+      let subs = acct.get("fv_subs", [{ id: 1, name: "The Family Box · Weekly", price: 650, next: "Wednesday", active: true }]);
+
+      function profile() { return acct.get("fv_profile", { first: nameParts[0] || user.first, last: nameParts.slice(1).join(" "), email: user.email, phone: user.phone || "" }); }
+      function renderProfile(editing) {
+        const p = profile(), b = $b("profileBox"); if (!b) return;
+        if (editing) {
+          b.innerHTML = `<div class="card-box"><div class="addr-grid">
+            <div class="field"><label>First name</label><input class="input" id="pf_first" value="${esc(p.first)}"></div>
+            <div class="field"><label>Last name</label><input class="input" id="pf_last" value="${esc(p.last)}"></div>
+            <div class="field"><label>Email</label><input class="input" id="pf_email" type="email" value="${esc(p.email)}"></div>
+            <div class="field"><label>Phone</label><input class="input" id="pf_phone" value="${esc(p.phone)}"></div></div>
+            <div style="margin-top:1.2rem;display:flex;gap:.6rem"><button class="btn btn--sm" id="pf_save">Save changes</button><button class="btn btn--outline btn--sm" id="pf_cancel">Cancel</button></div></div>`;
+          b.querySelector("#pf_save").onclick = () => {
+            const np = { first: gv("pf_first") || p.first, last: gv("pf_last"), email: gv("pf_email") || p.email, phone: gv("pf_phone") };
+            acct.set("fv_profile", np);
+            const u = acct.get("fv_user", {}); u.name = (np.first + " " + np.last).trim() || u.name; u.email = np.email || u.email; localStorage.setItem("fv_user", JSON.stringify(u));
+            if (FV.clients) FV.clients.upsert({ name: u.name, email: np.email, phone: np.phone });
+            FV.toast("Profile saved"); renderProfile(false);
+          };
+          b.querySelector("#pf_cancel").onclick = () => renderProfile(false);
+        } else {
+          b.innerHTML = `<div class="card-box"><div class="addr-grid">
+            <div class="field"><label>First name</label><div class="field-static">${esc(p.first) || "—"}</div></div>
+            <div class="field"><label>Last name</label><div class="field-static">${esc(p.last) || "—"}</div></div>
+            <div class="field"><label>Email</label><div class="field-static">${esc(p.email) || "—"}</div></div>
+            <div class="field"><label>Phone</label><div class="field-static">${esc(p.phone) || "—"}</div></div></div>
+            <button class="btn btn--outline btn--sm" id="pf_edit" style="margin-top:1.2rem">Edit details</button></div>`;
+          b.querySelector("#pf_edit").onclick = () => renderProfile(true);
+        }
+      }
+      function renderAddr(editId) {
+        const b = $b("addrBox"); if (!b) return;
+        let html = addrs.length ? `<div class="pay-grid">` + addrs.map(a => `<div class="card-box">
+          <div style="display:flex;justify-content:space-between;align-items:center"><strong style="color:var(--forest)">${esc(a.label)}</strong>${a.default ? `<span class="status delivered">Default</span>` : `<a class="link-arrow" style="font-size:var(--step--2);cursor:pointer" data-adef="${a.id}">Set default</a>`}</div>
+          <p class="muted" style="margin-top:.6rem;font-size:var(--step--1)">${esc(a.line)}<br>${esc(a.area)}</p>
+          <div style="margin-top:1rem;display:flex;gap:.8rem"><a class="link-arrow" style="font-size:var(--step--2);cursor:pointer" data-aedit="${a.id}">Edit</a><a class="link-arrow" style="font-size:var(--step--2);cursor:pointer" data-arem="${a.id}">Remove</a></div></div>`).join("") + `</div>`
+          : `<div class="card-box" style="text-align:center"><p class="muted">No addresses yet.</p></div>`;
+        if (editId) { const a = editId === "new" ? null : addrs.find(x => x.id === editId); html += `<div class="card-box" style="margin-top:1rem"><div class="addr-grid">
+          <div class="field"><label>Label</label><input class="input" id="ad_label" value="${esc(a ? a.label : "")}" placeholder="Home / Office"></div>
+          <div class="field"><label>Area</label><input class="input" id="ad_area" value="${esc(a ? a.area : "")}" placeholder="New Cairo, Cairo"></div>
+          <div class="field" style="grid-column:1/-1"><label>Address</label><input class="input" id="ad_line" value="${esc(a ? a.line : "")}" placeholder="Building, street, apartment"></div></div>
+          <div style="margin-top:1rem;display:flex;gap:.6rem"><button class="btn btn--sm" id="ad_save">Save address</button><button class="btn btn--outline btn--sm" id="ad_cancel">Cancel</button></div></div>`; }
+        else html += `<button class="btn btn--outline btn--sm" id="ad_add" style="margin-top:1rem">${FV.icon("plus")} Add an address</button>`;
+        b.innerHTML = html;
+        if (editId) {
+          b.querySelector("#ad_save").onclick = () => { const o = { label: gv("ad_label") || "Address", area: gv("ad_area"), line: gv("ad_line") };
+            if (editId === "new") { o.id = Date.now(); o.default = !addrs.length; addrs.push(o); } else Object.assign(addrs.find(x => x.id === editId), o);
+            acct.set("fv_addresses", addrs); FV.toast("Address saved"); renderAddr(null); };
+          b.querySelector("#ad_cancel").onclick = () => renderAddr(null);
+        } else {
+          b.querySelector("#ad_add").onclick = () => renderAddr("new");
+          b.querySelectorAll("[data-aedit]").forEach(el => el.onclick = () => renderAddr(+el.dataset.aedit));
+          b.querySelectorAll("[data-arem]").forEach(el => el.onclick = () => { addrs = addrs.filter(x => x.id !== +el.dataset.arem); if (addrs.length && !addrs.some(x => x.default)) addrs[0].default = true; acct.set("fv_addresses", addrs); FV.toast("Address removed"); renderAddr(null); });
+          b.querySelectorAll("[data-adef]").forEach(el => el.onclick = () => { addrs.forEach(x => x.default = x.id === +el.dataset.adef); acct.set("fv_addresses", addrs); renderAddr(null); });
+        }
+      }
+      function renderCards(adding) {
+        const b = $b("cardsBox"); if (!b) return;
+        let html = pcards.length ? `<div class="pay-grid">` + pcards.map(c => `<div class="card-box">
+          <div style="display:flex;justify-content:space-between;align-items:center"><strong style="color:var(--forest)">${esc(c.brand)} •••• ${esc(c.last4)}</strong>${c.default ? `<span class="status delivered">Default</span>` : `<a class="link-arrow" style="font-size:var(--step--2);cursor:pointer" data-cdef="${c.id}">Set default</a>`}</div>
+          <p class="muted" style="margin-top:.6rem;font-size:var(--step--1)">Expires ${esc(c.exp)}</p>
+          <div style="margin-top:1rem"><a class="link-arrow" style="font-size:var(--step--2);cursor:pointer" data-crem="${c.id}">Remove</a></div></div>`).join("") + `</div>`
+          : `<div class="card-box" style="text-align:center"><p class="muted">No saved cards.</p></div>`;
+        if (adding) html += `<div class="card-box" style="margin-top:1rem"><div class="addr-grid">
+          <div class="field"><label>Card type</label><select class="select" id="cd_brand"><option>Visa</option><option>Mastercard</option></select></div>
+          <div class="field"><label>Last 4 digits</label><input class="input" id="cd_last4" inputmode="numeric" maxlength="4" placeholder="1234"></div>
+          <div class="field"><label>Expiry</label><input class="input" id="cd_exp" placeholder="MM / YY"></div></div>
+          <p class="muted" style="font-size:var(--step--2);margin-top:.6rem">We only store the last 4 digits — never the full card number.</p>
+          <div style="margin-top:1rem;display:flex;gap:.6rem"><button class="btn btn--sm" id="cd_save">Save card</button><button class="btn btn--outline btn--sm" id="cd_cancel">Cancel</button></div></div>`;
+        else html += `<button class="btn btn--outline btn--sm" id="cd_add" style="margin-top:1rem">${FV.icon("plus")} Add a card</button>`;
+        b.innerHTML = html;
+        if (adding) {
+          b.querySelector("#cd_save").onclick = () => { const last4 = gv("cd_last4").replace(/\D/g, "").slice(-4); if (last4.length < 4) { FV.toast("Enter the last 4 digits"); return; }
+            pcards.push({ id: Date.now(), brand: gv("cd_brand") || "Visa", last4, exp: gv("cd_exp") || "—", default: !pcards.length }); acct.set("fv_cards", pcards); FV.toast("Card saved"); renderCards(false); };
+          b.querySelector("#cd_cancel").onclick = () => renderCards(false);
+        } else {
+          b.querySelector("#cd_add").onclick = () => renderCards(true);
+          b.querySelectorAll("[data-crem]").forEach(el => el.onclick = () => { pcards = pcards.filter(x => x.id !== +el.dataset.crem); if (pcards.length && !pcards.some(x => x.default)) pcards[0].default = true; acct.set("fv_cards", pcards); FV.toast("Card removed"); renderCards(false); });
+          b.querySelectorAll("[data-cdef]").forEach(el => el.onclick = () => { pcards.forEach(x => x.default = x.id === +el.dataset.cdef); acct.set("fv_cards", pcards); renderCards(false); });
+        }
+      }
+      function renderSubs() {
+        const b = $b("subsBox"); if (!b) return;
+        b.innerHTML = subs.length ? subs.map(s => `<div class="card-box"><div class="sub-card">
+          <img src="${FV.img("orange")}" alt="">
+          <div><strong style="color:var(--forest);font-family:var(--font-display);font-size:var(--step-1)">${esc(s.name)}</strong>
+          <p class="muted" style="font-size:var(--step--1);margin-top:.3rem">Next delivery: ${esc(s.next)} · ${FV.money(s.price)} / week</p>
+          <span class="status ${s.active ? "delivered" : "transit"}" style="margin-top:.6rem;display:inline-block">${s.active ? "Active" : "Paused"}</span></div>
+          <div style="display:flex;flex-direction:column;gap:.5rem"><button class="btn btn--sm" data-spause="${s.id}" style="--bg:var(--bone);--fg:var(--forest);--bd:var(--bone)">${s.active ? "Pause" : "Resume"}</button><button class="btn btn--outline btn--sm" data-srem="${s.id}">Cancel</button></div></div></div>`).join("")
+          : `<div class="card-box" style="text-align:center"><p class="muted">No active subscriptions.</p></div>`;
+        b.querySelectorAll("[data-spause]").forEach(el => el.onclick = () => { const s = subs.find(x => x.id === +el.dataset.spause); s.active = !s.active; acct.set("fv_subs", subs); FV.toast(s.active ? "Subscription resumed" : "Subscription paused"); renderSubs(); });
+        b.querySelectorAll("[data-srem]").forEach(el => el.onclick = () => { if (confirm("Cancel this subscription?")) { subs = subs.filter(x => x.id !== +el.dataset.srem); acct.set("fv_subs", subs); FV.toast("Subscription cancelled"); renderSubs(); } });
+      }
+      renderProfile(false); renderAddr(null); renderCards(false); renderSubs();
 
       // ---- Tabs ----
       function show(tab) {

@@ -434,8 +434,8 @@ body[data-hero="true"] .site-header.transparent:not(.scrolled) { --hdr-fg: var(-
 .social-row a { width: 38px; height: 38px; border: 1px solid rgba(237,231,214,.2); border-radius: var(--radius-pill); display: grid; place-items: center; color: var(--on-dark-muted); transition: all .25s; }
 .social-row a:hover { background: var(--brass); border-color: var(--brass); color: var(--ink); transform: translateY(-2px); }
 .social-row svg { width: 17px; height: 17px; }
-.pay-row { display: flex; gap: .5rem; align-items: center; opacity:.8; }
-.pay-row span { font-size: 10px; letter-spacing:.1em; text-transform:uppercase; border:1px solid rgba(237,231,214,.25); padding:.3em .6em; border-radius: var(--radius-sm); }
+.pay-row { display: flex; gap: .45rem; align-items: center; flex-wrap: wrap; }
+.pay-mark { height: 26px; width: auto; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,.18); }
 
 /* ----------------------------------------------------------------- *
  * 7. COMPONENTS
