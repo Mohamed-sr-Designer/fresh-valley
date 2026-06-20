@@ -68,7 +68,7 @@
     pin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6 7-11a7 7 0 1 0-14 0c0 5 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>',
     instagram:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>',
     facebook:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-7h2.3l.4-2.8h-2.7V9.3c0-.8.25-1.4 1.45-1.4H16V5.4c-.3 0-1.2-.1-2.2-.1-2.2 0-3.7 1.3-3.7 3.8v2.1H7.8V14h2.3v7z"/></svg>',
-    tiktok:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 3c.3 2 1.6 3.6 3.6 3.9v2.6c-1.3 0-2.6-.4-3.6-1.1v5.9c0 3-2.4 5.2-5.2 5.2A5.2 5.2 0 0 1 8.6 9.4v2.7a2.6 2.6 0 1 0 1.8 2.5V3z"/></svg>',
+    tiktok:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 3h2.6c.25 1.6 1.1 3 2.45 3.85.5.32 1.08.54 1.7.62v2.7c-1.5 0-2.9-.4-4.1-1.15v5.8a6 6 0 1 1-6-6c.3 0 .6.02.9.07v2.8a3.3 3.3 0 1 0 2.45 3.18z"/></svg>',
     leaf2:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M11 21c-4 0-7-3-7-8 0-6 6-9 13-9 0 8-3 13-8 14-2 .4-3-1-3-3 0-3 3-5 6-6"/></svg>',
     gear:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 7 19.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0-1.1-2.7H3a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 4.7 7l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9.4a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 2.7 1.1l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9.4a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1Z"/></svg>',
   };
@@ -79,7 +79,7 @@
   const PAY = {
     visa: '<svg viewBox="0 0 40 26" class="pay-mark" role="img" aria-label="Visa"><rect width="40" height="26" rx="4" fill="#fff"/><text x="20" y="17.5" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-style="italic" font-size="10.5" letter-spacing=".4" fill="#1434CB">VISA</text></svg>',
     mastercard: '<svg viewBox="0 0 40 26" class="pay-mark" role="img" aria-label="Mastercard"><rect width="40" height="26" rx="4" fill="#fff"/><circle cx="16.5" cy="13" r="7" fill="#EB001B"/><circle cx="23.5" cy="13" r="7" fill="#F79E1B"/><path d="M20 7.7a7 7 0 0 1 0 10.6 7 7 0 0 1 0-10.6Z" fill="#FF5F00"/></svg>',
-    apple: '<svg viewBox="0 0 40 26" class="pay-mark" role="img" aria-label="Apple Pay"><rect width="40" height="26" rx="4" fill="#fff"/><g fill="#000"><path d="M13.9 9.2c.4-.5.7-1.2.6-1.9-.6 0-1.3.4-1.7.9-.4.4-.7 1.1-.6 1.8.7.1 1.3-.3 1.7-.8Zm.6 1c-.9-.1-1.7.5-2.1.5-.4 0-1.1-.5-1.8-.5-.9 0-1.8.5-2.2 1.4-1 1.6-.3 4 .7 5.3.5.6 1 1.3 1.8 1.3.7 0 .9-.5 1.8-.5.8 0 1 .5 1.8.4.7 0 1.2-.6 1.7-1.3.5-.7.7-1.4.7-1.4s-1.3-.5-1.3-2c0-1.2 1-1.8 1.1-1.8-.6-.9-1.5-1-1.9-1Z"/></g><text x="23.5" y="17" font-family="Arial,Helvetica,sans-serif" font-weight="600" font-size="9.5" fill="#000">Pay</text></svg>',
+    apple: '<svg viewBox="0 0 40 26" class="pay-mark" role="img" aria-label="Apple Pay"><rect width="40" height="26" rx="4" fill="#fff"/><g transform="translate(0.5,0)" fill="#000"><path d="M13.9 9.2c.4-.5.7-1.2.6-1.9-.6 0-1.3.4-1.7.9-.4.4-.7 1.1-.6 1.8.7.1 1.3-.3 1.7-.8Zm.6 1c-.9-.1-1.7.5-2.1.5-.4 0-1.1-.5-1.8-.5-.9 0-1.8.5-2.2 1.4-1 1.6-.3 4 .7 5.3.5.6 1 1.3 1.8 1.3.7 0 .9-.5 1.8-.5.8 0 1 .5 1.8.4.7 0 1.2-.6 1.7-1.3.5-.7.7-1.4.7-1.4s-1.3-.5-1.3-2c0-1.2 1-1.8 1.1-1.8-.6-.9-1.5-1-1.9-1Z"/><text x="18" y="17" font-family="Arial,Helvetica,sans-serif" font-weight="600" font-size="9.5">Pay</text></g></svg>',
     wallet: '<svg viewBox="0 0 40 26" class="pay-mark" role="img" aria-label="Mobile wallet"><rect width="40" height="26" rx="4" fill="#fff"/><g fill="none" stroke="#1C3A29" stroke-width="1.5" stroke-linejoin="round"><rect x="10" y="8" width="20" height="11" rx="2"/><path d="M10 11h20"/></g><circle cx="25" cy="15" r="1.4" fill="#C89B5C"/></svg>',
   };
   const PAY_MARKS = PAY.visa + PAY.mastercard + PAY.apple + PAY.wallet;
@@ -121,6 +121,9 @@
     money, weightOptions, weightLabel, priceForWeight, cardPrice, defaultVariant,
     img: (slug) => D.IMG + slug + ".jpg",
     thumb: (slug) => D.IMG + "sm/" + slug + ".jpg",
+    // Resolve an image that may be a slug (catalog photo) OR a full URL/dataURL (admin-added)
+    imgSrc: (s) => /^(https?:|data:|\/)/.test(s || "") ? s : D.IMG + s + ".jpg",
+    isCustomImg: (s) => /^(https?:|data:|\/)/.test(s || ""),
     find: (slug) => D.products.find((p) => p.slug === slug),
     findBox: (slug) => D.boxes.find((b) => b.slug === slug),
     byCategory: (c) => D.products.filter((p) => p.category === c),
@@ -289,7 +292,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
     const dv = defaultVariant(p);
     FV.cart.add({
       key: slug + "|" + dv.variant, slug, type: "product",
-      name: p.name, image: p.slug, noPhoto: !!p.noPhoto,
+      name: p.name, image: FV.isCustomImg(p.image) ? p.image : p.slug, noPhoto: !!p.noPhoto,
       variant: dv.variant, price: dv.price,
     });
     toast(`${p.name} added`, dv.variant);
@@ -504,7 +507,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
    * ------------------------------------------------------------------ */
   function lineImage(it) {
     if (it.noPhoto) return `<div class="c-media" style="display:grid;place-items:center;background:var(--forest);color:var(--brass)">${I.leaf2}</div>`;
-    return `<div class="c-media"><img src="${FV.img(it.image)}" alt="" loading="lazy"></div>`;
+    return `<div class="c-media"><img src="${FV.imgSrc(it.image)}" alt="" loading="lazy"></div>`;
   }
   function renderCartDrawer() {
     const body = $("#cartBody"), foot = $("#cartFoot");
@@ -613,8 +616,11 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
         ${cardTags(p)}
         <button class="wish-btn" data-wish="${p.slug}" aria-label="Save ${p.name}" aria-pressed="false">${I.heart}</button></div>`;
     }
+    const imgTag = FV.isCustomImg(p.image)
+      ? `<img src="${p.image}" alt="${p.name}" loading="lazy" width="540" height="540">`
+      : `<img src="${FV.thumb(p.slug)}" srcset="${FV.thumb(p.slug)} 540w, ${FV.img(p.slug)} 1000w" sizes="(max-width:640px) 48vw, (max-width:1100px) 30vw, 22vw" alt="${p.name}" loading="lazy" width="540" height="540">`;
     return `<div class="media">
-        <img src="${FV.thumb(p.slug)}" srcset="${FV.thumb(p.slug)} 540w, ${FV.img(p.slug)} 1000w" sizes="(max-width:640px) 48vw, (max-width:1100px) 30vw, 22vw" alt="${p.name}" loading="lazy" width="540" height="540">
+        ${imgTag}
         ${cardTags(p)}
         <button class="wish-btn" data-wish="${p.slug}" aria-label="Save ${p.name}" aria-pressed="false">${I.heart}</button>
       </div>`;

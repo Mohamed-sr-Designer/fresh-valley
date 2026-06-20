@@ -155,7 +155,7 @@
           ? `<div class="pdp-main" style="display:grid;place-items:center;background:radial-gradient(120% 100% at 50% 0%, var(--forest-soft), var(--forest) 60%, var(--ink))">
                <div class="herb-art">${FV.icon("leaf2")}<span>${p.name}</span></div>
                <span class="badge badge--organic" style="position:absolute;top:1.1rem;left:1.1rem">Organic</span></div>`
-          : `<div class="pdp-main"><img src="${FV.img(p.slug)}" alt="${p.name}" width="1000" height="1000">
+          : `<div class="pdp-main"><img src="${FV.isCustomImg(p.image) ? p.image : FV.img(p.slug)}" alt="${p.name}" width="1000" height="1000">
                ${badge(p)}</div>`;
 
         const stars = FV.icon("star").repeat(Math.round(p.rating));
@@ -335,7 +335,7 @@
         }
         function addToCart() {
           FV.cart.add({ key: p.slug + "|" + variantLabel(), slug: p.slug, type: "product",
-            name: p.name, image: p.slug, noPhoto: !!p.noPhoto, variant: variantLabel(), price: unitPrice(), qty });
+            name: p.name, image: FV.isCustomImg(p.image) ? p.image : p.slug, noPhoto: !!p.noPhoto, variant: variantLabel(), price: unitPrice(), qty });
           FV.toast(`${p.name} added`, `${qty} × ${variantLabel()}`); FV.openCart();
         }
         if (isKg) document.querySelectorAll("#weightPills .pill").forEach(b => b.addEventListener("click", () => {

@@ -104,7 +104,9 @@
           </button>
           <div class="auth-or"><span>or</span></div>
           <form id="authForm" novalidate>
+            <div class="field auth-su" hidden><label>Full name</label><input class="input" name="name" autocomplete="name" placeholder="Your name"></div>
             <div class="field"><label>Email</label><input class="input" type="email" name="email" autocomplete="email" placeholder="you@email.com" required></div>
+            <div class="field auth-su" hidden><label>Phone</label><input class="input" type="tel" name="phone" autocomplete="tel" placeholder="+20 1XX XXX XXXX"></div>
             <div class="field"><label>Password</label><input class="input" type="password" name="password" autocomplete="current-password" placeholder="••••••••" required minlength="4"></div>
             <button class="btn btn--brass btn--block btn--lg" type="submit" id="authSubmit">Sign in</button>
             <p class="auth-alt" id="authAlt">New here? <a data-auth-switch="signup">Create an account</a></p>
@@ -157,13 +159,16 @@
         const gLabel = document.getElementById("googleLabel");
         let mode = "signin";
         const nameFromEmail = (email) => email.split("@")[0].replace(/[._-]+/g, " ").replace(/\b\w/g, c => c.toUpperCase());
-        function signIn(email, name, isNew) {
-          localStorage.setItem("fv_user", JSON.stringify({ name, email }));
-          if (FV.clients) FV.clients.upsert({ name, email, status: isNew ? "pending" : "active" });
+        function signIn(email, name, isNew, phone) {
+          localStorage.setItem("fv_user", JSON.stringify({ name, email, phone: phone || "" }));
+          if (FV.clients) FV.clients.upsert({ name, email, phone: phone || "", status: isNew ? "pending" : "active" });
           FV.toast("Welcome, " + name.split(" ")[0]); location.reload();
         }
+        const suFields = () => document.querySelectorAll(".auth-su");
         function setMode(m) { mode = m;
           document.querySelectorAll("[data-auth]").forEach(b => b.setAttribute("aria-current", b.dataset.auth === m));
+          suFields().forEach(f => f.hidden = m !== "signup");
+          form.name.required = m === "signup";
           submit.textContent = m === "signup" ? "Create account" : "Sign in";
           if (gLabel) gLabel.textContent = m === "signup" ? "Sign up with Google" : "Continue with Google";
           altP.innerHTML = m === "signup" ? 'Already have an account? <a data-auth-switch="signin">Sign in</a>' : 'New here? <a data-auth-switch="signup">Create an account</a>';
@@ -173,13 +178,15 @@
         form.addEventListener("submit", e => { e.preventDefault();
           if (!form.checkValidity()) { form.reportValidity(); return; }
           const email = form.email.value.trim();
-          signIn(email, nameFromEmail(email), mode === "signup");
+          const isNew = mode === "signup";
+          const name = (isNew && form.name.value.trim()) ? form.name.value.trim() : nameFromEmail(email);
+          signIn(email, name, isNew, isNew ? form.phone.value.trim() : "");
         });
         // Continue with Google (demo — wire to Google Identity Services in production)
         document.getElementById("googleBtn").addEventListener("click", () => {
           const typed = form.email.value.trim();
           const email = typed && typed.includes("@") ? typed : "guest@gmail.com";
-          signIn(email, nameFromEmail(email), mode === "signup");
+          signIn(email, (mode === "signup" && form.name.value.trim()) ? form.name.value.trim() : nameFromEmail(email), mode === "signup", mode === "signup" ? form.phone.value.trim() : "");
         });
         setMode("signin");
       }
@@ -206,8 +213,7 @@
 
       const NAV = [
         ["profile","user","Profile"], ["addresses","pin","Addresses"], ["orders","bag","Orders"],
-        ["wishlist","heart","Wishlist"], ["cards","shield","Saved Cards"], ["subscriptions","leaf","Subscriptions"],
-        ["reorder","truck","Reorder"], ["settings","sparkle","Settings"],
+        ["wishlist","heart","Wishlist"], ["reorder","truck","Reorder"], ["settings","sparkle","Settings"],
       ];
 
       // ---- Nav ----
@@ -258,21 +264,6 @@
         <div id="wishMini"></div>
       </div>
 
-      <div class="panel" data-panel="cards">
-        <h2>Saved Cards</h2><p class="sub">For a faster checkout. We never store full card numbers.</p>
-        <div id="cardsBox"></div>
-        <p class="secure-note" style="display:flex;gap:.5rem;align-items:center;font-size:var(--step--2);color:var(--text-faint);margin-top:1rem">${FV.icon("shield")} Stored securely with our payment provider — never on our servers.</p>
-      </div>
-
-      <div class="panel" data-panel="subscriptions">
-        <h2>Subscriptions</h2><p class="sub">Your produce, on a quiet schedule.</p>
-        <div id="subsBox"></div>
-        <div class="card-box" style="text-align:center">
-          <p class="muted" style="font-size:var(--step--1)">Add a hosting or organic reserve box on a schedule, and save the planning.</p>
-          <a class="btn btn--brass btn--sm" href="products.html?cat=boxes" style="margin-top:.8rem">Explore subscriptions ${arrow}</a>
-        </div>
-      </div>
-
       <div class="panel" data-panel="reorder">
         <h2>Reorder</h2><p class="sub">Your regulars, one tap away.</p>
         <div class="card-box" style="margin-bottom:1.4rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">
@@ -313,10 +304,6 @@
       let addrs = acct.get("fv_addresses", [
         { id: 1, label: "Home", line: "Villa 22, South Lake", area: "New Cairo, Cairo", default: true },
         { id: 2, label: "Office", line: "Building 4, Beverly Hills", area: "Sheikh Zayed, Giza", default: false }]);
-      let pcards = acct.get("fv_cards", [
-        { id: 1, brand: "Visa", last4: "4291", exp: "09 / 27", default: true },
-        { id: 2, brand: "Mastercard", last4: "7730", exp: "03 / 28", default: false }]);
-      let subs = acct.get("fv_subs", [{ id: 1, name: "The Family Box · Weekly", price: 650, next: "Wednesday", active: true }]);
 
       function profile() { return acct.get("fv_profile", { first: nameParts[0] || user.first, last: nameParts.slice(1).join(" "), email: user.email, phone: user.phone || "" }); }
       function renderProfile(editing) {
@@ -346,22 +333,40 @@
           b.querySelector("#pf_edit").onclick = () => renderProfile(true);
         }
       }
+      let adGeo = null;
+      const mapSrc = (q) => `https://maps.google.com/maps?q=${encodeURIComponent(q)}&z=14&output=embed`;
       function renderAddr(editId) {
         const b = $b("addrBox"); if (!b) return;
         let html = addrs.length ? `<div class="pay-grid">` + addrs.map(a => `<div class="card-box">
           <div style="display:flex;justify-content:space-between;align-items:center"><strong style="color:var(--forest)">${esc(a.label)}</strong>${a.default ? `<span class="status delivered">Default</span>` : `<a class="link-arrow" style="font-size:var(--step--2);cursor:pointer" data-adef="${a.id}">Set default</a>`}</div>
           <p class="muted" style="margin-top:.6rem;font-size:var(--step--1)">${esc(a.line)}<br>${esc(a.area)}</p>
-          <div style="margin-top:1rem;display:flex;gap:.8rem"><a class="link-arrow" style="font-size:var(--step--2);cursor:pointer" data-aedit="${a.id}">Edit</a><a class="link-arrow" style="font-size:var(--step--2);cursor:pointer" data-arem="${a.id}">Remove</a></div></div>`).join("") + `</div>`
+          <div style="margin-top:1rem;display:flex;gap:.8rem;flex-wrap:wrap"><a class="link-arrow" style="font-size:var(--step--2);cursor:pointer" data-aedit="${a.id}">Edit</a><a class="link-arrow" style="font-size:var(--step--2);cursor:pointer" data-arem="${a.id}">Remove</a>${a.geo ? `<a class="link-arrow" style="font-size:var(--step--2)" target="_blank" href="https://maps.google.com/?q=${a.geo.lat},${a.geo.lng}">View on map</a>` : ""}</div></div>`).join("") + `</div>`
           : `<div class="card-box" style="text-align:center"><p class="muted">No addresses yet.</p></div>`;
-        if (editId) { const a = editId === "new" ? null : addrs.find(x => x.id === editId); html += `<div class="card-box" style="margin-top:1rem"><div class="addr-grid">
+        if (editId) { const a = editId === "new" ? null : addrs.find(x => x.id === editId);
+          adGeo = (a && a.geo) ? a.geo : null;
+          const q = adGeo ? `${adGeo.lat},${adGeo.lng}` : (a ? [a.line, a.area].filter(Boolean).join(", ") : "Cairo, Egypt");
+          html += `<div class="card-box" style="margin-top:1rem"><div class="addr-grid">
           <div class="field"><label>Label</label><input class="input" id="ad_label" value="${esc(a ? a.label : "")}" placeholder="Home / Office"></div>
           <div class="field"><label>Area</label><input class="input" id="ad_area" value="${esc(a ? a.area : "")}" placeholder="New Cairo, Cairo"></div>
           <div class="field" style="grid-column:1/-1"><label>Address</label><input class="input" id="ad_line" value="${esc(a ? a.line : "")}" placeholder="Building, street, apartment"></div></div>
+          <div style="margin:.2rem 0 .7rem;display:flex;gap:.6rem;flex-wrap:wrap">
+            <button type="button" class="btn btn--outline btn--sm" id="ad_geo">${FV.icon("pin")} Use my location</button>
+            <button type="button" class="btn btn--outline btn--sm" id="ad_showmap">Show on map</button></div>
+          <div style="border-radius:var(--radius);overflow:hidden;border:1px solid var(--line-soft)"><iframe id="adMap" title="Delivery location map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" style="width:100%;height:220px;border:0;display:block" src="${mapSrc(q)}"></iframe></div>
           <div style="margin-top:1rem;display:flex;gap:.6rem"><button class="btn btn--sm" id="ad_save">Save address</button><button class="btn btn--outline btn--sm" id="ad_cancel">Cancel</button></div></div>`; }
         else html += `<button class="btn btn--outline btn--sm" id="ad_add" style="margin-top:1rem">${FV.icon("plus")} Add an address</button>`;
         b.innerHTML = html;
         if (editId) {
-          b.querySelector("#ad_save").onclick = () => { const o = { label: gv("ad_label") || "Address", area: gv("ad_area"), line: gv("ad_line") };
+          const setMap = (q) => { const f = $b("adMap"); if (f) f.src = mapSrc(q); };
+          b.querySelector("#ad_showmap").onclick = () => setMap([gv("ad_line"), gv("ad_area")].filter(Boolean).join(", ") || "Cairo, Egypt");
+          b.querySelector("#ad_geo").onclick = () => {
+            if (!navigator.geolocation) { FV.toast("Location isn't available on this device"); return; }
+            FV.toast("Finding your location…");
+            navigator.geolocation.getCurrentPosition(
+              p => { adGeo = { lat: +p.coords.latitude.toFixed(6), lng: +p.coords.longitude.toFixed(6) }; setMap(adGeo.lat + "," + adGeo.lng); FV.toast("Location captured ✓"); },
+              () => FV.toast("Couldn't get your location — allow permission"));
+          };
+          b.querySelector("#ad_save").onclick = () => { const o = { label: gv("ad_label") || "Address", area: gv("ad_area"), line: gv("ad_line"), geo: adGeo };
             if (editId === "new") { o.id = Date.now(); o.default = !addrs.length; addrs.push(o); } else Object.assign(addrs.find(x => x.id === editId), o);
             acct.set("fv_addresses", addrs); FV.toast("Address saved"); renderAddr(null); };
           b.querySelector("#ad_cancel").onclick = () => renderAddr(null);
@@ -372,44 +377,7 @@
           b.querySelectorAll("[data-adef]").forEach(el => el.onclick = () => { addrs.forEach(x => x.default = x.id === +el.dataset.adef); acct.set("fv_addresses", addrs); renderAddr(null); });
         }
       }
-      function renderCards(adding) {
-        const b = $b("cardsBox"); if (!b) return;
-        let html = pcards.length ? `<div class="pay-grid">` + pcards.map(c => `<div class="card-box">
-          <div style="display:flex;justify-content:space-between;align-items:center"><strong style="color:var(--forest)">${esc(c.brand)} •••• ${esc(c.last4)}</strong>${c.default ? `<span class="status delivered">Default</span>` : `<a class="link-arrow" style="font-size:var(--step--2);cursor:pointer" data-cdef="${c.id}">Set default</a>`}</div>
-          <p class="muted" style="margin-top:.6rem;font-size:var(--step--1)">Expires ${esc(c.exp)}</p>
-          <div style="margin-top:1rem"><a class="link-arrow" style="font-size:var(--step--2);cursor:pointer" data-crem="${c.id}">Remove</a></div></div>`).join("") + `</div>`
-          : `<div class="card-box" style="text-align:center"><p class="muted">No saved cards.</p></div>`;
-        if (adding) html += `<div class="card-box" style="margin-top:1rem"><div class="addr-grid">
-          <div class="field"><label>Card type</label><select class="select" id="cd_brand"><option>Visa</option><option>Mastercard</option></select></div>
-          <div class="field"><label>Last 4 digits</label><input class="input" id="cd_last4" inputmode="numeric" maxlength="4" placeholder="1234"></div>
-          <div class="field"><label>Expiry</label><input class="input" id="cd_exp" placeholder="MM / YY"></div></div>
-          <p class="muted" style="font-size:var(--step--2);margin-top:.6rem">We only store the last 4 digits — never the full card number.</p>
-          <div style="margin-top:1rem;display:flex;gap:.6rem"><button class="btn btn--sm" id="cd_save">Save card</button><button class="btn btn--outline btn--sm" id="cd_cancel">Cancel</button></div></div>`;
-        else html += `<button class="btn btn--outline btn--sm" id="cd_add" style="margin-top:1rem">${FV.icon("plus")} Add a card</button>`;
-        b.innerHTML = html;
-        if (adding) {
-          b.querySelector("#cd_save").onclick = () => { const last4 = gv("cd_last4").replace(/\D/g, "").slice(-4); if (last4.length < 4) { FV.toast("Enter the last 4 digits"); return; }
-            pcards.push({ id: Date.now(), brand: gv("cd_brand") || "Visa", last4, exp: gv("cd_exp") || "—", default: !pcards.length }); acct.set("fv_cards", pcards); FV.toast("Card saved"); renderCards(false); };
-          b.querySelector("#cd_cancel").onclick = () => renderCards(false);
-        } else {
-          b.querySelector("#cd_add").onclick = () => renderCards(true);
-          b.querySelectorAll("[data-crem]").forEach(el => el.onclick = () => { pcards = pcards.filter(x => x.id !== +el.dataset.crem); if (pcards.length && !pcards.some(x => x.default)) pcards[0].default = true; acct.set("fv_cards", pcards); FV.toast("Card removed"); renderCards(false); });
-          b.querySelectorAll("[data-cdef]").forEach(el => el.onclick = () => { pcards.forEach(x => x.default = x.id === +el.dataset.cdef); acct.set("fv_cards", pcards); renderCards(false); });
-        }
-      }
-      function renderSubs() {
-        const b = $b("subsBox"); if (!b) return;
-        b.innerHTML = subs.length ? subs.map(s => `<div class="card-box"><div class="sub-card">
-          <img src="${FV.img("orange")}" alt="">
-          <div><strong style="color:var(--forest);font-family:var(--font-display);font-size:var(--step-1)">${esc(s.name)}</strong>
-          <p class="muted" style="font-size:var(--step--1);margin-top:.3rem">Next delivery: ${esc(s.next)} · ${FV.money(s.price)} / week</p>
-          <span class="status ${s.active ? "delivered" : "transit"}" style="margin-top:.6rem;display:inline-block">${s.active ? "Active" : "Paused"}</span></div>
-          <div style="display:flex;flex-direction:column;gap:.5rem"><button class="btn btn--sm" data-spause="${s.id}" style="--bg:var(--bone);--fg:var(--forest);--bd:var(--bone)">${s.active ? "Pause" : "Resume"}</button><button class="btn btn--outline btn--sm" data-srem="${s.id}">Cancel</button></div></div></div>`).join("")
-          : `<div class="card-box" style="text-align:center"><p class="muted">No active subscriptions.</p></div>`;
-        b.querySelectorAll("[data-spause]").forEach(el => el.onclick = () => { const s = subs.find(x => x.id === +el.dataset.spause); s.active = !s.active; acct.set("fv_subs", subs); FV.toast(s.active ? "Subscription resumed" : "Subscription paused"); renderSubs(); });
-        b.querySelectorAll("[data-srem]").forEach(el => el.onclick = () => { if (confirm("Cancel this subscription?")) { subs = subs.filter(x => x.id !== +el.dataset.srem); acct.set("fv_subs", subs); FV.toast("Subscription cancelled"); renderSubs(); } });
-      }
-      renderProfile(false); renderAddr(null); renderCards(false); renderSubs();
+      renderProfile(false); renderAddr(null);
 
       // ---- Tabs ----
       function show(tab) {

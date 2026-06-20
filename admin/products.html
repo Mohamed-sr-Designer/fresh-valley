@@ -53,6 +53,7 @@
       }
 
       function pthumb(p) {
+        if (p.image && /^(https?:|data:)/.test(p.image)) return `<img class="t-thumb" src="${p.image}" onerror="this.style.display='none'">`;
         if (p.kind === "box") return `<img class="t-thumb" src="../assets/img/products/${p.image}.jpg" onerror="this.style.display='none'">`;
         if (p.noPhoto) return `<span class="t-herb">${I.leaf}</span>`;
         return `<img class="t-thumb" src="../assets/img/products/sm/${p.slug}.jpg" onerror="this.onerror=null;this.src='../assets/img/products/${p.slug}.jpg'">`;
@@ -191,7 +192,13 @@
                 <div class="field"><label>Price (${s.currency})</label><input class="inp" id="p_price" type="number" min="0" value="${p ? A.effectivePrice(p) : ""}" placeholder="0"></div>
                 <div class="field"><label>Stock</label><input class="inp" id="p_stock" type="number" min="0" value="${p ? (m.stock || 0) : ""}" placeholder="0"></div>
               </div>
-              <div class="field" style="margin-bottom:0"><label>Image URL <span class="faint">(optional)</span></label><input class="inp" id="p_img" value="${esc(p && custom && p.image && p.image !== p.slug ? p.image : "")}" placeholder="https://… or leave blank"></div>
+              <div class="field" style="margin-bottom:0"><label>Image <span class="faint">(optional)</span></label>
+                <input class="inp" id="p_img" value="${esc(p && custom && p.image && /^(https?:|data:)/.test(p.image) ? p.image : "")}" placeholder="Paste an image URL…" style="margin-bottom:.5rem">
+                <div class="flex" style="gap:.6rem;align-items:center">
+                  <label class="btn btn--ghost btn--sm" style="cursor:pointer">${I.upload} Upload from device<input type="file" accept="image/*" id="p_file" hidden></label>
+                  <img id="p_preview" alt="" src="${esc(p && custom && p.image && /^(https?:|data:)/.test(p.image) ? p.image : "")}" style="${(p && custom && p.image && /^(https?:|data:)/.test(p.image)) ? "" : "display:none;"}width:46px;height:46px;border-radius:8px;object-fit:cover;border:1px solid var(--ad-line)">
+                </div>
+                <div class="hint">Paste a link or upload your own photo (under 2 MB).</div></div>
             </div>
             <button class="btn btn--primary btn--block" id="p_save">${p ? "Save changes" : "Add product"}</button>
             ${p && custom && isSuper ? `<button class="btn btn--danger btn--block" id="p_del">Delete product</button>` : ""}
@@ -200,10 +207,16 @@
         requestAnimationFrame(() => { dr.classList.add("open"); scrim.classList.add("show"); });
         const close = () => { dr.classList.remove("open"); scrim.classList.remove("show"); };
         scrim.onclick = close; dr.querySelector(".dr-close").onclick = close;
+        let uploadedImg = null;
+        dr.querySelector("#p_file").addEventListener("change", (e) => {
+          const f = e.target.files[0]; if (!f) return;
+          if (f.size > 2 * 1024 * 1024) { A.toast("Please use an image under 2 MB"); return; }
+          const r = new FileReader(); r.onload = () => { uploadedImg = r.result; const pv = dr.querySelector("#p_preview"); pv.src = r.result; pv.style.display = ""; dr.querySelector("#p_img").value = ""; }; r.readAsDataURL(f);
+        });
         dr.querySelector("#p_save").onclick = () => {
           const name = dr.querySelector("#p_name").value.trim();
           const obj = { name, category: dr.querySelector("#p_cat").value, unit: dr.querySelector("#p_unit").value,
-            price: dr.querySelector("#p_price").value, stock: dr.querySelector("#p_stock").value, image: dr.querySelector("#p_img").value.trim() };
+            price: dr.querySelector("#p_price").value, stock: dr.querySelector("#p_stock").value, image: uploadedImg || dr.querySelector("#p_img").value.trim() };
           if (!name) { const e = dr.querySelector("#p_err"); e.textContent = "Enter a product name."; e.style.display = "block"; return; }
           if (p) { A.updateProductInfo(slug, obj); A.toast("Product updated · live on store"); }
           else { A.createProduct(obj); A.toast("Product added · live on store"); }
