@@ -34,6 +34,11 @@
       const c = A.content();
       const s = A.settings();
 
+      const SEC_LABELS = { categories: "Category strip", bestsellers: "Best sellers slider", aoh: "The Art of Hosting", trusted: "Trusted source", boxes: "Boxes flagship", reviews: "Customer reviews" };
+      const DEFAULT_ORDER = ["categories", "bestsellers", "aoh", "trusted", "boxes", "reviews"];
+      let secOrder = (Array.isArray(c.sec_order) && c.sec_order.length ? c.sec_order.slice() : DEFAULT_ORDER.slice()).filter(k => SEC_LABELS[k]);
+      DEFAULT_ORDER.forEach(k => { if (secOrder.indexOf(k) < 0) secOrder.push(k); });
+
       const val = (k) => c[k] != null ? c[k] : "";
       const esc = (x) => String(x == null ? "" : x).replace(/"/g, "&quot;").replace(/</g, "&lt;");
       const on = (k) => c["sec_" + k] !== false;
@@ -63,10 +68,7 @@
             ["aoh_title", "Headline", "Arrive with the season."],
             ["aoh_lead", "Lead", "No one visits empty-handed…", true],
           ] },
-          { title: "Sections — show / hide", sections: [
-            ["aoh", "The Art of Hosting"], ["bestsellers", "Best sellers slider"], ["categories", "Category strip"],
-            ["boxes", "Boxes flagship"], ["trusted", "Trusted source"], ["reviews", "Customer reviews"],
-          ] },
+          { title: "Sections — order & visibility", sectionsList: true },
         ] },
         { id: "aoh", label: "Art of Hosting", icon: "doc", groups: [
           { title: "Page hero", fields: [
@@ -119,15 +121,31 @@
             <div class="card-pad"><div class="field" style="margin-bottom:0"><label>Bar text</label>
               <input class="inp" data-k="announce_text" value="${esc(val("announce_text"))}" placeholder="e.g. Free delivery on orders over EGP 600"></div></div></div>`;
         }
-        if (g.sections) {
-          return `<div class="card"><div class="card-head"><div class="card-title">${g.title}</div></div>
-            <div class="card-pad" style="padding-top:.3rem">
-              ${g.sections.map(x => `<div class="set-row"><div class="lbl"><strong>${x[1]}</strong></div>
-                <button class="switch sec-sw" data-k="${x[0]}" role="switch" aria-checked="${on(x[0]) ? "true" : "false"}"></button></div>`).join("")}
-            </div></div>`;
-        }
+        if (g.sectionsList) return secCardHtml();
         return `<div class="card"><div class="card-head"><div class="card-title">${g.title}</div></div>
           <div class="card-pad">${g.fields.map(field).join("")}</div></div>`;
+      }
+      function secRow(k, i) {
+        return `<div class="set-row" style="gap:.6rem">
+          <div class="flex" style="gap:.5rem;align-items:center">
+            <span style="display:flex;flex-direction:column;gap:1px">
+              <button class="icon-act sec-up" data-k="${k}" title="Move up" ${i === 0 ? "disabled style=\"opacity:.3\"" : ""}>${I.up}</button>
+              <button class="icon-act sec-down" data-k="${k}" title="Move down" ${i === secOrder.length - 1 ? "disabled style=\"opacity:.3\"" : ""}>${I.down}</button>
+            </span>
+            <div class="lbl"><strong>${SEC_LABELS[k]}</strong><span>#${i + 1} on the homepage</span></div>
+          </div>
+          <button class="switch sec-sw" data-k="${k}" role="switch" aria-checked="${on(k) ? "true" : "false"}"></button>
+        </div>`;
+      }
+      function secCardHtml() {
+        return `<div class="card"><div class="card-head"><div class="card-title">Sections — order &amp; visibility</div><span class="sub muted" style="font-size:.8rem">reorder with ↑ ↓</span></div>
+          <div class="card-pad" style="padding-top:.3rem" id="secBody">${secOrder.map(secRow).join("")}</div></div>`;
+      }
+      function renderSections() { const el = document.getElementById("secBody"); if (el) { el.innerHTML = secOrder.map(secRow).join(""); wireSections(); } }
+      function wireSections() {
+        document.querySelectorAll(".sec-up").forEach(b => b.addEventListener("click", () => { const i = secOrder.indexOf(b.dataset.k); if (i > 0) { secOrder.splice(i - 1, 0, secOrder.splice(i, 1)[0]); renderSections(); } }));
+        document.querySelectorAll(".sec-down").forEach(b => b.addEventListener("click", () => { const i = secOrder.indexOf(b.dataset.k); if (i < secOrder.length - 1) { secOrder.splice(i + 1, 0, secOrder.splice(i, 1)[0]); renderSections(); } }));
+        document.querySelectorAll(".sec-sw").forEach(sw => sw.addEventListener("click", () => sw.setAttribute("aria-checked", sw.getAttribute("aria-checked") !== "true")));
       }
 
       function draw() {
@@ -146,7 +164,8 @@
           document.querySelectorAll(".ctab").forEach(x => x.classList.toggle("on", x === b));
           document.querySelectorAll(".cpanel").forEach(p => p.classList.toggle("on", p.dataset.panel === b.dataset.tab));
         });
-        document.querySelectorAll(".switch").forEach(sw => sw.addEventListener("click", () => sw.setAttribute("aria-checked", sw.getAttribute("aria-checked") !== "true")));
+        document.querySelectorAll(".switch:not(.sec-sw)").forEach(sw => sw.addEventListener("click", () => sw.setAttribute("aria-checked", sw.getAttribute("aria-checked") !== "true")));
+        wireSections();
         document.getElementById("saveBtn").addEventListener("click", save);
         document.getElementById("saveBtn2").addEventListener("click", save);
       }
@@ -162,6 +181,7 @@
         });
         const ann = document.getElementById("annSw"); if (ann) patch.announce_on = ann.getAttribute("aria-checked") === "true";
         document.querySelectorAll(".sec-sw").forEach(sw => { patch["sec_" + sw.dataset.k] = sw.getAttribute("aria-checked") === "true"; });
+        patch.sec_order = secOrder.slice();
         A.setContent(patch);
         A.toast("Content saved · live on store");
         setTimeout(() => location.reload(), 700);

@@ -240,21 +240,22 @@
     const cur = ADMIN.settings.currency, store = ADMIN.settings.storeName;
     const m = (n) => cur + " " + Math.round(n || 0).toLocaleString("en-US");
     const date = new Date(o.date);
+    const logoUrl = new URL("assets/img/logo-cream.png", location.href).href;
     const rows = o.items.map((it) => `<tr><td><div class="ri-n">${it.name}</div><div class="ri-v">${it.variant || ""}</div></td><td class="c">${it.qty}</td><td class="r b">${m(it.price * it.qty)}</td></tr>`).join("");
     return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Receipt ${o.id} · ${store}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>*{box-sizing:border-box;margin:0}body{font-family:"Hanken Grotesk",system-ui,sans-serif;background:#EDE7DA;color:#1B2620;padding:28px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .rc{max-width:600px;margin:0 auto;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px -30px rgba(10,26,17,.4)}
 .h{background:#10261D;color:#F6F1E8;padding:24px 30px;display:flex;justify-content:space-between;align-items:flex-start}
-.h .b{display:flex;align-items:center;gap:10px}.h .lg{width:40px;height:40px;border-radius:11px;background:rgba(255,255,255,.1);display:grid;place-items:center;color:#C89B5C}.h .lg svg{width:22px;height:22px}
+.h .b{display:flex;flex-direction:column;gap:6px}.h .lg-img{height:28px;width:auto}
 .h h1{font-family:"Fraunces",serif;font-size:20px}.h p{font-size:11px;color:#B7B3A4}.h .m{text-align:right}.h .lab{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#C89B5C;font-weight:700}.h .id{font-family:"Fraunces",serif;font-size:18px}.h .dt{font-size:12px;color:#B7B3A4}
 .bd{padding:26px 30px}.pt{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding-bottom:20px;border-bottom:1px solid #E8E2D6}.pt .lab{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#8B978D;font-weight:700;margin-bottom:4px}.pt strong{font-size:14px;display:block}.pt span{font-size:12px;color:#5C6B61;display:block;line-height:1.5}
 table{width:100%;border-collapse:collapse;margin:20px 0}th{text-align:left;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#8B978D;font-weight:700;padding:0 0 10px;border-bottom:1px solid #E8E2D6}th.c,td.c{text-align:center}th.r,td.r{text-align:right}td{padding:11px 0;border-bottom:1px solid #F0EBE0;font-size:14px}.ri-n{font-weight:600}.ri-v{font-size:12px;color:#8B978D}td.b{font-weight:700}
 .tot{margin-left:auto;width:240px;margin-top:16px}.tot .row{display:flex;justify-content:space-between;padding:5px 0;font-size:14px;color:#5C6B61}.tot .g{border-top:2px solid #10261D;margin-top:6px;padding-top:11px;font-family:"Fraunces",serif;font-size:19px;color:#10261D;font-weight:600}
 .ft{text-align:center;padding:22px 30px 28px;border-top:1px solid #E8E2D6;color:#8B978D;font-size:12px}.ft .ty{font-family:"Fraunces",serif;font-size:16px;color:#10261D;margin-bottom:5px}
 .ac{max-width:600px;margin:16px auto 0;display:flex;gap:10px;justify-content:center}.ac button{font:inherit;font-weight:600;font-size:14px;padding:11px 22px;border-radius:11px;border:none;cursor:pointer}.ac .p{background:#10261D;color:#fff}.ac .c{background:#fff;border:1px solid #E8E2D6;color:#1B2620}
-@media print{body{background:#fff;padding:0}.rc{box-shadow:none;border-radius:0}.ac{display:none}}</style></head><body>
-<div class="rc"><div class="h"><div class="b"><span class="lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 21c-4 0-7-3-7-8 0-6 6-9 13-9 0 8-3 13-8 14-2 .4-3-1-3-3 0-3 3-5 6-6"/></svg></span><div><h1>${store}</h1><p>Export-grade produce · Cairo</p></div></div>
+@page{size:A5;margin:9mm}@media print{body{background:#fff;padding:0}.rc{box-shadow:none;border-radius:0;max-width:100%}.ac{display:none}.h{padding:18px 22px}.bd{padding:20px 22px}.ft{padding:16px 22px 18px}}</style></head><body>
+<div class="rc"><div class="h"><div class="b"><img class="lg-img" src="${logoUrl}" alt="${store}" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><div style="display:none"><h1>${store}</h1></div><p>Export-grade produce · Cairo</p></div>
 <div class="m"><div class="lab">Receipt</div><div class="id">${o.id}</div><div class="dt">${date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</div></div></div>
 <div class="bd"><div class="pt"><div><div class="lab">Billed to</div><strong>${o.customer.name}</strong><span>${o.customer.email}</span><span>${o.customer.phone || ""}</span></div>
 <div><div class="lab">Deliver to</div><strong>${o.customer.area || ""}</strong><span>${o.address || ""}</span><span>${o.slot ? "Slot: " + o.slot : ""}</span></div></div>
@@ -837,6 +838,17 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
 
     // Section visibility: [data-fv-section="key"] hidden when sec_key === false
     $$("[data-fv-section]").forEach((el) => { if (c["sec_" + el.dataset.fvSection] === false) el.style.display = "none"; });
+
+    // Section order: reorder the [data-fv-section] blocks in place (keeps non-section siblings put)
+    if (Array.isArray(c.sec_order) && c.sec_order.length) {
+      const secs = $$("[data-fv-section]");
+      if (secs.length) {
+        const slots = secs.map((s) => { const ph = document.createComment("fv-slot"); s.parentNode.insertBefore(ph, s); return ph; });
+        const byKey = {}; secs.forEach((s) => { byKey[s.dataset.fvSection] = s; });
+        const ordered = c.sec_order.map((k) => byKey[k]).filter(Boolean).concat(secs.filter((s) => c.sec_order.indexOf(s.dataset.fvSection) < 0));
+        slots.forEach((ph, i) => { if (ordered[i]) ph.parentNode.insertBefore(ordered[i], ph); ph.remove(); });
+      }
+    }
 
     // Banner image overrides: replace any /banners/<key>.<ext> img + [data-fv-img] hooks
     const imgs = _ag(_AK.images, {});

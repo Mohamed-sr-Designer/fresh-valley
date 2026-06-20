@@ -732,6 +732,7 @@
     const date = new Date(o.date);
     const statusColors = { delivered: "#2F9E5B", transit: "#3478C7", processing: "#C9881E", pending: "#8B978D", cancelled: "#C0492F", refunded: "#C0492F" };
     const sc = statusColors[o.status] || "#8B978D";
+    const logoUrl = new URL("../assets/img/logo-cream.png", location.href).href;
     const rows = o.items.map((it) => `<tr>
       <td><div class="ri-n">${it.name}</div><div class="ri-v">${it.variant || ""}</div></td>
       <td class="c">${it.qty}</td>
@@ -746,10 +747,9 @@
   *{box-sizing:border-box;margin:0} body{font-family:"Hanken Grotesk",system-ui,sans-serif;background:#EDE7DA;color:#1B2620;padding:28px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .rc{max-width:640px;margin:0 auto;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px -30px rgba(10,26,17,.4)}
   .rc-head{background:#10261D;color:#F6F1E8;padding:26px 32px;display:flex;justify-content:space-between;align-items:flex-start}
-  .rc-brand{display:flex;align-items:center;gap:11px}
-  .rc-logo{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.1);display:grid;place-items:center;color:#C89B5C}
-  .rc-logo svg{width:23px;height:23px}
-  .rc-brand h1{font-family:"Fraunces",serif;font-size:21px;font-weight:600}
+  .rc-brand{display:flex;flex-direction:column;gap:7px}
+  .rc-logo-img{height:30px;width:auto}
+  .rc-brand h1{font-family:"Fraunces",serif;font-size:21px;font-weight:600;color:#F6F1E8}
   .rc-brand p{font-size:11px;color:#B7B3A4;letter-spacing:.04em}
   .rc-head .rc-meta{text-align:right}
   .rc-head .rc-meta .lab{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#C89B5C;font-weight:700}
@@ -777,13 +777,16 @@
   .rc-actions{max-width:640px;margin:18px auto 0;display:flex;gap:10px;justify-content:center}
   .rc-actions button{font:inherit;font-weight:600;font-size:14px;padding:11px 22px;border-radius:11px;border:none;cursor:pointer}
   .rc-actions .p{background:#10261D;color:#fff} .rc-actions .c{background:#fff;border:1px solid #E8E2D6;color:#1B2620}
-  @media print{ body{background:#fff;padding:0} .rc{box-shadow:none;border-radius:0} .rc-actions{display:none} }
+  @page{ size:A5; margin:9mm }
+  @media print{ body{background:#fff;padding:0} .rc{box-shadow:none;border-radius:0;max-width:100%} .rc-actions{display:none}
+    .rc-head{padding:18px 22px} .rc-body{padding:20px 22px} .rc-foot{padding:16px 22px 18px} }
 </style></head><body>
   <div class="rc">
     <div class="rc-head">
       <div class="rc-brand">
-        <span class="rc-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 21c-4 0-7-3-7-8 0-6 6-9 13-9 0 8-3 13-8 14-2 .4-3-1-3-3 0-3 3-5 6-6"/></svg></span>
-        <div><h1>${s.storeName}</h1><p>Export-grade produce · Cairo, Egypt</p></div>
+        <img class="rc-logo-img" src="${logoUrl}" alt="${s.storeName}" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+        <h1 style="display:none">${s.storeName}</h1>
+        <p>Export-grade produce · Cairo, Egypt</p>
       </div>
       <div class="rc-meta"><div class="lab">Receipt</div><div class="id">${o.id}</div>
         <div class="dt">${date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</div>
