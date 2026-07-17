@@ -44,10 +44,20 @@
     .hero-proof .hp-stars svg { width: 13px; height: 13px; fill: currentColor; }
 
     .hero-stage { position: relative; }
-    .hero-frame { position: relative; width: 100%; border-radius: var(--radius-lg); overflow: hidden; aspect-ratio: 5/5.2; background: var(--ink); box-shadow: var(--shadow-lg); }
+    /* offset brass outline behind the image — gallery-frame gesture */
+    .hero-stage::before { content: ""; position: absolute; top: 16px; right: -14px; bottom: -14px; left: 16px;
+      border: 1px solid rgba(200,155,92,.5); border-radius: var(--radius-lg); pointer-events: none; }
+    .hero-frame { position: relative; width: 100%; border-radius: var(--radius-lg); overflow: hidden; aspect-ratio: 5/5.2; background: var(--ink); box-shadow: var(--shadow-lg), var(--ring-brass); }
     .hero-frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .9s var(--ease); }
     .hero-frame img.active { opacity: 1; }
     @media (prefers-reduced-motion: no-preference) { .hero-frame img.active { animation: kenburns 9s var(--ease-out) forwards; } }
+    /* editorial slide index — “01 — 05” in serif, glass chip */
+    .hero-count { position: absolute; top: .9rem; left: .9rem; z-index: 3; display: inline-flex; align-items: baseline; gap: .45em;
+      padding: .45em .9em; border-radius: var(--radius-pill); color: var(--cream);
+      background: rgba(10,26,17,.32); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border: 1px solid rgba(244,236,217,.28);
+      font-family: var(--font-display); font-size: .82rem; font-variant-numeric: lining-nums tabular-nums; letter-spacing: .06em; }
+    .hero-count i { font-style: normal; color: var(--brass); font-size: .75em; }
+    .hero-count .of { color: rgba(244,239,228,.6); }
     .hero-ctrl { position: absolute; top: .8rem; right: .8rem; z-index: 3; display: flex; gap: .4rem; }
     .hero-ctrl button { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; color: var(--cream);
       background: rgba(10,26,17,.32); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border: 1px solid rgba(244,236,217,.28); transition: all .25s; }
@@ -206,6 +216,7 @@
 
         <div class="hero-stage" data-reveal data-delay="2">
           <div class="hero-frame" id="heroFrame"></div>
+          <div class="hero-count" aria-hidden="true"><span id="hcIdx">01</span><i>—</i><span class="of" id="hcOf">05</span></div>
           <div class="hero-ctrl">
             <button id="hPrev" aria-label="Previous"></button>
             <button id="hNext" aria-label="Next"></button>
@@ -444,9 +455,11 @@
       const imgs = frame.querySelectorAll("img");
       let cur = 0, timer = null;
       const curP = () => FV.find(slides[cur]);
+      $id("hcOf").textContent = String(slides.length).padStart(2, "0");
       function paint() {
         const p = curP(), cp = FV.cardPrice(p);
         imgs.forEach((im, k) => im.classList.toggle("active", k === cur));
+        $id("hcIdx").textContent = String(cur + 1).padStart(2, "0");
         $id("hcTag").textContent = (p.collections || []).includes("best-sellers") ? "Bestseller" : ((p.badges || []).includes("seasonal") ? "In season" : "Export-grade");
         $id("hcName").textContent = p.name;
         $id("hcLink").href = "product.html?slug=" + p.slug;
