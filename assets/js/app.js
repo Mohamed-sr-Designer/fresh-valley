@@ -353,6 +353,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
   function buildFooter() {
     return `
     <footer class="site-footer">
+      <div class="footer-water" aria-hidden="true">Fresh Valley</div>
       <div class="container">
         <div class="footer-cta">
           <div class="inner">
@@ -401,7 +402,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
             <a href="account.html">My Account</a>
             <a href="account.html#orders">Orders</a>
             <a href="wishlist.html">Wishlist</a>
-            <a href="account.html#subscriptions">Subscriptions</a>
+            <a href="account.html#reorder">Reorder</a>
           </div>
         </div>
         <div class="footer-bottom">
@@ -682,7 +683,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
    * Motion — reveal on scroll
    * ------------------------------------------------------------------ */
   function observeReveals(root = document) {
-    const els = $$("[data-reveal]:not(.in)", root);
+    const els = $$("[data-reveal]:not(.in), [data-stagger]:not(.in)", root);
     if (!("IntersectionObserver" in window)) { els.forEach((e) => e.classList.add("in")); return; }
     const io = new IntersectionObserver((entries) => {
       entries.forEach((en) => { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } });
@@ -725,6 +726,50 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
     els.forEach((e) => io.observe(e));
   }
   FV.observeCounts = observeCounts;
+
+  /* ---- NEXT-ERA motion layer: brass scroll thread, cursor aura, 3D tilt, split headlines ---- */
+  function motionLayer() {
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!document.getElementById("fvProgress")) {
+      const bar = document.createElement("div"); bar.id = "fvProgress"; document.body.appendChild(bar);
+      const upd = () => { const h = document.documentElement, max = h.scrollHeight - h.clientHeight;
+        bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + "%"; };
+      window.addEventListener("scroll", upd, { passive: true }); window.addEventListener("resize", upd); upd();
+    }
+    // split-word headlines: element children (e.g. <em>) rise as one phrase
+    $$("[data-split]:not(.split-ready)").forEach((el) => {
+      const parts = [];
+      el.childNodes.forEach((n) => {
+        if (n.nodeType === 3) n.textContent.split(/\s+/).filter(Boolean).forEach((w) => parts.push(w));
+        else if (n.nodeType === 1) parts.push(n.outerHTML);
+      });
+      // glue lone punctuation ("." after an <em>) onto the previous word
+      for (let i = parts.length - 1; i > 0; i--) {
+        if (/^[.,!?;:…»«)]+$/.test(parts[i])) { parts[i - 1] += parts[i]; parts.splice(i, 1); }
+      }
+      el.innerHTML = parts.map((p, i) => `<span class="sw"><i style="--wi:${i}">${p}</i></span>`).join(" ");
+      el.classList.add("split-ready");
+    });
+    if (reduced || !window.matchMedia("(pointer: fine)").matches) return;
+    if (!document.getElementById("fvAura")) {
+      const aura = document.createElement("div"); aura.id = "fvAura"; document.body.appendChild(aura);
+      let x = innerWidth / 2, y = innerHeight / 2, tx = x, ty = y;
+      window.addEventListener("pointermove", (e) => { tx = e.clientX; ty = e.clientY; document.body.classList.add("aura-on"); }, { passive: true });
+      (function loop() { x += (tx - x) * .09; y += (ty - y) * .09; aura.style.transform = `translate(${x}px,${y}px)`; requestAnimationFrame(loop); })();
+      // 3D tilt on vitrine cards (delegated — works for late-rendered cards too)
+      document.addEventListener("pointermove", (e) => {
+        const card = e.target.closest && e.target.closest(".product-card, .box-card"); if (!card) return;
+        const r = card.getBoundingClientRect();
+        const rx = ((e.clientY - r.top) / r.height - .5) * -5, ry = ((e.clientX - r.left) / r.width - .5) * 6;
+        card.style.transform = `perspective(900px) translateY(-6px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+      }, { passive: true });
+      document.addEventListener("pointerout", (e) => {
+        const card = e.target.closest && e.target.closest(".product-card, .box-card");
+        if (card && !card.contains(e.relatedTarget)) card.style.transform = "";
+      }, { passive: true });
+    }
+  }
+  FV.motionLayer = motionLayer;
 
   /* Delivery-cutoff helper — "5h 12m" until the 6pm next-day cutoff */
   FV.cutoffText = function () {
@@ -924,6 +969,8 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
     document.body.insertAdjacentHTML("beforeend", buildDrawers());
     wire();
     applyContent();
+    motionLayer();          // split/aura/tilt after content overrides are in place
+    observeReveals();       // catch elements motionLayer prepared
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();
