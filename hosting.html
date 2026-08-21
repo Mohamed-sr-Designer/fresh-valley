@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>The Art of Hosting — Fresh Valley</title>
   <meta name="description" content="In Egypt, no one visits empty-handed. The Art of Hosting is Fresh Valley's belief that a box of the season — hand-graded and wrapped — is the most thoughtful thing you can carry.">
-  <meta name="theme-color" content="#FBF8F2">
+  <meta name="theme-color" content="#10261D">
   <link rel="canonical" href="https://freshvalley.eg/hosting.html">
   <meta property="og:title" content="The Art of Hosting — Fresh Valley">
   <meta property="og:type" content="article">
@@ -13,7 +13,7 @@
 
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/hanken-grotesk.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/fraunces.woff2" crossorigin>
-  <link rel="preload" as="image" href="assets/img/banners/door-delivery.jpg" fetchpriority="high">
+  <link rel="preload" as="image" type="image/webp" href="assets/img/banners/door-delivery.webp" fetchpriority="high">
   <link rel="stylesheet" href="assets/css/styles.css">
 
   <style>
@@ -25,6 +25,7 @@
     .hh-hero .cta { display: inline-flex; gap: .7rem; flex-wrap: wrap; justify-content: center; margin-top: 1.7rem; }
     .hh-hero-figure { margin-top: clamp(2.5rem, 5vw, 4.5rem); }
     .hh-hero-img { aspect-ratio: 2/1; overflow: hidden; background: var(--surface-warm); }
+    .hh-hero-img picture { display: block; width: 100%; height: 100%; }
     .hh-hero-img img { width: 100%; height: 100%; object-fit: cover; }
     .hh-hero-cap { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin-top: 1.1rem; padding-top: .9rem; border-top: 1px solid var(--line); }
     .hh-hero-cap .t { font-family: var(--font-display); font-style: italic; font-size: var(--step-0); color: var(--forest); }
@@ -147,7 +148,7 @@
         </div>
         <div class="hh-hero-figure" data-reveal data-delay="3">
           <div class="hh-hero-img">
-            <img src="assets/img/banners/door-delivery.jpg" alt="A host receiving a Fresh Valley produce box at the front door" width="1500" height="779" fetchpriority="high">
+            <picture><source type="image/webp" srcset="assets/img/banners/door-delivery.webp"><img src="assets/img/banners/door-delivery.jpg" alt="A host receiving a Fresh Valley produce box at the front door" width="1500" height="779" fetchpriority="high" decoding="async"></picture>
           </div>
           <div class="hh-hero-cap">
             <span class="t">The arrival.</span>

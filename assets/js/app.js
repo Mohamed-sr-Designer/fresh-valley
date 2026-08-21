@@ -419,7 +419,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
     return `
     <div class="scrim" id="scrim"></div>
 
-    <aside class="drawer drawer--left" id="navDrawer" aria-label="Menu" aria-hidden="true">
+    <aside class="drawer drawer--left" id="navDrawer" aria-label="Menu" aria-hidden="true" inert>
       <div class="drawer-head">
         <img src="assets/img/logo-sm.png" alt="Fresh Valley" width="43" height="28" style="height:28px;width:auto" onerror="this.replaceWith(document.createTextNode('Fresh Valley'))">
         <button class="icon-btn" data-close aria-label="Close menu">${I.close}</button>
@@ -439,7 +439,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
       </div>
     </aside>
 
-    <aside class="drawer" id="cartDrawer" aria-label="Cart" aria-hidden="true">
+    <aside class="drawer" id="cartDrawer" aria-label="Cart" aria-hidden="true" inert>
       <div class="drawer-head">
         <h3>Your Selection</h3>
         <button class="icon-btn" data-close aria-label="Close cart">${I.close}</button>
@@ -448,7 +448,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
       <div class="drawer-foot" id="cartFoot"></div>
     </aside>
 
-    <div class="search-overlay" id="searchOverlay" aria-hidden="true">
+    <div class="search-overlay" id="searchOverlay" aria-hidden="true" inert>
       <div class="search-panel">
         <div class="search-bar">
           ${I.search}
@@ -480,8 +480,10 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
   function lockScroll(on) { document.body.classList.toggle("no-scroll", on); }
   function closeAll() {
     $("#scrim")?.classList.remove("open");
-    $$(".drawer").forEach((d) => { d.classList.remove("open"); d.setAttribute("aria-hidden", "true"); });
-    $("#searchOverlay")?.classList.remove("open");
+    // a closed panel leaves the accessibility tree AND the tab order
+    $$(".drawer").forEach((d) => { d.classList.remove("open"); d.setAttribute("aria-hidden", "true"); d.setAttribute("inert", ""); });
+    const so = $("#searchOverlay");
+    if (so) { so.classList.remove("open"); so.setAttribute("aria-hidden", "true"); so.setAttribute("inert", ""); }
     $("#menuBtn")?.setAttribute("aria-expanded", "false");
     lockScroll(false);
     if (openPanel && lastTrigger) { try { lastTrigger.focus(); } catch (_) {} }
@@ -491,21 +493,21 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
     renderCartDrawer();
     lastTrigger = document.activeElement;
     $("#scrim").classList.add("open");
-    const d = $("#cartDrawer"); d.classList.add("open"); d.setAttribute("aria-hidden", "false");
+    const d = $("#cartDrawer"); d.classList.add("open"); d.setAttribute("aria-hidden", "false"); d.removeAttribute("inert");
     lockScroll(true); openPanel = "cart";
     setTimeout(() => d.querySelector("[data-close]")?.focus(), 60);
   }
   function openNav() {
     lastTrigger = document.activeElement;
     $("#scrim").classList.add("open");
-    const d = $("#navDrawer"); d.classList.add("open"); d.setAttribute("aria-hidden", "false");
+    const d = $("#navDrawer"); d.classList.add("open"); d.setAttribute("aria-hidden", "false"); d.removeAttribute("inert");
     $("#menuBtn")?.setAttribute("aria-expanded", "true");
     lockScroll(true); openPanel = "nav";
     setTimeout(() => d.querySelector(".mobile-nav a")?.focus(), 60);
   }
   function openSearch() {
     lastTrigger = document.activeElement;
-    const o = $("#searchOverlay"); o.classList.add("open"); o.setAttribute("aria-hidden", "false");
+    const o = $("#searchOverlay"); o.classList.add("open"); o.setAttribute("aria-hidden", "false"); o.removeAttribute("inert");
     lockScroll(true); openPanel = "search";
     setTimeout(() => $("#searchInput").focus(), 60);
   }
@@ -900,13 +902,18 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
       const m2 = document.createElement("meta"); m2.name = "apple-mobile-web-app-status-bar-style"; m2.content = "black-translucent"; document.head.appendChild(m2);
       const m3 = document.createElement("meta"); m3.name = "mobile-web-app-capable"; m3.content = "yes"; document.head.appendChild(m3);
     }
-    // Give the skip-link a target on every page
+    // Give the skip link a real target, whatever this page called its <main>
     const mainEl = document.querySelector("main");
-    if (mainEl && !mainEl.id) { mainEl.id = "main"; mainEl.setAttribute("tabindex", "-1"); }
+    if (mainEl) {
+      if (!mainEl.id) mainEl.id = "main";
+      mainEl.setAttribute("tabindex", "-1");
+    }
 
     const head = document.getElementById("fv-header");
     const foot = document.getElementById("fv-footer");
     if (head) head.innerHTML = buildHeader();
+    const skip = head && head.querySelector(".skip-link");
+    if (skip && mainEl) skip.setAttribute("href", "#" + mainEl.id);
     if (foot) foot.innerHTML = buildFooter();
     document.body.insertAdjacentHTML("beforeend", buildDrawers());
     wire();

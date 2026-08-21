@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Account — Fresh Valley</title>
   <meta name="theme-color" content="#10261D">
+  <meta name="description" content="Your Fresh Valley account — track orders, manage delivery addresses, reorder your regulars and keep your wishlist.">
   <meta name="robots" content="noindex">
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/hanken-grotesk.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/fraunces.woff2" crossorigin>
@@ -82,7 +83,7 @@
     .auth-tabs button[aria-current="true"]::after { transform:scaleX(1); }
     .auth-card .field { margin-bottom:1.1rem; }
     .auth-alt { font-size:var(--step--1); color:var(--text-muted); margin-top:1.25rem; }
-    .auth-alt a { color:var(--brass-deep); font-weight:600; cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
+    .auth-alt a, .linkish { color:var(--brass-deep); font-weight:600; cursor:pointer; text-decoration:underline; text-underline-offset:3px; font-size:inherit; }
     .auth-note { font-size:var(--step--2); color:var(--text-faint); margin-top:1.5rem; line-height:1.6; padding-top:1.25rem; border-top:1px solid var(--line-soft); }
     .auth-google {
       display:flex; align-items:center; justify-content:center; gap:.7rem; width:100%; min-height:48px;
@@ -147,7 +148,7 @@
             <div class="field auth-su" hidden><label for="au_phone">Phone</label><input class="input" id="au_phone" type="tel" name="phone" autocomplete="tel" placeholder="+20 1XX XXX XXXX"></div>
             <div class="field"><label for="au_pass">Password</label><input class="input" id="au_pass" type="password" name="password" autocomplete="current-password" placeholder="••••••••" required minlength="4"></div>
             <button class="btn btn--brass btn--block btn--lg" type="submit" id="authSubmit">Sign in</button>
-            <p class="auth-alt" id="authAlt">New here? <a data-auth-switch="signup">Create an account</a></p>
+            <p class="auth-alt" id="authAlt">New here? <button type="button" class="linkish" data-auth-switch="signup">Create an account</button></p>
           </form>
           <p class="auth-note">Demo — sign in with any email &amp; password, or continue with Google. Your details stay in this browser only.</p>
         </div>
@@ -209,7 +210,7 @@
           form.name.required = m === "signup";
           submit.textContent = m === "signup" ? "Create account" : "Sign in";
           if (gLabel) gLabel.textContent = m === "signup" ? "Sign up with Google" : "Continue with Google";
-          altP.innerHTML = m === "signup" ? 'Already have an account? <a data-auth-switch="signin">Sign in</a>' : 'New here? <a data-auth-switch="signup">Create an account</a>';
+          altP.innerHTML = m === "signup" ? 'Already have an account? <button type="button" class="linkish" data-auth-switch="signin">Sign in</button>' : 'New here? <button type="button" class="linkish" data-auth-switch="signup">Create an account</button>';
         }
         document.querySelectorAll("[data-auth]").forEach(b => b.addEventListener("click", () => setMode(b.dataset.auth)));
         document.addEventListener("click", e => { const s = e.target.closest("[data-auth-switch]"); if (s) { e.preventDefault(); setMode(s.dataset.authSwitch); } });
@@ -376,9 +377,9 @@
       function renderAddr(editId) {
         const b = $b("addrBox"); if (!b) return;
         let html = addrs.length ? `<div class="pay-grid">` + addrs.map(a => `<div class="card-box">
-          <div style="display:flex;justify-content:space-between;align-items:center"><strong style="color:var(--forest)">${esc(a.label)}</strong>${a.default ? `<span class="status delivered">Default</span>` : `<a class="link-arrow" style="font-size:var(--step--2);cursor:pointer" data-adef="${a.id}">Set default</a>`}</div>
+          <div style="display:flex;justify-content:space-between;align-items:center"><strong style="color:var(--forest)">${esc(a.label)}</strong>${a.default ? `<span class="status delivered">Default</span>` : `<button type="button" class="link-arrow" style="font-size:var(--step--2)" data-adef="${a.id}">Set default</button>`}</div>
           <p class="muted" style="margin-top:.6rem;font-size:var(--step--1)">${esc(a.line)}<br>${esc(a.area)}</p>
-          <div style="margin-top:1rem;display:flex;gap:.8rem;flex-wrap:wrap"><a class="link-arrow" style="font-size:var(--step--2);cursor:pointer" data-aedit="${a.id}">Edit</a><a class="link-arrow" style="font-size:var(--step--2);cursor:pointer" data-arem="${a.id}">Remove</a>${a.geo ? `<a class="link-arrow" style="font-size:var(--step--2)" target="_blank" href="https://maps.google.com/?q=${a.geo.lat},${a.geo.lng}">View on map</a>` : ""}</div></div>`).join("") + `</div>`
+          <div style="margin-top:1rem;display:flex;gap:.8rem;flex-wrap:wrap"><button type="button" class="link-arrow" style="font-size:var(--step--2)" data-aedit="${a.id}">Edit</button><button type="button" class="link-arrow" style="font-size:var(--step--2)" data-arem="${a.id}">Remove</button>${a.geo ? `<a class="link-arrow" style="font-size:var(--step--2)" target="_blank" href="https://maps.google.com/?q=${a.geo.lat},${a.geo.lng}">View on map</a>` : ""}</div></div>`).join("") + `</div>`
           : `<div class="empty-state"><p>No addresses yet.</p></div>`;
         if (editId) { const a = editId === "new" ? null : addrs.find(x => x.id === editId);
           adGeo = (a && a.geo) ? a.geo : null;
