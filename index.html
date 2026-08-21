@@ -5,19 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Fresh Valley — Egypt's Premium Produce Market</title>
   <meta name="description" content="Export-grade fruits, vegetables and curated produce boxes, delivered next-day across New Cairo, Sheikh Zayed, October, Madinaty and Rehab. Shop the market or build a box.">
-  <meta name="theme-color" content="#0A1A11">
+  <meta name="theme-color" content="#10261D">
   <link rel="canonical" href="https://freshvalley.eg/">
 
   <meta property="og:type" content="website">
   <meta property="og:title" content="Fresh Valley — Egypt's Premium Produce Market">
   <meta property="og:description" content="Export-grade produce, delivered fresh. Shop the market or build a box.">
-  <meta property="og:image" content="assets/img/banners/home-delivery.jpg">
+  <meta property="og:image" content="assets/img/hero/hero-1200.jpg">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,400..500&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/hanken-grotesk.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/fraunces.woff2" crossorigin>
 
-  <link rel="preload" as="image" href="assets/img/products/strawberry.jpg" fetchpriority="high">
+  <link rel="preload" as="image" type="image/webp" media="(min-width: 721px)" fetchpriority="high"
+        href="assets/img/hero/hero-1800.webp"
+        imagesrcset="assets/img/hero/hero-800.webp 800w, assets/img/hero/hero-1200.webp 1200w, assets/img/hero/hero-1800.webp 1800w, assets/img/hero/hero-2400.webp 2400w"
+        imagesizes="100vw">
+  <link rel="preload" as="image" type="image/webp" media="(max-width: 720px)" fetchpriority="high"
+        href="assets/img/hero/hero-portrait-1000.webp"
+        imagesrcset="assets/img/hero/hero-portrait-700.webp 700w, assets/img/hero/hero-portrait-1000.webp 1000w"
+        imagesizes="100vw">
   <link rel="stylesheet" href="assets/css/styles.css">
 
   <script type="application/ld+json">
@@ -25,212 +31,175 @@
   </script>
 
   <style>
-    /* ---------------- HERO — cinematic, full-bleed, shoppable ---------------- */
-    .hero { position: relative; min-height: 100svh; display: flex; flex-direction: column; justify-content: flex-end;
-      overflow: hidden; color: var(--cream); background: var(--ink); padding-bottom: clamp(2.4rem, 5vh, 4rem); }
-    .hero-bg { position: absolute; inset: 0; }
-    .hero-bg img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0;
-      transition: opacity 1.2s var(--ease); transform-origin: 60% 40%; }
-    .hero-bg img.active { opacity: 1; }
-    @media (prefers-reduced-motion: no-preference) { .hero-bg img.active { animation: kenburns 11s var(--ease-out) forwards; } }
-    .hero-veil { position: absolute; inset: 0; pointer-events: none; background:
-      linear-gradient(to top, rgba(10,26,17,.96) 0%, rgba(10,26,17,.6) 30%, rgba(10,26,17,.16) 58%, rgba(10,26,17,.42) 100%),
-      linear-gradient(100deg, rgba(10,26,17,.85) 0%, rgba(10,26,17,.32) 48%, transparent 72%); }
-    .hero-veil::after { content:""; position:absolute; inset:0;
-      background: radial-gradient(58% 42% at 78% 28%, rgba(200,155,92,.16), transparent 70%); }
-    .hero-content { position: relative; z-index: 2; width: 100%;
-      display: grid; grid-template-columns: 1.15fr .85fr; gap: clamp(1.5rem, 4vw, 4.5rem); align-items: end;
-      padding-top: calc(var(--header-h) + 5rem); }
-    .hero h1 { font-size: var(--step-7); line-height: .98; letter-spacing: -.022em; color: var(--cream); margin: .22em 0 0; max-width: 13ch; }
+    /* ================= HERO — one still frame, held ================= */
+    .hero { position: relative; isolation: isolate; background: var(--ink); color: var(--cream);
+      min-height: min(94svh, 940px); display: flex; align-items: flex-end; overflow: hidden; }
+    .hero-media { position: absolute; inset: 0; z-index: 0; }
+    .hero-media picture { display: block; width: 100%; height: 100%; }
+    .hero-media img { width: 100%; height: 100%; object-fit: cover; object-position: 54% center; }
+    .hero-veil { position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(8,20,14,.86) 0%, rgba(8,20,14,.66) 24%, rgba(8,20,14,.28) 48%, rgba(8,20,14,0) 70%),
+        linear-gradient(to bottom, rgba(8,20,14,.42) 0%, rgba(8,20,14,0) 20%),
+        linear-gradient(to top, rgba(8,20,14,.6) 0%, rgba(8,20,14,0) 40%); }
+    .hero-inner { position: relative; z-index: 2; width: 100%;
+      padding-top: calc(var(--header-h) + clamp(4rem, 12vh, 9rem));
+      padding-bottom: clamp(2rem, 4vh, 3rem); }
+    .hero-copy { max-width: 34rem; }
+    .hero .eyebrow { color: var(--brass-soft); }
+    .hero h1 { font-size: var(--step-6); line-height: 1; letter-spacing: -.028em; color: var(--cream);
+      margin-top: .34em; text-wrap: balance; }
     .hero h1 em { font-style: italic; color: var(--brass-soft); }
-    .hero .lead { font-size: var(--step-1); color: rgba(244,239,228,.78); margin-top: 1.2rem; max-width: 46ch; font-weight: 340; }
-    .hero-cta { display: flex; gap: .8rem; flex-wrap: wrap; margin-top: 1.9rem; }
-    .hero-proof { display: flex; align-items: center; gap: .9rem; margin-top: 1.8rem; flex-wrap: wrap; }
-    .avatar-stack { display: inline-flex; }
-    .avatar-stack b { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-display); font-weight: 500; font-size: .74rem; color: var(--cream); border: 2px solid rgba(10,26,17,.85); margin-left: -11px; }
-    .avatar-stack b:first-child { margin-left: 0; }
-    .hero-proof .pr-t { font-size: var(--step--1); color: rgba(244,239,228,.75); }
-    .hero-proof .pr-t strong { color: var(--cream); font-weight: 700; }
-    .hero-proof .hp-stars { display: inline-flex; gap: 1px; color: var(--brass); vertical-align: -1px; }
+    .hero .lead { font-size: var(--step-1); color: rgba(246,241,232,.82); margin-top: 1.4rem; max-width: 40ch; font-weight: 340; }
+    .hero-cta { display: flex; gap: .75rem; flex-wrap: wrap; margin-top: clamp(1.8rem, 3.5vh, 2.6rem); }
+    .hero-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--s-5); flex-wrap: wrap;
+      margin-top: clamp(2.5rem, 8vh, 5.5rem); padding-top: 1.4rem; border-top: 1px solid rgba(246,241,232,.22); }
+    .hero-proof { display: flex; align-items: center; gap: .7rem; font-size: var(--step--1); color: rgba(246,241,232,.78); }
+    .hero-proof .hp-stars { display: inline-flex; gap: 2px; color: var(--brass); }
     .hero-proof .hp-stars svg { width: 13px; height: 13px; fill: currentColor; }
+    .hero-proof strong { color: var(--cream); font-weight: 600; }
+    .hero-cut { font-size: var(--step--2); letter-spacing: .16em; text-transform: uppercase; color: rgba(246,241,232,.6); }
+    .hero-cut b { color: var(--brass-soft); font-weight: 600; }
 
-    /* Shoppable glass dock */
-    .hero-dock { position: relative; display: flex; flex-direction: column; gap: 1rem;
-      padding: 1.2rem 1.25rem 1.25rem; border-radius: var(--radius-lg);
-      background: linear-gradient(150deg, rgba(246,240,226,.14), rgba(246,240,226,.05));
-      -webkit-backdrop-filter: blur(26px) saturate(1.45); backdrop-filter: blur(26px) saturate(1.45);
-      border: 1px solid rgba(244,236,217,.24); border-top-color: rgba(244,236,217,.46);
-      box-shadow: inset 0 1px 0 rgba(244,236,217,.22), 0 38px 80px -32px rgba(0,0,0,.65); }
-    .hero-dock .hd-top { display: flex; align-items: center; justify-content: space-between; gap: .8rem; }
-    .hero-count { display: inline-flex; align-items: baseline; gap: .45em; font-family: var(--font-display);
-      font-size: .92rem; letter-spacing: .08em; color: var(--cream); font-variant-numeric: lining-nums tabular-nums; }
-    .hero-count i { font-style: normal; color: var(--brass); }
-    .hero-count .of { color: rgba(244,239,228,.55); }
-    .hero-ctrl { display: flex; gap: .45rem; }
-    .hero-ctrl button { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; color: var(--cream);
-      background: rgba(10,26,17,.4); border: 1px solid rgba(244,236,217,.26); transition: all .3s var(--ease-spring); }
-    .hero-ctrl button:hover { background: var(--cream); color: var(--ink); transform: scale(1.07); }
-    .hero-ctrl button svg { width: 16px; height: 16px; }
-    .hero-dock .hd-mid { display: flex; align-items: center; gap: 1rem; }
-    .hd-info { flex: 1; min-width: 0; }
-    .hd-tag { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--brass); font-weight: 700; }
-    .hd-name { font-family: var(--font-display); font-size: var(--step-2); color: var(--cream); line-height: 1.08;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .hd-price { font-size: var(--step--1); color: rgba(244,239,228,.72); margin-top: .2rem; }
-    .hd-price b { color: var(--cream); font-weight: 700; font-variant-numeric: lining-nums tabular-nums; }
-    .hd-buy { display: flex; align-items: center; gap: .55rem; flex-shrink: 0; }
-    .hd-heart { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: var(--cream);
-      background: rgba(10,26,17,.4); border: 1px solid rgba(244,236,217,.26); transition: all .3s var(--ease-spring); }
-    .hd-heart:hover { transform: scale(1.08); }
-    .hd-heart svg { width: 18px; height: 18px; }
-    .hd-heart.active { color: #F1A7A7; } .hd-heart.active svg { fill: #F1A7A7; }
-    .hd-add { width: 56px; height: 56px; border-radius: 50%; color: var(--ink); display: grid; place-items: center; flex-shrink: 0;
-      background: radial-gradient(120% 120% at 30% 25%, #E2C08D, var(--brass) 55%, var(--brass-deep));
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.42), var(--glow-brass);
-      transition: transform .38s var(--ease-spring), box-shadow .3s; }
-    .hd-add:hover { transform: scale(1.1) rotate(90deg); }
-    .hd-add:active { transform: scale(.88); transition-duration: .1s; }
-    .hd-add svg { width: 22px; height: 22px; }
-    .hero-ticks { display: flex; gap: .45rem; }
-    .hero-ticks b { flex: 1; height: 3px; border-radius: 999px; background: rgba(244,236,217,.22); overflow: hidden; position: relative; cursor: pointer; }
-    .hero-ticks b.active::after { content:""; position:absolute; inset:0; background: var(--brass); border-radius: 999px;
-      transform-origin: left; animation: tickFill 5.5s linear forwards; }
-    @keyframes tickFill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-    @media (prefers-reduced-motion: reduce) { .hero-ticks b.active::after { animation: none; transform: none; } }
-    /* scroll cue */
-    .hero-cue { position: absolute; left: 50%; bottom: 1.2rem; transform: translateX(-50%); z-index: 2;
-      display: flex; flex-direction: column; align-items: center; gap: .5rem;
-      color: rgba(244,239,228,.55); font-size: 10px; letter-spacing: .32em; text-transform: uppercase; }
-    .hero-cue i { width: 1px; height: 36px; display: block; background: linear-gradient(rgba(244,236,217,0), var(--brass)); animation: cueDrop 2.2s var(--ease) infinite; }
-    @keyframes cueDrop { 0% { transform: scaleY(0); transform-origin: top; } 55% { transform: scaleY(1); transform-origin: top; }
-      56% { transform-origin: bottom; } 100% { transform: scaleY(0); transform-origin: bottom; } }
-    @media (prefers-reduced-motion: reduce) { .hero-cue i { animation: none; } }
+    /* ================= Trust strip ================= */
+    .trust-band { display: grid; grid-template-columns: repeat(4, 1fr); }
+    .trust-band .ti { display: flex; align-items: flex-start; gap: .85rem; padding: 1.75rem clamp(1rem, 2vw, 2rem); border-right: 1px solid var(--line); }
+    .trust-band .ti:last-child { border-right: 0; }
+    .trust-band .ti:first-child { padding-left: 0; }
+    .trust-band svg { width: 21px; height: 21px; color: var(--brass-deep); flex-shrink: 0; margin-top: 2px; }
+    .trust-band strong { display: block; font-size: var(--step--1); font-weight: 600; color: var(--forest); }
+    .trust-band small { display: block; font-size: var(--step--2); color: var(--text-muted); margin-top: .15rem; }
 
-    /* ---------------- Category strip — glossy chips ---------------- */
-    .cat-strip { display: grid; grid-template-columns: repeat(8, 1fr); gap: .75rem; }
-    .cat-chip { position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; gap: .6rem; padding: 1.1rem .5rem 1rem; border-radius: var(--radius-lg);
-      background: linear-gradient(165deg, #FFFFFF, #FBF7EE);
-      border: 1px solid var(--line-soft); border-top-color: rgba(255,255,255,.9); text-align: center;
-      box-shadow: var(--shadow-sm); transition: transform .4s var(--ease-spring), box-shadow .4s, border-color .3s; }
-    .cat-chip::before { content: ""; position: absolute; inset: 0; pointer-events: none;
-      background: linear-gradient(105deg, transparent 42%, rgba(200,155,92,.14) 50%, transparent 58%);
-      transform: translateX(-140%); transition: transform .8s var(--ease-luxe); }
-    .cat-chip:hover::before { transform: translateX(140%); }
-    .cat-chip:hover { transform: translateY(-4px); box-shadow: var(--shadow), var(--ring-brass); border-color: rgba(200,155,92,.4); }
-    .cat-chip .cc-ic { width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center; color: var(--brass-deep);
-      background: radial-gradient(120% 120% at 30% 25%, #FBF3E4, var(--brass-tint) 60%, #E8D8BC);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.8), 0 4px 10px -4px rgba(168,124,62,.35);
-      transition: transform .4s var(--ease-spring); }
-    .cat-chip:hover .cc-ic { transform: scale(1.1) rotate(-6deg); }
-    .cat-chip .cc-ic svg { width: 24px; height: 24px; }
-    .cat-chip span { font-size: var(--step--1); font-weight: 600; color: var(--forest); line-height: 1.15; }
+    /* ================= Category tiles ================= */
+    .cat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(.75rem, 1.4vw, 1.25rem); }
+    .cat-grid .cat-tile { min-height: clamp(300px, 34vw, 420px); }
+    .cat-tile picture { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+    .cat-tile .tile-body .eyebrow { color: var(--brass-soft); }
+    .cat-tile h3 { font-size: var(--step-2); margin-top: .5rem; }
+    .cat-more { display: flex; flex-wrap: wrap; gap: .5rem 2rem; margin-top: var(--s-6); padding-top: var(--s-5); border-top: 1px solid var(--line); }
+    .cat-more a { font-size: var(--step--1); color: var(--text-muted); letter-spacing: .02em; transition: color .25s; }
+    .cat-more a:hover { color: var(--forest); }
+    .cat-more a::before { content: "—"; color: var(--brass); margin-right: .55em; }
 
-    /* ---------------- Trust bar — dark glass band ---------------- */
-    .trust-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; border-radius: var(--radius-lg); overflow: hidden;
-      background: rgba(200,155,92,.22); border: 1px solid rgba(200,155,92,.25); box-shadow: var(--shadow); }
-    .trust-bar .ti { display: flex; align-items: center; gap: .8rem; padding: 1.15rem 1.3rem;
-      background: linear-gradient(170deg, #1B3527, var(--forest) 60%, #122B1E); }
-    .trust-bar .ti svg { width: 23px; height: 23px; color: var(--brass); flex-shrink: 0; }
-    .trust-bar .ti strong { display: block; font-size: var(--step--1); color: var(--cream); }
-    .trust-bar .ti small { font-size: var(--step--2); color: var(--on-dark-muted); }
-
-    /* ---------------- The Art of Hosting (light signature) ---------------- */
-    .aoh { background:
-      radial-gradient(80% 120% at 88% 10%, rgba(200,155,92,.12), transparent 55%),
-      linear-gradient(180deg, var(--paper-2), var(--bone)); border-block: 1px solid var(--line-soft); }
-    .aoh-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(2rem, 5vw, 5rem); align-items: center; }
-    .aoh-old { font-family: var(--font-display); font-size: var(--step-2); line-height: 1.2; color: var(--text-faint); font-weight: 380; }
+    /* ================= The Art of Hosting ================= */
+    .aoh { background: var(--paper-2); border-block: 1px solid var(--line); }
+    .aoh-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 6vw, 6rem); align-items: center; }
+    .aoh-old { font-family: var(--font-display); font-size: var(--step-2); line-height: 1.35; color: var(--text-faint); font-weight: 300; }
     .aoh-old s { text-decoration: none; position: relative; white-space: nowrap; }
-    .aoh-old s::after { content: ""; position: absolute; left: -2%; top: 55%; height: 2.5px; width: 0; border-radius: 999px; background: var(--brass); transition: width .55s var(--ease-out); }
-    .aoh-copy.in .aoh-old s::after { width: 104%; transition-delay: .45s; }
-    .aoh-copy.in .aoh-old + .aoh-old s::after { transition-delay: .9s; }
-    .aoh h2 { font-size: var(--step-4); line-height: 1.04; color: var(--forest); margin-top: .3em; max-width: 14ch; }
-    .aoh h2 em { color: var(--brass-deep); font-style: italic; }
-    .aoh .lead { color: var(--text-muted); margin-top: 1rem; max-width: 44ch; }
-    .aoh-steps { display: flex; gap: clamp(1rem, 2.5vw, 2rem); margin-top: 1.6rem; flex-wrap: wrap; }
-    .aoh-step { flex: 1 1 120px; min-width: 120px; padding-top: .9rem; border-top: 1px solid var(--muted); }
-    .aoh-step .n { font-family: var(--font-display); font-size: var(--step-2); color: var(--brass-deep); line-height: 1; }
-    .aoh-step p { font-size: var(--step--1); color: var(--text-muted); margin-top: .35rem; }
-    .aoh-cta { display: flex; align-items: center; gap: 1.2rem; flex-wrap: wrap; margin-top: 1.8rem; }
-    .aoh-media { position: relative; border-radius: var(--radius-lg); overflow: hidden; aspect-ratio: 4/3.7; box-shadow: var(--shadow-lg); }
-    .aoh-media img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease-out); }
-    .aoh-media:hover img { transform: scale(1.04); }
-    .aoh-chip { position: absolute; left: 1rem; right: 1rem; bottom: 1rem; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .9rem 1.1rem; border-radius: var(--radius); color: var(--cream);
-      background: linear-gradient(150deg, rgba(10,26,17,.6), rgba(10,26,17,.4)); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border: 1px solid rgba(244,236,217,.22); }
-    .aoh-chip .t strong { display: block; font-family: var(--font-display); font-size: var(--step-0); color: var(--cream); }
-    .aoh-chip .t small { font-size: var(--step--2); color: rgba(244,239,228,.72); }
-    .aoh-chip .go { width: 40px; height: 40px; border-radius: 50%; background: var(--brass); color: var(--ink); display: grid; place-items: center; flex-shrink: 0; transition: transform .3s var(--ease-out); }
-    .aoh-chip:hover .go { transform: scale(1.1); }
-    .aoh-chip .go svg { width: 17px; height: 17px; }
+    .aoh-old s::after { content: ""; position: absolute; left: -1%; top: 55%; height: 1.5px; width: 0; background: var(--brass); transition: width .6s var(--ease-out); }
+    .aoh-copy.in .aoh-old s::after { width: 102%; transition-delay: .4s; }
+    .aoh-copy.in .aoh-old + .aoh-old s::after { transition-delay: .8s; }
+    .aoh h2 { font-size: var(--step-4); margin-top: .35em; max-width: 13ch; }
+    .aoh h2 em { color: var(--brass-deep); }
+    .aoh .lead { margin-top: 1.2rem; max-width: 44ch; }
+    .aoh-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(1rem, 2.5vw, 2rem); margin-top: var(--s-7); }
+    .aoh-step { padding-top: 1rem; border-top: 1px solid var(--line-strong); }
+    .aoh-step .n { font-family: var(--font-display); font-size: var(--step-1); color: var(--brass-deep); line-height: 1; }
+    .aoh-step p { font-size: var(--step--1); color: var(--text-muted); margin-top: .5rem; }
+    .aoh-cta { display: flex; align-items: center; gap: 1.6rem; flex-wrap: wrap; margin-top: var(--s-7); }
+    .aoh-media { position: relative; display: block; overflow: hidden; aspect-ratio: 4/4.6; background: var(--surface-warm); }
+    .aoh-media picture, .why-media picture { display: block; width: 100%; height: 100%; }
+    .aoh-media img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease-luxe); }
+    .aoh-media:hover img { transform: scale(1.035); }
+    .aoh-chip { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between;
+      gap: 1rem; padding: 1.1rem 1.3rem; color: var(--cream); background: linear-gradient(to top, rgba(8,20,14,.9), rgba(8,20,14,0)); }
+    .aoh-chip strong { display: block; font-family: var(--font-display); font-size: var(--step-1); color: var(--cream); }
+    .aoh-chip small { font-size: var(--step--2); color: rgba(246,241,232,.72); letter-spacing: .04em; }
+    .aoh-chip .go svg { width: 20px; height: 20px; transition: transform .35s var(--ease-out); }
+    .aoh-media:hover .go svg { transform: translateX(5px); }
 
-    /* ---------------- Boxes flagship ---------------- */
-    .boxes-flag { display: grid; grid-template-columns: 1.1fr 1fr; gap: clamp(1.2rem, 2.5vw, 2rem); }
-    .box-hero { position: relative; border-radius: var(--radius-lg); overflow: hidden; min-height: 420px; display: flex; align-items: flex-end; color: var(--cream); box-shadow: var(--shadow-lg); }
-    .box-hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease-out); }
-    .box-hero:hover img { transform: scale(1.05); }
-    .box-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(10,26,17,.85), rgba(10,26,17,.15) 60%); }
-    .box-hero .bh-body { position: relative; z-index: 2; padding: clamp(1.5rem, 3vw, 2.2rem); }
-    .box-hero .bh-body .badge { margin-bottom: .7rem; }
-    .box-hero h3 { color: var(--cream); font-size: var(--step-3); max-width: 14ch; }
-    .box-hero p { color: rgba(244,239,228,.82); font-size: var(--step--1); margin-top: .5rem; max-width: 34ch; }
-    .box-hero .bh-foot { display: flex; align-items: center; gap: 1.2rem; margin-top: 1.2rem; flex-wrap: wrap; }
+    /* ================= Boxes ================= */
+    .boxes-flag { display: grid; grid-template-columns: 1.15fr 1fr; gap: clamp(.75rem, 1.4vw, 1.25rem); }
+    .box-hero { position: relative; overflow: hidden; min-height: 460px; display: flex; align-items: flex-end; color: var(--cream); }
+    .box-hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease-luxe); }
+    .box-hero:hover img { transform: scale(1.04); }
+    .box-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(8,20,14,.88) 0%, rgba(8,20,14,.25) 55%, rgba(8,20,14,.05) 100%); }
+    .box-hero .bh-body { position: relative; z-index: 2; padding: clamp(1.6rem, 3vw, 2.5rem); width: 100%; }
+    .box-hero h3 { color: var(--cream); font-size: var(--step-3); max-width: 13ch; margin-top: .6rem; }
+    .box-hero p { color: rgba(246,241,232,.8); font-size: var(--step--1); margin-top: .7rem; max-width: 36ch; }
+    .box-hero .bh-foot { display: flex; align-items: center; gap: 1.5rem; margin-top: 1.6rem; flex-wrap: wrap; }
     .box-hero .bh-price { font-family: var(--font-display); font-size: var(--step-2); color: var(--cream); }
-    .box-hero .bh-price span { font-size: var(--step--2); letter-spacing: .1em; text-transform: uppercase; color: var(--brass); display: block; }
-    .box-side { display: grid; grid-template-rows: repeat(2, 1fr); gap: clamp(1.2rem, 2.5vw, 2rem); }
-    .box-mini { display: grid; grid-template-columns: 150px 1fr; border-radius: var(--radius-lg); overflow: hidden; background: var(--surface); border: 1px solid var(--line-soft); box-shadow: var(--shadow-sm); transition: transform .35s var(--ease-out), box-shadow .35s; }
-    .box-mini:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
-    .box-mini img { width: 150px; height: 100%; object-fit: cover; }
-    .box-mini .bm-body { padding: 1.1rem 1.2rem; display: flex; flex-direction: column; justify-content: center; gap: .25rem; }
-    .box-mini h4 { font-family: var(--font-display); font-size: var(--step-1); color: var(--forest); }
-    .box-mini p { font-size: var(--step--2); color: var(--text-muted); }
-    .box-mini .bm-foot { display: flex; align-items: center; justify-content: space-between; margin-top: .6rem; }
-    .box-mini .bm-price { font-weight: 700; color: var(--brass-deep); font-size: var(--step--1); }
-    .box-mini .bm-price span { font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-faint); display: block; }
+    .box-hero .bh-price span { display: block; font-family: var(--font-sans); font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--brass-soft); }
+    .box-side { display: grid; grid-template-rows: 1fr 1fr; gap: clamp(.75rem, 1.4vw, 1.25rem); }
+    .box-mini { display: grid; grid-template-columns: 160px 1fr; background: var(--surface); border: 1px solid var(--line); transition: border-color .35s; overflow: hidden; }
+    .box-mini:hover { border-color: var(--line-strong); }
+    .box-mini img { width: 100%; height: 100%; object-fit: cover; }
+    .box-mini .bm-body { padding: 1.3rem 1.4rem; display: flex; flex-direction: column; justify-content: center; gap: .35rem; }
+    .box-mini h4 { font-family: var(--font-display); font-size: var(--step-2); color: var(--forest); }
+    .box-mini p { font-size: var(--step--1); color: var(--text-muted); }
+    .box-mini .bm-foot { display: flex; align-items: baseline; justify-content: space-between; margin-top: .9rem; padding-top: .9rem; border-top: 1px solid var(--line-soft); }
+    .box-mini .bm-price { font-weight: 600; color: var(--forest); font-size: var(--step-0); }
+    .box-mini .bm-price span { display: block; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--text-faint); font-weight: 400; }
+    .box-mini .bm-go { font-size: var(--step--2); letter-spacing: .12em; text-transform: uppercase; color: var(--brass-deep); font-weight: 600; }
 
-    /* ---------------- Why band ---------------- */
-    .why-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: clamp(1.5rem, 3vw, 3rem); align-items: center; }
-    .why-media { border-radius: var(--radius-lg); overflow: hidden; aspect-ratio: 16/11; box-shadow: var(--shadow); }
+    /* ================= The standard (why) ================= */
+    .why-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 6vw, 6rem); align-items: center; }
+    .why-media { overflow: hidden; aspect-ratio: 5/4; background: var(--surface-warm); }
     .why-media img { width: 100%; height: 100%; object-fit: cover; }
-    .why-list { display: grid; gap: 1.1rem; margin-top: 1.4rem; }
-    .why-item { display: flex; gap: .9rem; }
-    .why-item .ic { width: 42px; height: 42px; flex-shrink: 0; border-radius: 50%; background: var(--brass-tint); color: var(--brass-deep); display: grid; place-items: center; }
-    .why-item .ic svg { width: 21px; height: 21px; }
-    .why-item strong { display: block; color: var(--forest); font-size: var(--step-0); }
-    .why-item small { color: var(--text-muted); font-size: var(--step--1); }
+    .why-list { display: grid; gap: 0; margin-top: var(--s-6); }
+    .why-item { display: grid; grid-template-columns: 2.6rem 1fr; gap: 1rem; padding: 1.2rem 0; border-top: 1px solid var(--line); }
+    .why-item:last-child { border-bottom: 1px solid var(--line); }
+    .why-item .n { font-family: var(--font-display); font-size: var(--step-0); color: var(--brass-deep); line-height: 1.5; }
+    .why-item strong { display: block; color: var(--forest); font-size: var(--step-1); font-family: var(--font-display); font-weight: 400; }
+    .why-item small { display: block; color: var(--text-muted); font-size: var(--step--1); margin-top: .3rem; line-height: 1.6; }
 
-    /* ---------------- Reviews · 3-row marquee wall ---------------- */
-    .rev-wall { display: grid; gap: clamp(.8rem, 1.5vw, 1.1rem); overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
-    .rev-line { overflow: hidden; }
-    .rev-track { display: flex; gap: clamp(.8rem, 1.5vw, 1.1rem); width: max-content; will-change: transform; }
-    .rev-r { animation: revR 64s linear infinite; }
-    .rev-l { animation: revL 80s linear infinite; }
-    @keyframes revR { from { transform: translateX(-50%); } to { transform: translateX(0); } }
-    @keyframes revL { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-    .rev-wall:hover .rev-track, .rev-wall.paused .rev-track { animation-play-state: paused; }
-    @media (prefers-reduced-motion: reduce) { .rev-track { animation: none; } .rev-wall { overflow-x: auto; } }
-    .rev-mq { flex: 0 0 clamp(248px, 28vw, 308px); background: var(--surface); border: 1px solid var(--line-soft); border-radius: var(--radius); padding: 1.15rem 1.25rem; display: flex; flex-direction: column; gap: .65rem; box-shadow: var(--shadow-sm); }
-    .rev-mq .stars { display: inline-flex; gap: 2px; color: var(--brass); }
-    .rev-mq .stars svg { width: 13px; height: 13px; fill: currentColor; }
-    .rev-mq blockquote { font-family: var(--font-display); font-size: var(--step-0); line-height: 1.42; color: var(--forest); display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
-    .rev-mq .who { display: flex; align-items: center; gap: .6rem; margin-top: auto; }
-    .rev-mq .who b { width: 34px; height: 34px; border-radius: 50%; background: var(--forest); color: var(--cream); display: grid; place-items: center; font-family: var(--font-display); font-size: .76rem; flex-shrink: 0; }
-    .rev-mq .who strong { display: block; font-size: var(--step--2); color: var(--text); }
-    .rev-mq .who small { font-size: 10px; color: var(--text-faint); }
+    /* ================= Reviews ================= */
+    .rev-top { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--s-6); flex-wrap: wrap;
+      padding-bottom: var(--s-5); margin-bottom: var(--s-7); border-bottom: 1px solid var(--line); }
+    .rev-score { display: flex; align-items: baseline; gap: .8rem; }
+    .rev-score b { font-family: var(--font-display); font-size: var(--step-4); color: var(--forest); line-height: 1; font-weight: 400; }
+    .rev-score span { font-size: var(--step--1); color: var(--text-muted); }
+    .rev-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1.5rem, 3vw, 3rem); }
 
-    @media (max-width: 1100px) { .cat-strip { grid-template-columns: repeat(4, 1fr); } }
-    @media (max-width: 980px) {
-      .hero-content { grid-template-columns: 1fr; gap: 1.6rem; padding-top: calc(var(--header-h) + 3.2rem); }
-      .hero h1 { max-width: 12ch; }
-      .hero-cue { display: none; }
-      .aoh-grid, .boxes-flag, .why-grid { grid-template-columns: 1fr; }
-      .box-side { grid-template-rows: none; }
-      .trust-bar { grid-template-columns: repeat(2, 1fr); }
+    /* ================= Closing band ================= */
+    .cta-band { position: relative; overflow: hidden; color: var(--cream); }
+    .cta-band picture { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+    .cta-band img { width: 100%; height: 100%; object-fit: cover; }
+    .cta-band::after { content: ""; position: absolute; inset: 0; background: rgba(8,20,14,.62); }
+    .cta-band .inner { position: relative; z-index: 2; padding-block: clamp(4rem, 9vw, 7.5rem); text-align: center; }
+    .cta-band h2 { color: var(--cream); font-size: var(--step-4); max-width: 18ch; margin-inline: auto; }
+    .cta-band p { color: rgba(246,241,232,.8); max-width: 46ch; margin: 1.2rem auto 0; font-size: var(--step-1); font-weight: 340; }
+    .cta-band .btn { margin-top: var(--s-6); }
+
+    /* ================= Responsive ================= */
+    @media (max-width: 1100px) {
+      .cat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .trust-band { grid-template-columns: repeat(2, 1fr); }
+      .trust-band .ti { border-bottom: 1px solid var(--line); }
+      .trust-band .ti:nth-child(2n) { border-right: 0; }
+      .trust-band .ti:nth-child(3) { padding-left: 0; }
+      .trust-band .ti:nth-last-child(-n+2) { border-bottom: 0; }
+      .rev-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
-    @media (max-width: 560px) {
-      .cat-strip { grid-template-columns: repeat(3, 1fr); }
-      .trust-bar { grid-template-columns: 1fr; }
-      .box-mini { grid-template-columns: 110px 1fr; }
-      .box-mini img { width: 110px; }
+    @media (max-width: 900px) {
+      .hero { min-height: min(90svh, 800px); }
+      .hero-media img { object-position: center; }
+      .hero-veil { background:
+        linear-gradient(to top, rgba(8,20,14,.94) 0%, rgba(8,20,14,.88) 28%, rgba(8,20,14,.62) 52%, rgba(8,20,14,.2) 76%, rgba(8,20,14,.4) 100%); }
+      .hero-foot { margin-top: 2rem; }
+      .aoh-grid, .boxes-flag, .why-grid { grid-template-columns: 1fr; }
+      .aoh-media { aspect-ratio: 4/3; order: -1; }
+      .box-side { grid-template-rows: none; }
+      .box-hero { min-height: 380px; }
+      .why-media { order: -1; }
+    }
+    @media (max-width: 640px) {
+      .rev-grid { grid-template-columns: 1fr; }
+      .aoh-steps { grid-template-columns: 1fr; gap: 0; }
+      .aoh-step { padding-block: 1rem; border-top: 1px solid var(--line-strong); }
+      .box-mini { grid-template-columns: 118px 1fr; }
+      .box-mini .bm-body { padding: 1rem 1.1rem; }
+      .hero-inner { padding-top: calc(var(--header-h) + 2rem); }
+      .hero-copy { max-width: none; }
+      .hero h1 { font-size: clamp(2.4rem, 11.5vw, 3.2rem); }
+      .hero .lead { font-size: var(--step-0); margin-top: 1rem; max-width: 34ch; }
+      .hero-cta { margin-top: 1.5rem; gap: .55rem; }
+      .hero-cta .btn { flex: 1 1 100%; padding: 1.05em 1.6em; font-size: var(--step--1); }
+      .hero-foot { margin-top: 1.8rem; padding-top: 1.1rem; gap: .55rem; flex-direction: column; align-items: flex-start; }
+    }
+    @media (max-width: 460px) {
+      .trust-band { grid-template-columns: 1fr; }
+      .trust-band .ti { padding-inline: 0; border-right: 0; }
     }
   </style>
 </head>
@@ -238,89 +207,109 @@
 <body data-page="home" data-hero="true">
   <div id="fv-header"></div>
 
-  <main>
-    <!-- ===== HERO · cinematic ===== -->
-    <section class="hero">
-      <div class="hero-bg" id="heroFrame"></div>
+  <main id="main" tabindex="-1">
+
+    <!-- ===== HERO · a single held frame ===== -->
+    <section class="hero" aria-labelledby="heroTitle">
+      <div class="hero-media">
+        <picture>
+          <source media="(max-width: 720px)" type="image/webp"
+                  srcset="assets/img/hero/hero-portrait-700.webp 700w, assets/img/hero/hero-portrait-1000.webp 1000w"
+                  sizes="100vw">
+          <source media="(max-width: 720px)"
+                  srcset="assets/img/hero/hero-portrait-700.jpg 700w, assets/img/hero/hero-portrait-1000.jpg 1000w"
+                  sizes="100vw">
+          <source type="image/webp"
+                  srcset="assets/img/hero/hero-800.webp 800w, assets/img/hero/hero-1200.webp 1200w, assets/img/hero/hero-1800.webp 1800w, assets/img/hero/hero-2400.webp 2400w"
+                  sizes="100vw">
+          <img src="assets/img/hero/hero-1800.jpg"
+               srcset="assets/img/hero/hero-800.jpg 800w, assets/img/hero/hero-1200.jpg 1200w, assets/img/hero/hero-1800.jpg 1800w, assets/img/hero/hero-2400.jpg 2400w"
+               sizes="100vw" width="2400" height="982" fetchpriority="high" decoding="async"
+               alt="A host arranging bowls of strawberries, stone fruit and berries on a sunlit marble table">
+        </picture>
+      </div>
       <div class="hero-veil" aria-hidden="true"></div>
-      <div class="container hero-content">
+
+      <div class="container hero-inner">
         <div class="hero-copy">
-          <p class="eyebrow eyebrow--light" data-reveal data-fv="hero_eyebrow">Export-grade · Delivered next-day</p>
-          <h1 data-reveal data-split data-fv="hero_title">Egypt's premium <em>produce market</em>.</h1>
-          <p class="lead" data-reveal data-delay="2" data-fv="hero_sub">Hand-graded fruits, vegetables and curated boxes — the quality you'd only find abroad, at your door tomorrow.</p>
-          <div class="hero-cta" data-reveal data-delay="3">
+          <p class="eyebrow" data-fv="hero_eyebrow">Export-grade · Delivered next-day</p>
+          <h1 id="heroTitle" data-fv="hero_title">Egypt's premium <em>produce market</em>.</h1>
+          <p class="lead" data-fv="hero_sub">Hand-graded fruits, vegetables and curated boxes — the quality you'd only find abroad, at your door tomorrow.</p>
+          <div class="hero-cta">
             <a class="btn btn--brass btn--lg" href="products.html" data-fv="hero_cta">Shop the market</a>
             <a class="btn btn--ghost-light btn--lg" href="products.html?cat=boxes">Build a box</a>
           </div>
-          <div class="hero-proof" data-reveal data-delay="4">
-            <span class="avatar-stack" id="avStack" aria-hidden="true"></span>
-            <span class="pr-t"><span class="hp-stars" id="heroStars"></span> <strong>4.9</strong> · loved by <strong>1,400+</strong> hosts in Cairo</span>
-          </div>
         </div>
 
-        <aside class="hero-dock" data-reveal="scale" data-delay="3" aria-label="Featured product">
-          <div class="hd-top">
-            <span class="hero-count"><span id="hcIdx">01</span><i>—</i><span class="of" id="hcOf">05</span></span>
-            <div class="hero-ctrl">
-              <button id="hPrev" aria-label="Previous"></button>
-              <button id="hNext" aria-label="Next"></button>
-            </div>
-          </div>
-          <div class="hd-mid">
-            <div class="hd-info">
-              <div class="hd-tag" id="hcTag">Bestseller</div>
-              <a id="hcLink" href="#"><div class="hd-name" id="hcName"></div></a>
-              <div class="hd-price"><b id="hcPrice"></b> <span id="hcPer"></span> · next-day</div>
-            </div>
-            <div class="hd-buy">
-              <button class="hd-heart" id="hcHeart" aria-label="Save to wishlist"></button>
-              <button class="hd-add" id="hcAdd" aria-label="Add to cart"></button>
-            </div>
-          </div>
-          <div class="hero-ticks" id="hTicks" aria-hidden="true"></div>
-        </aside>
+        <div class="hero-foot">
+          <p class="hero-proof">
+            <span class="hp-stars" id="heroStars" aria-hidden="true"></span>
+            <span><strong>4.9</strong> from 1,400+ verified orders across Cairo</span>
+          </p>
+          <p class="hero-cut">Order within <b id="heroCut">—</b> for next-day delivery</p>
+        </div>
       </div>
-      <div class="hero-cue" aria-hidden="true">Scroll<i></i></div>
     </section>
 
-    <!-- ===== Category strip ===== -->
-    <section class="section--tight" data-fv-section="categories" style="padding-top: var(--space-lg); padding-bottom: var(--space-lg)">
+    <!-- ===== Trust strip ===== -->
+    <section data-fv-section="trusted">
       <div class="container">
-        <div class="split-head" data-reveal style="margin-bottom: var(--space-md)">
-          <h2 class="title" style="font-size: var(--step-2)" data-fv="cat_title">Shop by category</h2>
+        <div class="trust-band" id="trustBar" data-stagger></div>
+      </div>
+    </section>
+
+    <!-- ===== Categories ===== -->
+    <section class="section section--tight" data-fv-section="categories">
+      <div class="container">
+        <div class="split-head" data-reveal>
+          <div class="section-head">
+            <p class="eyebrow">The market</p>
+            <h2 class="title" style="font-size:var(--step-3)" data-fv="cat_title">Shop by category</h2>
+          </div>
           <a class="link-arrow hide-mobile" href="products.html">All produce
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         </div>
-        <nav class="cat-strip" id="catStrip" aria-label="Categories" data-stagger></nav>
+        <nav class="cat-grid" id="catGrid" aria-label="Categories" data-stagger></nav>
+        <div class="cat-more">
+          <a href="products.html?cat=seasonal">Seasonal selection</a>
+          <a href="products.html?collection=premium">Premium picks</a>
+          <a href="products.html?collection=best-sellers">Best sellers</a>
+          <a href="product.html?box=premium-fruit-box">Gift boxes</a>
+          <a href="contact.html?topic=corporate">Corporate &amp; events</a>
+        </div>
       </div>
     </section>
 
-    <!-- ===== Best sellers slider ===== -->
-    <section class="section--tight" data-fv-section="bestsellers" style="padding-block: var(--space-lg)">
+    <!-- ===== Best sellers ===== -->
+    <section class="section section--tight" style="padding-top:0" data-fv-section="bestsellers">
       <div class="container">
-        <div class="split-head" data-reveal style="margin-bottom: var(--space-md)">
+        <div class="split-head" data-reveal>
           <div class="section-head">
             <p class="eyebrow" data-fv="bs_eyebrow">Loved by our tables</p>
-            <h2 class="title" style="font-size: var(--step-3)" data-fv="bs_title">Best Sellers</h2>
+            <h2 class="title" style="font-size:var(--step-3)" data-fv="bs_title">Best sellers</h2>
           </div>
-          <a class="link-arrow hide-mobile" href="products.html?collection=best-sellers">View all
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <div style="display:flex;align-items:center;gap:1.5rem">
+            <a class="link-arrow hide-mobile" href="products.html?collection=best-sellers">View all
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <div class="rail-nav hide-mobile">
+              <button class="rail-btn" id="bsPrev" aria-label="Previous products"></button>
+              <button class="rail-btn" id="bsNext" aria-label="Next products"></button>
+            </div>
+          </div>
         </div>
-        <div class="rail-wrap">
-          <button class="rail-side rail-side--prev" id="bsPrev" aria-label="Previous products"></button>
-          <div class="rail" id="bestSellers"></div>
-          <button class="rail-side rail-side--next" id="bsNext" aria-label="Next products"></button>
-        </div>
+        <div class="rail" id="bestSellers"></div>
       </div>
     </section>
 
-    <!-- ===== THE ART OF HOSTING ===== -->
-    <section class="aoh section section--tight" data-fv-section="aoh">
+    <!-- ===== The Art of Hosting ===== -->
+    <section class="aoh section" data-fv-section="aoh">
       <div class="container aoh-grid">
         <div class="aoh-copy" data-reveal>
           <p class="eyebrow" data-fv="aoh_eyebrow">Our signature · only from Fresh Valley</p>
-          <p class="aoh-old" style="margin-top:1.2rem"><s>A bottle of cola.</s></p>
-          <p class="aoh-old"><s>The usual box of sweets.</s></p>
+          <div style="margin-top:1.6rem">
+            <p class="aoh-old"><s>A bottle of cola.</s></p>
+            <p class="aoh-old"><s>The usual box of sweets.</s></p>
+          </div>
           <h2 data-fv="aoh_title">Arrive with <em>the season</em>.</h2>
           <p class="lead" data-fv="aoh_lead">No one visits empty-handed. We make what you carry unforgettable — a hand-graded box of produce, wrapped like a gift, set on the table the moment you walk in.</p>
           <div class="aoh-steps">
@@ -329,36 +318,34 @@
             <div class="aoh-step"><span class="n">03</span><p>You arrive generous. They remember it.</p></div>
           </div>
           <div class="aoh-cta">
-            <a class="btn btn--brass btn--lg" href="product.html?box=hosting-box">Gift a hosting box</a>
+            <a class="btn btn--lg" href="product.html?box=hosting-box">Gift a hosting box</a>
             <a class="link-arrow" href="hosting.html">The full story
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           </div>
         </div>
-        <a class="aoh-media" href="product.html?box=hosting-box" data-reveal data-delay="2" aria-label="The Hosting Box">
-          <img src="assets/img/banners/door-delivery.jpg" alt="A host receiving a Fresh Valley produce box at the door" loading="lazy">
+        <a class="aoh-media" href="product.html?box=hosting-box" data-reveal data-delay="1" aria-label="The Hosting Box — from EGP 850">
+          <picture>
+            <source type="image/webp" srcset="assets/img/banners/door-delivery.webp">
+            <img src="assets/img/banners/door-delivery.jpg" alt="A host receiving a Fresh Valley produce box at the door" loading="lazy" width="1500" height="779">
+          </picture>
           <span class="aoh-chip">
-            <span class="t"><strong>The Hosting Box</strong><small>From EGP 850 · wrapped &amp; ribboned</small></span>
-            <span class="go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+            <span><strong>The Hosting Box</strong><small>From EGP 850 · wrapped &amp; ribboned</small></span>
+            <span class="go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
           </span>
         </a>
       </div>
     </section>
 
-    <!-- ===== Trust bar ===== -->
-    <section class="section--tight" data-fv-section="trusted" style="padding-block: var(--space-md)">
-      <div class="container"><div class="trust-bar" id="trustBar" data-stagger></div></div>
-    </section>
-
-    <!-- ===== BOXES · flagship ===== -->
-    <section class="section section--tight" data-fv-section="boxes">
+    <!-- ===== Boxes ===== -->
+    <section class="section" data-fv-section="boxes">
       <div class="container">
-        <div class="split-head" data-reveal style="margin-bottom: var(--space-lg)">
+        <div class="split-head" data-reveal>
           <div class="section-head">
             <p class="eyebrow" data-fv="boxes_eyebrow">Our flagship</p>
-            <h2 class="title" style="font-size: var(--step-3)" data-fv="boxes_title">Fresh Valley Boxes</h2>
+            <h2 class="title" style="font-size:var(--step-3)" data-fv="boxes_title">Fresh Valley boxes</h2>
           </div>
           <a class="link-arrow hide-mobile" href="products.html?cat=boxes">All boxes
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         </div>
         <div class="boxes-flag">
           <a class="box-hero" href="product.html?box=hosting-box" id="boxHero" data-reveal></a>
@@ -367,30 +354,66 @@
       </div>
     </section>
 
-    <!-- ===== WHY band ===== -->
-    <section class="section section--tight section--paper2">
+    <!-- ===== The standard ===== -->
+    <section class="section section--paper2">
       <div class="container why-grid">
-        <div class="why-media" data-reveal><img src="assets/img/banners/packaging.jpg" alt="Fresh Valley produce wrapped in branded paper" loading="lazy"></div>
+        <div class="why-media" data-reveal>
+          <picture>
+            <source type="image/webp" srcset="assets/img/banners/packaging.webp">
+            <img src="assets/img/banners/packaging.jpg" alt="Fresh Valley produce wrapped in branded paper" loading="lazy" width="1500" height="779">
+          </picture>
+        </div>
         <div data-reveal data-delay="1">
           <p class="eyebrow" data-fv="why_eyebrow">Why Fresh Valley</p>
-          <h2 class="title" style="font-size: var(--step-3); margin-top: .3em" data-fv="why_title">Graded like an export house.<br>Delivered like a guest.</h2>
+          <h2 class="title" style="font-size:var(--step-3);margin-top:.35em" data-fv="why_title">Graded like an export house.<br>Delivered like a guest.</h2>
           <div class="why-list" id="whyList"></div>
         </div>
       </div>
     </section>
 
-    <!-- ===== REVIEWS · 3-row auto-loop wall ===== -->
-    <section class="section section--tight rev-sec" data-fv-section="reviews">
+    <!-- ===== Reviews ===== -->
+    <section class="section" data-fv-section="reviews">
       <div class="container">
-        <div class="section-head section-head--center" data-reveal style="margin-bottom: var(--space-lg)">
-          <p class="eyebrow no-rule" style="justify-content:center" data-fv="rev_eyebrow">★ 4.9 · 1,400+ verified orders</p>
-          <h2 class="title" style="font-size: var(--step-3)" data-fv="rev_title">Loved across Cairo</h2>
+        <div class="rev-top" data-reveal>
+          <div class="section-head" style="gap:.8rem">
+            <p class="eyebrow" data-fv="rev_eyebrow">From our hosts</p>
+            <h2 class="title" style="font-size:var(--step-3)" data-fv="rev_title">Loved across Cairo</h2>
+          </div>
+          <div class="rev-score">
+            <b>4.9</b>
+            <span><span class="stars" id="revStars" aria-hidden="true"></span><br>1,400+ verified orders</span>
+          </div>
         </div>
+        <div class="rev-grid" id="revGrid"></div>
       </div>
-      <div class="rev-wall" id="revWall" aria-label="What our hosts say">
-        <div class="rev-line"><div class="rev-track rev-r" id="rl1"></div></div>
-        <div class="rev-line"><div class="rev-track rev-l" id="rl2"></div></div>
-        <div class="rev-line"><div class="rev-track rev-r" id="rl3"></div></div>
+    </section>
+
+    <!-- ===== Journal ===== -->
+    <section class="section section--tight" style="padding-top:0" data-fv-section="journal">
+      <div class="container">
+        <div class="split-head" data-reveal>
+          <div class="section-head">
+            <p class="eyebrow">The Journal</p>
+            <h2 class="title" style="font-size:var(--step-3)">Notes on eating well</h2>
+          </div>
+          <a class="link-arrow hide-mobile" href="journal.html">All entries
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </div>
+        <div class="products-grid--3" style="display:grid;gap:clamp(1.5rem,3vw,2.5rem)" id="journalGrid"></div>
+      </div>
+    </section>
+
+    <!-- ===== Closing band ===== -->
+    <section class="cta-band">
+      <picture>
+        <source type="image/webp" srcset="assets/img/banners/home-delivery.webp">
+        <img src="assets/img/banners/home-delivery.jpg" alt="" loading="lazy" width="1500" height="779">
+      </picture>
+      <div class="container inner" data-reveal>
+        <p class="eyebrow eyebrow--light no-rule" style="justify-content:center">Next-day across five districts</p>
+        <h2 style="margin-top:1rem">Set a better table, tomorrow.</h2>
+        <p>New Cairo · Sheikh Zayed · October · Madinaty · Rehab. Order before 6pm and it arrives cold, graded and ready.</p>
+        <a class="btn btn--light btn--lg" href="products.html">Start your basket</a>
       </div>
     </section>
   </main>
@@ -405,133 +428,98 @@
       const arrowR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
       const arrowL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>';
 
-      /* Category strip */
-      const cats = [
-        ["leaf", "Fruits", "products.html?cat=fruits"],
-        ["leaf2", "Vegetables", "products.html?cat=vegetables"],
-        ["bag", "Hosting Boxes", "products.html?cat=boxes"],
-        ["snow", "Seasonal", "products.html?cat=seasonal"],
-        ["sparkle", "Premium", "products.html?collection=premium"],
-        ["shield", "Organic", "products.html?collection=organic"],
-        ["heart", "Gift Boxes", "product.html?box=premium-fruit-box"],
-        ["truck", "Corporate", "contact.html?topic=corporate"],
-      ];
-      $id("catStrip").innerHTML = cats.map(c =>
-        `<a class="cat-chip" href="${c[2]}"><span class="cc-ic">${FV.icon(c[0])}</span><span>${c[1]}</span></a>`).join("");
+      /* ---- Hero meta ---- */
+      $id("heroStars").innerHTML = FV.icon("star").repeat(5);
+      $id("heroCut").textContent = FV.cutoffText();
 
-      /* Trust bar */
+      /* ---- Trust strip ---- */
       const trust = [
-        ["truck", "Free delivery", "On orders over EGP 600"],
-        ["snow", "Cold-chain kept", "Harvest to your door"],
         ["shield", "Export-grade", "Hand-graded, every piece"],
+        ["snow", "Cold-chain kept", "Harvest to your door"],
+        ["truck", "Free delivery", "On orders over EGP 600"],
         ["leaf", "1,400+ orders", "Delivered across Cairo"],
       ];
-      $id("trustBar").innerHTML = trust.map(t =>
+      $id("trustBar").innerHTML = trust.map((t) =>
         `<div class="ti">${FV.icon(t[0])}<span><strong>${t[1]}</strong><small>${t[2]}</small></span></div>`).join("");
 
-      /* Best sellers slider */
+      /* ---- Category tiles ---- */
+      const cats = [
+        ["Fruits", "Sun-ripened, graded by hand", "products.html?cat=fruits", FV.thumb("strawberry"), FV.img("strawberry")],
+        ["Vegetables", "Crisp, clean, picked at peak", "products.html?cat=vegetables", FV.thumb("pepper-medley"), FV.img("pepper-medley")],
+        ["Hosting boxes", "Curated, wrapped, ready to gift", "products.html?cat=boxes", "assets/img/banners/sm/door-delivery.jpg", "assets/img/banners/door-delivery.jpg"],
+        ["Organic reserve", "Our quietest, rarest selections", "products.html?collection=organic", FV.thumb("medjool-dates"), FV.img("medjool-dates")],
+      ];
+      const webp = (p) => p.replace(/\.jpe?g$/i, ".webp");
+      const set = (a, b) => (a === b ? a : `${a} 540w, ${b} 1000w`);
+      $id("catGrid").innerHTML = cats.map(([name, blurb, href, sm, lg]) => `
+        <a class="cat-tile" href="${href}">
+          <picture>
+            <source type="image/webp" srcset="${set(webp(sm), webp(lg))}" sizes="(max-width:1100px) 50vw, 25vw">
+            <img src="${sm}" srcset="${set(sm, lg)}" sizes="(max-width:1100px) 50vw, 25vw" alt="" loading="lazy" width="540" height="540">
+          </picture>
+          <div class="tile-body">
+            <span class="eyebrow no-rule">Shop</span>
+            <h3>${name}</h3>
+            <p>${blurb}</p>
+          </div>
+        </a>`).join("");
+
+      /* ---- Best sellers rail ---- */
       const bs = FV.byCollection("best-sellers");
-      const ex = FV.byCollection("essentials").filter(p => !bs.some(b => b.slug === p.slug));
+      const ex = FV.byCollection("essentials").filter((p) => !bs.some((b) => b.slug === p.slug));
       $id("bestSellers").innerHTML = bs.concat(ex).slice(0, 12).map(FV.productCardHTML).join("");
       $id("bsPrev").innerHTML = arrowL; $id("bsNext").innerHTML = arrowR;
       FV.bindRail($id("bestSellers"), $id("bsPrev"), $id("bsNext"));
 
-      /* Boxes flagship */
+      /* ---- Boxes ---- */
       const boxes = FV.data.boxes;
       const hero = FV.findBox("hosting-box") || boxes[0];
-      const heroFrom = Math.min(...hero.tiers.map(t => t.price));
+      const heroFrom = Math.min(...hero.tiers.map((t) => t.price));
       $id("boxHero").innerHTML = `
-        <img src="${FV.img(hero.image)}" alt="${hero.name}" loading="lazy">
+        <img src="${FV.img(hero.image)}" alt="${hero.name}" loading="lazy" width="1000" height="1000">
         <div class="bh-body">
-          <span class="badge badge--pop">${FV.icon("star")} Most gifted</span>
+          <span class="badge badge--pop">Most gifted</span>
           <h3>${hero.name}</h3>
           <p>${hero.desc}</p>
           <div class="bh-foot">
-            <div class="bh-price"><span>From</span>${FV.money(heroFrom)}</div>
-            <span class="btn btn--brass">Explore the box ${arrowR}</span>
+            <span class="bh-price"><span>From</span>${FV.money(heroFrom)}</span>
+            <span class="link-arrow link-arrow--light">Explore the box ${arrowR}</span>
           </div>
         </div>`;
-      $id("boxSide").innerHTML = boxes.filter(b => b.slug !== hero.slug).slice(0, 2).map(b => {
-        const from = Math.min(...b.tiers.map(t => t.price));
+      $id("boxSide").innerHTML = boxes.filter((b) => b.slug !== hero.slug).slice(0, 2).map((b) => {
+        const from = Math.min(...b.tiers.map((t) => t.price));
         return `<a class="box-mini" href="product.html?box=${b.slug}">
-          <img src="${FV.thumb(b.image)}" alt="${b.name}" loading="lazy">
-          <div class="bm-body"><h4>${b.name}</h4><p>${b.tagline}</p>
-            <div class="bm-foot"><span class="bm-price"><span>From</span>${FV.money(from)}</span>
-            <span class="p-add" style="width:34px;height:34px;background:var(--brass);color:var(--ink);border-radius:50%;display:grid;place-items:center">${arrowR}</span></div></div>
+          <img src="${FV.thumb(b.image)}" alt="" loading="lazy" width="320" height="320">
+          <div class="bm-body">
+            <h4>${b.name}</h4>
+            <p>${b.tagline}</p>
+            <div class="bm-foot">
+              <span class="bm-price"><span>From</span>${FV.money(from)}</span>
+              <span class="bm-go">Explore</span>
+            </div>
+          </div>
         </a>`;
       }).join("");
 
-      /* Why list */
+      /* ---- The standard ---- */
       const why = [
-        ["shield", "Export-grade guarantee", "If it isn't perfect, we replace it — no forms, no debate."],
-        ["snow", "True cold-chain", "Cooled within hours of harvest, kept cold to your door."],
-        ["leaf", "Seasonal &amp; honest", "Picked at peak. Never stored long, never rushed."],
-        ["truck", "Five premium areas", "New Cairo · Sheikh Zayed · October · Madinaty · Rehab"],
+        ["Export-grade guarantee", "If it isn't perfect, we replace it — no forms, no debate."],
+        ["True cold-chain", "Cooled within hours of harvest, kept cold to your door."],
+        ["Seasonal &amp; honest", "Picked at peak. Never stored long, never rushed."],
+        ["Five premium areas", "New Cairo · Sheikh Zayed · October · Madinaty · Rehab"],
       ];
-      $id("whyList").innerHTML = why.map(w =>
-        `<div class="why-item" data-reveal><span class="ic">${FV.icon(w[0])}</span><span><strong>${w[1]}</strong><small>${w[2]}</small></span></div>`).join("");
+      $id("whyList").innerHTML = why.map((w, i) =>
+        `<div class="why-item"><span class="n">0${i + 1}</span><span><strong>${w[0]}</strong><small>${w[1]}</small></span></div>`).join("");
 
-      /* Reviews · 3-row auto-loop wall */
-      const revCard = (r) => {
-        const initials = r.name.split(" ").map(w => w[0]).slice(0, 2).join("");
-        return `<article class="rev-mq"><span class="stars">${FV.icon("star").repeat(r.stars)}</span><blockquote>“${r.text}”</blockquote><div class="who"><b>${initials}</b><span><strong>${r.name}</strong><small>${r.area}</small></span></div></article>`;
-      };
-      const allRev = FV.data.reviews, per = Math.ceil(allRev.length / 3);
-      [["rl1", allRev.slice(0, per)], ["rl2", allRev.slice(per, per * 2)], ["rl3", allRev.slice(per * 2)]]
-        .forEach(([id, rows]) => { const html = rows.map(revCard).join(""); $id(id).innerHTML = html + html; }); // duplicate for seamless loop
+      /* ---- Reviews ---- */
+      $id("revStars").innerHTML = FV.icon("star").repeat(5);
+      $id("revGrid").innerHTML = FV.data.reviews.slice(0, 6).map(FV.reviewCardHTML).join("");
 
-      // pause the review wall while the page is actively scrolling, resume when idle
-      (function () {
-        const wall = $id("revWall"); let t;
-        window.addEventListener("scroll", () => { wall.classList.add("paused"); clearTimeout(t); t = setTimeout(() => wall.classList.remove("paused"), 350); }, { passive: true });
-      })();
+      /* ---- Journal ---- */
+      $id("journalGrid").innerHTML = FV.data.articles.slice(0, 3).map(FV.articleCardHTML).join("");
 
-      // rail/strip cards visible immediately (horizontal — vertical observer won't fire for off-screen-right)
-      document.querySelectorAll(".rail [data-reveal], .rev-rail [data-reveal], .cat-strip [data-reveal]").forEach(e => e.classList.add("in"));
-
-      /* ===== HERO shoppable carousel ===== */
-      $id("heroStars").innerHTML = FV.icon("star").repeat(5);
-      const avC = ["var(--forest-mid)", "var(--brass-deep)", "var(--pomegranate)", "var(--forest)"];
-      $id("avStack").innerHTML = FV.data.reviews.slice(0, 4).map((r, i) =>
-        `<b style="background:${avC[i]}">${r.name.split(" ").map(w => w[0]).slice(0, 2).join("")}</b>`).join("");
-      $id("hPrev").innerHTML = arrowL; $id("hNext").innerHTML = arrowR;
-      $id("hcAdd").innerHTML = FV.icon("plus");
-      $id("hcHeart").innerHTML = FV.icon("heart");
-
-      const slides = ["strawberry", "mango", "red-grapes", "cherry", "pepper-medley"];
-      const frame = $id("heroFrame");
-      frame.innerHTML = slides.map((s, i) => `<img src="${FV.img(s)}" alt="" ${i === 0 ? 'class="active" fetchpriority="high"' : 'loading="lazy"'}>`).join("");
-      const imgs = frame.querySelectorAll("img");
-      const ticks = $id("hTicks");
-      ticks.innerHTML = slides.map(() => "<b></b>").join("");
-      const tickEls = ticks.querySelectorAll("b");
-      tickEls.forEach((t, k) => t.addEventListener("click", () => set(k)));
-      let cur = 0, timer = null;
-      const curP = () => FV.find(slides[cur]);
-      $id("hcOf").textContent = String(slides.length).padStart(2, "0");
-      function paint() {
-        const p = curP(), cp = FV.cardPrice(p);
-        imgs.forEach((im, k) => im.classList.toggle("active", k === cur));
-        tickEls.forEach((t, k) => { t.classList.remove("active"); if (k === cur) { void t.offsetWidth; t.classList.add("active"); } });
-        $id("hcIdx").textContent = String(cur + 1).padStart(2, "0");
-        $id("hcTag").textContent = (p.collections || []).includes("best-sellers") ? "Bestseller" : ((p.badges || []).includes("seasonal") ? "In season" : "Export-grade");
-        $id("hcName").textContent = p.name;
-        $id("hcLink").href = "product.html?slug=" + p.slug;
-        $id("hcPrice").textContent = FV.money(cp.value);
-        $id("hcPer").textContent = cp.per;
-        $id("hcHeart").classList.toggle("active", FV.wish.has(p.slug));
-      }
-      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      function auto() { clearInterval(timer); if (!reduced) timer = setInterval(() => set(cur + 1), 5500); }
-      function set(i) { cur = (i + slides.length) % slides.length; paint(); auto(); }
-      $id("hPrev").addEventListener("click", () => set(cur - 1));
-      $id("hNext").addEventListener("click", () => set(cur + 1));
-      $id("hcAdd").addEventListener("click", () => { FV.quickAdd(slides[cur]); });
-      $id("hcHeart").addEventListener("click", () => { const on = FV.wish.toggle(slides[cur]); $id("hcHeart").classList.toggle("active", on); if (on) FV.toast("Saved to wishlist"); });
-      const heroEl = document.querySelector(".hero");
-      heroEl.addEventListener("mouseenter", () => clearInterval(timer));
-      heroEl.addEventListener("mouseleave", auto);
-      paint(); auto();
+      /* Rail cards sit off-screen to the right — the vertical observer never fires for them */
+      document.querySelectorAll(".rail [data-reveal]").forEach((e) => e.classList.add("in"));
 
       FV.observeReveals();
       FV.updateWishUI();

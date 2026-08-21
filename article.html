@@ -6,22 +6,47 @@
   <title>Journal — Fresh Valley</title>
   <meta name="description" content="A note from the Fresh Valley Journal.">
   <meta name="theme-color" content="#1A2A1D">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,400..500&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/hanken-grotesk.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/fraunces.woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/styles.css">
   <style>
-    .article-head { padding-top: calc(var(--header-h) + 2.5rem); text-align:center; }
-    .article-head .a-cat { font-size:var(--step--2); letter-spacing:.16em; text-transform:uppercase; color:var(--brass-deep); font-weight:600; }
-    .article-head h1 { font-size: var(--step-5); max-width: 18ch; margin: .6rem auto 1rem; line-height:1.04; }
-    .article-head .meta { font-size: var(--step--1); color: var(--text-faint); }
-    .article-hero { margin: var(--space-xl) auto 0; max-width: var(--container); }
-    .article-hero .frame { border-radius: var(--radius-lg); overflow:hidden; aspect-ratio: 16/9; box-shadow: var(--shadow-lg); }
-    .article-hero img { width:100%; height:100%; object-fit:cover; }
-    .article-body { max-width: 70ch; margin: var(--space-2xl) auto 0; }
-    .article-body p { font-size: var(--step-1); line-height: 1.7; color: var(--text); margin-bottom: 1.4em; }
-    .article-body p:first-child::first-letter { font-family: var(--font-display); font-size: 3.4em; line-height: .8; float: left; padding: .05em .12em 0 0; color: var(--brass-deep); }
-    .article-foot { max-width: 70ch; margin: var(--space-2xl) auto 0; padding-top: var(--space-lg); border-top: 1px solid var(--line-soft); display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; }
+    .article-head { padding-top: calc(var(--header-h) + clamp(3rem, 6vw, 5.5rem)); padding-bottom: clamp(2rem, 4vw, 3rem); text-align: center; }
+    .article-head .a-cat { font-size: var(--step--2); letter-spacing: .18em; text-transform: uppercase; color: var(--brass-deep); font-weight: 600; }
+    .article-head h1 { font-size: var(--step-5); max-width: 20ch; margin: .7rem auto 1.1rem; line-height: 1.05; }
+    .article-head .meta { font-size: var(--step--1); color: var(--text-faint); letter-spacing: .02em; }
+
+    /* Full-bleed figure — one held frame, edge to edge */
+    .article-hero { width: 100%; aspect-ratio: 21 / 9; overflow: hidden; background: var(--surface-warm); margin-top: clamp(1.5rem, 4vw, 2.5rem); }
+    .article-hero img { width: 100%; height: 100%; object-fit: cover; }
+    @media (max-width: 640px) { .article-hero { aspect-ratio: 4 / 3; } }
+
+    /* A genuinely readable measure */
+    .article-body { max-width: 68ch; margin: clamp(3rem, 6vw, 5rem) auto 0; }
+    .article-body p { font-size: var(--step-1); line-height: 1.78; color: var(--text); margin-bottom: 1.5em; }
+    .article-body p:first-of-type::first-letter {
+      font-family: var(--font-display); font-size: 3.6em; line-height: .82; float: left;
+      padding: .04em .12em 0 0; color: var(--brass-deep);
+    }
+
+    /* Drop-in pull-quote */
+    .pull-quote { max-width: 68ch; margin: 1.6em auto 2.6em; padding-block: 1.4em; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .pull-quote p { font-family: var(--font-display); font-style: italic; font-weight: 400; font-size: var(--step-3); line-height: 1.32; color: var(--forest); margin: 0; }
+    .pull-quote p::before { content: "\201C"; color: var(--brass-deep); margin-right: .06em; }
+
+    .article-foot {
+      max-width: 68ch; margin: clamp(3rem, 6vw, 5rem) auto 0; padding-top: var(--s-6);
+      border-top: 1px solid var(--line-soft); display: flex; justify-content: space-between;
+      align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .article-foot .share { display: flex; align-items: center; gap: 1.2rem; }
+    .article-foot .share span { font-size: var(--step--2); color: var(--text-faint); letter-spacing: .04em; }
+    .article-foot .share button {
+      display: inline-flex; align-items: center; gap: .5em; font-size: var(--step--2);
+      letter-spacing: .08em; text-transform: uppercase; font-weight: 600; color: var(--text-muted);
+      transition: color .2s; padding: .5em 0;
+    }
+    .article-foot .share button:hover { color: var(--forest); }
+    .article-foot .share svg { width: 15px; height: 15px; }
   </style>
 </head>
 
@@ -38,6 +63,7 @@
       const slug = new URLSearchParams(location.search).get("slug");
       const a = FV.data.articles.find(x => x.slug === slug);
       const arrow = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+      const linkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.4l2-2a5 5 0 0 0-7-7l-1.2 1.1"/><path d="M14 11a5 5 0 0 0-7.5-.4l-2 2a5 5 0 0 0 7 7l1.1-1.1"/></svg>';
 
       if (!a) {
         root.innerHTML = `<section class="section" style="padding-top:calc(var(--header-h)+4rem);text-align:center">
@@ -48,6 +74,16 @@
       document.title = `${a.title} — Fresh Valley Journal`;
 
       const related = FV.data.articles.filter(x => x.slug !== a.slug).slice(0, 3);
+
+      // Build the body with one drop-in pull-quote, pulled from around the article's midpoint
+      const qIdx = Math.max(1, Math.floor(a.body.length / 2) - 1);
+      let quote = (a.body[qIdx] || a.body[0]).split(". ")[0].trim();
+      if (!/[.!?]$/.test(quote)) quote += ".";
+      const insertAt = Math.min(a.body.length, Math.floor(a.body.length / 2) + 1);
+      const paras = a.body.map(p => `<p>${p}</p>`);
+      const bodyHtml = paras.slice(0, insertAt).join("") +
+        (a.body.length > 1 ? `<div class="pull-quote"><p>${quote}</p></div>` : "") +
+        paras.slice(insertAt).join("");
 
       root.innerHTML = `
       <article>
@@ -60,23 +96,24 @@
           </div>
         </header>
 
-        <div class="article-hero">
-          <div class="container"><div class="frame"><img src="${FV.img(a.image)}" alt="${a.title}" fetchpriority="high"></div></div>
-        </div>
+        <figure class="article-hero">
+          <img src="${FV.img(a.image)}" alt="${a.title}" width="1800" height="770" fetchpriority="high">
+        </figure>
 
         <div class="container">
           <div class="article-body">
-            ${a.body.map(p => `<p>${p}</p>`).join("")}
+            ${bodyHtml}
           </div>
           <div class="article-foot">
             <a class="link-arrow" href="journal.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> All articles</a>
-            <div class="social-row" style="--x:0">
-              <span style="font-size:var(--step--2);color:var(--text-faint);align-self:center">Share</span>
+            <div class="share">
+              <span>Share</span>
+              <button type="button" id="shareBtn">${linkIcon} Copy link</button>
             </div>
           </div>
         </div>
 
-        <section class="section section--paper2" style="margin-top:var(--space-2xl)">
+        <section class="section section--paper2">
           <div class="container">
             <div class="section-head" data-reveal style="margin-bottom:var(--space-lg)">
               <p class="eyebrow">Keep reading</p><h2 class="title" style="font-size:var(--step-2)">More from the Journal</h2>
@@ -87,6 +124,16 @@
       </article>`;
 
       document.getElementById("more").innerHTML = related.map(FV.articleCardHTML).join("");
+
+      document.getElementById("shareBtn").addEventListener("click", async () => {
+        const url = location.href;
+        try {
+          if (navigator.share) { await navigator.share({ title: a.title, text: a.excerpt, url }); return; }
+          await navigator.clipboard.writeText(url);
+          FV.toast("Link copied");
+        } catch (err) { /* share cancelled or clipboard unavailable — no-op */ }
+      });
+
       FV.observeReveals();
 
       const ld = document.createElement("script");

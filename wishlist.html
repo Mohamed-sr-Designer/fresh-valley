@@ -6,22 +6,25 @@
   <title>Wishlist — Fresh Valley</title>
   <meta name="theme-color" content="#1A2A1D">
   <meta name="robots" content="noindex">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,400..500&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/hanken-grotesk.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/fraunces.woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/styles.css">
+  <style>
+    .wish-empty { padding: 3.5rem 1rem; }
+    .wish-empty svg { width: 40px; height: 40px; color: var(--line-strong); margin: 0 auto 1.1rem; }
+  </style>
 </head>
 
 <body data-page="wishlist">
   <div id="fv-header"></div>
 
   <main>
-    <section class="page-header" style="padding-bottom:var(--space-lg)">
+    <section class="page-header" style="padding-bottom: var(--s-6)">
       <div class="container">
         <nav class="breadcrumb"><a href="index.html">Home</a><span>/</span><span>Wishlist</span></nav>
         <div class="split-head">
           <h1>Saved for later</h1>
-          <button class="btn btn--outline btn--sm hide-mobile" id="addAll" style="display:none">Add all to cart</button>
+          <button class="btn btn--outline btn--sm" id="addAll" style="display:none">Add all to cart</button>
         </div>
       </div>
     </section>
@@ -29,11 +32,11 @@
     <section class="section section--tight">
       <div class="container">
         <div class="products-grid" id="grid"></div>
-        <div class="empty-state" id="empty" style="padding:2rem 1rem" hidden>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" style="width:40px;height:40px;margin-bottom:.6rem"><path d="M12 20s-7-4.6-9.3-9C1 8 2.5 4.7 6 4.7c2 0 3.2 1.1 4 2.3.8-1.2 2-2.3 4-2.3 3.5 0 5 3.3 3.3 6.3C19 15.4 12 20 12 20Z"/></svg>
-          <h3 style="margin:.4rem 0 .3rem;font-size:var(--step-1)">Nothing saved yet</h3>
+        <div class="empty-state wish-empty" id="empty" hidden>
+          <span id="wishEmptyIcon" aria-hidden="true"></span>
+          <h2 style="margin:.4rem 0 .3rem;font-size:var(--step-1)">Nothing saved yet</h2>
           <p style="font-size:var(--step--1)">Tap the heart on anything you love, and it will wait for you here.</p>
-          <a class="btn btn--sm" href="products.html" style="margin-top:1rem">Browse the collection
+          <a class="btn btn--sm" href="products.html" style="margin-top:1.2rem">Browse the collection
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         </div>
       </div>
@@ -42,7 +45,7 @@
     <!-- Recommendations -->
     <section class="section section--paper2" id="recSection">
       <div class="container">
-        <div class="section-head" data-reveal style="margin-bottom:var(--space-lg)">
+        <div class="section-head" data-reveal style="margin-bottom: var(--s-7)">
           <p class="eyebrow">You may also love</p>
           <h2 class="title" style="font-size:var(--step-2)">From our best sellers</h2>
         </div>
@@ -60,6 +63,7 @@
       const grid = document.getElementById("grid");
       const empty = document.getElementById("empty");
       const addAll = document.getElementById("addAll");
+      document.getElementById("wishEmptyIcon").innerHTML = FV.icon("heart");
 
       let rendering = false;
       function render() {

@@ -9,51 +9,69 @@
   <link rel="canonical" href="https://freshvalley.eg/about.html">
   <meta property="og:title" content="About Fresh Valley">
   <meta property="og:type" content="website">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,400..500&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/hanken-grotesk.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/fraunces.woff2" crossorigin>
   <link rel="preload" as="image" href="assets/img/products/cauliflower.jpg" fetchpriority="high">
   <link rel="stylesheet" href="assets/css/styles.css">
   <style>
-    .a-hero { position: relative; min-height: 70vh; display:flex; align-items:flex-end; color:var(--cream); isolation:isolate; }
-    .a-hero__media { position:absolute; inset:0; z-index:-2; }
-    .a-hero__media img { width:100%; height:100%; object-fit:cover; }
-    .a-hero::after { content:""; position:absolute; inset:0; z-index:-1; background: linear-gradient(180deg, rgba(14,20,16,.55), rgba(14,20,16,.2) 45%, rgba(14,20,16,.8)); }
-    .a-hero .container { padding-block: 10rem 4rem; }
-    .a-hero h1 { color:var(--cream); font-size:var(--step-5); max-width:16ch; margin-top:.3em; }
+    /* ===== HERO — one held frame behind the header ===== */
+    .a-hero { position: relative; min-height: min(80svh, 760px); display: flex; align-items: flex-end; color: var(--cream); isolation: isolate; }
+    .a-hero__media { position: absolute; inset: 0; z-index: -2; }
+    .a-hero__media img { width: 100%; height: 100%; object-fit: cover; }
+    .a-hero::after { content: ""; position: absolute; inset: 0; z-index: -1;
+      background: linear-gradient(180deg, rgba(8,20,14,.55) 0%, rgba(8,20,14,.24) 42%, rgba(8,20,14,.82) 100%); }
+    .a-hero .container { padding-top: calc(var(--header-h) + clamp(3rem, 7vh, 6rem)); padding-bottom: clamp(2.5rem, 5vh, 4rem); }
+    .a-hero .eyebrow { color: var(--brass-soft); }
+    .a-hero h1 { color: var(--cream); font-size: var(--step-6); max-width: 16ch; margin-top: .3em; }
 
-    .story-2col { display:grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem,6vw,6rem); align-items:start; }
-    .big-statement { font-family: var(--font-display); font-size: var(--step-3); line-height:1.18; color: var(--forest); font-weight:360; }
-    .big-statement em { color: var(--brass-deep); font-style:italic; }
+    /* ===== STORY ===== */
+    .story-2col { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 6vw, 6rem); align-items: start; }
+    .big-statement { font-family: var(--font-display); font-size: var(--step-3); line-height: 1.22; color: var(--forest); font-weight: 380; }
+    .big-statement em { color: var(--brass-deep); font-style: italic; }
 
-    .quality-feature { display:grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem,5vw,5rem); align-items:center; }
-    .quality-media2 { border-radius: var(--radius-lg); overflow:hidden; aspect-ratio: 4/5; box-shadow: var(--shadow-lg); }
-    .quality-media2 img { width:100%; height:100%; object-fit:cover; }
-    .qsteps { display:grid; gap:1.6rem; margin-top: var(--space-lg); }
-    .qstep { display:grid; grid-template-columns: auto 1fr; gap:1.2rem; padding-top:1.4rem; border-top:1px solid var(--line); }
-    .qstep .n { font-family:var(--font-display); font-size:var(--step-2); color:var(--brass); line-height:1; }
-    .qstep h4 { font-size: var(--step-1); color: var(--forest); }
-    .qstep p { color: var(--text-muted); font-size: var(--step--1); margin-top:.3rem; }
+    /* ===== BEHIND THE QUALITY ===== */
+    .quality-feature { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 5vw, 5rem); align-items: center; }
+    .quality-media { overflow: hidden; aspect-ratio: 4/5; background: var(--surface-warm); border: 1px solid var(--line); }
+    .quality-media img { width: 100%; height: 100%; object-fit: cover; }
+    .quality-media--square { aspect-ratio: 1/1; }
+    .qsteps { margin-top: var(--s-7); border-top: 1px solid var(--line); }
+    .qstep { display: grid; grid-template-columns: 2.6rem 1fr; gap: 1.2rem; padding: 1.3rem 0; border-bottom: 1px solid var(--line-soft); }
+    .qstep .n { font-family: var(--font-display); font-size: var(--step-1); color: var(--brass-deep); line-height: 1.3; }
+    .qstep h3 { font-size: var(--step-1); color: var(--forest); }
+    .qstep p { color: var(--text-muted); font-size: var(--step--1); margin-top: .35rem; }
 
-    .values { display:grid; grid-template-columns: repeat(3,1fr); gap: var(--space-lg); }
-    .value .f-icon { width:48px; height:48px; border-radius:var(--radius-pill); display:grid; place-items:center; background:var(--brass-tint); color:var(--brass-deep); margin-bottom:1rem; }
-    .value .f-icon svg { width:24px; height:24px; }
-    .value h4 { font-size: var(--step-1); color:var(--forest); }
-    .value p { color: var(--text-muted); font-size: var(--step--1); margin-top:.4rem; }
+    /* ===== VALUES — a numbered sequence, hairline above each ===== */
+    .values { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-7); border-top: 1px solid var(--line); }
+    .value { padding-top: 1.5rem; }
+    .value .num { display: block; font-family: var(--font-display); font-size: var(--step-2); color: var(--brass-deep); line-height: 1; margin-bottom: .7rem; }
+    .value h3 { font-size: var(--step-1); color: var(--forest); }
+    .value p { color: var(--text-muted); font-size: var(--step--1); margin-top: .5rem; }
 
-    .areas { display:grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem,5vw,4rem); align-items:center; }
-    .area-list { display:grid; grid-template-columns: 1fr 1fr; gap:.8rem; margin-top: var(--space-md); }
-    .area-list .area { display:flex; align-items:center; gap:.7rem; padding:1rem 1.2rem; background:#FCFAF3; border:1px solid var(--line-soft); border-radius:var(--radius); font-weight:500; color:var(--forest); }
-    .area-list .area svg { width:20px; height:20px; color:var(--brass-deep); }
+    /* ===== AREAS ===== */
+    .areas { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 5vw, 4rem); align-items: center; }
+    .area-list { display: grid; grid-template-columns: 1fr 1fr; gap: 0 2rem; margin-top: var(--s-6); border-top: 1px solid var(--line-soft); }
+    .area-row { display: flex; align-items: center; gap: .7rem; padding: .95rem 0; border-bottom: 1px solid var(--line-soft); font-weight: 500; color: var(--forest); font-size: var(--step-0); }
+    .area-row svg { width: 16px; height: 16px; color: var(--brass-deep); flex-shrink: 0; }
 
-    .stat-band { display:grid; grid-template-columns: repeat(4,1fr); gap: var(--space-lg); }
-    .stat-band .s .n { font-family:var(--font-display); font-size:var(--step-4); color:var(--cream); line-height:1; }
-    .stat-band .s .l { color:var(--on-dark-muted); font-size:var(--step--2); letter-spacing:.08em; text-transform:uppercase; margin-top:.5rem; }
+    /* ===== STATS — quiet editorial figures, not glowing cards ===== */
+    .stat-band { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); margin-top: 1.6rem; }
+    .stat-band .stat { padding: clamp(1.4rem, 3vw, 2rem) clamp(1rem, 2vw, 1.5rem) 0; border-right: 1px solid var(--line); }
+    .stat-band .stat:last-child { border-right: 0; }
+    .stat-band .stat:first-child { padding-left: 0; }
 
-    @media (max-width:920px){
-      .story-2col, .quality-feature, .areas { grid-template-columns:1fr; }
-      .values { grid-template-columns:1fr; gap:var(--space-md); }
-      .stat-band { grid-template-columns:1fr 1fr; gap:var(--space-md); }
+    @media (max-width: 920px) {
+      .story-2col, .quality-feature, .areas { grid-template-columns: 1fr; }
+      .values { grid-template-columns: 1fr; gap: var(--s-6); }
+      .area-list { grid-template-columns: 1fr; }
+      .stat-band { grid-template-columns: 1fr 1fr; row-gap: 1.4rem; }
+      .stat-band .stat:nth-child(2n) { border-right: 0; }
+      .stat-band .stat:nth-child(n+3) { border-top: 1px solid var(--line); padding-top: 1.4rem; }
+      .stat-band .stat:nth-child(3) { padding-left: 0; }
+    }
+    @media (max-width: 540px) {
+      .stat-band { grid-template-columns: 1fr; }
+      .stat-band .stat { border-right: 0; padding-left: 0; }
+      .stat-band .stat:nth-child(n+2) { border-top: 1px solid var(--line); padding-top: 1.2rem; }
     }
   </style>
 </head>
@@ -64,7 +82,7 @@
   <main>
     <!-- HERO -->
     <section class="a-hero">
-      <div class="a-hero__media" data-kenburns><img src="assets/img/products/cauliflower.jpg" alt="Export-grade cauliflower, warmly lit" fetchpriority="high"></div>
+      <div class="a-hero__media"><img src="assets/img/products/cauliflower.jpg" alt="Export-grade cauliflower, warmly lit" width="1000" height="1000" fetchpriority="high"></div>
       <div class="container">
         <p class="eyebrow eyebrow--light" data-fv="about_eyebrow">Our Story</p>
         <h1 data-fv="about_title">Produce, treated with the care it deserves.</h1>
@@ -74,7 +92,10 @@
     <!-- STORY -->
     <section class="section">
       <div class="container story-2col">
-        <p class="big-statement" data-reveal>We started Fresh Valley with a simple frustration: the best of Egypt's produce was leaving the country, while the rest filled the shelves at home. We wanted to <em>keep some of the best here</em>.</p>
+        <div data-reveal>
+          <p class="eyebrow">Our story</p>
+          <p class="big-statement" style="margin-top:1.1rem">We started Fresh Valley with a simple frustration: the best of Egypt's produce was leaving the country, while the rest filled the shelves at home. We wanted to <em>keep some of the best here</em>.</p>
+        </div>
         <div data-reveal data-delay="1">
           <p class="lead" data-fv="about_lead">Fresh Valley is a premium produce company. We work directly with Egypt's finest growers — the same farms that supply Europe's best tables — to select export-grade fruit and vegetables for homes here.</p>
           <p class="muted mt-md">Then we go a step further. We curate that produce into boxes and collections built for the way people host today: generously, beautifully, and without a fuss. It is an everyday purchase, raised to the standard of an occasion.</p>
@@ -92,8 +113,8 @@
           <p class="lead mt-md">Nothing reaches your table by accident. Every piece of produce passes through the same four steps the export market demands.</p>
           <div class="qsteps" id="qsteps"></div>
         </div>
-        <div class="quality-media2" data-reveal data-delay="1">
-          <img src="assets/img/products/red-grapes.jpg" alt="Export-grade grapes, graded by hand">
+        <div class="quality-media" data-reveal data-delay="1">
+          <img src="assets/img/products/red-grapes.jpg" alt="Export-grade grapes, graded by hand" loading="lazy" width="1000" height="1000">
         </div>
       </div>
     </section>
@@ -101,8 +122,8 @@
     <!-- VALUES -->
     <section class="section">
       <div class="container">
-        <div class="section-head section-head--center" data-reveal style="margin-bottom:var(--space-xl)">
-          <p class="eyebrow">What we hold to</p>
+        <div class="section-head section-head--center" data-reveal style="margin-bottom:var(--s-8)">
+          <p class="eyebrow no-rule">What we hold to</p>
           <h2 class="title">The things we will not compromise</h2>
         </div>
         <div class="values" id="values"></div>
@@ -118,20 +139,21 @@
           <p class="muted mt-md">We deliver to the communities we know best — so we can keep the cold chain short and the service personal. Complimentary delivery on orders over EGP 600.</p>
           <div class="area-list" id="areaList"></div>
         </div>
-        <div class="quality-media2" data-reveal data-delay="1" style="aspect-ratio:1/1">
-          <img src="assets/img/products/orange.jpg" alt="Navel oranges" style="width:100%;height:100%;object-fit:cover">
+        <div class="quality-media quality-media--square" data-reveal data-delay="1">
+          <img src="assets/img/products/orange.jpg" alt="Navel oranges" loading="lazy" width="1000" height="1000">
         </div>
       </div>
     </section>
 
     <!-- STATS -->
-    <section class="section section--forest">
+    <section class="section section--tight section--paper2">
       <div class="container">
+        <p class="eyebrow" data-reveal>By the numbers</p>
         <div class="stat-band">
-          <div class="s" data-reveal><div class="n" data-count="100" data-suffix="%">100%</div><div class="l">Export-grade selection</div></div>
-          <div class="s" data-reveal data-delay="1"><div class="n" data-count="5">5</div><div class="l">Premium areas served</div></div>
-          <div class="s" data-reveal data-delay="2"><div class="n" data-count="1400" data-suffix="+">1,400+</div><div class="l">Verified orders</div></div>
-          <div class="s" data-reveal data-delay="3"><div class="n" data-count="4.9" data-dec="1">4.9</div><div class="l">Average rating</div></div>
+          <div class="stat" data-reveal><div class="stat-n" data-count="100" data-suffix="%">100%</div><div class="stat-l">Export-grade selection</div></div>
+          <div class="stat" data-reveal data-delay="1"><div class="stat-n" data-count="5">5</div><div class="stat-l">Premium areas served</div></div>
+          <div class="stat" data-reveal data-delay="2"><div class="stat-n" data-count="1400" data-suffix="+">1,400+</div><div class="stat-l">Verified orders</div></div>
+          <div class="stat" data-reveal data-delay="3"><div class="stat-n" data-count="4.9" data-dec="1">4.9</div><div class="stat-l">Average rating</div></div>
         </div>
       </div>
     </section>
@@ -161,19 +183,19 @@
         ["04","Presentation","Finally, we pack to arrive looking like a gift — because that is increasingly how good produce is used."],
       ];
       document.getElementById("qsteps").innerHTML = steps.map(s => `
-        <div class="qstep"><div class="n">${s[0]}</div><div><h4>${s[1]}</h4><p>${s[2]}</p></div></div>`).join("");
+        <div class="qstep"><span class="n">${s[0]}</span><div><h3>${s[1]}</h3><p>${s[2]}</p></div></div>`).join("");
 
       const values = [
-        ["leaf","Quality over quantity","We would rather sell less, and sell it perfect. Grading is not negotiable."],
-        ["shield","Honesty","If it isn't right, we replace it. 'Export-grade' is a promise, not a label."],
-        ["sparkle","Care in the detail","From the cold chain to the packaging, the small things are the whole thing."],
+        ["Quality over quantity", "We would rather sell less, and sell it perfect. Grading is not negotiable."],
+        ["Honesty", "If it isn't right, we replace it. 'Export-grade' is a promise, not a label."],
+        ["Care in the detail", "From the cold chain to the packaging, the small things are the whole thing."],
       ];
-      document.getElementById("values").innerHTML = values.map(v => `
-        <div class="value" data-reveal><div class="f-icon">${FV.icon(v[0])}</div><h4>${v[1]}</h4><p>${v[2]}</p></div>`).join("");
+      document.getElementById("values").innerHTML = values.map((v, i) => `
+        <div class="value" data-reveal data-delay="${i + 1}"><span class="num">0${i + 1}</span><h3>${v[0]}</h3><p>${v[1]}</p></div>`).join("");
 
-      const areas = ["New Cairo","Sheikh Zayed","October","Madinaty","Rehab","More areas soon"];
+      const areas = ["New Cairo", "Sheikh Zayed", "October", "Madinaty", "Rehab", "More areas soon"];
       document.getElementById("areaList").innerHTML = areas.map(a => `
-        <div class="area">${FV.icon("pin")} ${a}</div>`).join("");
+        <div class="area-row">${FV.icon("pin")}<span>${a}</span></div>`).join("");
 
       FV.observeReveals();
       FV.observeCounts();

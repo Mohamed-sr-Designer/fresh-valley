@@ -7,9 +7,8 @@
   <meta name="description" content="Fresh Valley's policies on quality, delivery, replacements, payment and privacy.">
   <meta name="theme-color" content="#1A2A1D">
   <link rel="canonical" href="https://freshvalley.eg/policies.html">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,400..500&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/hanken-grotesk.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/fraunces.woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 
@@ -101,7 +100,13 @@
       toc.insertAdjacentHTML("beforeend", secs.map(s => `<a href="#${s.id}">${s.querySelector("h2").textContent}</a>`).join(""));
       const links = Array.from(toc.querySelectorAll("a"));
       const io = new IntersectionObserver(es => es.forEach(e => {
-        if (e.isIntersecting) { links.forEach(l => l.classList.toggle("active", l.getAttribute("href") === "#" + e.target.id)); }
+        if (e.isIntersecting) {
+          links.forEach(l => {
+            const on = l.getAttribute("href") === "#" + e.target.id;
+            l.classList.toggle("active", on);
+            if (on) l.setAttribute("aria-current", "true"); else l.removeAttribute("aria-current");
+          });
+        }
       }), { rootMargin: "-20% 0px -70% 0px" });
       secs.forEach(s => io.observe(s));
     })();

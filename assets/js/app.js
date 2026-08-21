@@ -121,6 +121,8 @@
     money, weightOptions, weightLabel, priceForWeight, cardPrice, defaultVariant,
     img: (slug) => D.IMG + slug + ".jpg",
     thumb: (slug) => D.IMG + "sm/" + slug + ".jpg",
+    // same asset, modern codec — every catalog photo ships a sibling .webp
+    webp: (u) => u.replace(/.jpe?g$/i, ".webp"),
     // Resolve an image that may be a slug (catalog photo) OR a full URL/dataURL (admin-added)
     imgSrc: (s) => /^(https?:|data:|\/)/.test(s || "") ? s : D.IMG + s + ".jpg",
     isCustomImg: (s) => /^(https?:|data:|\/)/.test(s || ""),
@@ -318,33 +320,28 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
     { href: "products.html", label: "Products", key: "products" },
   ];
 
-  function greeting() {
-    const h = new Date().getHours();
-    return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
-  }
-
   function buildHeader() {
     const page = document.body.dataset.page || "";
     const navHtml = NAV.map((n) => `<li><a href="${n.href}" ${n.key === page ? 'aria-current="page"' : ""}>${n.label}</a></li>`).join("");
     return `
+    <a class="skip-link" href="#main">Skip to content</a>
     <header class="site-header" id="siteHeader">
       <div class="header-inner">
-        <a class="brand" href="index.html" aria-label="Fresh Valley — home">
-          <img class="logo logo--dark" src="assets/img/logo.png" alt="Fresh Valley" onerror="this.style.display='none';this.parentNode.querySelector('.brand-fallback').style.display='inline'">
-          <img class="logo logo--light" src="assets/img/logo-cream.png" alt="" aria-hidden="true">
-          <span class="brand-fallback" style="display:none">Fresh Valley</span>
-        </a>
-        <a class="h-greet" href="index.html" aria-label="Fresh Valley — home">
-          <span class="h-avatar"><img src="assets/img/icon-192.png" alt=""></span>
-          <span><span class="gl1">${greeting()}!</span><br><span class="gl2">Fresh Valley</span></span>
-        </a>
+        <div class="header-left">
+          <button class="icon-btn icon-btn--menu" id="menuBtn" aria-label="Open menu" aria-controls="navDrawer" aria-expanded="false">${I.menu}</button>
+          <a class="brand" href="index.html" aria-label="Fresh Valley — home">
+            <img class="logo logo--dark" src="assets/img/logo-sm.png" srcset="assets/img/logo-sm.png 1x, assets/img/logo.png 2x" alt="Fresh Valley" width="52" height="34" onerror="this.style.display='none';this.parentNode.querySelector('.brand-fallback').style.display='inline'">
+            <img class="logo logo--light" src="assets/img/logo-cream-sm.png" srcset="assets/img/logo-cream-sm.png 1x, assets/img/logo-cream.png 2x" alt="" aria-hidden="true" width="52" height="34">
+            <span class="brand-fallback" style="display:none">Fresh Valley</span>
+          </a>
+        </div>
         <nav class="main-nav" aria-label="Primary"><ul>${navHtml}</ul></nav>
         <div class="header-actions">
-          <a class="icon-btn" href="account.html" aria-label="Account">${I.user}</a>
-          <a class="icon-btn" href="wishlist.html" aria-label="Wishlist" id="wishLink">${I.heart}<span class="count" id="wishCount">0</span></a>
-          <button class="icon-btn" id="cartBtn" aria-label="Cart">${I.bag}<span class="count" id="cartCount">0</span></button>
           <button class="icon-btn icon-btn--search" id="searchBtn" aria-label="Search">${I.search}</button>
-          <a class="icon-btn icon-btn--admin" href="admin/login.html" aria-label="Admin console" title="Admin / Staff login">${I.gear}</a>
+          <a class="icon-btn hide-mobile" href="account.html" aria-label="Account">${I.user}</a>
+          <a class="icon-btn hide-mobile" href="wishlist.html" aria-label="Wishlist" id="wishLink">${I.heart}<span class="count" id="wishCount" data-n="0" aria-hidden="true"></span></a>
+          <button class="icon-btn" id="cartBtn" aria-label="Cart">${I.bag}<span class="count" id="cartCount" data-n="0" aria-hidden="true"></span></button>
+          <a class="icon-btn icon-btn--admin hide-mobile" href="admin/login.html" aria-label="Admin console" title="Admin / Staff login">${I.gear}</a>
         </div>
       </div>
     </header>`;
@@ -353,7 +350,6 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
   function buildFooter() {
     return `
     <footer class="site-footer">
-      <div class="footer-water" aria-hidden="true">Fresh Valley</div>
       <div class="container">
         <div class="footer-cta">
           <div class="inner">
@@ -362,21 +358,22 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
               <h2 data-fv="footer_news_title">Eat with the season.<br>Host a little better.</h2>
             </div>
             <div>
-              <p class="muted" style="color:var(--on-dark-muted)">A quiet note each month — what is at its peak, a recipe worth keeping, and an idea for your next table. No noise.</p>
+              <p style="color:var(--on-dark-muted);font-size:var(--step--1);line-height:1.7;max-width:44ch">A quiet note each month — what is at its peak, a recipe worth keeping, and an idea for your next table. No noise.</p>
               <form class="newsletter-form" data-newsletter>
                 <input class="input" type="email" required placeholder="Your email address" aria-label="Email address">
-                <button class="btn btn--brass" type="submit">Subscribe</button>
+                <button class="btn" type="submit">Subscribe</button>
               </form>
             </div>
           </div>
         </div>
         <div class="footer-grid">
           <div class="footer-brand">
-            <span class="brand-fallback" style="font-family:var(--font-display);font-size:1.6rem">Fresh Valley</span>
+            <img class="footer-logo" src="assets/img/logo-cream-sm.png" srcset="assets/img/logo-cream-sm.png 1x, assets/img/logo-cream.png 2x" alt="Fresh Valley" width="52" height="34" onerror="this.style.display='none';this.parentNode.querySelector('.brand-fallback').style.display='block'">
+            <span class="brand-fallback" style="display:none">Fresh Valley</span>
             <p data-fv="footer_blurb">Export-grade produce, curated for modern hosting and a quieter kind of luxury. Grown well, graded by hand, delivered with care.</p>
           </div>
           <div class="footer-col">
-            <h5>Shop</h5>
+            <h3>Shop</h3>
             <a href="products.html">All Produce</a>
             <a href="products.html?cat=boxes">Boxes</a>
             <a href="products.html?cat=seasonal">Seasonal</a>
@@ -384,21 +381,21 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
             <a href="products.html?collection=best-sellers">Best Sellers</a>
           </div>
           <div class="footer-col">
-            <h5>The Brand</h5>
+            <h3>The Brand</h3>
             <a href="about.html">About Us</a>
             <a href="hosting.html">The Art of Hosting</a>
             <a href="journal.html">Journal</a>
             <a href="about.html#quality">Behind the Quality</a>
           </div>
           <div class="footer-col">
-            <h5>Care</h5>
+            <h3>Care</h3>
             <a href="contact.html">Contact</a>
             <a href="policies.html">Company Policies</a>
             <a href="terms.html">Terms of Use</a>
             <a href="contact.html#areas">Delivery Areas</a>
           </div>
           <div class="footer-col">
-            <h5>Account</h5>
+            <h3>Account</h3>
             <a href="account.html">My Account</a>
             <a href="account.html#orders">Orders</a>
             <a href="wishlist.html">Wishlist</a>
@@ -424,7 +421,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
 
     <aside class="drawer drawer--left" id="navDrawer" aria-label="Menu" aria-hidden="true">
       <div class="drawer-head">
-        <span class="brand-fallback" style="font-family:var(--font-display);font-size:1.4rem;color:var(--forest)">Fresh Valley</span>
+        <img src="assets/img/logo-sm.png" alt="Fresh Valley" width="43" height="28" style="height:28px;width:auto" onerror="this.replaceWith(document.createTextNode('Fresh Valley'))">
         <button class="icon-btn" data-close aria-label="Close menu">${I.close}</button>
       </div>
       <div class="drawer-body">
@@ -433,6 +430,8 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
           <a href="about.html">About</a>
           <a href="journal.html">Journal</a>
           <a href="contact.html">Contact</a>
+          <a href="account.html">My account</a>
+          <a href="wishlist.html">Wishlist</a>
         </nav>
       </div>
       <div class="drawer-foot">
@@ -465,7 +464,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
     <nav class="app-bar" aria-label="App navigation">
       <a href="index.html" data-ab="home">${I.home}<span>Home</span></a>
       <a href="products.html" data-ab="products">${I.grid}<span>Shop</span></a>
-      <button id="abCart" class="ab-center" aria-label="Cart">${I.bag}<span class="ab-count" id="abCartCount">0</span></button>
+      <button id="abCart" class="ab-center" aria-label="Cart">${I.bag}<span class="ab-count" id="abCartCount" data-n="0" aria-hidden="true"></span><span>Cart</span></button>
       <a href="wishlist.html" data-ab="wishlist">${I.heart}<span>Saved</span></a>
       <a href="account.html" data-ab="account">${I.user}<span>Account</span></a>
     </nav>`;
@@ -476,27 +475,36 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
    * ------------------------------------------------------------------ */
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
-  let openPanel = null;
+  let openPanel = null, lastTrigger = null;
 
   function lockScroll(on) { document.body.classList.toggle("no-scroll", on); }
   function closeAll() {
     $("#scrim")?.classList.remove("open");
     $$(".drawer").forEach((d) => { d.classList.remove("open"); d.setAttribute("aria-hidden", "true"); });
     $("#searchOverlay")?.classList.remove("open");
-    lockScroll(false); openPanel = null;
+    $("#menuBtn")?.setAttribute("aria-expanded", "false");
+    lockScroll(false);
+    if (openPanel && lastTrigger) { try { lastTrigger.focus(); } catch (_) {} }
+    openPanel = null; lastTrigger = null;
   }
   function openCart() {
     renderCartDrawer();
+    lastTrigger = document.activeElement;
     $("#scrim").classList.add("open");
     const d = $("#cartDrawer"); d.classList.add("open"); d.setAttribute("aria-hidden", "false");
     lockScroll(true); openPanel = "cart";
+    setTimeout(() => d.querySelector("[data-close]")?.focus(), 60);
   }
   function openNav() {
+    lastTrigger = document.activeElement;
     $("#scrim").classList.add("open");
     const d = $("#navDrawer"); d.classList.add("open"); d.setAttribute("aria-hidden", "false");
+    $("#menuBtn")?.setAttribute("aria-expanded", "true");
     lockScroll(true); openPanel = "nav";
+    setTimeout(() => d.querySelector(".mobile-nav a")?.focus(), 60);
   }
   function openSearch() {
+    lastTrigger = document.activeElement;
     const o = $("#searchOverlay"); o.classList.add("open"); o.setAttribute("aria-hidden", "false");
     lockScroll(true); openPanel = "search";
     setTimeout(() => $("#searchInput").focus(), 60);
@@ -540,23 +548,28 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
         : `<p style="font-size:var(--step--2);color:var(--forest-mid);margin-bottom:.6rem">${I.check} You've earned complimentary delivery.</p>`}
       <div class="sum-row"><span class="muted">Subtotal</span><span>${money(sub)}</span></div>
       <div class="sum-row"><span class="muted">Delivery</span><span>${remain > 0 ? "Calculated at checkout" : "Free"}</span></div>
-      <a class="btn btn--block btn--lg" href="checkout.html" style="margin-top:1rem">Checkout ${I.arrow}</a>
-      <a class="btn btn--ghost-light btn--block btn--sm" href="cart.html" style="margin-top:.6rem;--fg:var(--forest);--bd:var(--line)">View full cart</a>`;
+      <a class="btn btn--block btn--lg" href="checkout.html" style="margin-top:1.1rem">Checkout ${I.arrow}</a>
+      <a class="btn btn--outline btn--block btn--sm" href="cart.html" style="margin-top:.55rem">View full cart</a>`;
   }
 
   function updateCartUI() {
     const c = FV.cart.count();
+    // the badge is decorative (aria-hidden) — the count lives in the button's own name
+    const label = c ? `Cart, ${c} item${c > 1 ? "s" : ""}` : "Cart, empty";
     const el = $("#cartCount");
-    if (el) { el.textContent = c; el.classList.toggle("show", c > 0); }
+    if (el) { el.dataset.n = c; el.classList.toggle("show", c > 0); }
     const ab = $("#abCartCount");
-    if (ab) { ab.textContent = c; ab.classList.toggle("show", c > 0); }
+    if (ab) { ab.dataset.n = c; ab.classList.toggle("show", c > 0); }
+    $("#cartBtn")?.setAttribute("aria-label", label);
+    $("#abCart")?.setAttribute("aria-label", label);
     if (openPanel === "cart") renderCartDrawer();
     document.dispatchEvent(new CustomEvent("fv:cart"));
   }
   function updateWishUI() {
     const c = wish.length;
     const el = $("#wishCount");
-    if (el) { el.textContent = c; el.classList.toggle("show", c > 0); }
+    if (el) { el.dataset.n = c; el.classList.toggle("show", c > 0); }
+    $("#wishLink")?.setAttribute("aria-label", c ? `Wishlist, ${c} saved` : "Wishlist, empty");
     $$(".wish-btn").forEach((b) => {
       const on = FV.wish.has(b.dataset.wish);
       b.classList.toggle("active", on);
@@ -608,7 +621,8 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
     if ((p.badges || []).includes("seasonal")) return `<span class="badge badge--seasonal">In season</span>`;
     return "";
   }
-  const cardTags = (p) => `<div class="card-tags">${qualityBadge(p)}${popTag(p)}</div>`;
+  /* One label per card — a luxury shelf doesn't shout twice. */
+  const cardTags = (p) => `<div class="card-tags">${popTag(p) || qualityBadge(p)}</div>`;
   const ratingRow = (p) => `<span class="p-rating">${I.star} ${p.rating.toFixed(1)} <span class="rc">(${p.reviews})</span></span>`;
 
   function cardMedia(p) {
@@ -619,7 +633,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
     }
     const imgTag = FV.isCustomImg(p.image)
       ? `<img src="${p.image}" alt="${p.name}" loading="lazy" width="540" height="540">`
-      : `<img src="${FV.thumb(p.slug)}" srcset="${FV.thumb(p.slug)} 540w, ${FV.img(p.slug)} 1000w" sizes="(max-width:640px) 48vw, (max-width:1100px) 30vw, 22vw" alt="${p.name}" loading="lazy" width="540" height="540">`;
+      : `<picture><source type="image/webp" srcset="${FV.webp(FV.thumb(p.slug))} 540w, ${FV.webp(FV.img(p.slug))} 1000w" sizes="(max-width:640px) 48vw, (max-width:1100px) 30vw, 22vw"><img src="${FV.thumb(p.slug)}" srcset="${FV.thumb(p.slug)} 540w, ${FV.img(p.slug)} 1000w" sizes="(max-width:640px) 48vw, (max-width:1100px) 30vw, 22vw" alt="${p.name}" loading="lazy" width="540" height="540"></picture>`;
     return `<div class="media">
         ${imgTag}
         ${cardTags(p)}
@@ -645,7 +659,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
     const tag = b.slug === "hosting-box" ? "Most gifted" : ((b.collections || []).includes("best-sellers") ? "Bestseller" : ((b.collections || []).includes("seasonal") ? "Limited" : ""));
     return `<article class="box-card" data-reveal>
       <a class="media" href="product.html?box=${b.slug}">
-        <img src="${FV.thumb(b.image)}" srcset="${FV.thumb(b.image)} 540w, ${FV.img(b.image)} 1000w" sizes="(max-width:860px) 90vw, 32vw" alt="${b.name}" loading="lazy" width="540" height="405">
+        <picture><source type="image/webp" srcset="${FV.webp(FV.thumb(b.image))} 540w, ${FV.webp(FV.img(b.image))} 1000w" sizes="(max-width:860px) 90vw, 32vw"><img src="${FV.thumb(b.image)}" srcset="${FV.thumb(b.image)} 540w, ${FV.img(b.image)} 1000w" sizes="(max-width:860px) 90vw, 32vw" alt="${b.name}" loading="lazy" width="540" height="405"></picture>
         ${tag ? `<span class="badge badge--pop b-tag">${I.star} ${tag}</span>` : ""}
       </a>
       <div class="b-body">
@@ -653,7 +667,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
         <p class="b-desc">${b.tagline}</p>
         <div class="b-foot">
           <div class="b-price"><span class="from">From</span>${FV.money(from)}</div>
-          <a class="btn btn--brass btn--sm" href="product.html?box=${b.slug}">Explore</a>
+          <a class="btn btn--outline btn--sm" href="product.html?box=${b.slug}">Explore</a>
         </div>
       </div>
     </article>`;
@@ -661,7 +675,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
   FV.reviewCardHTML = function (r) {
     const initials = r.name.split(" ").map((w) => w[0]).slice(0, 2).join("");
     return `<article class="review-card" data-reveal>
-      <div class="stars" aria-label="${r.stars} out of 5">${I.star.repeat(r.stars)}</div>
+      <div class="stars" role="img" aria-label="${r.stars} out of 5">${I.star.repeat(r.stars)}</div>
       <p class="quote">“${r.text}”</p>
       <div class="r-author">
         <div class="r-avatar">${initials}</div>
@@ -671,7 +685,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
   };
   FV.articleCardHTML = function (a) {
     return `<article class="article-card" data-reveal>
-      <a class="media" href="article.html?slug=${a.slug}"><img src="${FV.img(a.image)}" alt="${a.title}" loading="lazy"></a>
+      <a class="media" href="article.html?slug=${a.slug}" tabindex="-1" aria-hidden="true"><picture><source type="image/webp" srcset="${FV.webp(FV.thumb(a.image))} 540w, ${FV.webp(FV.img(a.image))} 1000w" sizes="(max-width:860px) 90vw, 30vw"><img src="${FV.thumb(a.image)}" srcset="${FV.thumb(a.image)} 540w, ${FV.img(a.image)} 1000w" sizes="(max-width:860px) 90vw, 30vw" alt="" loading="lazy" width="540" height="405"></picture></a>
       <span class="a-cat">${a.category}</span>
       <h3><a class="stretch" href="article.html?slug=${a.slug}">${a.title}</a></h3>
       <p class="muted" style="font-size:var(--step--1)">${a.excerpt}</p>
@@ -727,48 +741,9 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
   }
   FV.observeCounts = observeCounts;
 
-  /* ---- NEXT-ERA motion layer: brass scroll thread, cursor aura, 3D tilt, split headlines ---- */
-  function motionLayer() {
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!document.getElementById("fvProgress")) {
-      const bar = document.createElement("div"); bar.id = "fvProgress"; document.body.appendChild(bar);
-      const upd = () => { const h = document.documentElement, max = h.scrollHeight - h.clientHeight;
-        bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + "%"; };
-      window.addEventListener("scroll", upd, { passive: true }); window.addEventListener("resize", upd); upd();
-    }
-    // split-word headlines: element children (e.g. <em>) rise as one phrase
-    $$("[data-split]:not(.split-ready)").forEach((el) => {
-      const parts = [];
-      el.childNodes.forEach((n) => {
-        if (n.nodeType === 3) n.textContent.split(/\s+/).filter(Boolean).forEach((w) => parts.push(w));
-        else if (n.nodeType === 1) parts.push(n.outerHTML);
-      });
-      // glue lone punctuation ("." after an <em>) onto the previous word
-      for (let i = parts.length - 1; i > 0; i--) {
-        if (/^[.,!?;:…»«)]+$/.test(parts[i])) { parts[i - 1] += parts[i]; parts.splice(i, 1); }
-      }
-      el.innerHTML = parts.map((p, i) => `<span class="sw"><i style="--wi:${i}">${p}</i></span>`).join(" ");
-      el.classList.add("split-ready");
-    });
-    if (reduced || !window.matchMedia("(pointer: fine)").matches) return;
-    if (!document.getElementById("fvAura")) {
-      const aura = document.createElement("div"); aura.id = "fvAura"; document.body.appendChild(aura);
-      let x = innerWidth / 2, y = innerHeight / 2, tx = x, ty = y;
-      window.addEventListener("pointermove", (e) => { tx = e.clientX; ty = e.clientY; document.body.classList.add("aura-on"); }, { passive: true });
-      (function loop() { x += (tx - x) * .09; y += (ty - y) * .09; aura.style.transform = `translate(${x}px,${y}px)`; requestAnimationFrame(loop); })();
-      // 3D tilt on vitrine cards (delegated — works for late-rendered cards too)
-      document.addEventListener("pointermove", (e) => {
-        const card = e.target.closest && e.target.closest(".product-card, .box-card"); if (!card) return;
-        const r = card.getBoundingClientRect();
-        const rx = ((e.clientY - r.top) / r.height - .5) * -5, ry = ((e.clientX - r.left) / r.width - .5) * 6;
-        card.style.transform = `perspective(900px) translateY(-6px) rotateX(${rx}deg) rotateY(${ry}deg)`;
-      }, { passive: true });
-      document.addEventListener("pointerout", (e) => {
-        const card = e.target.closest && e.target.closest(".product-card, .box-card");
-        if (card && !card.contains(e.relatedTarget)) card.style.transform = "";
-      }, { passive: true });
-    }
-  }
+  /* Motion is CSS-only in the second edition: one reveal, one hover.
+     Kept as a no-op so any page still calling it keeps working. */
+  function motionLayer() {}
   FV.motionLayer = motionLayer;
 
   /* Delivery-cutoff helper — "5h 12m" until the 6pm next-day cutoff */
@@ -778,47 +753,6 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
     const d = cut - now, h = Math.floor(d / 3.6e6), m = Math.floor((d % 3.6e6) / 6e4);
     return `${h}h ${String(m).padStart(2, "0")}m`;
   };
-
-  /* Splash — app-launch moment, once per session */
-  function splash() {
-    if (sessionStorage.getItem("fv_splash")) return;
-    sessionStorage.setItem("fv_splash", "1");
-    const el = document.createElement("div");
-    el.id = "fvSplash";
-    el.innerHTML = `<div class="sp-inner"><img src="assets/img/logo.png" alt="Fresh Valley"><span class="sp-bar"><i></i></span></div>`;
-    document.body.appendChild(el);
-    document.body.classList.add("no-scroll");
-    const t0 = performance.now();
-    const hide = () => {
-      const wait = Math.max(0, 1000 - (performance.now() - t0));
-      setTimeout(() => {
-        el.classList.add("done");
-        document.body.classList.remove("no-scroll");
-        setTimeout(() => el.remove(), 650);
-      }, wait);
-    };
-    if (document.readyState === "complete") hide();
-    else window.addEventListener("load", hide, { once: true });
-  }
-
-  /* Live social proof — subtle recent-order cards (bottom-left) */
-  function startSocialProof() {
-    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const names = D.reviews.map((r) => ({ name: r.name.split(" ")[0], area: r.area }));
-    const items = D.products.filter((p) => (p.collections || []).some((c) => c === "best-sellers" || c === "hosting"))
-      .map((p) => p.name).concat(D.boxes.map((b) => b.name));
-    const wrap = document.createElement("div"); wrap.className = "sp-feed"; document.body.appendChild(wrap);
-    const pop = () => {
-      const n = names[(Math.random() * names.length) | 0], it = items[(Math.random() * items.length) | 0], mins = ((Math.random() * 11) | 0) + 2;
-      const el = document.createElement("div"); el.className = "sp-card";
-      el.innerHTML = `<span class="sp-dot"></span><div class="sp-body"><strong>${n.name}</strong> in ${n.area}<br><span>ordered ${it} · ${mins} min ago</span></div>`;
-      wrap.appendChild(el);
-      requestAnimationFrame(() => el.classList.add("in"));
-      setTimeout(() => { el.classList.remove("in"); setTimeout(() => el.remove(), 500); }, 5200);
-    };
-    (function loop() { setTimeout(() => { pop(); loop(); }, 11000 + Math.random() * 9000); })();
-    setTimeout(pop, 8000);
-  }
 
   /* ------------------------------------------------------------------ *
    * Wiring
@@ -867,7 +801,6 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
     }));
 
     updateCartUI(); updateWishUI(); observeReveals(); observeCounts();
-    splash(); startSocialProof();
   }
 
   /* ------------------------------------------------------------------ *
@@ -880,7 +813,6 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
     // Store name across header, footer & title
     if (s.storeName && s.storeName !== "Fresh Valley") {
       $$(".brand-fallback").forEach((el) => el.textContent = s.storeName);
-      const gl2 = $(".gl2"); if (gl2) gl2.textContent = s.storeName;
       document.title = document.title.replace(/Fresh Valley/g, s.storeName);
     }
 
@@ -904,11 +836,17 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
     // Banner image overrides: replace any /banners/<key>.<ext> img + [data-fv-img] hooks
     const imgs = _ag(_AK.images, {});
     if (Object.keys(imgs).length) {
+      // an override wins over every art-direction/format <source> in the same <picture>
+      const swap = (img, url) => {
+        const pic = img.parentElement;
+        if (pic && pic.tagName === "PICTURE") pic.querySelectorAll("source").forEach((s) => s.remove());
+        img.src = url; img.removeAttribute("srcset"); img.removeAttribute("sizes");
+      };
       $$("img").forEach((img) => {
         const k = img.getAttribute("data-fv-img");
-        if (k && imgs[k]) { img.src = imgs[k]; img.removeAttribute("srcset"); return; }
+        if (k && imgs[k]) { swap(img, imgs[k]); return; }
         const m = (img.getAttribute("src") || "").match(/\/banners\/([a-z0-9-]+)\.(?:jpe?g|png|webp)/i);
-        if (m && imgs[m[1]]) { img.src = imgs[m[1]]; img.removeAttribute("srcset"); }
+        if (m && imgs[m[1]]) swap(img, imgs[m[1]]);
       });
     }
 
@@ -962,6 +900,10 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
       const m2 = document.createElement("meta"); m2.name = "apple-mobile-web-app-status-bar-style"; m2.content = "black-translucent"; document.head.appendChild(m2);
       const m3 = document.createElement("meta"); m3.name = "mobile-web-app-capable"; m3.content = "yes"; document.head.appendChild(m3);
     }
+    // Give the skip-link a target on every page
+    const mainEl = document.querySelector("main");
+    if (mainEl && !mainEl.id) { mainEl.id = "main"; mainEl.setAttribute("tabindex", "-1"); }
+
     const head = document.getElementById("fv-header");
     const foot = document.getElementById("fv-footer");
     if (head) head.innerHTML = buildHeader();
@@ -969,8 +911,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
     document.body.insertAdjacentHTML("beforeend", buildDrawers());
     wire();
     applyContent();
-    motionLayer();          // split/aura/tilt after content overrides are in place
-    observeReveals();       // catch elements motionLayer prepared
+    observeReveals();       // catch anything applyContent() reordered or revealed
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();

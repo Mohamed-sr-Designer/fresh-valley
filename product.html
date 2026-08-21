@@ -5,103 +5,116 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Product — Fresh Valley</title>
   <meta name="description" content="Export-grade produce, with origin, weight selection, storage and nutrition. Curated for modern hosting.">
-  <meta name="theme-color" content="#1A2A1D">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,400..500&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#10261D">
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/hanken-grotesk.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/fraunces.woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/styles.css">
   <style>
-    .pdp { padding-top: calc(var(--header-h) + 2rem); padding-bottom: var(--space-xl); }
-    .pdp-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(2rem, 5vw, 4.5rem); align-items: start; }
-    .pdp-gallery { position: sticky; top: calc(var(--header-h) + 1.5rem); }
-    .pdp-main { position: relative; border-radius: var(--radius-lg); overflow: hidden; aspect-ratio: 1/1; background: var(--ink); box-shadow: var(--shadow-lg); }
+    /* ================= PDP · gallery + info ================= */
+    .pdp { padding-top: calc(var(--header-h) + clamp(2.25rem, 5vw, 4rem)); padding-bottom: var(--section-y); }
+    .pdp-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: clamp(2.5rem, 5vw, 5rem); align-items: start; }
+
+    .pdp-gallery { position: sticky; top: calc(var(--header-h) + var(--s-6)); }
+    .pdp-main { position: relative; aspect-ratio: 1/1; overflow: hidden; background: var(--surface-warm); }
     .pdp-main img { width: 100%; height: 100%; object-fit: cover; }
-    .pdp-main .badge { position: absolute; top: 1.1rem; left: 1.1rem; }
-    .pdp-cap { display: flex; gap: 1.4rem; margin-top: 1rem; flex-wrap: wrap; }
-    .pdp-cap span { display: inline-flex; align-items: center; gap: .5rem; font-size: var(--step--2); color: var(--text-muted); }
-    .pdp-cap svg { width: 18px; height: 18px; color: var(--brass-deep); }
+    .pdp-main .badge { position: absolute; top: .9rem; left: .9rem; z-index: 2; }
+    .pdp-gallery .spec-list { margin-top: 1.5rem; }
 
-    .pdp-info h1 { font-size: var(--step-4); line-height: 1.04; margin: .3rem 0 .5rem; }
-    .pdp-rating { display: flex; align-items: center; gap: .6rem; font-size: var(--step--1); color: var(--text-muted); }
-    .pdp-rating .stars { color: var(--brass); }
-    .pdp-price { font-family: var(--font-display); font-size: var(--step-3); color: var(--forest); margin: 1.2rem 0 .2rem; }
-    .pdp-price .per { font-family: var(--font-sans); font-size: var(--step--1); color: var(--text-faint); }
-    .pdp-sub { font-size: var(--step--2); color: var(--text-faint); }
+    .pdp-info h1 { font-size: var(--step-4); margin: .4rem 0 0; }
+    .pdp-rating { display: flex; align-items: center; gap: .65rem; font-size: var(--step--1); color: var(--text-muted); margin-top: var(--s-4); }
+    .pdp-rating .stars { display: inline-flex; gap: 2px; color: var(--brass); }
+    .pdp-rating .stars svg { width: 13px; height: 13px; fill: currentColor; }
+    .pdp-info .lead { margin-top: var(--s-4); }
 
-    /* Honest scarcity / stock status */
-    .scarcity { margin-top: 1.4rem; padding: 1rem 1.2rem; background: rgba(176,138,74,.08); border: 1px solid rgba(176,138,74,.28); border-radius: var(--radius); }
-    .sc-row { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
-    .sc-label { font-weight: 700; color: var(--brass-deep); display: inline-flex; gap: .5em; align-items: center; font-size: var(--step--1); }
-    .sc-label::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--brass); animation: spPulse 2s infinite; }
-    .sc-pct { color: var(--text-muted); font-size: var(--step--2); white-space: nowrap; }
-    .sc-meter { height: 6px; background: var(--bone); border-radius: 999px; margin-top: .7rem; overflow: hidden; }
-    .sc-meter span { display: block; height: 100%; background: linear-gradient(90deg, var(--brass), var(--brass-deep)); border-radius: 999px; transition: width 1s var(--ease-out); }
-    .sc-note { font-size: var(--step--2); color: var(--text-faint); margin-top: .55rem; }
+    .pdp-price { font-family: var(--font-display); font-size: var(--step-3); color: var(--forest); margin-top: var(--s-6); padding-top: var(--s-5); border-top: 1px solid var(--line); }
+    .pdp-price .per { font-family: var(--font-sans); font-size: var(--step--1); font-weight: 500; color: var(--text-faint); }
+    .pdp-sub { font-size: var(--step--2); color: var(--text-faint); margin-top: .4rem; }
 
-    /* Pairings bundle CTA */
-    .pair-head { display: flex; justify-content: space-between; align-items: flex-end; gap: var(--space-lg); flex-wrap: wrap; }
+    /* Scarcity — flat hairline meter, no glow, no pulse */
+    .scarcity { margin-top: var(--s-6); padding-top: var(--s-5); border-top: 1px solid var(--line); }
+    .sc-row { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+    .sc-label { display: inline-flex; align-items: center; gap: .55em; font-size: var(--step--2); font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--brass-deep); }
+    .sc-label::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+    .sc-pct { font-size: var(--step--2); color: var(--text-faint); white-space: nowrap; }
+    .sc-meter { height: 2px; background: var(--line); margin-top: .9rem; }
+    .sc-meter span { display: block; height: 100%; background: var(--brass); }
+    .sc-note { font-size: var(--step--2); color: var(--text-faint); margin-top: .65rem; line-height: 1.6; }
 
-    .selector { margin-top: 1.8rem; }
-    .selector .lab { display: flex; justify-content: space-between; font-size: var(--step--1); font-weight: 600; margin-bottom: .6rem; }
-    .selector .lab .sel { color: var(--brass-deep); }
+    .selector { margin-top: var(--s-6); padding-top: var(--s-5); border-top: 1px solid var(--line); }
+    .selector .lab { display: flex; justify-content: space-between; font-size: var(--step--2); font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: .9rem; }
+    .selector .lab .sel { color: var(--forest); letter-spacing: .02em; }
 
-    .buy-row { display: flex; gap: .8rem; margin-top: 1.8rem; align-items: stretch; }
+    .buy-row { display: flex; gap: .75rem; margin-top: var(--s-6); align-items: stretch; }
     .buy-row .qty { flex-shrink: 0; }
     .buy-row .btn { flex: 1; }
-    .wish-lg { width: 52px; flex-shrink: 0; border: 1px solid var(--line); border-radius: var(--radius-pill); display: grid; place-items: center; color: var(--forest); background: #FCFAF3; transition: all .25s; }
-    .wish-lg:hover { border-color: var(--brass); }
-    .wish-lg.active { color: var(--pomegranate); background: rgba(107,31,28,.06); border-color: rgba(107,31,28,.25); }
+    .wish-lg {
+      width: 52px; flex-shrink: 0; border: 1px solid var(--line); border-radius: 50%;
+      display: grid; place-items: center; color: var(--forest); background: var(--surface);
+      transition: border-color .25s, color .25s;
+    }
+    .wish-lg:hover { border-color: var(--forest); }
+    .wish-lg.active { color: var(--pomegranate); border-color: var(--pomegranate); }
     .wish-lg.active svg { fill: var(--pomegranate); }
-    .wish-lg svg { width: 22px; height: 22px; }
+    .wish-lg svg { width: 21px; height: 21px; }
 
-    .assurance { display: grid; gap: .7rem; margin-top: 1.8rem; padding-top: 1.6rem; border-top: 1px solid var(--line-soft); }
-    .assurance .a { display: flex; gap: .7rem; align-items: center; font-size: var(--step--1); color: var(--text-muted); }
-    .assurance svg { width: 20px; height: 20px; color: var(--brass-deep); flex-shrink: 0; }
+    .assurance { display: grid; gap: .85rem; margin-top: var(--s-6); padding-top: var(--s-5); border-top: 1px solid var(--line); }
 
-    .pdp-detail { margin-top: 2rem; }
+    .pdp-detail { margin-top: var(--s-7); }
 
-    /* Sticky mobile add-to-cart bar */
-    .pdp-sticky { position: fixed; left: 0; right: 0; bottom: 0; z-index: 90; background: rgba(246,240,226,.97); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border-top: 1px solid var(--line-soft); box-shadow: 0 -8px 24px -16px rgba(26,42,29,.45); transform: translateY(100%); transition: transform .4s var(--ease-out); }
+    /* ================= Sticky mobile buy bar — flat, hairline, no glow ================= */
+    .pdp-sticky {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 90;
+      background: rgba(252,250,246,.96); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+      border-top: 1px solid var(--line);
+      transform: translateY(100%); transition: transform .4s var(--ease-out);
+    }
     .pdp-sticky.show { transform: none; }
-    .pdp-sticky .ps-inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-block: .7rem; }
+    .pdp-sticky .ps-inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-block: .75rem; }
     .ps-info { display: flex; flex-direction: column; min-width: 0; }
     .ps-name { font-family: var(--font-display); font-size: var(--step-0); color: var(--forest); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .ps-price { font-weight: 700; color: var(--forest); }
+    .ps-price { font-weight: 600; color: var(--text); font-size: var(--step--1); }
     .pdp-sticky .btn { flex-shrink: 0; }
     @media (min-width: 921px) { .pdp-sticky { display: none; } }
-    @media (max-width: 860px) { .pdp-sticky { bottom: calc(92px + env(safe-area-inset-bottom)); } }
+    @media (max-width: 860px) { .pdp-sticky { bottom: calc(62px + env(safe-area-inset-bottom)); } }
 
-    .pairing-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(1rem,2vw,1.6rem); }
+    /* ================= Hosting recommendation banner (the one dark moment) ================= */
+    .host-rec { display: grid; grid-template-columns: 260px 1fr auto; gap: clamp(1.5rem, 3vw, 2.5rem); align-items: center; background: var(--forest); color: var(--on-dark); }
+    .host-rec img { width: 100%; height: 100%; min-height: 200px; object-fit: cover; }
+    .host-rec .hr-body { padding-block: clamp(1.5rem, 3vw, 2rem); }
+    .host-rec .hr-body h3 { color: var(--cream); font-size: var(--step-2); margin-top: .45rem; }
+    .host-rec .hr-body p { color: var(--on-dark-muted); font-size: var(--step--1); margin-top: .6rem; max-width: 44ch; }
+    .host-rec .hr-cta { padding-right: clamp(1.5rem, 3vw, 2.5rem); }
 
-    .host-rec { display: grid; grid-template-columns: 200px 1fr auto; gap: 1.5rem; align-items: center; background: var(--forest); color: var(--on-dark); border-radius: var(--radius-lg); overflow: hidden; }
-    .host-rec img { width: 200px; height: 100%; min-height: 160px; object-fit: cover; }
-    .host-rec .hr-body { padding: 1.5rem 0; }
-    .host-rec .hr-body h3 { color: var(--cream); font-size: var(--step-2); }
-    .host-rec .hr-body p { color: var(--on-dark-muted); font-size: var(--step--1); margin-top: .4rem; max-width: 46ch; }
-    .host-rec .hr-cta { padding-right: 1.5rem; }
-
-    /* Box-specific */
-    .tier-group { display: grid; gap: .6rem; }
-    .tier { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.2rem; border: 1px solid var(--line); border-radius: var(--radius); cursor: pointer; transition: all .25s; background: #FCFAF3; }
-    .tier:hover { border-color: var(--brass); }
-    .tier[aria-pressed="true"] { border-color: var(--forest); background: var(--bone); box-shadow: inset 0 0 0 1px var(--forest); }
-    .tier .t-label { font-weight: 600; color: var(--forest); }
-    .tier .t-serves { font-size: var(--step--2); color: var(--text-faint); }
-    .tier .t-price { font-family: var(--font-display); font-size: var(--step-1); color: var(--forest); }
-    .includes { display: grid; gap: .6rem; margin-top: 1rem; }
+    /* ================= Box tier selector — hairline radio rows, no boxes/glow ================= */
+    .tier-group { border-top: 1px solid var(--line); }
+    .tier {
+      width: 100%; display: flex; align-items: center; gap: 1rem; text-align: left;
+      padding: 1.05rem .1rem; border-bottom: 1px solid var(--line); transition: background .2s;
+    }
+    .tier:hover { background: var(--paper-2); }
+    .tier[aria-pressed="true"] { background: var(--paper-2); }
+    .tier-radio { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--line-strong); flex-shrink: 0; position: relative; transition: border-color .2s; }
+    .tier[aria-pressed="true"] .tier-radio { border-color: var(--forest); }
+    .tier[aria-pressed="true"] .tier-radio::after { content: ""; position: absolute; inset: 3px; border-radius: 50%; background: var(--forest); }
+    .tier-body { flex: 1; min-width: 0; }
+    .tier .t-label { display: block; font-weight: 600; color: var(--forest); font-size: var(--step-0); }
+    .tier .t-serves { display: block; font-size: var(--step--2); color: var(--text-faint); margin-top: .15rem; }
+    .tier .t-price { font-family: var(--font-display); font-size: var(--step-1); color: var(--forest); flex-shrink: 0; }
+    .includes { display: grid; gap: .7rem; margin-top: 1.1rem; }
     .includes .inc { display: flex; gap: .7rem; align-items: flex-start; font-size: var(--step--1); color: var(--text-muted); }
-    .includes svg { width: 18px; height: 18px; color: var(--brass-deep); flex-shrink: 0; margin-top: 2px; }
+    .includes svg { width: 17px; height: 17px; color: var(--brass-deep); flex-shrink: 0; margin-top: 2px; }
 
+    .not-found { padding-top: calc(var(--header-h) + clamp(3rem, 6vw, 5rem)); padding-bottom: clamp(3rem, 6vw, 5rem); text-align: center; }
+
+    /* ================= Responsive ================= */
     @media (max-width: 920px) {
       .pdp-grid { grid-template-columns: 1fr; }
       .pdp-gallery { position: static; }
-      .pairing-grid { grid-template-columns: repeat(2, 1fr); }
       .host-rec { grid-template-columns: 1fr; }
-      .host-rec img { width: 100%; height: 200px; }
-      .host-rec .hr-body { padding: 0 1.5rem; }
-      .host-rec .hr-cta { padding: 0 1.5rem 1.5rem; }
+      .host-rec img { width: 100%; height: 220px; }
+      .host-rec .hr-body { padding: 0 clamp(1.5rem, 4vw, 2rem); }
+      .host-rec .hr-cta { padding: 0 clamp(1.5rem, 4vw, 2rem) clamp(1.5rem, 4vw, 2rem); }
     }
-    /* Small screens: give the Add button its own full-width line */
     @media (max-width: 520px) {
       .buy-row { flex-wrap: wrap; }
       .buy-row .qty { order: 1; }
@@ -127,7 +140,7 @@
       const arrow = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
 
       function notFound() {
-        root.innerHTML = `<section class="section" style="padding-top:calc(var(--header-h) + 4rem);text-align:center">
+        root.innerHTML = `<section class="section not-found">
           <div class="container"><h1>Product not found</h1>
           <p class="muted mt-md">We couldn't find that one. Browse the full collection instead.</p>
           <a class="btn mt-lg" href="products.html" style="margin-top:1.5rem">View the collection ${arrow}</a></div></section>`;
@@ -152,9 +165,9 @@
         const scarce = seasonal || (p.collections || []).includes("organic-reserve");
         const scPct = FV.scarcityPct(p.slug);
         const galleryImg = p.noPhoto
-          ? `<div class="pdp-main" style="display:grid;place-items:center;background:radial-gradient(120% 100% at 50% 0%, var(--forest-soft), var(--forest) 60%, var(--ink))">
+          ? `<div class="pdp-main media--herb">
                <div class="herb-art">${FV.icon("leaf2")}<span>${p.name}</span></div>
-               <span class="badge badge--organic" style="position:absolute;top:1.1rem;left:1.1rem">Organic</span></div>`
+               <span class="badge badge--organic">Organic</span></div>`
           : `<div class="pdp-main"><img src="${FV.isCustomImg(p.image) ? p.image : FV.img(p.slug)}" alt="${p.name}" width="1000" height="1000">
                ${badge(p)}</div>`;
 
@@ -169,10 +182,10 @@
               <!-- gallery -->
               <div class="pdp-gallery">
                 ${galleryImg}
-                <div class="pdp-cap">
-                  <span>${FV.icon("pin")} ${p.origin}</span>
-                  <span>${FV.icon("snow")} Cold-chain kept</span>
-                  <span>${FV.icon("leaf")} In season: ${p.season}</span>
+                <div class="spec-list">
+                  <div class="row"><span class="k">Origin</span><span class="v">${p.origin}</span></div>
+                  <div class="row"><span class="k">Season</span><span class="v">${p.season}</span></div>
+                  <div class="row"><span class="k">Handling</span><span class="v">Cold-chain kept, hand-graded</span></div>
                 </div>
               </div>
               <!-- info -->
@@ -180,7 +193,7 @@
                 <p class="eyebrow">${badgeWord(p)} · ${catLabel}</p>
                 <h1>${p.name}</h1>
                 <div class="pdp-rating"><span class="stars">${stars}</span> <strong>${p.rating.toFixed(1)}</strong> · ${p.reviews} reviews</div>
-                <p class="lead" style="margin-top:1rem">${p.desc}</p>
+                <p class="lead">${p.desc}</p>
 
                 <div class="pdp-price" id="price">${FV.money(isKg ? FV.priceForWeight(p, 1000) : p.pricePerUnit)}
                   <span class="per" id="pricePer">${isKg ? "/ 1 kg" : (p.unit === "bunch" ? "/ bunch" : "each")}</span></div>
@@ -206,13 +219,13 @@
                     <button id="qInc" aria-label="Increase">${FV.icon("plus")}</button>
                   </div>
                   <button class="btn btn--lg" id="addBtn">Add to cart · <span id="btnTotal">${FV.money(isKg ? FV.priceForWeight(p, 1000) : p.pricePerUnit)}</span></button>
-                  <button class="wish-lg" id="wishBtn" data-wish="${p.slug}" aria-label="Save to wishlist" aria-pressed="false">${FV.icon("heart")}</button>
+                  <button class="wish-btn wish-lg" id="wishBtn" data-wish="${p.slug}" aria-label="Save to wishlist" aria-pressed="false">${FV.icon("heart")}</button>
                 </div>
 
                 <div class="assurance">
-                  <div class="a">${FV.icon("truck")} Complimentary delivery over EGP 600 · next-day slots</div>
-                  <div class="a">${FV.icon("shield")} Export-grade. If it isn't perfect, we replace it.</div>
-                  <div class="a">${FV.icon("leaf")} Graded and packed by hand on the day it ships.</div>
+                  <div class="trust-item">${FV.icon("truck")}<span>Complimentary delivery over EGP 600 · next-day slots</span></div>
+                  <div class="trust-item">${FV.icon("shield")}<span>Export-grade. If it isn't perfect, we replace it.</span></div>
+                  <div class="trust-item">${FV.icon("leaf")}<span>Graded and packed by hand on the day it ships.</span></div>
                 </div>
 
                 <!-- details -->
@@ -242,14 +255,14 @@
         <!-- pairings -->
         <section class="section section--paper2">
           <div class="container">
-            <div class="pair-head" data-reveal>
+            <div class="split-head split-head--plain" data-reveal>
               <div class="section-head">
                 <p class="eyebrow">For the table</p>
                 <h2 class="title">Pairs beautifully with</h2>
               </div>
-              <button class="btn btn--brass btn--shine" id="addPairings">Add the pairing · <span id="pairTotal"></span></button>
+              <button class="btn btn--brass" id="addPairings">Add the pairing · <span id="pairTotal"></span></button>
             </div>
-            <div class="pairing-grid mt-xl" id="pairings"></div>
+            <div class="products-grid mt-xl" id="pairings"></div>
           </div>
         </section>
 
@@ -257,10 +270,10 @@
         <section class="section section--tight">
           <div class="container">
             <div class="host-rec" data-reveal>
-              <img src="${FV.img("pepper-medley")}" alt="The Hosting Box">
+              <img src="${FV.img("pepper-medley")}" alt="The Hosting Box, a curated arrangement of produce ready to gift" loading="lazy" width="600" height="600">
               <div class="hr-body">
                 <p class="eyebrow eyebrow--light">Hosting recommendation</p>
-                <h3 class="mt-sm">Make it a table, not a plate.</h3>
+                <h3>Make it a table, not a plate.</h3>
                 <p>Add The Hosting Box and let us arrange the rest — fruit, dates and a finishing herb, ready for guests.</p>
               </div>
               <div class="hr-cta"><a class="btn btn--brass" href="product.html?box=hosting-box">Explore the box ${arrow}</a></div>
@@ -282,7 +295,7 @@
         <!-- recently viewed -->
         <section class="section section--paper2" id="recentSec" style="display:none">
           <div class="container">
-            <div class="section-head" data-reveal style="margin-bottom:var(--space-lg)">
+            <div class="section-head" data-reveal style="margin-bottom:var(--s-6)">
               <p class="eyebrow">Pick up where you left off</p>
               <h2 class="title" style="font-size:var(--step-2)">Recently viewed</h2>
             </div>
@@ -293,7 +306,7 @@
         <div class="pdp-sticky" id="pdpSticky" aria-hidden="true">
           <div class="container ps-inner">
             <div class="ps-info"><span class="ps-name">${p.name}</span><span class="ps-price" id="psPrice">${FV.money(isKg ? FV.priceForWeight(p, 1000) : p.pricePerUnit)}</span></div>
-            <button class="btn btn--brass btn--shine" id="psAdd">Add to cart</button>
+            <button class="btn btn--brass" id="psAdd">Add to cart</button>
           </div>
         </div>`;
 
@@ -380,10 +393,11 @@
       function renderBox(b) {
         document.title = `${b.name} — Fresh Valley`;
         const tiersHtml = b.tiers.map((t, i) => `
-          <div class="tier" data-tier="${i}" aria-pressed="${i === 0}">
-            <div><div class="t-label">${t.label}</div><div class="t-serves">Serves ${t.serves}</div></div>
-            <div class="t-price">${FV.money(t.price)}</div>
-          </div>`).join("");
+          <button type="button" class="tier" data-tier="${i}" aria-pressed="${i === 0}">
+            <span class="tier-radio" aria-hidden="true"></span>
+            <span class="tier-body"><span class="t-label">${t.label}</span><span class="t-serves">Serves ${t.serves}</span></span>
+            <span class="t-price">${FV.money(t.price)}</span>
+          </button>`).join("");
 
         root.innerHTML = `
         <section class="pdp">
@@ -392,20 +406,20 @@
               <a href="products.html?cat=boxes">Boxes</a><span>/</span><span>${b.name}</span></nav>
             <div class="pdp-grid">
               <div class="pdp-gallery">
-                <div class="pdp-main"><img src="${FV.img(b.image)}" alt="${b.name}">
-                  <span class="badge badge--export" style="position:absolute;top:1.1rem;left:1.1rem">Curated Box</span></div>
-                <div class="pdp-cap">
-                  <span>${FV.icon("sparkle")} Arranged to present</span>
-                  <span>${FV.icon("snow")} Cold-chain kept</span>
-                  <span>${FV.icon("truck")} Delivered ready</span>
+                <div class="pdp-main"><img src="${FV.img(b.image)}" alt="${b.name}" width="1000" height="1000">
+                  <span class="badge badge--export">Curated Box</span></div>
+                <div class="spec-list">
+                  <div class="row"><span class="k">Presentation</span><span class="v">Arranged &amp; wrapped to present</span></div>
+                  <div class="row"><span class="k">Handling</span><span class="v">Cold-chain kept, harvest to door</span></div>
+                  <div class="row"><span class="k">Delivery</span><span class="v">Delivered ready to serve</span></div>
                 </div>
               </div>
               <div class="pdp-info">
                 <p class="eyebrow">Fresh Valley Boxes</p>
                 <h1>${b.name}</h1>
-                <p class="lead" style="margin-top:1rem">${b.desc}</p>
+                <p class="lead">${b.desc}</p>
 
-                <div class="pdp-price" id="price" style="margin-bottom:.2rem">${FV.money(b.tiers[0].price)}</div>
+                <div class="pdp-price" id="price">${FV.money(b.tiers[0].price)}</div>
                 <div class="pdp-sub">${b.tiers.length > 1 ? "Choose the size that suits your table." : "A single, generous selection."}</div>
 
                 <div class="selector">
@@ -423,13 +437,13 @@
                 </div>
 
                 <div class="assurance">
-                  <div class="a">${FV.icon("truck")} Complimentary delivery over EGP 600 · next-day slots</div>
-                  <div class="a">${FV.icon("shield")} Export-grade throughout. We replace anything that isn't perfect.</div>
-                  <div class="a">${FV.icon("sparkle")} Packed to arrive looking like a gift.</div>
+                  <div class="trust-item">${FV.icon("truck")}<span>Complimentary delivery over EGP 600 · next-day slots</span></div>
+                  <div class="trust-item">${FV.icon("shield")}<span>Export-grade throughout. We replace anything that isn't perfect.</span></div>
+                  <div class="trust-item">${FV.icon("sparkle")}<span>Packed to arrive looking like a gift.</span></div>
                 </div>
 
                 <div class="pdp-detail">
-                  <h4 style="font-family:var(--font-display);font-size:var(--step-1);color:var(--forest);margin-bottom:.4rem">What's inside</h4>
+                  <h2 style="font-family:var(--font-display);font-size:var(--step-1);color:var(--forest);margin-bottom:.6rem">What's inside</h2>
                   <div class="includes">${b.includes.map(i => `<div class="inc">${FV.icon("check")} ${i}</div>`).join("")}</div>
                   <p class="muted" style="font-size:var(--step--2);margin-top:1rem">Contents adapt to the season, so every box is at its peak.</p>
                 </div>
@@ -443,9 +457,16 @@
             <div class="section-head section-head--center" data-reveal>
               <p class="eyebrow">More boxes</p><h2 class="title">Other ways to host</h2>
             </div>
-            <div class="products-grid products-grid--3 mt-xl" id="otherBoxes"></div>
+            <div class="box-grid mt-xl" id="otherBoxes"></div>
           </div>
-        </section>`;
+        </section>
+
+        <div class="pdp-sticky" id="pdpSticky" aria-hidden="true">
+          <div class="container ps-inner">
+            <div class="ps-info"><span class="ps-name">${b.name}</span><span class="ps-price" id="psPrice">${FV.money(b.tiers[0].price)}</span></div>
+            <button class="btn btn--brass" id="psAdd">Add box</button>
+          </div>
+        </div>`;
 
         document.getElementById("otherBoxes").innerHTML =
           FV.data.boxes.filter(x => x.slug !== b.slug).slice(0, 3).map(FV.boxCardHTML).join("");
@@ -456,6 +477,7 @@
           document.getElementById("price").textContent = FV.money(price());
           document.getElementById("btnTotal").textContent = FV.money(price() * qty);
           document.getElementById("selLabel").textContent = b.tiers[tierIdx].label;
+          const ps = document.getElementById("psPrice"); if (ps) ps.textContent = FV.money(price() * qty);
         }
         document.querySelectorAll("#tiers .tier").forEach(el => el.addEventListener("click", () => {
           tierIdx = +el.dataset.tier;
@@ -468,12 +490,23 @@
           q.addEventListener("input", () => { const v = q.value.replace(/[^0-9]/g, ""); q.value = v; qty = Math.max(1, parseInt(v || "1", 10)); refresh(); });
           q.addEventListener("blur", () => { if (!q.value || +q.value < 1) { qty = 1; q.value = 1; refresh(); } });
         })();
-        document.getElementById("addBtn").addEventListener("click", () => {
+        function addToCart() {
           const t = b.tiers[tierIdx];
           FV.cart.add({ key: b.slug + "|" + t.label, slug: b.slug, type: "box",
             name: b.name, image: b.image, variant: t.label, price: t.price, qty });
           FV.toast(`${b.name} added`, t.label); FV.openCart();
-        });
+        }
+        document.getElementById("addBtn").addEventListener("click", addToCart);
+        document.getElementById("psAdd").addEventListener("click", addToCart);
+
+        // Reveal the sticky add bar once the main buy controls scroll above the viewport
+        const sticky = document.getElementById("pdpSticky"), buyRow = document.querySelector(".buy-row");
+        if (sticky && buyRow) {
+          const onScroll = () => sticky.classList.toggle("show", buyRow.getBoundingClientRect().bottom < 10);
+          window.addEventListener("scroll", onScroll, { passive: true });
+          onScroll();
+        }
+
         refresh();
         FV.observeReveals(); FV.updateWishUI();
 

@@ -2,6 +2,7 @@
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
+const zlib = require("zlib");
 
 const ROOT = path.join(__dirname, "..");          // serves /fresh-valley
 const PORT = process.env.PORT || process.argv[2] || 5500;
@@ -34,7 +35,19 @@ http.createServer((req, res) => {
       res.writeHead(404, { "Content-Type": "text/html; charset=utf-8" });
       return res.end("<h1>404</h1><p>Not found: " + urlPath + "</p>");
     }
-    res.writeHead(200, { "Content-Type": TYPES[path.extname(filePath).toLowerCase()] || "application/octet-stream", "Cache-Control": "no-cache" });
+    const type = TYPES[path.extname(filePath).toLowerCase()] || "application/octet-stream";
+    const headers = { "Content-Type": type, "Cache-Control": "no-cache" };
+    // gzip text the way any real host would, so local Lighthouse runs are honest
+    if (/^(text\/|application\/(json|javascript))/.test(type) && /\bgzip\b/.test(req.headers["accept-encoding"] || "")) {
+      return zlib.gzip(data, (gzErr, gz) => {
+        if (gzErr) { res.writeHead(200, headers); return res.end(data); }
+        headers["Content-Encoding"] = "gzip";
+        headers["Vary"] = "Accept-Encoding";
+        res.writeHead(200, headers);
+        res.end(gz);
+      });
+    }
+    res.writeHead(200, headers);
     res.end(data);
   });
 }).listen(PORT, () => console.log("Fresh Valley running at http://localhost:" + PORT));

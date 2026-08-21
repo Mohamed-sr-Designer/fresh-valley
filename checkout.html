@@ -4,68 +4,100 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Checkout — Fresh Valley</title>
-  <meta name="theme-color" content="#1A2A1D">
+  <meta name="description" content="Complete your order — delivery slot, payment and a confirmed order in a few quiet steps.">
+  <meta name="theme-color" content="#10261D">
   <meta name="robots" content="noindex">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,400..500&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/hanken-grotesk.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/fraunces.woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/styles.css">
   <style>
-    .co-layout { display:grid; grid-template-columns: 1fr 400px; gap: clamp(2rem,4vw,4rem); align-items:start; }
-    .co-step { background:#FCFAF3; border:1px solid var(--line-soft); border-radius:var(--radius-lg); padding: clamp(1.4rem,3vw,2rem); margin-bottom:1.4rem; }
-    .co-step .step-head { display:flex; align-items:center; gap:.9rem; margin-bottom:1.4rem; }
-    .co-step .step-n { width:30px; height:30px; border-radius:50%; background:var(--forest); color:var(--cream); display:grid; place-items:center; font-family:var(--font-display); font-size:.95rem; flex-shrink:0; }
-    .co-step h2 { font-size:var(--step-1); }
-    .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
-    .grid-2 .col-span { grid-column:1 / -1; }
-    .toggle-row { display:inline-flex; background:var(--bone); border-radius:var(--radius-pill); padding:.3rem; gap:.3rem; margin-bottom:1.6rem; }
-    .toggle-row button { padding:.6em 1.3em; border-radius:var(--radius-pill); font-size:var(--step--1); font-weight:600; color:var(--text-muted); transition:all .25s; }
-    .toggle-row button[aria-pressed="true"] { background:var(--cream); color:var(--forest); box-shadow:var(--shadow-sm); }
-    .co-signin { background:var(--surface); border:1px solid var(--line-soft); border-radius:var(--radius); padding:1.2rem 1.3rem; margin-bottom:1.6rem; }
-    .co-signin .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
-    .demo-hint { font-size:var(--step--2); color:var(--text-faint); margin-top:.9rem; }
-    .demo-hint b { color:var(--brass-deep); }
-    .signed-in { display:flex; align-items:center; gap:.6rem; flex-wrap:wrap; background:#E8F0E2; border:1px solid #CBDCC0; color:var(--forest-mid); border-radius:var(--radius); padding:.9rem 1.1rem; margin-bottom:1.6rem; font-size:var(--step--1); }
-    .signed-in strong { color:var(--forest); }
-    .signed-in svg { color:var(--forest-mid); width:18px; height:18px; flex-shrink:0; }
-    .signed-in button { margin-left:auto; color:var(--brass-deep); font-weight:600; text-decoration:underline; text-underline-offset:2px; font-size:var(--step--1); }
-    @media (max-width:560px){ .co-signin .grid-2 { grid-template-columns:1fr; } }
-    .slot-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:.6rem; }
-    .slot { padding:.9rem .6rem; border:1px solid var(--line); border-radius:var(--radius); background:#fff; text-align:center; cursor:pointer; transition:all .2s; }
-    .slot:hover { border-color:var(--brass); }
-    .slot[aria-pressed="true"] { border-color:var(--forest); background:var(--bone); box-shadow:inset 0 0 0 1px var(--forest); }
-    .slot .d { font-weight:600; color:var(--forest); font-size:var(--step--1); }
-    .slot .s { font-size:var(--step--2); color:var(--text-faint); }
-    .pay-opt { display:flex; align-items:center; gap:.9rem; padding:1rem 1.2rem; border:1px solid var(--line); border-radius:var(--radius); cursor:pointer; margin-bottom:.6rem; transition:all .2s; }
-    .pay-opt:hover { border-color:var(--brass); }
-    .pay-opt[aria-pressed="true"] { border-color:var(--forest); background:var(--bone); box-shadow:inset 0 0 0 1px var(--forest); }
-    .pay-opt .radio { width:20px; height:20px; border-radius:50%; border:2px solid var(--line); flex-shrink:0; display:grid; place-items:center; }
-    .pay-opt[aria-pressed="true"] .radio { border-color:var(--forest); }
-    .pay-opt[aria-pressed="true"] .radio::after { content:""; width:10px; height:10px; border-radius:50%; background:var(--forest); }
-    .pay-opt .label { flex:1; font-weight:500; color:var(--forest); }
-    .pay-opt .tag { font-size:var(--step--2); color:var(--text-faint); }
-    .pay-opt-marks { display:flex; gap:.35rem; margin-left:auto; align-items:center; flex-shrink:0; }
-    .pay-opt-marks .pay-mark { height:24px; width:auto; border:1px solid var(--line); border-radius:4px; }
-    .card-fields { margin-top:1rem; padding-top:1rem; border-top:1px solid var(--line-soft); display:none; }
-    .card-fields.show { display:block; }
-    .secure-note { display:flex; gap:.5rem; align-items:center; font-size:var(--step--2); color:var(--text-faint); margin-top:1rem; }
-    .secure-note svg { width:16px; height:16px; color:var(--brass-deep); }
-    .co-summary { background:var(--forest); color:var(--on-dark); border-radius:var(--radius-lg); padding:1.8rem; position:sticky; top:calc(var(--header-h) + 1.5rem); }
-    .co-summary h3 { color:var(--cream); font-size:var(--step-1); margin-bottom:1.2rem; }
-    .co-summary .ci { display:grid; grid-template-columns:46px 1fr auto; gap:.8rem; padding:.7rem 0; border-bottom:1px solid rgba(237,231,214,.12); }
-    .co-summary .ci img { width:46px; height:46px; border-radius:var(--radius-sm); object-fit:cover; }
-    .co-summary .ci .n { font-size:var(--step--1); color:var(--cream); }
-    .co-summary .ci .v { font-size:var(--step--2); color:var(--on-dark-muted); }
-    .co-summary .ci .p { font-size:var(--step--1); color:var(--cream); text-align:right; }
-    .co-summary .sr { display:flex; justify-content:space-between; padding:.4rem 0; font-size:var(--step--1); color:var(--on-dark-muted); }
-    .co-summary .sr.tot { color:var(--cream); font-family:var(--font-display); font-size:var(--step-1); border-top:1px solid rgba(237,231,214,.16); margin-top:.5rem; padding-top:.9rem; }
-    .conf { text-align:center; max-width:560px; margin:0 auto; padding: var(--space-2xl) 0; }
-    .conf .tick { width:84px; height:84px; border-radius:50%; background:var(--forest); color:var(--cream); display:grid; place-items:center; margin:0 auto 1.6rem; }
-    .conf .tick svg { width:42px; height:42px; }
-    .conf .order-meta { background:#FCFAF3; border:1px solid var(--line-soft); border-radius:var(--radius); padding:1.4rem; margin:1.6rem 0; display:flex; justify-content:space-around; flex-wrap:wrap; gap:1rem; text-align:left; }
-    .conf .order-meta .k { font-size:var(--step--2); color:var(--text-faint); }
-    .conf .order-meta .v { font-weight:600; color:var(--forest); }
-    @media (max-width:860px){ .co-layout { grid-template-columns:1fr; } .co-summary { position:static; order:-1; } .slot-grid { grid-template-columns:repeat(2,1fr); } }
+    .co-layout { display: grid; grid-template-columns: 1fr 400px; gap: clamp(2rem, 4vw, 4.5rem); align-items: start; }
+
+    /* ---- Guest / sign-in switch — hairline tabs, not a pill ---- */
+    .co-tabs { display: flex; gap: clamp(1.5rem, 3vw, 2.4rem); border-bottom: 1px solid var(--line); margin-bottom: 2rem; }
+    .co-tabs button { padding-bottom: .9rem; font-size: var(--step--1); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text-faint); position: relative; transition: color .25s; }
+    .co-tabs button:hover { color: var(--forest); }
+    .co-tabs button[aria-pressed="true"] { color: var(--forest); }
+    .co-tabs button[aria-pressed="true"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: var(--brass); }
+
+    .co-signin { border: 1px solid var(--line); padding: clamp(1.3rem, 3vw, 1.7rem); margin-bottom: 2rem; }
+    .co-signin .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .demo-hint { font-size: var(--step--2); color: var(--text-faint); margin-top: 1rem; }
+    .demo-hint b { color: var(--brass-deep); }
+    .co-signed { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; border: 1px solid var(--line); padding: 1rem 1.3rem; margin-bottom: 2rem; font-size: var(--step--1); color: var(--text-muted); }
+    .co-signed strong { color: var(--forest); }
+    .co-signed svg { color: var(--brass-deep); width: 18px; height: 18px; flex-shrink: 0; }
+    .co-signed button { margin-left: auto; color: var(--brass-deep); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; font-size: var(--step--1); padding: .4rem 0; }
+    @media (max-width: 560px) { .co-signin .grid-2 { grid-template-columns: 1fr; } }
+
+    /* ---- Steps — hairline rhythm, no boxed cards ---- */
+    .co-step { padding-block: clamp(1.8rem, 3vw, 2.4rem); border-bottom: 1px solid var(--line); }
+    .co-step:first-of-type { padding-top: 0; }
+    .co-step:last-of-type { border-bottom: 0; }
+    .step-head { display: flex; align-items: baseline; gap: 1.1rem; margin-bottom: 1.5rem; }
+    .step-n { font-family: var(--font-display); font-size: var(--step-1); color: var(--brass-deep); line-height: 1; flex-shrink: 0; }
+    .co-step h2 { font-size: var(--step-2); }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; }
+    .grid-2 .col-span { grid-column: 1 / -1; }
+    .field-msg { font-size: var(--step--2); color: var(--pomegranate); margin-top: .4rem; display: none; }
+    .field.has-error .input, .field.has-error .select { border-color: var(--pomegranate); }
+    .field.has-error .field-msg { display: block; }
+
+    /* ---- Delivery slots — same selected language as .pill ---- */
+    .slot-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: .6rem; }
+    .slot { padding: .9rem .6rem; border: 1px solid var(--line); border-radius: var(--radius-sm); background: transparent; text-align: center; cursor: pointer; transition: border-color .25s, background .25s; }
+    .slot:hover { border-color: var(--forest); }
+    .slot[aria-pressed="true"] { border-color: var(--forest); background: var(--forest); }
+    .slot[aria-pressed="true"] .d, .slot[aria-pressed="true"] .s { color: var(--cream); }
+    .slot .d { font-weight: 600; color: var(--forest); font-size: var(--step--1); }
+    .slot .s { font-size: var(--step--2); color: var(--text-faint); margin-top: .15rem; }
+
+    /* ---- Payment ---- */
+    .pay-opt { display: flex; align-items: center; gap: 1rem; padding: 1.05rem 1.2rem; border: 1px solid var(--line); border-radius: var(--radius-sm); cursor: pointer; margin-bottom: .6rem; transition: border-color .2s; }
+    .pay-opt:hover { border-color: var(--line-strong); }
+    .pay-opt[aria-pressed="true"] { border-color: var(--forest); }
+    .pay-opt .radio { width: 19px; height: 19px; border-radius: 50%; border: 1.5px solid var(--line-strong); flex-shrink: 0; display: grid; place-items: center; }
+    .pay-opt[aria-pressed="true"] .radio { border-color: var(--forest); }
+    .pay-opt[aria-pressed="true"] .radio::after { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--forest); }
+    .pay-opt .label { flex: 1; font-weight: 500; color: var(--forest); }
+    .pay-opt-marks { display: flex; gap: .35rem; margin-left: auto; align-items: center; flex-shrink: 0; }
+    .pay-opt-marks .pay-mark { height: 22px; width: auto; border: 1px solid var(--line); border-radius: 3px; }
+    .card-fields { margin-top: 1.1rem; padding-top: 1.1rem; border-top: 1px solid var(--line-soft); display: none; }
+    .card-fields.show { display: block; }
+    .secure-note { display: flex; gap: .55rem; align-items: center; font-size: var(--step--2); color: var(--text-faint); margin-top: 1.1rem; }
+    .secure-note svg { width: 16px; height: 16px; color: var(--brass-deep); flex-shrink: 0; }
+
+    /* ---- Order summary — the one quiet dark anchor on this page ---- */
+    .co-summary { background: var(--forest); color: var(--on-dark); padding: clamp(1.7rem, 3vw, 2rem); position: sticky; top: calc(var(--header-h) + 1.5rem); }
+    .co-summary h2 { color: var(--cream); font-size: var(--step-1); margin-bottom: 1.3rem; }
+    .co-summary .ci { display: grid; grid-template-columns: 46px 1fr auto; gap: .85rem; padding: .8rem 0; border-bottom: 1px solid var(--line-dark-soft); }
+    .co-summary .ci img { width: 46px; height: 46px; object-fit: cover; }
+    .co-summary .ci .n { font-size: var(--step--1); color: var(--cream); }
+    .co-summary .ci .v { font-size: var(--step--2); color: var(--on-dark-muted); }
+    .co-summary .ci .p { font-size: var(--step--1); color: var(--cream); text-align: right; font-variant-numeric: lining-nums tabular-nums; }
+    .co-summary .sr { display: flex; justify-content: space-between; padding: .45rem 0; font-size: var(--step--1); color: var(--on-dark-muted); font-variant-numeric: lining-nums tabular-nums; }
+    .co-summary .sr.tot { color: var(--cream); font-family: var(--font-display); font-size: var(--step-1); border-top: 1px solid var(--line-dark); margin-top: .6rem; padding-top: 1rem; }
+
+    /* ---- Confirmation ---- */
+    .conf { text-align: center; max-width: 560px; margin: 0 auto; padding: var(--space-2xl) 0; }
+    .conf .tick { width: 78px; height: 78px; border-radius: 50%; background: var(--forest); color: var(--cream); display: grid; place-items: center; margin: 0 auto 1.7rem; }
+    .conf .tick svg { width: 36px; height: 36px; }
+    .conf-meta { display: flex; justify-content: center; flex-wrap: wrap; margin: 2.2rem 0; padding-block: 1.6rem; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .conf-meta .item { padding: 0 1.6rem; text-align: center; border-right: 1px solid var(--line-soft); }
+    .conf-meta .item:last-child { border-right: 0; }
+    .conf-meta .k { font-size: var(--step--2); letter-spacing: .12em; text-transform: uppercase; color: var(--text-faint); }
+    .conf-meta .v { font-weight: 600; color: var(--forest); margin-top: .4rem; font-family: var(--font-display); font-size: var(--step-1); font-variant-numeric: lining-nums tabular-nums; }
+
+    @media (max-width: 860px) {
+      .co-layout { grid-template-columns: 1fr; }
+      .co-summary { position: static; order: -1; }
+      .slot-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 480px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      .conf-meta .item { border-right: 0; border-bottom: 1px solid var(--line-soft); padding: .9rem 0; width: 100%; }
+      .conf-meta .item:last-child { border-bottom: 0; }
+    }
   </style>
 </head>
 
@@ -73,7 +105,7 @@
   <div id="fv-header"></div>
 
   <main>
-    <section class="page-header" style="padding-bottom:var(--space-lg)">
+    <section class="page-header" style="padding-bottom: var(--s-6)">
       <div class="container">
         <nav class="breadcrumb"><a href="index.html">Home</a><span>/</span><a href="cart.html">Selection</a><span>/</span><span>Checkout</span></nav>
         <h1 id="coTitle">Checkout</h1>
@@ -98,13 +130,22 @@
       function currentUser(){ try { return JSON.parse(localStorage.getItem("fv_user")); } catch { return null; } }
       let user = currentUser();
       const nameParts = (n) => { const p = (n || "").trim().split(/\s+/); return { first: p[0] || "", last: p.slice(1).join(" ") }; };
-      const state = { mode: user ? "account" : "guest", payment: user ? "saved" : "card", slotDay: 0, slotTime: 1 };
+
+      // Saved card (last-4 only — never the full number), shared schema with account.html's Cards tab.
+      function savedCard() {
+        try {
+          const list = JSON.parse(localStorage.getItem("fv_cards")) || [];
+          return list.find((c) => c.default) || list[0] || null;
+        } catch { return null; }
+      }
+
+      const state = { mode: user ? "account" : "guest", payment: user && savedCard() ? "saved" : "card", slotDay: 0, slotTime: 1 };
 
       const arrow = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
 
       if (!FV.cart.items().length) {
         root.innerHTML = `<div class="empty-state" style="padding:4rem 1rem">${FV.icon("bag")}
-          <h3 style="margin:1rem 0 .4rem">Your selection is empty</h3>
+          <h2 style="font-size:var(--step-2);margin:1rem 0 .4rem">Your selection is empty</h2>
           <p>Add something lovely before checking out.</p>
           <a class="btn mt-lg" href="products.html" style="margin-top:1.5rem">Browse the collection ${arrow}</a></div>`;
         return;
@@ -122,10 +163,10 @@
         const remain = Math.max(0, FREE - sub);
         const delivery = remain > 0 ? FEE : 0;
         const total = sub + delivery;
-        return `<aside class="co-summary">
-          <h3>Order summary</h3>
+        return `<aside class="co-summary" aria-labelledby="coSumHead">
+          <h2 id="coSumHead">Order summary</h2>
           ${items.map(it => `<div class="ci">
-            ${it.noPhoto ? `<div class="img" style="width:46px;height:46px;border-radius:var(--radius-sm);display:grid;place-items:center;background:var(--forest-mid);color:var(--brass)">${FV.icon("leaf2")}</div>` : `<img src="${FV.img(it.image)}" alt="">`}
+            ${it.noPhoto ? `<div class="img" style="width:46px;height:46px;display:grid;place-items:center;background:var(--forest-mid);color:var(--brass)">${FV.icon("leaf2")}</div>` : `<img src="${FV.imgSrc(it.image)}" alt="" loading="lazy" width="46" height="46">`}
             <div><div class="n">${it.name}</div><div class="v">${it.variant} · ×${it.qty}</div></div>
             <div class="p">${FV.money(it.price * it.qty)}</div></div>`).join("")}
           <div class="sr" style="margin-top:.8rem"><span>Subtotal</span><span>${FV.money(sub)}</span></div>
@@ -134,96 +175,143 @@
         </aside>`;
       }
 
+      function field(id, name, label, opts) {
+        opts = opts || {};
+        const required = opts.required !== false;
+        const val = opts.value || "";
+        const type = opts.type || "text";
+        const auto = opts.autocomplete ? ` autocomplete="${opts.autocomplete}"` : "";
+        const inputmode = opts.inputmode ? ` inputmode="${opts.inputmode}"` : "";
+        const placeholder = opts.placeholder ? ` placeholder="${opts.placeholder}"` : "";
+        const span = opts.span ? " col-span" : "";
+        const describedby = required ? ` aria-describedby="${id}-msg"` : "";
+        return `<div class="field${span}">
+          <label for="${id}">${label}</label>
+          <input class="input" id="${id}" name="${name}" type="${type}"${auto}${inputmode}${placeholder} value="${val}"${required ? " required" : ""}${describedby}>
+          ${required ? `<p class="field-msg" id="${id}-msg"></p>` : ""}
+        </div>`;
+      }
+
       function render() {
+        const card = savedCard();
         root.innerHTML = `
         <div class="co-layout">
           <div>
-            <div class="toggle-row" role="tablist">
+            <div class="co-tabs" role="group" aria-label="Checkout as">
               <button type="button" data-mode="guest" aria-pressed="${state.mode === "guest"}">Guest checkout</button>
               <button type="button" data-mode="account" aria-pressed="${state.mode === "account"}">Sign in</button>
             </div>
 
             ${state.mode === "account" ? (user ? `
-              <div class="signed-in">${FV.icon("check")}<span>Signed in as <strong>${user.name}</strong> · ${user.email}</span><button type="button" id="coSignout">Sign out</button></div>
+              <div class="co-signed">${FV.icon("check")}<span>Signed in as <strong>${user.name}</strong> · ${user.email}</span><button type="button" id="coSignout">Sign out</button></div>
             ` : `
               <div class="co-signin">
                 <div class="grid-2">
-                  <div class="field"><label>Email</label><input class="input" id="siEmail" type="email" placeholder="you@email.com"></div>
-                  <div class="field"><label>Password</label><input class="input" id="siPass" type="password" placeholder="••••••••"></div>
+                  <div class="field"><label for="siEmail">Email</label><input class="input" id="siEmail" type="email" autocomplete="email" placeholder="you@email.com"></div>
+                  <div class="field"><label for="siPass">Password</label><input class="input" id="siPass" type="password" autocomplete="current-password" placeholder="••••••••"></div>
                 </div>
-                <button type="button" class="btn btn--brass" id="siBtn" style="margin-top:.6rem">Sign in &amp; continue</button>
+                <button type="button" class="btn btn--brass" id="siBtn" style="margin-top:.7rem">Sign in &amp; continue</button>
                 <p class="demo-hint">Demo account — sign in with <b>guest@freshvalley.eg</b> / <b>fresh123</b> (or any email &amp; password).</p>
               </div>
             `) : ``}
 
-            <form id="coForm">
+            <form id="coForm" novalidate>
               <!-- 1 Contact + address -->
               <div class="co-step">
-                <div class="step-head"><span class="step-n">1</span><h2>Contact &amp; delivery address</h2></div>
+                <div class="step-head"><span class="step-n">01</span><h2>Contact &amp; delivery address</h2></div>
                 <div class="grid-2">
-                  <div class="field"><label>First name</label><input class="input" name="first" required value="${user ? nameParts(user.name).first : ""}"></div>
-                  <div class="field"><label>Last name</label><input class="input" name="last" required value="${user ? nameParts(user.name).last : ""}"></div>
-                  <div class="field"><label>Phone</label><input class="input" name="phone" inputmode="tel" placeholder="+20" required></div>
-                  <div class="field"><label>Email</label><input class="input" type="email" name="email" required value="${user ? (user.email || "") : ""}"></div>
-                  <div class="field"><label>Area</label>
-                    <select class="select" name="area" required>
+                  ${field("coFirst", "first", "First name", { autocomplete: "given-name", value: user ? nameParts(user.name).first : "" })}
+                  ${field("coLast", "last", "Last name", { autocomplete: "family-name", value: user ? nameParts(user.name).last : "" })}
+                  ${field("coPhone", "phone", "Phone", { autocomplete: "tel", inputmode: "tel", placeholder: "+20" })}
+                  ${field("coEmail", "email", "Email", { type: "email", autocomplete: "email", value: user ? (user.email || "") : "" })}
+                  <div class="field">
+                    <label for="coArea">Area</label>
+                    <select class="select" id="coArea" name="area" required autocomplete="address-level2" aria-describedby="coArea-msg">
                       <option value="">Select your area</option>
                       <option>New Cairo</option><option>Sheikh Zayed</option><option>October</option><option>Madinaty</option><option>Rehab</option>
-                    </select></div>
-                  <div class="field"><label>Compound / district</label><input class="input" name="district" placeholder="Optional"></div>
-                  <div class="field col-span"><label>Street address</label><input class="input" name="street" placeholder="Building, street, apartment" required></div>
-                  <div class="field col-span"><label>Delivery notes</label><input class="input" name="notes" placeholder="Gate code, landmark, anything that helps"></div>
+                    </select>
+                    <p class="field-msg" id="coArea-msg"></p>
+                  </div>
+                  ${field("coDistrict", "district", "Compound / district", { required: false, placeholder: "Optional", autocomplete: "address-line2" })}
+                  ${field("coStreet", "street", "Street address", { placeholder: "Building, street, apartment", autocomplete: "address-line1", span: true })}
+                  ${field("coNotes", "notes", "Delivery notes", { required: false, placeholder: "Gate code, landmark, anything that helps", span: true })}
                 </div>
               </div>
 
               <!-- 2 Delivery slot -->
               <div class="co-step">
-                <div class="step-head"><span class="step-n">2</span><h2>Delivery slot</h2></div>
-                <p class="muted" style="font-size:var(--step--2);margin-bottom:.8rem">Choose a day</p>
-                <div class="slot-grid" id="dayGrid">
-                  ${days.map((d, i) => `<div class="slot" data-day="${i}" aria-pressed="${i === state.slotDay}"><div class="d">${d}</div></div>`).join("")}
+                <div class="step-head"><span class="step-n">02</span><h2>Delivery slot</h2></div>
+                <p class="muted" style="font-size:var(--step--2);margin-bottom:.8rem" id="dayLabel">Choose a day</p>
+                <div class="slot-grid" id="dayGrid" role="group" aria-labelledby="dayLabel">
+                  ${days.map((d, i) => `<button type="button" class="slot" data-day="${i}" aria-pressed="${i === state.slotDay}"><span class="d">${d}</span></button>`).join("")}
                 </div>
-                <p class="muted" style="font-size:var(--step--2);margin:1rem 0 .8rem">Choose a time</p>
-                <div class="slot-grid" id="timeGrid">
-                  ${times.map((t, i) => `<div class="slot" data-time="${i}" aria-pressed="${i === state.slotTime}"><div class="d">${t}</div><div class="s">${["Morning","Midday","Afternoon","Evening"][i]}</div></div>`).join("")}
+                <p class="muted" style="font-size:var(--step--2);margin:1.1rem 0 .8rem" id="timeLabel">Choose a time</p>
+                <div class="slot-grid" id="timeGrid" role="group" aria-labelledby="timeLabel">
+                  ${times.map((t, i) => `<button type="button" class="slot" data-time="${i}" aria-pressed="${i === state.slotTime}"><span class="d">${t}</span><span class="s">${["Morning","Midday","Afternoon","Evening"][i]}</span></button>`).join("")}
                 </div>
               </div>
 
               <!-- 3 Payment -->
               <div class="co-step">
-                <div class="step-head"><span class="step-n">3</span><h2>Payment</h2></div>
-                ${state.mode === "account" ? `
-                  <div class="pay-opt" data-pay="saved" aria-pressed="${state.payment === "saved"}">
-                    <span class="radio"></span><span class="label">Visa ending 4291</span><span class="pay-opt-marks">${FV.payMark("visa")}</span></div>` : ``}
-                <div class="pay-opt" data-pay="card" aria-pressed="${state.payment === "card"}">
-                  <span class="radio"></span><span class="label">Credit or debit card</span><span class="pay-opt-marks">${FV.payMark("visa")}${FV.payMark("mastercard")}</span></div>
-                <div class="pay-opt" data-pay="apple" aria-pressed="${state.payment === "apple"}">
-                  <span class="radio"></span><span class="label">Apple&nbsp;Pay</span><span class="pay-opt-marks">${FV.payMark("apple")}</span></div>
-                <div class="pay-opt" data-pay="wallet" aria-pressed="${state.payment === "wallet"}">
-                  <span class="radio"></span><span class="label">Mobile wallet</span><span class="pay-opt-marks">${FV.payMark("wallet")}</span></div>
+                <div class="step-head"><span class="step-n">03</span><h2>Payment</h2></div>
+                <div role="group" aria-label="Payment method">
+                ${state.mode === "account" && card ? `
+                  <button type="button" class="pay-opt" data-pay="saved" aria-pressed="${state.payment === "saved"}">
+                    <span class="radio"></span><span class="label">${(card.brand || "Card").replace(/^./, c => c.toUpperCase())} ending ${card.last4}</span><span class="pay-opt-marks">${FV.payMark(card.brand || "visa")}</span></button>` : ``}
+                <button type="button" class="pay-opt" data-pay="card" aria-pressed="${state.payment === "card"}">
+                  <span class="radio"></span><span class="label">Credit or debit card</span><span class="pay-opt-marks">${FV.payMark("visa")}${FV.payMark("mastercard")}</span></button>
+                <button type="button" class="pay-opt" data-pay="apple" aria-pressed="${state.payment === "apple"}">
+                  <span class="radio"></span><span class="label">Apple&nbsp;Pay</span><span class="pay-opt-marks">${FV.payMark("apple")}</span></button>
+                <button type="button" class="pay-opt" data-pay="wallet" aria-pressed="${state.payment === "wallet"}">
+                  <span class="radio"></span><span class="label">Mobile wallet</span><span class="pay-opt-marks">${FV.payMark("wallet")}</span></button>
+                </div>
 
                 <div class="card-fields ${state.payment === "card" ? "show" : ""}" id="cardFields">
                   <div class="grid-2">
-                    <div class="field col-span"><label>Card number</label><input class="input" inputmode="numeric" placeholder="•••• •••• •••• ••••" autocomplete="off"></div>
-                    <div class="field"><label>Expiry</label><input class="input" placeholder="MM / YY" autocomplete="off"></div>
-                    <div class="field"><label>CVC</label><input class="input" inputmode="numeric" placeholder="•••" autocomplete="off"></div>
-                    <div class="field col-span"><label>Name on card</label><input class="input" autocomplete="off"></div>
+                    <div class="field col-span"><label for="ccNumber">Card number</label><input class="input" id="ccNumber" inputmode="numeric" placeholder="•••• •••• •••• ••••" autocomplete="cc-number"></div>
+                    <div class="field"><label for="ccExpiry">Expiry</label><input class="input" id="ccExpiry" placeholder="MM / YY" autocomplete="cc-exp"></div>
+                    <div class="field"><label for="ccCvc">CVC</label><input class="input" id="ccCvc" inputmode="numeric" placeholder="•••" autocomplete="cc-csc"></div>
+                    <div class="field col-span"><label for="ccName">Name on card</label><input class="input" id="ccName" autocomplete="cc-name"></div>
                   </div>
                 </div>
-                <div class="secure-note">${FV.icon("shield")} Encrypted and secure. We never store your full card details.</div>
+                <div class="secure-note">${FV.icon("shield")} Encrypted and secure. We never store your full card details — only the last 4 digits.</div>
               </div>
 
               <!-- 4 Review -->
               <div class="co-step">
-                <div class="step-head"><span class="step-n">4</span><h2>Review &amp; place order</h2></div>
+                <div class="step-head"><span class="step-n">04</span><h2>Review &amp; place order</h2></div>
                 <p class="muted" style="font-size:var(--step--1)">By placing your order you agree to our <a href="terms.html" style="color:var(--brass-deep);text-decoration:underline">Terms of Use</a> and <a href="policies.html" style="color:var(--brass-deep);text-decoration:underline">Policies</a>.</p>
-                <button class="btn btn--block btn--lg" type="submit" style="margin-top:1.2rem">Place order · <span id="placeTotal"></span></button>
+                <button class="btn btn--block btn--lg" type="submit" style="margin-top:1.3rem">Place order · <span id="placeTotal" style="font-variant-numeric:lining-nums tabular-nums"></span></button>
               </div>
             </form>
           </div>
           ${summaryHtml()}
         </div>`;
         wire();
+      }
+
+      const REQUIRED_FIELDS = [
+        ["coFirst", "Enter your first name."],
+        ["coLast", "Enter your last name."],
+        ["coPhone", "Enter a valid phone number."],
+        ["coEmail", "Enter a valid email address."],
+        ["coArea", "Select your delivery area."],
+        ["coStreet", "Enter your street address."],
+      ];
+      function validateForm(form) {
+        let firstInvalid = null;
+        REQUIRED_FIELDS.forEach(([id, msg]) => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          const wrap = el.closest(".field");
+          const bad = !el.checkValidity();
+          wrap.classList.toggle("has-error", bad);
+          el.setAttribute("aria-invalid", bad ? "true" : "false");
+          const msgEl = document.getElementById(id + "-msg");
+          if (msgEl) msgEl.textContent = bad ? msg : "";
+          if (bad && !firstInvalid) firstInvalid = el;
+        });
+        return firstInvalid;
       }
 
       function wire() {
@@ -239,7 +327,7 @@
           if (!email || !email.includes("@")) { document.getElementById("siEmail").focus(); FV.toast("Enter a valid email to sign in"); return; }
           const name = email.split("@")[0].replace(/[._-]+/g, " ").replace(/\b\w/g, c => c.toUpperCase());
           localStorage.setItem("fv_user", JSON.stringify({ name, email }));
-          user = currentUser(); state.payment = "saved";
+          user = currentUser(); state.payment = savedCard() ? "saved" : "card";
           FV.toast("Signed in as " + name.split(" ")[0]);
           render();
         });
@@ -252,11 +340,13 @@
           state.slotTime = +b.dataset.time; root.querySelectorAll("[data-time]").forEach(x => x.setAttribute("aria-pressed", x === b));
         }));
         root.querySelectorAll("[data-pay]").forEach(b => b.addEventListener("click", () => {
-          state.payment = b.dataset.pay; root.querySelectorAll("[data-pay]").forEach(x => x.setAttribute("aria-pressed", x === b));
+          state.payment = b.dataset.pay;
+          root.querySelectorAll("[data-pay]").forEach(x => x.setAttribute("aria-pressed", x === b));
           document.getElementById("cardFields").classList.toggle("show", state.payment === "card");
         }));
         document.getElementById("coForm").addEventListener("submit", e => { e.preventDefault();
-          if (!e.target.checkValidity()) { e.target.reportValidity(); return; }
+          const bad = validateForm(e.target);
+          if (bad) { bad.focus(); FV.toast("Please check the highlighted fields"); return; }
           placeOrder(e.target);
         });
       }
@@ -266,7 +356,8 @@
         const delivery = sub >= FREE ? 0 : FEE;
         const name = form.first.value || "there";
         const slot = `${days[state.slotDay]}, ${times[state.slotTime]}`;
-        const payLabel = { card: "Card", saved: "Saved card", apple: "Apple Pay", wallet: "Mobile wallet", cod: "Cash on delivery" }[state.payment];
+        const card = savedCard();
+        const payLabel = { card: "Card", saved: card ? `${(card.brand || "Card").replace(/^./, c => c.toUpperCase())} ending ${card.last4}` : "Saved card", apple: "Apple Pay", wallet: "Mobile wallet", cod: "Cash on delivery" }[state.payment];
         const customer = {
           name: (form.first.value + " " + form.last.value).trim() || name,
           email: form.email.value.trim(), phone: form.phone.value.trim(), area: form.area.value || "",
@@ -299,11 +390,11 @@
           <p class="eyebrow" style="justify-content:center">Thank you, ${name}</p>
           <h2 class="mt-sm">Your table is on its way.</h2>
           <p class="lead mt-md">We've received your order and started grading your produce. A confirmation is on its way to your inbox.</p>
-          <div class="order-meta">
-            <div><div class="k">Order</div><div class="v">${orderObj.id}</div></div>
-            <div><div class="k">Delivery</div><div class="v">${slot}</div></div>
-            <div><div class="k">Payment</div><div class="v">${payLabel}</div></div>
-            <div><div class="k">Total</div><div class="v">${FV.money(orderObj.total)}</div></div>
+          <div class="conf-meta">
+            <div class="item"><div class="k">Order</div><div class="v">${orderObj.id}</div></div>
+            <div class="item"><div class="k">Delivery</div><div class="v">${slot}</div></div>
+            <div class="item"><div class="k">Payment</div><div class="v">${payLabel}</div></div>
+            <div class="item"><div class="k">Total</div><div class="v">${FV.money(orderObj.total)}</div></div>
           </div>
           <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem">
             <a class="btn" href="account.html#orders">Track this order ${arrow}</a>
