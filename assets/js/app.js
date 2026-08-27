@@ -641,12 +641,14 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
   FV.productCardHTML = function (p) {
     const cp = FV.cardPrice(p);
     return `<article class="product-card" data-reveal>
-      <p class="p-cap">${topLabel(p)}</p>
       ${cardMedia(p)}
       <div class="info">
-        <div class="p-toprow"><span class="p-origin">${p.origin}</span>${ratingRow(p)}</div>
+        <div class="p-toprow"><span class="p-cap">${topLabel(p)}</span>${ratingRow(p)}</div>
         <h3 class="p-name"><a href="product.html?slug=${p.slug}">${p.name}</a></h3>
-        <span class="p-price">${FV.money(cp.value)} <span class="per">${cp.per}</span></span>
+        <div class="p-foot">
+          <span class="p-price">${FV.money(cp.value)} <span class="per">${cp.per}</span></span>
+          <span class="p-origin">${p.origin}</span>
+        </div>
       </div>
     </article>`;
   };

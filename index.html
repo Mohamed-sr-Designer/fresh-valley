@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Fresh Valley — Egypt's Premium Produce Market</title>
   <meta name="description" content="Export-grade fruits, vegetables and curated produce boxes, delivered next-day across New Cairo, Sheikh Zayed, October, Madinaty and Rehab. Shop the market or build a box.">
-  <meta name="theme-color" content="#10261D">
+  <meta name="theme-color" content="#1A2A1D">
   <link rel="canonical" href="https://freshvalley.eg/">
 
   <meta property="og:type" content="website">
@@ -13,8 +13,8 @@
   <meta property="og:description" content="Export-grade produce, delivered fresh. Shop the market or build a box.">
   <meta property="og:image" content="assets/img/hero/hero-1200.jpg">
 
-  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/hanken-grotesk.woff2" crossorigin>
-  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/fraunces.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/jost-400.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/cormorant-garamond-500.woff2" crossorigin>
 
   <link rel="preload" as="image" type="image/webp" media="(min-width: 721px)" fetchpriority="high"
         href="assets/img/hero/hero-1800.webp"
@@ -47,10 +47,10 @@
       padding-bottom: clamp(2rem, 4vh, 3rem); }
     .hero-copy { max-width: 34rem; }
     .hero .eyebrow { color: var(--brass-soft); }
-    .hero h1 { font-size: var(--step-6); line-height: 1; letter-spacing: -.028em; color: var(--cream);
-      margin-top: .34em; text-wrap: balance; }
+    .hero h1 { font-size: var(--step-7); line-height: 1.02; letter-spacing: 0; color: var(--cream);
+      margin-top: .3em; text-wrap: balance; font-weight: 500; }
     .hero h1 em { font-style: italic; color: var(--brass-soft); }
-    .hero .lead { font-size: var(--step-1); color: rgba(246,241,232,.82); margin-top: 1.4rem; max-width: 40ch; font-weight: 340; }
+    .hero .lead { font-family: var(--font-sans); font-size: var(--step-0); color: rgba(246,241,232,.85); margin-top: 1.4rem; max-width: 42ch; font-weight: 300; letter-spacing: .01em; }
     .hero-cta { display: flex; gap: .75rem; flex-wrap: wrap; margin-top: clamp(1.8rem, 3.5vh, 2.6rem); }
     .hero-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--s-5); flex-wrap: wrap;
       margin-top: clamp(2.5rem, 8vh, 5.5rem); padding-top: 1.4rem; border-top: 1px solid rgba(246,241,232,.22); }
@@ -112,7 +112,7 @@
     .aoh-step .n { font-family: var(--font-display); font-size: var(--step-1); color: var(--brass-deep); line-height: 1; }
     .aoh-step p { font-size: var(--step--1); color: var(--text-muted); margin-top: .5rem; }
     .aoh-cta { display: flex; align-items: center; gap: 1.6rem; flex-wrap: wrap; margin-top: var(--s-7); }
-    .aoh-media { position: relative; display: block; overflow: hidden; aspect-ratio: 4/4.6; background: var(--surface-warm); }
+    .aoh-media { position: relative; display: block; overflow: hidden; aspect-ratio: 4/4.6; background: var(--surface-warm); border-radius: var(--radius-xl); box-shadow: var(--shadow-lg); }
     .aoh-media picture, .why-media picture { display: block; width: 100%; height: 100%; }
     .aoh-media img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease-luxe); }
     .aoh-media:hover img { transform: scale(1.035); }
@@ -125,7 +125,7 @@
 
     /* ================= Boxes ================= */
     .boxes-flag { display: grid; grid-template-columns: 1.15fr 1fr; gap: clamp(.75rem, 1.4vw, 1.25rem); }
-    .box-hero { position: relative; overflow: hidden; min-height: 460px; display: flex; align-items: flex-end; color: var(--cream); }
+    .box-hero { position: relative; overflow: hidden; min-height: 460px; display: flex; align-items: flex-end; color: var(--cream); border-radius: var(--radius-xl); box-shadow: var(--shadow-lg); }
     .box-hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease-luxe); }
     .box-hero:hover img { transform: scale(1.04); }
     .box-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(8,20,14,.88) 0%, rgba(8,20,14,.25) 55%, rgba(8,20,14,.05) 100%); }
@@ -136,8 +136,8 @@
     .box-hero .bh-price { font-family: var(--font-display); font-size: var(--step-2); color: var(--cream); }
     .box-hero .bh-price span { display: block; font-family: var(--font-sans); font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--brass-soft); }
     .box-side { display: grid; grid-template-rows: 1fr 1fr; gap: clamp(.75rem, 1.4vw, 1.25rem); }
-    .box-mini { display: grid; grid-template-columns: 160px 1fr; background: var(--surface); border: 1px solid var(--line); transition: border-color .35s; overflow: hidden; }
-    .box-mini:hover { border-color: var(--line-strong); }
+    .box-mini { display: grid; grid-template-columns: 160px 1fr; background: var(--surface); border: 0; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); transition: transform .45s var(--ease), box-shadow .45s var(--ease); overflow: hidden; }
+    .box-mini:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
     .box-mini img { width: 100%; height: 100%; object-fit: cover; }
     .box-mini .bm-body { padding: 1.3rem 1.4rem; display: flex; flex-direction: column; justify-content: center; gap: .35rem; }
     .box-mini h4 { font-family: var(--font-display); font-size: var(--step-2); color: var(--forest); }
@@ -149,7 +149,7 @@
 
     /* ================= The standard (why) ================= */
     .why-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 6vw, 6rem); align-items: center; }
-    .why-media { overflow: hidden; aspect-ratio: 5/4; background: var(--surface-warm); }
+    .why-media { overflow: hidden; aspect-ratio: 5/4; background: var(--surface-warm); border-radius: var(--radius-xl); box-shadow: var(--shadow-lg); }
     .why-media img { width: 100%; height: 100%; object-fit: cover; }
     .why-list { display: grid; gap: 0; margin-top: var(--s-6); }
     .why-item { display: grid; grid-template-columns: 2.6rem 1fr; gap: 1rem; padding: 1.2rem 0; border-top: 1px solid var(--line); }
