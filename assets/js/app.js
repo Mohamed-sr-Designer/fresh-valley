@@ -613,46 +613,40 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
   /* ------------------------------------------------------------------ *
    * Reusable render helpers
    * ------------------------------------------------------------------ */
-  function qualityBadge(p) {
-    if ((p.badges || []).includes("export")) return `<span class="badge badge--export">Export-Grade</span>`;
-    if ((p.badges || []).includes("organic")) return `<span class="badge badge--organic">Organic</span>`;
-    return "";
-  }
-  function popTag(p) {
-    if ((p.collections || []).includes("best-sellers")) return `<span class="badge badge--pop">${I.star} Bestseller</span>`;
-    if ((p.badges || []).includes("seasonal")) return `<span class="badge badge--seasonal">In season</span>`;
-    return "";
-  }
-  /* One label per card — a luxury shelf doesn't shout twice. */
-  const cardTags = (p) => `<div class="card-tags">${popTag(p) || qualityBadge(p)}</div>`;
   const ratingRow = (p) => `<span class="p-rating">${I.star} ${p.rating.toFixed(1)} <span class="rc">(${p.reviews})</span></span>`;
 
+  /* One deterministic caption per card, in the eyebrow voice — every SKU labelled,
+     never two badges shouting at once. */
+  function topLabel(p) {
+    if ((p.badges || []).includes("export")) return "Export-Grade";
+    if ((p.badges || []).includes("organic")) return "Organic";
+    if ((p.collections || []).includes("best-sellers")) return "Bestseller";
+    if ((p.badges || []).includes("seasonal")) return "In Season";
+    const c = p.category || "";
+    return c ? c.charAt(0).toUpperCase() + c.slice(1) : "Fresh Valley";
+  }
+
   function cardMedia(p) {
+    const wish = `<button class="wish-btn" data-wish="${p.slug}" aria-label="Save ${p.name}" aria-pressed="false">${I.heart}</button>`;
+    const add = `<button class="p-add" data-add="${p.slug}" aria-label="Add ${p.name} to cart">${I.plus}</button>`;
     if (p.noPhoto) {
-      return `<div class="media media--herb"><div class="herb-art">${I.leaf2}<span>${p.name}</span></div>
-        ${cardTags(p)}
-        <button class="wish-btn" data-wish="${p.slug}" aria-label="Save ${p.name}" aria-pressed="false">${I.heart}</button></div>`;
+      // botanical placeholder — flagged for a trivial swap once herb photography exists
+      return `<div class="media media--herb" data-placeholder="true"><div class="herb-art">${I.leaf2}<span>${p.name}</span></div>${wish}${add}</div>`;
     }
     const imgTag = FV.isCustomImg(p.image)
-      ? `<img src="${p.image}" alt="${p.name}" loading="lazy" width="540" height="540">`
+      ? `<img src="${p.image}" alt="${p.name}" loading="lazy" width="540" height="675">`
       : `<picture><source type="image/webp" srcset="${FV.webp(FV.thumb(p.slug))} 540w, ${FV.webp(FV.img(p.slug))} 1000w" sizes="(max-width:640px) 48vw, (max-width:1100px) 30vw, 22vw"><img src="${FV.thumb(p.slug)}" srcset="${FV.thumb(p.slug)} 540w, ${FV.img(p.slug)} 1000w" sizes="(max-width:640px) 48vw, (max-width:1100px) 30vw, 22vw" alt="${p.name}" loading="lazy" width="540" height="540"></picture>`;
-    return `<div class="media">
-        ${imgTag}
-        ${cardTags(p)}
-        <button class="wish-btn" data-wish="${p.slug}" aria-label="Save ${p.name}" aria-pressed="false">${I.heart}</button>
-      </div>`;
+    return `<div class="media">${imgTag}${wish}${add}</div>`;
   }
   FV.productCardHTML = function (p) {
     const cp = FV.cardPrice(p);
     return `<article class="product-card" data-reveal>
+      <p class="p-cap">${topLabel(p)}</p>
       ${cardMedia(p)}
       <div class="info">
         <div class="p-toprow"><span class="p-origin">${p.origin}</span>${ratingRow(p)}</div>
         <h3 class="p-name"><a href="product.html?slug=${p.slug}">${p.name}</a></h3>
-        <div class="p-buy">
-          <span class="p-price">${FV.money(cp.value)} <span class="per">${cp.per}</span></span>
-          <button class="p-add" data-add="${p.slug}" aria-label="Add ${p.name} to cart">${I.plus}</button>
-        </div>
+        <span class="p-price">${FV.money(cp.value)} <span class="per">${cp.per}</span></span>
       </div>
     </article>`;
   };
@@ -677,17 +671,32 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
   FV.reviewCardHTML = function (r) {
     const initials = r.name.split(" ").map((w) => w[0]).slice(0, 2).join("");
     return `<article class="review-card" data-reveal>
-      <div class="stars" role="img" aria-label="${r.stars} out of 5">${I.star.repeat(r.stars)}</div>
-      <p class="quote">“${r.text}”</p>
+      <p class="quote">${r.text}</p>
       <div class="r-author">
         <div class="r-avatar">${initials}</div>
-        <div><div class="r-name">${r.name}</div><div class="r-meta">${r.area} · ${r.tag}</div></div>
+        <div>
+          <div class="r-name">${r.name}</div>
+          <div class="r-meta">${r.area} · ${r.tag}</div>
+        </div>
       </div>
+      <div class="stars" role="img" aria-label="Rated ${r.stars} out of 5">${I.star.repeat(r.stars)}</div>
     </article>`;
   };
-  FV.articleCardHTML = function (a) {
+  FV.articleCardHTML = function (a, row) {
+    const media = `<a class="media" href="article.html?slug=${a.slug}" tabindex="-1" aria-hidden="true"><picture><source type="image/webp" srcset="${FV.webp(FV.thumb(a.image))} 540w, ${FV.webp(FV.img(a.image))} 1000w" sizes="${row ? "(max-width:860px) 90vw, 34vw" : "(max-width:860px) 90vw, 30vw"}"><img src="${FV.thumb(a.image)}" srcset="${FV.thumb(a.image)} 540w, ${FV.img(a.image)} 1000w" sizes="${row ? "(max-width:860px) 90vw, 34vw" : "(max-width:860px) 90vw, 30vw"}" alt="" loading="lazy" width="540" height="405"></picture></a>`;
+    if (row) {
+      return `<article class="article-card article-card--row" data-reveal>
+        ${media}
+        <div class="a-rail">
+          <span class="a-cat">${a.category}</span>
+          <h3><a class="stretch" href="article.html?slug=${a.slug}">${a.title}</a></h3>
+          <p class="a-excerpt">${a.excerpt}</p>
+          <span class="a-meta">${a.date} · ${a.read}</span>
+        </div>
+      </article>`;
+    }
     return `<article class="article-card" data-reveal>
-      <a class="media" href="article.html?slug=${a.slug}" tabindex="-1" aria-hidden="true"><picture><source type="image/webp" srcset="${FV.webp(FV.thumb(a.image))} 540w, ${FV.webp(FV.img(a.image))} 1000w" sizes="(max-width:860px) 90vw, 30vw"><img src="${FV.thumb(a.image)}" srcset="${FV.thumb(a.image)} 540w, ${FV.img(a.image)} 1000w" sizes="(max-width:860px) 90vw, 30vw" alt="" loading="lazy" width="540" height="405"></picture></a>
+      ${media}
       <span class="a-cat">${a.category}</span>
       <h3><a class="stretch" href="article.html?slug=${a.slug}">${a.title}</a></h3>
       <p class="muted" style="font-size:var(--step--1)">${a.excerpt}</p>
@@ -743,8 +752,30 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
   }
   FV.observeCounts = observeCounts;
 
-  /* Motion is CSS-only in the second edition: one reveal, one hover.
-     Kept as a no-op so any page still calling it keeps working. */
+  /* Magnetic primary CTAs — the one place cursor-follow is earned. Delegated so it
+     also covers buttons pages render after boot; fine-pointer + motion-OK only, so it
+     never attaches on touch or for reduced-motion users. rAF-throttled. */
+  function magneticLayer() {
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let cur = null, raf = null, px = 0, py = 0;
+    const SEL = ".btn--brass, [data-magnetic]";
+    document.addEventListener("pointermove", (e) => {
+      const b = e.target.closest && e.target.closest(SEL);
+      if (b !== cur) { if (cur) cur.style.transform = ""; cur = b; }
+      if (!b) return;
+      const r = b.getBoundingClientRect();
+      px = (e.clientX - (r.left + r.width / 2)) * 0.25;
+      py = (e.clientY - (r.top + r.height / 2)) * 0.25;
+      if (raf) return;
+      raf = requestAnimationFrame(() => { if (cur) cur.style.transform = `translate(${px}px, ${py}px)`; raf = null; });
+    }, { passive: true });
+    document.addEventListener("pointerout", (e) => {
+      if (cur && !(e.relatedTarget && cur.contains(e.relatedTarget))) { cur.style.transform = ""; cur = null; }
+    }, { passive: true });
+  }
+
+  /* Motion is CSS-driven; this stays a no-op so older pages that call it keep working. */
   function motionLayer() {}
   FV.motionLayer = motionLayer;
 
@@ -760,10 +791,18 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
    * Wiring
    * ------------------------------------------------------------------ */
   function wire() {
-    // header scroll state
+    // header: paper-on-scroll + direction-aware hide/reveal
     const header = $("#siteHeader");
     if (document.body.dataset.hero === "true") header.classList.add("transparent");
-    const onScroll = () => header.classList.toggle("scrolled", window.scrollY > 24);
+    let lastY = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      header.classList.toggle("scrolled", y > 24);
+      if (openPanel) { header.classList.remove("header-hidden"); lastY = y; return; }
+      if (y > 220 && y > lastY + 4) header.classList.add("header-hidden");
+      else if (y < lastY - 4 || y <= 220) header.classList.remove("header-hidden");
+      lastY = y;
+    };
     onScroll(); window.addEventListener("scroll", onScroll, { passive: true });
 
     // buttons
@@ -919,6 +958,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
     wire();
     applyContent();
     observeReveals();       // catch anything applyContent() reordered or revealed
+    magneticLayer();        // primary-CTA cursor follow (fine pointer + motion-OK only)
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();

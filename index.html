@@ -60,6 +60,20 @@
     .hero-proof strong { color: var(--cream); font-weight: 600; }
     .hero-cut { font-size: var(--step--2); letter-spacing: .16em; text-transform: uppercase; color: rgba(246,241,232,.6); }
     .hero-cut b { color: var(--brass-soft); font-weight: 600; }
+    /* Hero entrance — the image settles behind a staggered text reveal */
+    @keyframes heroIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+    @keyframes heroImg { from { transform: scale(1.06); } to { transform: scale(1); } }
+    .hero-copy > *, .hero-foot { opacity: 0; animation: heroIn .7s var(--ease-settle) forwards; }
+    .hero-copy > *:nth-child(1) { animation-delay: .05s; }
+    .hero-copy > *:nth-child(2) { animation-delay: .14s; }
+    .hero-copy > *:nth-child(3) { animation-delay: .23s; }
+    .hero-copy > *:nth-child(4) { animation-delay: .32s; }
+    .hero-foot { animation-delay: .46s; }
+    .hero-media img { animation: heroImg 1.4s var(--ease-settle) both; }
+    @media (prefers-reduced-motion: reduce) {
+      .hero-copy > *, .hero-foot { opacity: 1; animation: none; }
+      .hero-media img { animation: none; }
+    }
 
     /* ================= Trust strip ================= */
     .trust-band { display: grid; grid-template-columns: repeat(4, 1fr); }
@@ -84,11 +98,12 @@
     /* ================= The Art of Hosting ================= */
     .aoh { background: var(--paper-2); border-block: 1px solid var(--line); }
     .aoh-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 6vw, 6rem); align-items: center; }
-    .aoh-old { font-family: var(--font-display); font-size: var(--step-2); line-height: 1.35; color: var(--text-faint); font-weight: 300; }
+    .aoh-old { font-family: var(--font-display); font-size: clamp(1.5rem, 1.2rem + 2vw, 2.5rem); line-height: 1.28; color: var(--text-faint); font-weight: 300; }
+    .aoh-old + .aoh-old { margin-top: .35rem; }
     .aoh-old s { text-decoration: none; position: relative; white-space: nowrap; }
-    .aoh-old s::after { content: ""; position: absolute; left: -1%; top: 55%; height: 1.5px; width: 0; background: var(--brass); transition: width .6s var(--ease-out); }
-    .aoh-copy.in .aoh-old s::after { width: 102%; transition-delay: .4s; }
-    .aoh-copy.in .aoh-old + .aoh-old s::after { transition-delay: .8s; }
+    .aoh-old s::after { content: ""; position: absolute; left: -1%; top: 56%; height: 2px; width: 0; background: var(--brass); transition: width .5s var(--ease-out); }
+    .aoh-copy.in .aoh-old s::after { width: 102%; transition-delay: .45s; }
+    .aoh-copy.in .aoh-old + .aoh-old s::after { transition-delay: .95s; }
     .aoh h2 { font-size: var(--step-4); margin-top: .35em; max-width: 13ch; }
     .aoh h2 em { color: var(--brass-deep); }
     .aoh .lead { margin-top: 1.2rem; max-width: 44ch; }
@@ -261,13 +276,9 @@
     <!-- ===== Categories ===== -->
     <section class="section section--tight" data-fv-section="categories">
       <div class="container">
-        <div class="split-head" data-reveal>
-          <div class="section-head">
-            <p class="eyebrow">The market</p>
-            <h2 class="title" style="font-size:var(--step-3)" data-fv="cat_title">Shop by category</h2>
-          </div>
-          <a class="link-arrow hide-mobile" href="products.html">All produce
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <div class="section-head section-head--center" data-reveal style="margin-bottom:var(--s-7)">
+          <p class="eyebrow">The market</p>
+          <h2 class="title" style="font-size:var(--step-3)" data-fv="cat_title">Shop by category</h2>
         </div>
         <nav class="cat-grid" id="catGrid" aria-label="Categories" data-stagger></nav>
         <div class="cat-more">
@@ -339,10 +350,10 @@
     <!-- ===== Boxes ===== -->
     <section class="section" data-fv-section="boxes">
       <div class="container">
-        <div class="split-head" data-reveal>
-          <div class="section-head">
+        <div class="split-head split-head--plain" data-reveal style="align-items:end">
+          <div class="section-head section-head--xl">
             <p class="eyebrow" data-fv="boxes_eyebrow">Our flagship</p>
-            <h2 class="title" style="font-size:var(--step-3)" data-fv="boxes_title">Fresh Valley boxes</h2>
+            <h2 class="title" data-fv="boxes_title">Fresh Valley boxes</h2>
           </div>
           <a class="link-arrow hide-mobile" href="products.html?cat=boxes">All boxes
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>

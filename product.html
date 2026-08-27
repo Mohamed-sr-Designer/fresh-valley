@@ -48,8 +48,11 @@
     .buy-row { display: flex; gap: .75rem; margin-top: var(--s-6); align-items: stretch; }
     .buy-row .qty { flex-shrink: 0; }
     .buy-row .btn { flex: 1; }
+    /* On the PDP the save control lives inline in the buy row — undo the grid card's
+       absolute/hover-reveal treatment inherited from the shared .wish-btn. */
     .wish-lg {
-      width: 52px; flex-shrink: 0; border: 1px solid var(--line); border-radius: 50%;
+      position: static; opacity: 1; transform: none; inset: auto;
+      width: 52px; height: 52px; flex-shrink: 0; border: 1px solid var(--line); border-radius: 50%;
       display: grid; place-items: center; color: var(--forest); background: var(--surface);
       transition: border-color .25s, color .25s;
     }
@@ -61,6 +64,12 @@
     .assurance { display: grid; gap: .85rem; margin-top: var(--s-6); padding-top: var(--s-5); border-top: 1px solid var(--line); }
 
     .pdp-detail { margin-top: var(--s-7); }
+    /* Accordion affordance: hover tint + a panel that eases open, not a hard jump */
+    .pdp-detail.accordion summary { transition: color .2s var(--ease-respond); }
+    .pdp-detail.accordion summary:hover { color: var(--brass-deep); }
+    .pdp-detail.accordion details[open] .panel { animation: accPanel .3s var(--ease-settle); }
+    @keyframes accPanel { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { .pdp-detail.accordion details[open] .panel { animation: none; } }
 
     /* ================= Sticky mobile buy bar — flat, hairline, no glow ================= */
     .pdp-sticky {
@@ -200,10 +209,10 @@
                   <span class="per" id="pricePer">${isKg ? "/ 1 kg" : (p.unit === "bunch" ? "/ bunch" : "each")}</span></div>
                 <div class="pdp-sub">${isKg ? "Price updates as you choose your weight." : "Sold as a single " + (p.unit === "bunch" ? "bunch, cut to order." : "piece, hand-selected.")}</div>
 
-                ${scarce ? `<div class="scarcity">
-                  <div class="sc-row"><span class="sc-label">Selling fast this week</span><span class="sc-pct">${scPct}% of today's allocation claimed</span></div>
-                  <div class="sc-meter"><span style="width:${scPct}%"></span></div>
-                  <p class="sc-note">${seasonal ? "In season now — a limited window while it's at its best." : "A small, limited allocation each week."}</p>
+                ${scarce ? `<div class="avail" id="availBox" data-avail="${scPct}" style="margin-top:var(--s-6)">
+                  <div class="avail-top"><span class="avail-label">Selling fast this week</span><span class="avail-pct" id="availPct">0%</span></div>
+                  <div class="avail-bar"><span class="avail-fill" id="availFill"></span></div>
+                  <p class="avail-note">${scPct}% of today's allocation claimed. ${seasonal ? "In season now — a limited window while it's at its best." : "A small, limited allocation each week."}</p>
                 </div>` : ``}
 
                 ${isKg ? `<div class="selector">
@@ -219,7 +228,7 @@
                     <input id="qVal" type="text" inputmode="numeric" value="1" aria-label="Quantity">
                     <button id="qInc" aria-label="Increase">${FV.icon("plus")}</button>
                   </div>
-                  <button class="btn btn--lg" id="addBtn">Add to cart · <span id="btnTotal">${FV.money(isKg ? FV.priceForWeight(p, 1000) : p.pricePerUnit)}</span></button>
+                  <button class="btn btn--brass btn--lg" id="addBtn">Add to cart · <span id="btnTotal">${FV.money(isKg ? FV.priceForWeight(p, 1000) : p.pricePerUnit)}</span></button>
                   <button class="wish-btn wish-lg" id="wishBtn" data-wish="${p.slug}" aria-label="Save to wishlist" aria-pressed="false">${FV.icon("heart")}</button>
                 </div>
 
@@ -261,7 +270,7 @@
                 <p class="eyebrow">For the table</p>
                 <h2 class="title">Pairs beautifully with</h2>
               </div>
-              <button class="btn btn--brass" id="addPairings">Add the pairing · <span id="pairTotal"></span></button>
+              <button class="btn btn--outline" id="addPairings">Add the pairing · <span id="pairTotal"></span></button>
             </div>
             <div class="products-grid mt-xl" id="pairings"></div>
           </div>
@@ -277,7 +286,7 @@
                 <h3>Make it a table, not a plate.</h3>
                 <p>Add The Hosting Box and let us arrange the rest — fruit, dates and a finishing herb, ready for guests.</p>
               </div>
-              <div class="hr-cta"><a class="btn btn--brass" href="product.html?box=hosting-box">Explore the box ${arrow}</a></div>
+              <div class="hr-cta"><a class="link-arrow" href="product.html?box=hosting-box">Explore the box ${arrow}</a></div>
             </div>
           </div>
         </section>
@@ -380,6 +389,24 @@
           onScroll();
         }
 
+        // Availability meter fills + counts up the first time it scrolls into view
+        (function () {
+          const box = document.getElementById("availBox"); if (!box) return;
+          const pct = Math.max(0, Math.min(100, +box.dataset.avail || 0));
+          const fill = document.getElementById("availFill"), num = document.getElementById("availPct");
+          const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+          const run = () => {
+            fill.style.width = pct + "%";
+            if (reduced) { num.textContent = pct + "%"; return; }
+            const t0 = performance.now(), dur = 900;
+            const tick = (t) => { const k = Math.min(1, (t - t0) / dur); num.textContent = Math.round(pct * (1 - Math.pow(1 - k, 3))) + "%"; if (k < 1) requestAnimationFrame(tick); };
+            requestAnimationFrame(tick);
+          };
+          if (!("IntersectionObserver" in window)) { run(); return; }
+          const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { run(); io.disconnect(); } }), { threshold: .4 });
+          io.observe(box);
+        })();
+
         refresh();
         FV.observeReveals(); FV.updateWishUI();
 
@@ -440,7 +467,7 @@
                     <input id="qVal" type="text" inputmode="numeric" value="1" aria-label="Quantity">
                     <button id="qInc" aria-label="Increase">${FV.icon("plus")}</button>
                   </div>
-                  <button class="btn btn--lg" id="addBtn">Add box · <span id="btnTotal">${FV.money(b.tiers[0].price)}</span></button>
+                  <button class="btn btn--brass btn--lg" id="addBtn">Add box · <span id="btnTotal">${FV.money(b.tiers[0].price)}</span></button>
                 </div>
 
                 <div class="assurance">
@@ -519,6 +546,24 @@
           window.addEventListener("scroll", onScroll, { passive: true });
           onScroll();
         }
+
+        // Availability meter fills + counts up the first time it scrolls into view
+        (function () {
+          const box = document.getElementById("availBox"); if (!box) return;
+          const pct = Math.max(0, Math.min(100, +box.dataset.avail || 0));
+          const fill = document.getElementById("availFill"), num = document.getElementById("availPct");
+          const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+          const run = () => {
+            fill.style.width = pct + "%";
+            if (reduced) { num.textContent = pct + "%"; return; }
+            const t0 = performance.now(), dur = 900;
+            const tick = (t) => { const k = Math.min(1, (t - t0) / dur); num.textContent = Math.round(pct * (1 - Math.pow(1 - k, 3))) + "%"; if (k < 1) requestAnimationFrame(tick); };
+            requestAnimationFrame(tick);
+          };
+          if (!("IntersectionObserver" in window)) { run(); return; }
+          const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { run(); io.disconnect(); } }), { threshold: .4 });
+          io.observe(box);
+        })();
 
         refresh();
         FV.observeReveals(); FV.updateWishUI();

@@ -40,7 +40,7 @@
     <div class="filter-bar">
       <div class="container">
         <div class="inner">
-          <div class="filter-pills" id="catPills"></div>
+          <div class="filter-tabs" id="catPills" role="tablist" aria-label="Filter the collection"></div>
           <div class="filter-right">
             <span class="result-count" id="resultCount"></span>
             <div class="sort-select">
@@ -174,18 +174,31 @@
         FV.observeReveals(); FV.updateWishUI();
       }
 
-      function buildPills() {
+      function buildTabs() {
         const el = document.getElementById("catPills");
         const activeKey = state.q ? "" : (state.collection ? "" : state.cat);
         el.innerHTML = CATS.map(c =>
-          `<button class="pill" data-cat="${c.key}" aria-pressed="${c.key === activeKey}">${c.label}</button>`).join("");
+          `<button class="filter-tab" role="tab" data-cat="${c.key}" aria-selected="${c.key === activeKey}">${c.label}</button>`).join("")
+          + `<span class="filter-ink" aria-hidden="true"></span>`;
+        const ink = el.querySelector(".filter-ink");
+        const moveInk = () => {
+          const a = el.querySelector('[aria-selected="true"]');
+          if (!a) { ink.style.width = "0"; return; }
+          ink.style.width = a.offsetWidth + "px";
+          ink.style.transform = `translateX(${a.offsetLeft}px)`;
+        };
         el.querySelectorAll("[data-cat]").forEach(b => b.addEventListener("click", () => {
           state.cat = b.dataset.cat; state.collection = null; state.q = "";
           const u = new URL(location); u.search = b.dataset.cat === "all" ? "" : "?cat=" + b.dataset.cat;
           history.replaceState({}, "", u);
-          el.querySelectorAll("[data-cat]").forEach(x => x.setAttribute("aria-pressed", x === b));
+          el.querySelectorAll("[data-cat]").forEach(x => x.setAttribute("aria-selected", x === b));
+          moveInk();
+          b.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
           render();
         }));
+        el._moveInk = moveInk;
+        requestAnimationFrame(moveInk);
+        window.addEventListener("resize", () => requestAnimationFrame(moveInk), { passive: true });
       }
 
       document.getElementById("sortSelect").value = state.sort;
@@ -195,8 +208,10 @@
       document.getElementById("boxTeaserGrid").innerHTML =
         FV.data.boxes.slice(0, 3).map(FV.boxCardHTML).join("");
 
-      buildPills();
+      buildTabs();
       render();
+      // once fonts settle, tab widths are final — nudge the indicator to match
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => document.getElementById("catPills")._moveInk && document.getElementById("catPills")._moveInk());
     })();
   </script>
 </body>

@@ -4,6 +4,29 @@ The storefront has been re-skinned from "shiny ecommerce" to **editorial quiet l
 Brand identity is unchanged: same logo, same palette (forest / cream / brass / pomegranate),
 same copy wherever it still reads well.
 
+> **Audit pass (Aug 2026).** A later art-direction pass layered on the Master Audit's
+> elevation items *on top of* this contract — the palette and copy stayed fixed (the audit's
+> sampled hexes and its "terracotta" accent were deliberately NOT adopted; "don't change the
+> brand colours" wins). What that pass added, all reusable and already in the shared files:
+> - **Photo-forward product cards** — borderless, 4:5 crop, the quality label as an eyebrow
+>   caption *above* the frame (`FV.productCardHTML` → `topLabel(p)`), the `+` add button
+>   surfacing on the photo on hover (always visible on touch).
+> - **Section-header variants** so no two consecutive sections read the same: `.section-head`
+>   (default), `.section-head--center`, `.section-head--xl` (oversized, no link),
+>   `.section-head--split` (`.sh-main` + `.sh-support`).
+> - **Quote-forward testimonials** (`.review-card` — oversized gold `"`, stars below the name)
+>   and **horizontal journal rows** (`FV.articleCardHTML(a, true)` → `.article-card--row`).
+> - **Herb placeholder** upgraded to a dark tungsten treatment marked `data-placeholder="true"`
+>   (`.media.media--herb`) — never a flat swatch, still no real image needed.
+> - **CTA hierarchy**: at most one `.btn--brass` (gold) per page — the single commerce action.
+>   Everything else is `.btn` (dark), `.btn--outline`, or a `.link-arrow`.
+> - **Signature interactions** (`.strike-line` self-drawing strike, `.avail` scarcity meter that
+>   fills + counts up on scroll-in, `.filter-tabs`/`.filter-ink` underline filters, footer +
+>   newsletter underline draws) and one **magnetic** pass on gold CTAs (`magneticLayer()` —
+>   fine-pointer + motion-OK only). Direction-aware header hide/reveal on scroll.
+> - The hero is still one held photograph; it now settles in behind a staggered text reveal.
+> Every one of these has a `prefers-reduced-motion` fallback.
+
 This document is the contract every page follows. `assets/css/styles.css` implements it;
 page-specific layout lives in a `<style>` block in that page's `<head>`.
 

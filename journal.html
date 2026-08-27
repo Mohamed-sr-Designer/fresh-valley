@@ -37,6 +37,13 @@
       .lead-story { min-height: 78vw; }
       .lead-story h2 { max-width: none; }
     }
+
+    /* ================= "All articles" — split heading + horizontal editorial rows =================
+       Distinct rhythm from the page-header above and from the homepage's plain split-head strip. */
+    .section-head--split { border-bottom: 1px solid var(--line); padding-bottom: var(--s-6); margin-bottom: var(--s-6); }
+    .journal-rows { display: flex; flex-direction: column; }
+    .journal-rows > .article-card--row { padding-bottom: clamp(1.5rem, 3vw, 2.5rem); }
+    .journal-rows > .article-card--row:first-child { border-top: 0; padding-top: 0; }
   </style>
 </head>
 
@@ -56,14 +63,18 @@
     <!-- Lead story -->
     <a class="lead-story" id="featured" data-reveal></a>
 
-    <!-- Filter + grid -->
+    <!-- Filter + rows -->
     <section class="section section--paper2">
       <div class="container">
-        <div class="split-head" data-reveal>
-          <div class="section-head"><p class="eyebrow">All articles</p><h2 class="title" style="font-size:var(--step-2)">More from the Journal</h2></div>
-          <div class="filter-pills" id="catPills"></div>
+        <div class="section-head section-head--split" data-reveal>
+          <div class="sh-main">
+            <p class="eyebrow">All articles</p>
+            <h2 class="title" style="font-size:var(--step-4)">More from the Journal</h2>
+          </div>
+          <p class="sh-support">A magazine contents page, not a grid — filter by category, or read straight down the list.</p>
         </div>
-        <div class="products-grid products-grid--3" id="grid"></div>
+        <div class="filter-pills" id="catPills" style="margin-bottom:var(--s-6)"></div>
+        <div class="journal-rows" id="grid"></div>
       </div>
     </section>
   </main>
@@ -101,7 +112,7 @@
       const grid = document.getElementById("grid");
       function renderGrid() {
         const list = active === "All" ? rest : rest.filter(a => a.category === active);
-        grid.innerHTML = list.map(FV.articleCardHTML).join("");
+        grid.innerHTML = list.map(a => FV.articleCardHTML(a, true)).join("");
         FV.observeReveals();
       }
       pills.innerHTML = cats.map(c => `<button class="pill" data-c="${c}" aria-pressed="${c === "All"}">${c}</button>`).join("");

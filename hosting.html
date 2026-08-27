@@ -19,7 +19,7 @@
   <style>
     /* ===== 1 · HERO — title, then one held frame with a caption line ===== */
     .hh-hero { padding-top: calc(var(--header-h) + clamp(2.5rem, 6vw, 5rem)); padding-bottom: clamp(1.5rem, 3vw, 2.5rem); text-align: center; }
-    .hh-hero h1 { font-size: var(--step-6); line-height: 1.02; letter-spacing: -.02em; color: var(--forest); max-width: 16ch; margin: .5em auto 0; }
+    .hh-hero h1 { font-size: var(--step-5); line-height: 1.02; letter-spacing: -.02em; color: var(--forest); max-width: 16ch; margin: .5em auto 0; }
     .hh-hero h1 em { font-style: italic; color: var(--brass-deep); }
     .hh-hero .sub { font-size: var(--step-1); color: var(--text-muted); max-width: 52ch; margin: 1.1rem auto 0; font-weight: 360; }
     .hh-hero .cta { display: inline-flex; gap: .7rem; flex-wrap: wrap; justify-content: center; margin-top: 1.7rem; }
@@ -31,17 +31,15 @@
     .hh-hero-cap .t { font-family: var(--font-display); font-style: italic; font-size: var(--step-0); color: var(--forest); }
     .hh-hero-cap .m { font-size: var(--step--2); letter-spacing: .1em; text-transform: uppercase; color: var(--text-faint); white-space: nowrap; }
 
-    /* ===== 2 · THE PROBLEM ===== */
+    /* ===== 2 · THE PROBLEM — full-width editorial strike beat ===== */
     .hh-problem { background: var(--surface); }
-    .hh-problem .grid { display: grid; grid-template-columns: .85fr 1.15fr; gap: clamp(2rem, 5vw, 5rem); align-items: center; }
-    .hh-problem h2 { font-size: var(--step-3); color: var(--forest); line-height: 1.08; max-width: 14ch; }
-    .hh-problem p { color: var(--text-muted); margin-top: 1rem; max-width: 38ch; }
-    .gift-list { display: grid; gap: 0; }
-    .gift-row { display: flex; align-items: baseline; gap: 1rem; padding: 1.1rem 0; border-bottom: 1px solid var(--line-soft); }
-    .gift-row .x { font-family: var(--font-display); font-size: var(--step-3); color: var(--text-faint); line-height: 1; position: relative; white-space: nowrap; }
-    .gift-row .x s { text-decoration: none; position: relative; }
-    .gift-row .x s::after { content: ""; position: absolute; left: -3%; top: 52%; height: 1.5px; width: 0; background: var(--brass); transition: width .6s var(--ease-out); }
-    .gift-row.in .x s::after { width: 106%; }
+    .hh-problem-head { max-width: 46ch; }
+    .hh-problem-head h2 { font-size: var(--step-3); color: var(--forest); line-height: 1.08; max-width: 14ch; }
+    .hh-problem-head p { color: var(--text-muted); margin-top: 1rem; max-width: 40ch; }
+    .gift-list { display: grid; margin-top: clamp(2.5rem, 6vw, 4.5rem); border-top: 1px solid var(--line-soft); }
+    .gift-row { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: clamp(1rem, 2.5vw, 1.75rem); row-gap: .3rem; padding: clamp(1.15rem, 2.8vw, 1.9rem) 0; border-bottom: 1px solid var(--line-soft); }
+    .gift-row .strike-line { font-family: var(--font-display); font-weight: 400; font-size: clamp(1.5rem, 1.2rem + 2vw, 2.5rem); line-height: 1.3; color: var(--text-faint); white-space: nowrap; }
+    .gift-row .strike-line::after { background: var(--brass); }
     .gift-row .note { color: var(--text-muted); font-size: var(--step--1); }
 
     /* ===== 3 · PHILOSOPHY ===== */
@@ -96,13 +94,29 @@
     /* ===== 9 · SOCIAL PROOF ===== */
     .proof-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1.5rem, 3vw, 3rem); }
 
-    /* ===== 10 · EDITORIAL QUOTE — the one pull-quote moment ===== */
-    .hh-quote { position: relative; isolation: isolate; color: var(--cream); text-align: center; padding-block: clamp(5rem, 12vw, 9rem); }
-    .hh-quote img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
+    /* ===== 10 · EDITORIAL QUOTE — the crescendo: tallest section, largest type, slowest motion ===== */
+    .hh-quote { position: relative; isolation: isolate; overflow: hidden; color: var(--cream); text-align: center; padding-block: clamp(6.5rem, 16vw, 11.5rem); }
+    .hh-quote img {
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2;
+      transform: scale(1.08); transition: transform 4s var(--ease-settle);
+    }
+    .hh-quote.in img { transform: scale(1); }
     .hh-quote::after { content: ""; position: absolute; inset: 0; z-index: -1; background: rgba(8,20,14,.72); }
-    .hh-quote q { quotes: none; font-family: var(--font-display); font-size: var(--step-4); line-height: 1.18; font-weight: 380; max-width: 22ch; margin: 0 auto; display: block; }
+    .hh-quote q { quotes: none; font-family: var(--font-display); font-size: var(--quote); line-height: 1.14; font-weight: 380; max-width: 24ch; margin: 0 auto; display: block; }
     .hh-quote q em { color: var(--brass); font-style: italic; }
     .hh-quote .by { display: block; font-size: var(--step--2); letter-spacing: .2em; text-transform: uppercase; color: rgba(246,241,232,.75); margin-top: 2rem; }
+    .hh-quote .q-line {
+      display: block; opacity: 0; transform: translateY(24px);
+      transition: opacity .9s var(--ease-settle), transform .9s var(--ease-settle);
+    }
+    .hh-quote.in .q-line { opacity: 1; transform: translateY(0); }
+    .hh-quote q .q-line:nth-of-type(1) { transition-delay: .1s; }
+    .hh-quote q .q-line:nth-of-type(2) { transition-delay: .24s; }
+    .hh-quote .by.q-line { transition-delay: .38s; }
+    @media (prefers-reduced-motion: reduce) {
+      .hh-quote img { transition: none; transform: none; }
+      .hh-quote .q-line { transition: opacity .01s linear; transform: none; transition-delay: 0s !important; }
+    }
 
     /* ===== 11 · FINAL CTA ===== */
     .hh-cta { text-align: center; }
@@ -118,7 +132,7 @@
     .cta-thumbs span { display: block; font-size: var(--step--2); color: var(--text-muted); margin-top: .55rem; }
 
     @media (max-width: 920px) {
-      .hh-problem .grid, .hh-details .grid { grid-template-columns: 1fr; }
+      .hh-details .grid { grid-template-columns: 1fr; }
       .tl-row { grid-template-columns: repeat(2, 1fr); gap: 1.6rem 1.25rem; }
       .proof-grid { grid-template-columns: 1fr; }
       .diff-grid { grid-template-columns: 1fr; }
@@ -143,7 +157,7 @@
         <h1 data-reveal data-delay="1" data-fv="aoh_page_title">Arrive with something <em>they'll remember</em>.</h1>
         <p class="sub" data-reveal data-delay="2" data-fv="aoh_page_sub">In Egypt, no one visits empty-handed. We turn that small, beautiful habit into something unforgettable — a box of the season, graded and wrapped by hand, set on the table the moment you walk in.</p>
         <div class="cta" data-reveal data-delay="2">
-          <a class="btn btn--brass btn--lg" href="product.html?box=hosting-box">Gift a hosting box</a>
+          <a class="btn btn--lg" href="product.html?box=hosting-box">Gift a hosting box</a>
           <a class="btn btn--outline btn--lg" href="#ritual">See the ritual</a>
         </div>
         <div class="hh-hero-figure" data-reveal data-delay="3">
@@ -160,8 +174,8 @@
 
     <!-- 2 · THE PROBLEM -->
     <section class="hh-problem section section--tight">
-      <div class="container grid">
-        <div data-reveal>
+      <div class="container">
+        <div class="hh-problem-head" data-reveal>
           <p class="eyebrow">The problem</p>
           <h2 class="mt-md">We've all brought the forgettable gift.</h2>
           <p>We reach for them because they're easy — not because they're meant. A real gift should say <em>I thought about you</em>. Most just say <em>I stopped on the way</em>.</p>
@@ -220,8 +234,9 @@
     <!-- 7 · WHAT MAKES IT DIFFERENT -->
     <section class="section section--tight" style="background:var(--paper-2)">
       <div class="container">
-        <div class="split-head" data-reveal>
-          <div class="section-head"><p class="eyebrow">The difference</p><h2 class="title" style="font-size:var(--step-3)">Why a box, and not a bouquet.</h2></div>
+        <div class="section-head section-head--xl" data-reveal style="margin-bottom: clamp(2rem,4vw,3rem)">
+          <p class="eyebrow">The difference</p>
+          <h2 class="title">Why a box, and not a bouquet.</h2>
         </div>
         <div class="diff-grid" data-reveal data-delay="1">
           <div class="diff-col diff-col--old">
@@ -258,19 +273,26 @@
     <!-- 9 · SOCIAL PROOF -->
     <section class="section section--tight" style="background:var(--bone)">
       <div class="container">
-        <div class="split-head" data-reveal>
-          <div class="section-head"><p class="eyebrow">From our hosts</p><h2 class="title" style="font-size:var(--step-3)">The gift they remembered.</h2></div>
+        <div class="section-head section-head--split" data-reveal style="margin-bottom: clamp(2rem,4vw,3rem)">
+          <div class="sh-main">
+            <p class="eyebrow">From our hosts</p>
+            <h2 class="title" style="font-size:var(--step-3)">The gift they remembered.</h2>
+          </div>
+          <p class="sh-support">Real words, from the tables we've been lucky enough to be invited to.</p>
         </div>
         <div class="proof-grid" id="proof"></div>
       </div>
     </section>
 
-    <!-- 10 · EDITORIAL QUOTE -->
-    <section class="hh-quote">
+    <!-- 10 · EDITORIAL QUOTE — the crescendo: tallest section, largest type, slowest motion -->
+    <section class="hh-quote" id="editorialQuote">
       <img src="assets/img/banners/home-delivery.jpg" alt="" loading="lazy" width="1500" height="779">
-      <div class="container" data-reveal>
-        <q>Generosity is the oldest language we have. We simply gave it <em>a box</em>.</q>
-        <span class="by">The Fresh Valley belief</span>
+      <div class="container">
+        <q>
+          <span class="q-line">Generosity is the oldest language we have.</span>
+          <span class="q-line">We simply gave it <em>a box</em>.</span>
+        </q>
+        <span class="by q-line">The Fresh Valley belief</span>
       </div>
     </section>
 
@@ -299,7 +321,7 @@
       const arrowR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
       const arrowL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>';
 
-      /* 2 · gift list */
+      /* 2 · gift list — each line is its own editorial beat, strike draws in sequence */
       const gifts = [
         ["Chocolates", "melt by the door"],
         ["Flowers", "wilt by morning"],
@@ -307,7 +329,7 @@
         ["The usual sweets", "everyone forgets"],
       ];
       $id("giftList").innerHTML = gifts.map(g =>
-        `<div class="gift-row" data-reveal><span class="x"><s>${g[0]}.</s></span><span class="note">— ${g[1]}</span></div>`).join("");
+        `<div class="gift-row"><span class="strike-line">${g[0]}.</span><span class="note">— ${g[1]}</span></div>`).join("");
 
       /* 3 · season strip */
       const seasons = [["strawberry", "Winter"], ["green-grapes", "Spring"], ["mango", "Summer"], ["medjool-dates", "Autumn"]];
@@ -380,11 +402,32 @@
       $id("ctaThumbs").innerHTML = picks.map(b =>
         `<a href="product.html?box=${b.slug}"><span class="th-media"><img src="${FV.thumb(b.image)}" alt="" loading="lazy" width="540" height="540"></span><span>${b.name}</span></a>`).join("");
 
-      // strikethrough animation on scroll for gift rows
-      if ("IntersectionObserver" in window) {
-        const io = new IntersectionObserver((es) => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { threshold: .6 });
-        document.querySelectorAll(".gift-row").forEach(r => io.observe(r));
-      } else { document.querySelectorAll(".gift-row").forEach(r => r.classList.add("in")); }
+      // 2 · gift list — sequential strike-line draw when the block scrolls into view
+      const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const giftListEl = $id("giftList");
+      function strikeGiftsIn() {
+        const lines = giftListEl.querySelectorAll(".strike-line");
+        lines.forEach((line, i) => {
+          if (reduceMotion) { line.classList.add("in"); }
+          else { setTimeout(() => line.classList.add("in"), i * 110); }
+        });
+      }
+      if (giftListEl) {
+        if ("IntersectionObserver" in window) {
+          const giftIO = new IntersectionObserver((es) => es.forEach(e => { if (e.isIntersecting) { strikeGiftsIn(); giftIO.unobserve(e.target); } }), { threshold: .4 });
+          giftIO.observe(giftListEl);
+        } else { strikeGiftsIn(); }
+      }
+
+      // 10 · editorial quote — Ken Burns zoom + line-by-line reveal, once, on scroll into view
+      const quoteSec = $id("editorialQuote");
+      if (quoteSec) {
+        const activateQuote = () => quoteSec.classList.add("in");
+        if ("IntersectionObserver" in window) {
+          const quoteIO = new IntersectionObserver((es) => es.forEach(e => { if (e.isIntersecting) { activateQuote(); quoteIO.unobserve(e.target); } }), { threshold: .35 });
+          quoteIO.observe(quoteSec);
+        } else { activateQuote(); }
+      }
 
       FV.observeReveals();
       FV.updateWishUI();
