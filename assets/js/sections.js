@@ -125,17 +125,17 @@ window.FVSections = (function () {
     const chips = list(st.chips);
     const chipIc = ["shield", "snow", "truck", "leaf"];
     const ring = "fvStk-" + esc(s.id);
-    const av = [["NE", "#2D4630"], ["YF", "#6E5F2E"], ["OS", "#7A2B21"], ["MA", "#8A8E57"]];
+    const av = [["NE", "#2D4630"], ["YF", "#6E5F2E"], ["OS", "#7A2B21"], ["MA", "#2A2622"]];
     return `<section class="s s-hero" ${attrs(s)}>
       <div class="wrap wrap--wide">
         <div class="hero__grid">
           <div class="hero__head">
             ${st.badge ? `<a class="hero__badge" href="${esc(st.badge_link || "products.html")}"><span class="dot" aria-hidden="true"></span>${md(st.badge)}${I("arrow")}</a>` : ""}
             <h1 class="hero__title">
-              <span class="hero__orbs" aria-hidden="true">${orbs.map((o, i) => `<span class="orb" data-depth="${[0.9, 0.5, 0.7, 0.4][i]}"><span class="orb__in" data-float="${[12, 16, 10, 14][i]}">${img(o, { sizes: "130px" })}</span></span>`).join("")}</span>
-              <span class="line"><span class="line__in">${md(st.line1)}</span></span>
-              <span class="line"><span class="line__in">${md(st.line2)}</span></span>
-              <span class="line"><span class="line__in">${md(st.line3)}${words.length ? ` <em class="i rot" data-rotate="${esc(words.join("|"))}"><span class="rot__w">${esc(words[0])}</span></em>.` : ""}</span></span>
+              <span class="hero__orbs" aria-hidden="true">${orbs.map((o, i) => `<span class="orb" data-depth="${[0.9, 0.5, 0.7, 0.4][i]}"><span class="orb__in" data-float="${[12, 16, 10, 14][i]}">${img(o, { sizes: "130px", attrs: 'fetchpriority="low"' })}</span></span>`).join("")}</span>
+              <span class="line" style="--i:0"><span class="line__in">${md(st.line1)}</span></span>
+              <span class="line" style="--i:1"><span class="line__in">${md(st.line2)}</span></span>
+              <span class="line" style="--i:2"><span class="line__in">${md(st.line3)}${words.length ? ` <em class="i rot" data-rotate="${esc(words.join("|"))}"><span class="rot__w">${esc(words[0])}</span></em>.` : ""}</span></span>
             </h1>
           </div>
           <div class="hero__side">
@@ -269,7 +269,7 @@ window.FVSections = (function () {
       <div class="wrap wrap--wide">
         <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span aria-hidden="true">/</span><span aria-current="page">${esc(crumbTitle)}</span></nav>
         <div class="page-head">
-          <div>${eyebrow(st.eyebrow)}<h1 data-split>${md(st.title)}</h1></div>
+          <div>${eyebrow(st.eyebrow)}<h1 class="ph-title">${md(st.title)}</h1></div>
           <div class="page-head__side">${st.text ? `<p class="lede">${md(st.text)}</p>` : ""}${st.cta_label || st.cta2_label ? `<div class="row">${btn(st.cta_label, st.cta_link, "", true)}${btn(st.cta2_label, st.cta2_link, "btn--ghost")}</div>` : ""}</div>
         </div>
         ${st.image ? `<figure class="page-head__media" data-parallax-root>${img(st.image, { eager: true, sizes: "100vw", alt: "", attrs: 'data-parallax="8"' })}${st.caption ? `<figcaption class="chip chip--glass">${esc(st.caption)}</figcaption>` : ""}</figure>` : ""}
@@ -454,6 +454,14 @@ window.FVSections = (function () {
     CTX.page = pg;
     return pg ? pg.sections.map(renderSection).join("\n") : "";
   }
+  const BOUND = new WeakSet();
+  /* Signature of everything a page render depends on — baked HTML is kept
+     only while it still matches (any CMS edit changes it → live re-render). */
+  function signature(key) {
+    const str = JSON.stringify([T.page(key), T.settings(), FV.catalog, FV.settings.currency]);
+    let h = 5381; for (let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) >>> 0;
+    return h.toString(36) + str.length.toString(36);
+  }
   /* Hero orbs sit in the gaps the headline leaves: measure lines 1–2 (in em)
      and hide orbs that wouldn't fit beside a longer, owner-edited headline. */
   function placeOrbs(root) {
@@ -468,7 +476,7 @@ window.FVSections = (function () {
       };
       measure();
       if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
-      if (!t.dataset.orbs) { t.dataset.orbs = "1"; window.addEventListener("resize", measure, { passive: true }); }
+      if (!BOUND.has(t)) { BOUND.add(t); window.addEventListener("resize", measure, { passive: true }); }
     });
   }
   function behave(root) {
@@ -477,10 +485,11 @@ window.FVSections = (function () {
     // rails with prev/next
     Array.from(root.querySelectorAll("[data-section-id]")).forEach((sec) => {
       const rail = sec.querySelector(".rail"), p = sec.querySelector("[data-rail-prev]"), n = sec.querySelector("[data-rail-next]");
-      if (rail && p && n && !rail.dataset.bound) { rail.dataset.bound = "1"; FV.bindRail(rail, p, n); }
+      if (rail && p && n && !BOUND.has(rail)) { BOUND.add(rail); FV.bindRail(rail, p, n); }
     });
     // journal filter tabs
     Array.from(root.querySelectorAll("[data-jtabs]")).forEach((tabs) => {
+      if (BOUND.has(tabs)) return; BOUND.add(tabs);
       const listEl = tabs.closest("section").querySelector("[data-jlist]"), ink = tabs.querySelector(".tabs__ink");
       const move = () => { const a = tabs.querySelector('[aria-selected="true"]'); if (a && ink) { ink.style.width = a.offsetWidth + "px"; ink.style.transform = "translateX(" + a.offsetLeft + "px)"; } };
       tabs.querySelectorAll("[data-cat]").forEach((b) => b.addEventListener("click", () => {
@@ -495,7 +504,7 @@ window.FVSections = (function () {
     });
     // contact form → admin inbox
     Array.from(root.querySelectorAll("[data-contact-form]")).forEach((f) => {
-      if (f.dataset.bound) return; f.dataset.bound = "1";
+      if (BOUND.has(f)) return; BOUND.add(f);
       const topic = new URLSearchParams(location.search).get("topic");
       if (topic) { const sel = f.querySelector("select"); Array.from(sel.options).forEach((o) => { if (o.value.toLowerCase().indexOf(topic.toLowerCase()) === 0) sel.value = o.value; }); }
       f.addEventListener("submit", (e) => {
@@ -527,9 +536,9 @@ window.FVSections = (function () {
   const main = document.querySelector("main[data-fv-page]");
   const KEY = main && main.dataset.fvPage;
   if (main && KEY) {
-    const baked = main.hasAttribute("data-baked") && main.querySelector("[data-section-id]");
-    if (!baked || T.isCustom()) renderInto(main, KEY);
-    else behave(main);
+    const fresh = main.dataset.sig && main.dataset.sig === signature(KEY) && main.querySelector("[data-section-id]") && !/[?&](fv_preview|bake)=1/.test(location.search);
+    if (fresh) behave(main);
+    else renderInto(main, KEY);
     const pg = T.page(KEY);
     if (pg && pg.seo_title) document.title = pg.seo_title;
   }
@@ -577,5 +586,5 @@ window.FVSections = (function () {
     post({ type: "fv:ready", page: KEY || (document.body && document.body.dataset.page) || "" });
   }
 
-  return { render: renderSection, renderPageHTML, renderInto, behave, schema: SCHEMA, presets: PRESETS, ART, img, md, list };
+  return { render: renderSection, renderPageHTML, renderInto, behave, signature, schema: SCHEMA, presets: PRESETS, ART, img, md, list };
 })();

@@ -2,8 +2,8 @@
    FRESH VALLEY — Admin (Shopify-grade back office, Polaris density,
    Fresh Valley brand). Jakarta for UI, Fraunces for titles & numbers.
    ===================================================================== */
-@font-face { font-family: "Jakarta"; font-style: normal; font-weight: 300 800; font-display: swap; src: url("../../assets/fonts/jakarta.woff2") format("woff2"); }
-@font-face { font-family: "Fraunces"; font-style: normal; font-weight: 300 900; font-display: swap; src: url("../../assets/fonts/fraunces-v4.woff2") format("woff2"); }
+@font-face { font-family: "Jakarta"; font-style: normal; font-weight: 300 800; font-display: swap; src: url("../../assets/fonts/jakarta-s.woff2") format("woff2"); }
+@font-face { font-family: "Fraunces"; font-style: normal; font-weight: 300 900; font-display: swap; src: url("../../assets/fonts/fraunces-v4s.woff2") format("woff2"); }
 
 :root {
   --forest: #19291C; --forest-2: #223A29; --moss: #2D4630; --olive: #AE9D57; --olive-lt: #CFC287; --olive-dk: #6E5F2E;

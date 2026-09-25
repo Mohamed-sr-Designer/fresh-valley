@@ -293,13 +293,10 @@
   function hero() {
     const h = document.querySelector(".s-hero");
     if (!h || !once(h, "hero")) return;
-    if (!M.on) { h.classList.add("is-in"); return; }
-    const tl = G.timeline({ delay: 0.1, onComplete: () => h.classList.add("is-in") });
-    tl.fromTo(q(".hero__title .line__in", h), { y: 0, yPercent: 118, rotate: 3 }, { y: 0, yPercent: 0, rotate: 0, duration: 1.35, ease: "expo.out", stagger: 0.11 })
-      .fromTo(q(".hero__side > *", h), { y: 34, opacity: 0 }, { y: 0, opacity: 1, duration: 1.1, ease: "expo.out", stagger: 0.08 }, "-=1.05")
-      .fromTo(q(".orb", h), { scale: 0 }, { scale: 1, duration: 1.3, ease: "back.out(1.7)", stagger: 0.1 }, "-=1.1")
-      .fromTo(q(".hero__sticker", h), { scale: 0, rotate: -140 }, { scale: 1, rotate: 0, duration: 1.3, ease: "back.out(1.5)" }, "-=1.2")
-      .fromTo(q(".hero__media img", h), { scale: 1.14 }, { scale: 1.04, duration: 1.8, ease: "expo.out" }, 0.15);
+    // The intro itself is CSS (styles.css › "Hero intro") so it starts on the
+    // first frame; here we only add the scroll- and pointer-linked layers.
+    h.classList.add("is-in");
+    if (!M.on) return;
 
     const media = h.querySelector(".hero__media");
     if (media) {

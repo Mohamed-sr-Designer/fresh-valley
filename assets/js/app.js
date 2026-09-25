@@ -318,7 +318,7 @@
     const base = new URL(".", location.href).href;
     const rows = (o.items || []).map((it) => `<tr><td><div class="n">${esc(it.name)}</div><div class="v">${esc(it.variant || "")}</div></td><td class="c">${it.qty}</td><td class="r b">${m(it.price * it.qty)}</td></tr>`).join("");
     return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${base}"><title>Receipt ${esc(o.id)} · ${store}</title>
-<style>@font-face{font-family:F;src:url(assets/fonts/fraunces-v4.woff2) format("woff2");font-weight:300 900}@font-face{font-family:J;src:url(assets/fonts/jakarta.woff2) format("woff2");font-weight:300 800}
+<style>@font-face{font-family:F;src:url(assets/fonts/fraunces-v4s.woff2) format("woff2");font-weight:300 900}@font-face{font-family:J;src:url(assets/fonts/jakarta-s.woff2) format("woff2");font-weight:300 800}
 *{box-sizing:border-box;margin:0}body{font-family:J,system-ui,sans-serif;background:#E6DAC4;color:#211F1B;padding:28px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .rc{max-width:600px;margin:0 auto;background:#FFFDF8;border-radius:26px;overflow:hidden;box-shadow:0 30px 70px -34px rgba(25,41,28,.5)}
 .h{background:#19291C;color:#F3EDE1;padding:26px 30px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
@@ -435,7 +435,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
 
   function buildFooter() {
     const f = TS.footer || {}, s = TS.social || {}, c = TS.contact || {};
-    const cols = (f.columns || []).map((col) => `<div class="ftr__col"><h4>${esc(col.title)}</h4>${(col.links || []).map((l) => `<a href="${esc(l.href)}">${esc(l.label)}</a>`).join("")}</div>`).join("");
+    const cols = (f.columns || []).map((col) => `<div class="ftr__col"><h3>${esc(col.title)}</h3>${(col.links || []).map((l) => `<a href="${esc(l.href)}">${esc(l.label)}</a>`).join("")}</div>`).join("");
     return `<footer class="ftr" id="siteFooter">
       <div class="ftr__art" aria-hidden="true">${ART_SPRIG}</div>
       <div class="wrap wrap--wide">
@@ -700,7 +700,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
       </div>
     </article>`;
   };
-  const AV = ["#2D4630", "#6E5F2E", "#7A2B21", "#8A8E57", "#2A2622", "#19291C"];
+  const AV = ["#2D4630", "#6E5F2E", "#7A2B21", "#4F5A2E", "#2A2622", "#19291C"];
   FV.reviewCardHTML = function (r) {
     const initials = r.name.split(" ").map((w) => w[0]).slice(0, 2).join("");
     let h = 0; for (let i = 0; i < r.name.length; i++) h = (h * 31 + r.name.charCodeAt(i)) >>> 0;
@@ -843,13 +843,13 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
     }
     if (SETTINGS.storeOpen === false && !/[?&]fv_preview=1/.test(location.search)) { showMaintenance(); return; }
     const a = TS.announcement;
+    let bar = document.querySelector(".announce"); // may be pre-rendered into the page
     if (a && a.enabled && a.text) {
-      const bar = document.createElement("div");
-      bar.className = "announce";
-      bar.innerHTML = `<span>${esc(a.text)}</span>${a.link ? ` <a href="${esc(a.link)}">${esc(a.link_label || "Shop now")}</a>` : ""}`;
-      document.body.insertBefore(bar, document.body.firstChild);
+      if (!bar) { bar = document.createElement("div"); bar.className = "announce"; document.body.insertBefore(bar, document.body.firstChild); }
+      const html = `<span>${esc(a.text)}</span>${a.link ? ` <a href="${esc(a.link)}">${esc(a.link_label || "Shop now")}</a>` : ""}`;
+      if (bar.innerHTML !== html) bar.innerHTML = html;
       document.body.classList.add("has-announce");
-    }
+    } else if (bar) bar.remove();
   }
   function showMaintenance() {
     document.body.classList.add("no-scroll");
