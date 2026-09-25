@@ -2,64 +2,67 @@
 
 # Fresh Valley
 
-### Premium produce for better hosting
+### Export-grade produce · The Art of Hosting · Cairo
 
-Export-grade fruits, vegetables and curated produce boxes — a premium **brand experience**,
-not an online grocery store. Built for upper-class Egypt: New Cairo, Sheikh Zayed, October,
-Madinaty & Rehab.
+**v4 “Market Day”** — a fully branded, motion-rich storefront with a Shopify-style CMS.
 
 </div>
 
 ---
 
-## ✦ Overview
+## What's here
 
-A framework-free, production-grade storefront in an **editorial quiet-luxury** register —
-hairlines instead of shadows, ink instead of glass, air instead of ornament. The brand
-palette and logo are unchanged; the interface around them was rebuilt in 2026 for an A+
-audience. **The Art of Hosting** is the brand's signature edge: arrive at a gathering with a
-hand-graded box of produce instead of the usual cola or sweets.
+| | |
+|---|---|
+| **Storefront** | 15 pages: Home, Collection, Product & Box pages, The Art of Hosting, About, Journal + Article, Basket, Checkout, Wishlist, Account, Contact, Policies, Terms, 404 |
+| **Brand system** | The real palette sampled from the logo and wrapping paper — forest ink `#19291C`, olive wordmark `#AE9D57`, kraft `#E6DAC4`, Mid Forest & Charcoal ribbons — Fraunces Soft (echoing the logo's “Valley”) + Plus Jakarta Sans, botanical line-art from the packaging, the logo re-vectorised (identical artwork) for the giant footer sign-off |
+| **Motion** | GSAP + ScrollTrigger + SplitText + Lenis smooth scroll: masked headline reveals, rotating hero word, floating produce orbs, crossed marquee ribbons, pinned stacking “ritual” cards, horizontal scroll story, count-ups, self-drawing line-art, fly-to-basket, custom cursor, magnetic buttons, page view-transitions. All of it switches off for reduced-motion users |
+| **CMS (admin/)** | Shopify-style back office: dashboard & analytics, orders, products, boxes, collections, inventory, customers (RFM segments), discounts, subscribers, inbox, reports, live view, files, navigation, preferences, users & roles, publishing, demo data |
+| **Theme editor** | `admin/theme.html` — Online Store 2.0-style: add / reorder / hide sections and blocks, edit every text and image with a live preview (desktop, tablet, mobile), undo/redo, save, publish |
 
-- **14 pages** — Home, Products, Product/Box detail, The Art of Hosting, About, Journal +
-  Article, Cart, Checkout, Wishlist, Account, Contact, Policies, Terms.
-- **One design system** (`assets/css/styles.css`), **one catalog** (`assets/js/data.js`),
-  **one engine** (`assets/js/app.js`) — cart, wishlist, search, rails, PWA shell.
-- **A single held hero** — one full-bleed photograph, responsive `srcset` + a dedicated
-  mobile crop, preloaded. No sliders, no auto-play, no motion for its own sake.
-- **Installable PWA** with a quiet bottom tab bar and offline-ready manifest.
-- **SEO-ready** — per-page meta, JSON-LD (Organization / Product / Article), sitemap, robots.
-
-The design contract every page follows is [`docs/REDESIGN-2026.md`](docs/REDESIGN-2026.md).
-
-## ✦ Run locally
-
-Static site — any server works. A zero-dependency Node server ships in the repo:
+## Run it locally
 
 ```bash
-node _build/server.js 5500   # → http://localhost:5500
+node _build/server.js 5517
 ```
 
-Regenerate the sitemap after editing the catalog:
+Open <http://localhost:5517> for the store and <http://localhost:5517/admin/> for the admin.
 
-```bash
-node _build/generate-sitemap.js
+**Demo admin accounts** — owner `admin@freshvalley.eg` / `fresh-admin` · staff `designer@freshvalley.eg` / `design123`.
+The first owner sign-in loads 90 days of demo activity (Settings → Data & demo to turn it off).
+
+## How content flows
+
+```
+assets/js/data.js      catalog (products, boxes, reviews, journal)
+assets/js/theme.js     theme defaults — every marketing page as sections + settings
+assets/js/content.js   published overrides (written by the admin's Publish button)
+          ↓
+assets/js/app.js       engine: catalog overrides, cart, orders, discounts, shell, cards
+assets/js/sections.js  section renderers + the schema the theme editor uses
+assets/js/motion.js    motion layer (data-attribute driven)
 ```
 
-## ✦ Structure
+* Edits made in the admin are saved in the browser immediately (the store in that browser
+  updates at once).
+* **Publish** (Settings → Publishing, or the Publish button in the theme editor) writes
+  `assets/js/content.js` — plus any uploaded images to `assets/img/uploads/` — to the GitHub
+  repository with a fine-grained token (Contents: read & write). GitHub Pages refreshes in
+  about a minute and every visitor sees the change. No token? Download `content.js` from the
+  admin and commit it.
+* The optional Node server in `server/` (Express + JWT) adds real, cross-device orders; the
+  storefront detects it automatically.
 
-```
-index.html · products.html · product.html · hosting.html · about.html
-journal.html · article.html · cart.html · checkout.html · wishlist.html
-account.html · contact.html · policies.html · terms.html
-assets/  css · js · img (products, thumbnails, banners, icons, logo)
-docs/    design system · IA & user flows · UX copy · CRO/SEO · dev handoff
-_build/  local server + sitemap generator
-```
+## Docs
 
-Full documentation lives in [`/docs`](docs/).
+* [`docs/V4-ARCHITECTURE.md`](docs/V4-ARCHITECTURE.md) — page anatomy, JS APIs, storage contract, theme model, preview protocol
+* [`docs/ADMIN.md`](docs/ADMIN.md) — the CMS, screen by screen
+* [`docs/DESIGN-SYSTEM.md`](docs/DESIGN-SYSTEM.md) — tokens and components
 
----
+## Principles kept
 
-<div align="center">
-<sub>© Fresh Valley — Cairo, Egypt. Design & build by Mohamed Tarek.</sub>
-</div>
+Logo, brand colours and company unchanged · only the existing photography is used (no new or
+generated images) · every v3 feature kept (weights & bulk pricing, boxes & tiers, wishlist,
+recently viewed, receipts, reorder, addresses, demo/live checkout) · accessible (skip link,
+focus states, labelled controls, focus-trapped dialogs, reduced-motion support) · no build
+step, no frameworks.

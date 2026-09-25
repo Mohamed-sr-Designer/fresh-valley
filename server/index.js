@@ -50,6 +50,8 @@ app.use("/api", (req, res) => res.status(404).json({ error: "Unknown API endpoin
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use((req, res, next) => {                        // never expose the server folder or dotfiles
   if (req.path === "/server" || req.path.startsWith("/server/")) return res.status(404).end();
+  // announce the live API to the storefront (app.js only probes /api/health when this is set)
+  res.append("Set-Cookie", "fv_api=1; Path=/; SameSite=Lax");
   next();
 });
 app.use(express.static(ROOT, { dotfiles: "ignore", index: "index.html", extensions: ["html"] }));

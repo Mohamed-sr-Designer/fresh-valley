@@ -2,163 +2,132 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Journal — Fresh Valley</title>
-  <meta name="description" content="A note from the Fresh Valley Journal.">
-  <meta name="theme-color" content="#1A2A1D">
-  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/jost-400.woff2" crossorigin>
-  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/cormorant-garamond-500.woff2" crossorigin>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>The Journal — Fresh Valley</title>
+  <meta name="description" content="Recipes, hosting tips and a little produce education from Fresh Valley.">
+  <meta name="theme-color" content="#19291C">
+  <meta property="og:type" content="article">
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/fraunces-v4.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/jakarta.woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/styles.css">
-  <style>
-    .article-head { padding-top: calc(var(--header-h) + clamp(3rem, 6vw, 5.5rem)); padding-bottom: clamp(2rem, 4vw, 3rem); text-align: center; }
-    .article-head .a-cat { font-size: var(--step--2); letter-spacing: .18em; text-transform: uppercase; color: var(--brass-deep); font-weight: 600; }
-    .article-head h1 { font-size: var(--step-5); max-width: 20ch; margin: .7rem auto 1.1rem; line-height: 1.05; }
-    .article-head .meta { font-size: var(--step--1); color: var(--text-faint); letter-spacing: .02em; }
-
-    /* Full-bleed figure — one held frame, edge to edge */
-    .article-hero { width: 100%; aspect-ratio: 21 / 9; overflow: hidden; background: var(--surface-warm); margin-top: clamp(1.5rem, 4vw, 2.5rem); }
-    .article-hero picture { display: block; width: 100%; height: 100%; }
-    .article-hero img { width: 100%; height: 100%; object-fit: cover; }
-    @media (max-width: 640px) { .article-hero { aspect-ratio: 4 / 3; } }
-
-    /* A genuinely readable measure */
-    .article-body { max-width: 68ch; margin: clamp(3rem, 6vw, 5rem) auto 0; }
-    .article-body p { font-size: var(--step-1); line-height: 1.78; color: var(--text); margin-bottom: 1.5em; }
-    .article-body > p:first-of-type::first-letter {
-      font-family: var(--font-display); font-size: 3.6em; line-height: .82; float: left;
-      padding: .04em .12em 0 0; color: var(--brass-deep);
-    }
-
-    /* Drop-in pull-quote — breaks slightly out of the text column, --quote scale, hairline + gold mark */
-    .pull-quote {
-      max-width: none; width: calc(100% + clamp(2rem, 7vw, 4.5rem));
-      margin-block: 1.4em 2.8em; margin-inline-start: clamp(-2.25rem, -3.5vw, -1rem);
-      padding-block: 1.5em; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
-    }
-    .pull-quote p {
-      font-family: var(--font-display); font-style: italic; font-weight: 400;
-      font-size: var(--quote); line-height: 1.08; color: var(--forest); margin: 0;
-    }
-    .pull-quote p::before { content: "\201C"; color: var(--brass-deep); margin-right: .06em; }
-
-    .article-foot {
-      max-width: 68ch; margin: clamp(3rem, 6vw, 5rem) auto 0; padding-top: var(--s-6);
-      border-top: 1px solid var(--line-soft); display: flex; justify-content: space-between;
-      align-items: center; gap: 1rem; flex-wrap: wrap;
-    }
-    .article-foot .share { display: flex; align-items: center; gap: 1.2rem; }
-    .article-foot .share span { font-size: var(--step--2); color: var(--text-faint); letter-spacing: .04em; }
-    .article-foot .share button {
-      display: inline-flex; align-items: center; gap: .5em; font-size: var(--step--2);
-      letter-spacing: .08em; text-transform: uppercase; font-weight: 600; color: var(--text-muted);
-      transition: color .2s; padding: .5em 0;
-    }
-    .article-foot .share button:hover { color: var(--forest); }
-    .article-foot .share svg { width: 15px; height: 15px; }
-  </style>
+  <script>!function(d,w){var h=d.documentElement;if(!/[?&]fv_preview=1/.test(location.search)&&!w.matchMedia("(prefers-reduced-motion: reduce)").matches){h.classList.add("m-on");setTimeout(function(){if(!(w.FVMotion&&w.FVMotion.ready))h.classList.remove("m-on")},3500)}}(document,window)</script>
 </head>
-
-<body data-page="journal">
+<body data-page="article">
   <div id="fv-header"></div>
-  <main id="artRoot"></main>
+  <noscript><p class="noscript">Fresh Valley uses JavaScript for its menu, basket and checkout. <a href="products.html">Browse the collection</a> · <a href="contact.html">Contact us</a></p></noscript>
+  <div class="read-bar" aria-hidden="true"><i id="readBar"></i></div>
+
+  <main id="main"></main>
+
   <div id="fv-footer"></div>
 
   <script src="assets/js/data.js"></script>
+  <script src="assets/js/content.js"></script>
+  <script src="assets/js/theme.js"></script>
   <script src="assets/js/app.js"></script>
+  <script src="assets/js/sections.js"></script>
   <script>
     (function () {
-      const root = document.getElementById("artRoot");
+      const root = document.getElementById("main");
+      const S = window.FVSections, esc = FV.esc;
       const slug = new URLSearchParams(location.search).get("slug");
-      const a = FV.data.articles.find(x => x.slug === slug);
-      const arrow = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
-      const linkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.4l2-2a5 5 0 0 0-7-7l-1.2 1.1"/><path d="M14 11a5 5 0 0 0-7.5-.4l-2 2a5 5 0 0 0 7 7l1.1-1.1"/></svg>';
+      const list = FV.data.articles;
+      const a = list.find((x) => x.slug === slug);
+      const arrow = FV.icon("arrow"), back = FV.icon("arrowL");
 
       if (!a) {
-        root.innerHTML = `<section class="section" style="padding-top:calc(var(--header-h)+4rem);text-align:center">
-          <div class="container"><h1>Article not found</h1>
-          <a class="btn mt-lg" href="journal.html" style="margin-top:1.5rem">Back to the Journal ${arrow}</a></div></section>`;
+        root.innerHTML = `<section class="s s-page-head"><div class="wrap wrap--narrow" style="text-align:center">
+          <div class="empty"><div class="empty__art">${S.ART.leaf}</div><h1 class="h2">This story has <em class="i">wandered off</em>.</h1>
+          <p class="lede" style="margin:1rem auto 1.6rem">It may have moved — the rest of the Journal is right here.</p>
+          <a class="btn" href="journal.html">Back to the Journal<span class="btn__ic">${arrow}</span></a></div></div></section>`;
         return;
       }
-      document.title = `${a.title} — Fresh Valley Journal`;
+      document.title = a.title + " — Fresh Valley Journal";
+      const md = document.querySelector('meta[name="description"]'); if (md) md.content = a.excerpt;
 
-      const related = FV.data.articles.filter(x => x.slug !== a.slug).slice(0, 3);
+      // Shop the story: the article's hero produce + anything it mentions by name
+      const words = (a.title + " " + a.body.join(" ")).toLowerCase();
+      const hints = [["strawberr", "strawberry"], ["mango", "mango"], ["date", "medjool-dates"], ["grape", "red-grapes"], ["grape", "green-grapes"], ["cherr", "cherry"], ["orange", "orange"], ["lemon", "lemon"], ["pepper", "pepper-medley"], ["apple", "red-apple"], ["banana", "banana"], ["tomato", "tomato"], ["potato", "potato"], ["onion", "onion"], ["garlic", "garlic"], ["peach", "peach"], ["melon", "cantaloupe"]];
+      const shop = [];
+      const push = (s) => { const p = FV.find(s); if (p && !shop.includes(p)) shop.push(p); };
+      push(a.image);
+      hints.forEach(([w, s]) => { if (words.includes(w)) push(s); });
+      const boxes = a.category === "Hosting" ? ["hosting-box", "premium-fruit-box"].map(FV.findBox).filter(Boolean) : [];
 
-      // Build the body with one drop-in pull-quote, pulled from around the article's midpoint
-      const qIdx = Math.max(1, Math.floor(a.body.length / 2) - 1);
-      let quote = (a.body[qIdx] || a.body[0]).split(". ")[0].trim();
+      // Body with a pull-quote lifted from the middle
+      const mid = Math.max(1, Math.floor(a.body.length / 2));
+      let quote = (a.body[mid - 1] || a.body[0]).split(". ")[0].trim();
       if (!/[.!?]$/.test(quote)) quote += ".";
-      const insertAt = Math.min(a.body.length, Math.floor(a.body.length / 2) + 1);
-      const paras = a.body.map(p => `<p>${p}</p>`);
-      const bodyHtml = paras.slice(0, insertAt).join("") +
-        (a.body.length > 1 ? `<blockquote class="pull-quote"><p>${quote}</p></blockquote>` : "") +
-        paras.slice(insertAt).join("");
+      const paras = a.body.map((p) => `<p>${esc(p)}</p>`);
+      const body = paras.slice(0, mid).join("") + (a.body.length > 2 ? `<figure class="pull" data-reveal><div class="pull__art" data-draw>${S.ART.sprig}</div><blockquote>${esc(quote)}</blockquote></figure>` : "") + paras.slice(mid).join("");
+      const related = list.filter((x) => x.slug !== a.slug).sort((x, y) => (y.category === a.category) - (x.category === a.category)).slice(0, 3);
 
       root.innerHTML = `
-      <article>
-        <header class="article-head">
-          <div class="container">
-            <nav class="breadcrumb" style="justify-content:center"><a href="index.html">Home</a><span>/</span><a href="journal.html">Journal</a><span>/</span><span>${a.category}</span></nav>
-            <p class="a-cat">${a.category}</p>
-            <h1>${a.title}</h1>
-            <p class="meta">${a.author} · ${a.date} · ${a.read}</p>
+      <article class="article">
+        <header class="s art-head">
+          <div class="wrap wrap--narrow">
+            <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span aria-hidden="true">/</span><a href="journal.html">Journal</a><span aria-hidden="true">/</span><span aria-current="page">${esc(a.category)}</span></nav>
+            <span class="chip chip--olive">${esc(a.category)}</span>
+            <h1 data-split>${esc(a.title)}</h1>
+            <p class="art-head__meta">${esc(a.author)} · ${esc(a.date)} · ${esc(a.read)}</p>
           </div>
         </header>
-
-        <figure class="article-hero">
-          <picture>
-            <source type="image/webp" srcset="${FV.webp(FV.img(a.image))}">
-            <img src="${FV.img(a.image)}" alt="${a.title}" width="1800" height="770" fetchpriority="high" decoding="async">
-          </picture>
-        </figure>
-
-        <div class="container">
-          <div class="article-body">
-            ${bodyHtml}
-          </div>
-          <div class="article-foot">
-            <a class="link-arrow" href="journal.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> All articles</a>
-            <div class="share">
-              <span>Share</span>
-              <button type="button" id="shareBtn">${linkIcon} Copy link</button>
-            </div>
+        <figure class="art-hero wrap wrap--wide"><div class="art-hero__frame" data-parallax-root>${S.img(a.image, { eager: true, sizes: "(max-width: 960px) 100vw, 90vw", alt: a.title, attrs: 'data-parallax="6"' })}</div></figure>
+        <div class="wrap wrap--narrow">
+          <div class="art-body">${body}</div>
+          <div class="art-foot">
+            <a class="link-u" href="journal.html">${back} All articles</a>
+            <div class="row"><span class="muted small">Share</span>
+              <a class="icon-btn art-share" href="https://wa.me/?text=${encodeURIComponent(a.title + " — " + location.href)}" target="_blank" rel="noopener" aria-label="Share on WhatsApp">${FV.icon("whatsapp")}</a>
+              <button class="btn btn--ghost btn--sm btn--noic" type="button" id="shareBtn">Copy link</button></div>
           </div>
         </div>
-
-        <section class="section section--paper2">
-          <div class="container">
-            <div class="section-head section-head--xl" data-reveal style="margin-bottom:var(--s-7)">
-              <p class="eyebrow">Keep reading</p><h2 class="title">More from the Journal</h2>
-            </div>
-            <div class="products-grid products-grid--3" id="more"></div>
+        ${shop.length || boxes.length ? `<section class="s sec band--kraft">
+          <div class="wrap wrap--wide">
+            <div class="head"><div class="head__main"><p class="eyebrow">Shop the story</p><h2 data-split>Everything on this <em class="i">table</em></h2></div>
+              <div class="head__actions"><a class="link-u" href="products.html">Browse the market ${arrow}</a></div></div>
+            <div class="rail-wrap"><div class="rail" data-cursor="Drag">${boxes.map(FV.boxCardHTML).join("")}${shop.slice(0, 8).map(FV.productCardHTML).join("")}</div><div class="rail-progress" aria-hidden="true"><i></i></div></div>
+          </div></section>` : ""}
+        <section class="s sec band--paper">
+          <div class="wrap wrap--wide">
+            <div class="head"><div class="head__main"><p class="eyebrow">Keep reading</p><h2 data-split>More from the <em class="i">Journal</em></h2></div>
+              <div class="head__actions"><a class="link-u" href="journal.html">All entries ${arrow}</a></div></div>
+            <div class="grid g-3 jgrid">${related.map((r) => FV.articleCardHTML(r)).join("")}</div>
           </div>
         </section>
       </article>`;
 
-      document.getElementById("more").innerHTML = related.map(FV.articleCardHTML).join("");
-
       document.getElementById("shareBtn").addEventListener("click", async () => {
-        const url = location.href;
         try {
-          if (navigator.share) { await navigator.share({ title: a.title, text: a.excerpt, url }); return; }
-          await navigator.clipboard.writeText(url);
+          if (navigator.share) { await navigator.share({ title: a.title, text: a.excerpt, url: location.href }); return; }
+          await navigator.clipboard.writeText(location.href);
           FV.toast("Link copied");
-        } catch (err) { /* share cancelled or clipboard unavailable — no-op */ }
+        } catch (_) {}
       });
 
-      FV.observeReveals();
+      // Reading progress
+      const bar = document.getElementById("readBar"), bodyEl = root.querySelector(".art-body");
+      const prog = () => {
+        const r = bodyEl.getBoundingClientRect(), h = r.height - innerHeight * 0.5;
+        bar.style.transform = "scaleX(" + Math.min(1, Math.max(0, (-r.top + innerHeight * 0.3) / Math.max(1, h))) + ")";
+      };
+      addEventListener("scroll", prog, { passive: true }); prog();
 
       const ld = document.createElement("script");
       ld.type = "application/ld+json";
       ld.textContent = JSON.stringify({
-        "@context": "https://schema.org", "@type": "Article",
-        headline: a.title, description: a.excerpt,
-        image: [location.origin + "/" + FV.img(a.image)],
-        articleSection: a.category,
+        "@context": "https://schema.org", "@type": "Article", headline: a.title, description: a.excerpt,
+        image: [new URL(FV.img(a.image), location.href).href], articleSection: a.category,
         author: { "@type": "Organization", name: a.author },
-        publisher: { "@type": "Organization", name: "Fresh Valley", logo: { "@type": "ImageObject", url: location.origin + "/assets/img/logo.png" } }
+        publisher: { "@type": "Organization", name: "Fresh Valley", logo: { "@type": "ImageObject", url: new URL("assets/img/logo.png", location.href).href } },
       });
       document.head.appendChild(ld);
     })();
   </script>
+  <script defer src="assets/vendor/gsap.min.js"></script>
+  <script defer src="assets/vendor/ScrollTrigger.min.js"></script>
+  <script defer src="assets/vendor/SplitText.min.js"></script>
+  <script defer src="assets/vendor/lenis.min.js"></script>
+  <script defer src="assets/js/motion.js"></script>
 </body>
 </html>

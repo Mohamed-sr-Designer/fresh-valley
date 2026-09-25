@@ -2,55 +2,51 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wishlist — Fresh Valley</title>
-  <meta name="theme-color" content="#1A2A1D">
-  <meta name="description" content="Everything you have saved at Fresh Valley — your wishlist of export-grade fruit, vegetables and hosting boxes.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Your Wishlist — Fresh Valley</title>
+  <meta name="description" content="The produce and boxes you've saved for the right moment.">
+  <meta name="theme-color" content="#19291C">
   <meta name="robots" content="noindex">
-  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/jost-400.woff2" crossorigin>
-  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/cormorant-garamond-500.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/fraunces-v4.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/jakarta.woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/styles.css">
-  <style>
-    .wish-empty { padding: 3.5rem 1rem; }
-    .wish-empty svg { width: 40px; height: 40px; color: var(--line-strong); margin: 0 auto 1.1rem; }
-  </style>
+  <link rel="stylesheet" href="assets/css/shop.css">
+  <script>!function(d,w){var h=d.documentElement;if(!/[?&]fv_preview=1/.test(location.search)&&!w.matchMedia("(prefers-reduced-motion: reduce)").matches){h.classList.add("m-on");setTimeout(function(){if(!(w.FVMotion&&w.FVMotion.ready))h.classList.remove("m-on")},3500)}}(document,window)</script>
 </head>
-
 <body data-page="wishlist">
   <div id="fv-header"></div>
+  <noscript><p class="noscript">Fresh Valley uses JavaScript for its menu, basket and checkout. <a href="products.html">Browse the collection</a> · <a href="contact.html">Contact us</a></p></noscript>
 
-  <main>
-    <section class="page-header" style="padding-bottom: var(--s-6)">
-      <div class="container">
-        <nav class="breadcrumb"><a href="index.html">Home</a><span>/</span><span>Wishlist</span></nav>
-        <div class="split-head">
-          <h1>Saved for later</h1>
-          <button class="btn btn--outline btn--sm" id="addAll" style="display:none">Add all to cart</button>
+  <main id="main">
+    <section class="s shop-head">
+      <div class="page-head__art" id="headArt" data-draw aria-hidden="true"></div>
+      <div class="wrap wrap--wide">
+        <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span aria-hidden="true">/</span><span aria-current="page">Wishlist</span></nav>
+        <div class="page-head">
+          <div><p class="eyebrow">Saved for the right moment</p><h1>Your <em class="i">wishlist</em><span class="shop-head__count" id="headCount"></span></h1></div>
+          <div class="page-head__side"><p class="lede">Everything you've hearted, in one place — ready when the moment is.</p>
+            <div class="row"><button class="btn" type="button" id="addAll" hidden>Add all to basket<span class="btn__ic" id="addAllIc"></span></button></div></div>
         </div>
       </div>
     </section>
 
-    <section class="section section--tight">
-      <div class="container">
-        <div class="products-grid" id="grid"></div>
-        <div class="empty-state wish-empty" id="empty" hidden>
-          <span id="wishEmptyIcon" aria-hidden="true"></span>
-          <h2 style="margin:.4rem 0 .3rem;font-size:var(--step-1)">Nothing saved yet</h2>
-          <p style="font-size:var(--step--1)">Tap the heart on anything you love, and it will wait for you here.</p>
-          <a class="btn btn--sm" href="products.html" style="margin-top:1.2rem">Browse the collection
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    <section class="s sec--flush-top" style="padding-bottom:var(--sec-sm)">
+      <div class="wrap wrap--wide">
+        <div class="grid-products" id="grid" aria-live="polite"></div>
+        <div class="shop-empty" id="empty" hidden>
+          <div class="empty__art" id="emptyArt" aria-hidden="true"></div>
+          <h2>Nothing saved <em class="i">yet</em>.</h2>
+          <p class="muted">Tap the heart on anything you love — it'll wait for you here.</p>
+          <a class="btn" href="products.html" style="margin-top:1.4rem">Browse the market<span class="btn__ic" id="emptyIc"></span></a>
         </div>
       </div>
     </section>
 
-    <!-- Recommendations -->
-    <section class="section section--paper2" id="recSection">
-      <div class="container">
-        <div class="section-head" data-reveal style="margin-bottom: var(--s-7)">
-          <p class="eyebrow">You may also love</p>
-          <h2 class="title" style="font-size:var(--step-2)">From our best sellers</h2>
-        </div>
-        <div class="products-grid" id="rec"></div>
+    <section class="s sec band--kraft">
+      <div class="wrap wrap--wide">
+        <div class="head"><div class="head__main"><p class="eyebrow">Loved by our tables</p><h2 data-split>Best <em class="i">sellers</em></h2></div>
+          <div class="head__actions"><a class="link-u" href="products.html?collection=best-sellers" id="bsAll">View all</a></div></div>
+        <div class="rail-wrap"><div class="rail" id="rec" data-cursor="Drag"></div><div class="rail-progress" aria-hidden="true"><i></i></div></div>
       </div>
     </section>
   </main>
@@ -58,43 +54,45 @@
   <div id="fv-footer"></div>
 
   <script src="assets/js/data.js"></script>
+  <script src="assets/js/content.js"></script>
+  <script src="assets/js/theme.js"></script>
   <script src="assets/js/app.js"></script>
+  <script src="assets/js/sections.js"></script>
   <script>
     (function () {
-      const grid = document.getElementById("grid");
-      const empty = document.getElementById("empty");
-      const addAll = document.getElementById("addAll");
-      document.getElementById("wishEmptyIcon").innerHTML = FV.icon("heart");
-
-      let rendering = false;
+      const S = window.FVSections, I = FV.icon;
+      const $ = (id) => document.getElementById(id);
+      $("headArt").innerHTML = S.ART.strawberry;
+      $("emptyArt").innerHTML = S.ART.leaf;
+      $("emptyIc").innerHTML = I("arrow");
+      $("addAllIc").innerHTML = I("bag");
+      $("bsAll").insertAdjacentHTML("beforeend", " " + I("arrow"));
+      let busy = false, first = true;
       function render() {
-        if (rendering) return;            // updateWishUI() re-fires fv:wish — guard the loop
-        rendering = true;
-        const slugs = FV.wish.items();
-        const items = slugs.map(FV.find).filter(Boolean);
-        if (!items.length) {
-          grid.innerHTML = ""; empty.hidden = false; addAll.style.display = "none";
-        } else {
-          empty.hidden = true;
-          addAll.style.display = "";
-          grid.innerHTML = items.map(FV.productCardHTML).join("");
-          FV.updateWishUI(); FV.observeReveals();
-        }
-        rendering = false;
+        if (busy) return; busy = true; // updateWishUI re-fires fv:wish — guard the loop
+        const items = FV.wish.items().map(FV.find).filter(Boolean);
+        $("headCount").textContent = items.length || "";
+        $("empty").hidden = items.length > 0;
+        $("addAll").hidden = !items.length;
+        $("grid").innerHTML = items.map(FV.productCardHTML).join("");
+        FV.updateWishUI();
+        if (!first) FV.observeReveals($("grid"));
+        first = false; busy = false;
       }
-
-      addAll.addEventListener("click", () => {
-        FV.wish.items().map(FV.find).filter(Boolean).forEach(p => FV.quickAdd(p.slug));
+      $("addAll").addEventListener("click", (e) => {
+        const items = FV.wish.items().map(FV.find).filter((p) => p && !FV.soldOut(p));
+        items.forEach((p) => { const dv = FV.defaultVariant(p); FV.cart.add({ key: p.slug + "|" + dv.variant, slug: p.slug, type: "product", name: p.name, image: FV.isCustomImg(p.image) ? p.image : p.slug, noPhoto: !!p.noPhoto, variant: dv.variant, price: dv.price }); });
+        if (items.length) { FV.toast(items.length + " items added", "From your wishlist", true); if (window.FVMotion) FVMotion.fly(e.currentTarget); }
       });
-
-      // Recommendations
-      document.getElementById("rec").innerHTML =
-        FV.byCollection("best-sellers").slice(0, 4).map(FV.productCardHTML).join("");
-
+      $("rec").innerHTML = FV.byCollection("best-sellers").slice(0, 10).map(FV.productCardHTML).join("");
       render();
       document.addEventListener("fv:wish", render);
-      FV.observeReveals(); FV.updateWishUI();
     })();
   </script>
+  <script defer src="assets/vendor/gsap.min.js"></script>
+  <script defer src="assets/vendor/ScrollTrigger.min.js"></script>
+  <script defer src="assets/vendor/SplitText.min.js"></script>
+  <script defer src="assets/vendor/lenis.min.js"></script>
+  <script defer src="assets/js/motion.js"></script>
 </body>
 </html>

@@ -1,3 +1,5 @@
+> **Historical — superseded by v4 “Market Day” (September 2026).** See [V4-ARCHITECTURE.md](V4-ARCHITECTURE.md), [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md) and [ADMIN.md](ADMIN.md).
+
 # Fresh Valley — Second Edition design brief
 
 The storefront has been re-skinned from "shiny ecommerce" to **editorial quiet luxury**.

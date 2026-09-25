@@ -1,3 +1,5 @@
+> **v4 note (Sept 2026):** the storefront and admin were rebuilt. The admin is now a single app at `/admin/` (+ `/admin/theme.html` theme editor) — see [docs/ADMIN.md](docs/ADMIN.md) and [docs/V4-ARCHITECTURE.md](docs/V4-ARCHITECTURE.md). The API section below still applies to `server/`.
+
 # Fresh Valley — Developer Handoff & Deployment Guide
 
 This repo contains **two layers** that ship together:

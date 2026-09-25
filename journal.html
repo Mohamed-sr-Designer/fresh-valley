@@ -2,128 +2,37 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>The Journal — Fresh Valley</title>
-  <meta name="description" content="Recipes, hosting tips and produce education from Fresh Valley. Read, cook, and host a little better.">
-  <meta name="theme-color" content="#1A2A1D">
+  <meta name="description" content="Recipes, hosting tips and a little produce education — for setting a better table, every week.">
+  <meta name="theme-color" content="#19291C">
   <link rel="canonical" href="https://freshvalley.eg/journal.html">
-  <meta property="og:title" content="The Fresh Valley Journal">
+  <meta property="og:title" content="The Journal — Fresh Valley">
+  <meta property="og:description" content="Recipes, hosting tips and a little produce education — for setting a better table, every week.">
   <meta property="og:type" content="website">
-  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/jost-400.woff2" crossorigin>
-  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/cormorant-garamond-500.woff2" crossorigin>
+  <meta property="og:image" content="assets/img/products/pepper-medley.jpg">
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/fraunces-v4.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/jakarta.woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/styles.css">
-  <style>
-    /* ================= Lead story — one held frame, full-bleed ================= */
-    .lead-story {
-      position: relative; isolation: isolate; overflow: hidden; display: block;
-      color: var(--cream); min-height: clamp(420px, 50vw, 600px);
-    }
-    .lead-story picture { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
-    .lead-story img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease-luxe); }
-    .lead-story:hover img { transform: scale(1.035); }
-    .lead-story::after {
-      content: ""; position: absolute; inset: 0;
-      background: linear-gradient(to top, rgba(8,20,14,.88) 0%, rgba(8,20,14,.32) 52%, rgba(8,20,14,.04) 100%);
-    }
-    .lead-story .ls-body { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; padding-block: clamp(1.75rem, 4vw, 3.25rem); }
-    .lead-story .eyebrow { justify-content: flex-start; }
-    .lead-story h2 { color: var(--cream); font-size: var(--step-4); max-width: 17ch; margin-top: .6rem; }
-    .lead-story p { color: rgba(246,241,232,.82); margin-top: 1rem; max-width: 50ch; font-size: var(--step-0); }
-    .lead-story .ls-meta { display: flex; align-items: center; gap: 1.6rem; margin-top: 1.6rem; flex-wrap: wrap; }
-    .lead-story .ls-meta > span:first-child { font-size: var(--step--1); color: rgba(246,241,232,.7); }
-    .lead-story .link-arrow--light { pointer-events: none; }
-
-    @media (max-width: 640px) {
-      .lead-story { min-height: 78vw; }
-      .lead-story h2 { max-width: none; }
-    }
-
-    /* ================= "All articles" — split heading + horizontal editorial rows =================
-       Distinct rhythm from the page-header above and from the homepage's plain split-head strip. */
-    .section-head--split { border-bottom: 1px solid var(--line); padding-bottom: var(--s-6); margin-bottom: var(--s-6); }
-    .journal-rows { display: flex; flex-direction: column; }
-    .journal-rows > .article-card--row { padding-bottom: clamp(1.5rem, 3vw, 2.5rem); }
-    .journal-rows > .article-card--row:first-child { border-top: 0; padding-top: 0; }
-  </style>
+  <script>!function(d,w){var h=d.documentElement;if(!/[?&]fv_preview=1/.test(location.search)&&!w.matchMedia("(prefers-reduced-motion: reduce)").matches){h.classList.add("m-on");setTimeout(function(){if(!(w.FVMotion&&w.FVMotion.ready))h.classList.remove("m-on")},3500)}}(document,window)</script>
 </head>
-
 <body data-page="journal">
   <div id="fv-header"></div>
+  <noscript><p class="noscript">Fresh Valley uses JavaScript for its menu, basket and checkout. <a href="products.html">Browse the collection</a> · <a href="contact.html">Contact us</a></p></noscript>
 
-  <main>
-    <section class="page-header">
-      <div class="container">
-        <nav class="breadcrumb"><a href="index.html">Home</a><span>/</span><span>Journal</span></nav>
-        <p class="eyebrow">Read, cook, host</p>
-        <h1>The Fresh Valley Journal</h1>
-        <p>Recipes, hosting tips and a little produce education — for setting a better table, every week.</p>
-      </div>
-    </section>
-
-    <!-- Lead story -->
-    <a class="lead-story" id="featured" data-reveal></a>
-
-    <!-- Filter + rows -->
-    <section class="section section--paper2">
-      <div class="container">
-        <div class="section-head section-head--split" data-reveal>
-          <div class="sh-main">
-            <p class="eyebrow">All articles</p>
-            <h2 class="title" style="font-size:var(--step-4)">More from the Journal</h2>
-          </div>
-          <p class="sh-support">A magazine contents page, not a grid — filter by category, or read straight down the list.</p>
-        </div>
-        <div class="filter-pills" id="catPills" style="margin-bottom:var(--s-6)"></div>
-        <div class="journal-rows" id="grid"></div>
-      </div>
-    </section>
-  </main>
+  <main id="main" data-fv-page="journal"></main>
 
   <div id="fv-footer"></div>
 
   <script src="assets/js/data.js"></script>
+  <script src="assets/js/content.js"></script>
+  <script src="assets/js/theme.js"></script>
   <script src="assets/js/app.js"></script>
-  <script>
-    (function () {
-      const arts = FV.data.articles;
-      const featured = arts[0];
-      const rest = arts.slice(1);
-      const arrow = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
-
-      // Lead story
-      const lead = document.getElementById("featured");
-      lead.href = `article.html?slug=${featured.slug}`;
-      lead.innerHTML = `
-        <picture><source type="image/webp" srcset="${FV.webp(FV.img(featured.image))}"><img src="${FV.img(featured.image)}" alt="${featured.title}" width="1000" height="1000" fetchpriority="high" decoding="async"></picture>
-        <div class="container ls-body">
-          <p class="eyebrow eyebrow--light no-rule">Featured · ${featured.category}</p>
-          <h2>${featured.title}</h2>
-          <p>${featured.excerpt}</p>
-          <div class="ls-meta">
-            <span>${featured.author} · ${featured.date} · ${featured.read}</span>
-            <span class="link-arrow link-arrow--light">Read the story ${arrow}</span>
-          </div>
-        </div>`;
-
-      // Categories
-      const cats = ["All", ...Array.from(new Set(rest.map(a => a.category)))];
-      let active = "All";
-      const pills = document.getElementById("catPills");
-      const grid = document.getElementById("grid");
-      function renderGrid() {
-        const list = active === "All" ? rest : rest.filter(a => a.category === active);
-        grid.innerHTML = list.map(a => FV.articleCardHTML(a, true)).join("");
-        FV.observeReveals();
-      }
-      pills.innerHTML = cats.map(c => `<button class="pill" data-c="${c}" aria-pressed="${c === "All"}">${c}</button>`).join("");
-      pills.querySelectorAll("[data-c]").forEach(b => b.addEventListener("click", () => {
-        active = b.dataset.c;
-        pills.querySelectorAll("[data-c]").forEach(x => x.setAttribute("aria-pressed", x === b));
-        renderGrid();
-      }));
-      renderGrid();
-      FV.observeReveals();
-    })();
-  </script>
+  <script src="assets/js/sections.js"></script>
+  <script defer src="assets/vendor/gsap.min.js"></script>
+  <script defer src="assets/vendor/ScrollTrigger.min.js"></script>
+  <script defer src="assets/vendor/SplitText.min.js"></script>
+  <script defer src="assets/vendor/lenis.min.js"></script>
+  <script defer src="assets/js/motion.js"></script>
 </body>
 </html>

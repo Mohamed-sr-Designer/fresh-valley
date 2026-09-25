@@ -2,412 +2,278 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Checkout — Fresh Valley</title>
-  <meta name="description" content="Complete your order — delivery slot, payment and a confirmed order in a few quiet steps.">
-  <meta name="theme-color" content="#1A2A1D">
+  <meta name="description" content="Secure checkout — choose a next-day delivery slot and how you'd like to pay.">
+  <meta name="theme-color" content="#19291C">
   <meta name="robots" content="noindex">
-  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/jost-400.woff2" crossorigin>
-  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/cormorant-garamond-500.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/fraunces-v4.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/jakarta.woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/styles.css">
-  <style>
-    .co-layout { display: grid; grid-template-columns: 1fr 400px; gap: clamp(2rem, 4vw, 4.5rem); align-items: start; }
-
-    /* ---- Guest / sign-in switch — hairline tabs, not a pill ---- */
-    .co-tabs { display: flex; gap: clamp(1.5rem, 3vw, 2.4rem); border-bottom: 1px solid var(--line); margin-bottom: 2rem; }
-    .co-tabs button { padding-bottom: .9rem; font-size: var(--step--1); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text-faint); position: relative; transition: color .25s; }
-    .co-tabs button:hover { color: var(--forest); }
-    .co-tabs button[aria-pressed="true"] { color: var(--forest); }
-    .co-tabs button[aria-pressed="true"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: var(--brass); }
-
-    .co-signin { border: 1px solid var(--line); padding: clamp(1.3rem, 3vw, 1.7rem); margin-bottom: 2rem; }
-    .co-signin .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    .demo-hint { font-size: var(--step--2); color: var(--text-faint); margin-top: 1rem; }
-    .demo-hint b { color: var(--brass-deep); }
-    .co-signed { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; border: 1px solid var(--line); padding: 1rem 1.3rem; margin-bottom: 2rem; font-size: var(--step--1); color: var(--text-muted); }
-    .co-signed strong { color: var(--forest); }
-    .co-signed svg { color: var(--brass-deep); width: 18px; height: 18px; flex-shrink: 0; }
-    .co-signed button { margin-left: auto; color: var(--brass-deep); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; font-size: var(--step--1); padding: .4rem 0; }
-    @media (max-width: 560px) { .co-signin .grid-2 { grid-template-columns: 1fr; } }
-
-    /* ---- Steps — hairline rhythm, no boxed cards ---- */
-    .co-step { padding-block: clamp(1.8rem, 3vw, 2.4rem); border-bottom: 1px solid var(--line); }
-    .co-step:first-of-type { padding-top: 0; }
-    .co-step:last-of-type { border-bottom: 0; }
-    .step-head { display: flex; align-items: baseline; gap: 1.1rem; margin-bottom: 1.5rem; }
-    .step-n { font-family: var(--font-display); font-size: var(--step-1); color: var(--brass-deep); line-height: 1; flex-shrink: 0; }
-    .co-step h2 { font-size: var(--step-2); }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; }
-    .grid-2 .col-span { grid-column: 1 / -1; }
-    .field-msg { font-size: var(--step--2); color: var(--pomegranate); margin-top: .4rem; display: none; }
-    .field.has-error .input, .field.has-error .select { border-color: var(--pomegranate); }
-    .field.has-error .field-msg { display: block; }
-
-    /* ---- Delivery slots — same selected language as .pill ---- */
-    .slot-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: .6rem; }
-    .slot { padding: .9rem .6rem; border: 1px solid var(--line); border-radius: var(--radius-sm); background: transparent; text-align: center; cursor: pointer; transition: border-color .25s, background .25s; }
-    .slot:hover { border-color: var(--forest); }
-    .slot[aria-pressed="true"] { border-color: var(--forest); background: var(--forest); }
-    .slot[aria-pressed="true"] .d, .slot[aria-pressed="true"] .s { color: var(--cream); }
-    .slot .d { font-weight: 600; color: var(--forest); font-size: var(--step--1); }
-    .slot .s { font-size: var(--step--2); color: var(--text-faint); margin-top: .15rem; }
-
-    /* ---- Payment ---- */
-    .pay-opt { display: flex; align-items: center; gap: 1rem; padding: 1.05rem 1.2rem; border: 1px solid var(--line); border-radius: var(--radius-sm); cursor: pointer; margin-bottom: .6rem; transition: border-color .2s; }
-    .pay-opt:hover { border-color: var(--line-strong); }
-    .pay-opt[aria-pressed="true"] { border-color: var(--forest); }
-    .pay-opt .radio { width: 19px; height: 19px; border-radius: 50%; border: 1.5px solid var(--line-strong); flex-shrink: 0; display: grid; place-items: center; }
-    .pay-opt[aria-pressed="true"] .radio { border-color: var(--forest); }
-    .pay-opt[aria-pressed="true"] .radio::after { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--forest); }
-    .pay-opt .label { flex: 1; font-weight: 500; color: var(--forest); }
-    .pay-opt-marks { display: flex; gap: .35rem; margin-left: auto; align-items: center; flex-shrink: 0; }
-    .pay-opt-marks .pay-mark { height: 22px; width: auto; border: 1px solid var(--line); border-radius: 3px; }
-    .card-fields { margin-top: 1.1rem; padding-top: 1.1rem; border-top: 1px solid var(--line-soft); display: none; }
-    .card-fields.show { display: block; }
-    .secure-note { display: flex; gap: .55rem; align-items: center; font-size: var(--step--2); color: var(--text-faint); margin-top: 1.1rem; }
-    .secure-note svg { width: 16px; height: 16px; color: var(--brass-deep); flex-shrink: 0; }
-
-    /* ---- Order summary — the one quiet dark anchor on this page ---- */
-    .co-summary { background: var(--forest); color: var(--on-dark); padding: clamp(1.7rem, 3vw, 2rem); position: sticky; top: calc(var(--header-h) + 1.5rem); }
-    .co-summary h2 { color: var(--cream); font-size: var(--step-1); margin-bottom: 1.3rem; }
-    .co-summary .ci { display: grid; grid-template-columns: 46px 1fr auto; gap: .85rem; padding: .8rem 0; border-bottom: 1px solid var(--line-dark-soft); }
-    .co-summary .ci img { width: 46px; height: 46px; object-fit: cover; }
-    .co-summary .ci .n { font-size: var(--step--1); color: var(--cream); }
-    .co-summary .ci .v { font-size: var(--step--2); color: var(--on-dark-muted); }
-    .co-summary .ci .p { font-size: var(--step--1); color: var(--cream); text-align: right; font-variant-numeric: lining-nums tabular-nums; }
-    .co-summary .sr { display: flex; justify-content: space-between; padding: .45rem 0; font-size: var(--step--1); color: var(--on-dark-muted); font-variant-numeric: lining-nums tabular-nums; }
-    .co-summary .sr.tot { color: var(--cream); font-family: var(--font-display); font-size: var(--step-1); border-top: 1px solid var(--line-dark); margin-top: .6rem; padding-top: 1rem; }
-
-    /* ---- Confirmation ---- */
-    .conf { text-align: center; max-width: 560px; margin: 0 auto; padding: var(--space-2xl) 0; }
-    .conf .tick { width: 78px; height: 78px; border-radius: 50%; background: var(--forest); color: var(--cream); display: grid; place-items: center; margin: 0 auto 1.7rem; }
-    .conf .tick svg { width: 36px; height: 36px; }
-    .conf-meta { display: flex; justify-content: center; flex-wrap: wrap; margin: 2.2rem 0; padding-block: 1.6rem; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-    .conf-meta .item { padding: 0 1.6rem; text-align: center; border-right: 1px solid var(--line-soft); }
-    .conf-meta .item:last-child { border-right: 0; }
-    .conf-meta .k { font-size: var(--step--2); letter-spacing: .12em; text-transform: uppercase; color: var(--text-faint); }
-    .conf-meta .v { font-weight: 600; color: var(--forest); margin-top: .4rem; font-family: var(--font-display); font-size: var(--step-1); font-variant-numeric: lining-nums tabular-nums; }
-
-    @media (max-width: 860px) {
-      .co-layout { grid-template-columns: 1fr; }
-      .co-summary { position: static; order: -1; }
-      .slot-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 480px) {
-      .grid-2 { grid-template-columns: 1fr; }
-      .conf-meta .item { border-right: 0; border-bottom: 1px solid var(--line-soft); padding: .9rem 0; width: 100%; }
-      .conf-meta .item:last-child { border-bottom: 0; }
-    }
-  </style>
+  <link rel="stylesheet" href="assets/css/shop.css">
+  <script>!function(d,w){var h=d.documentElement;if(!/[?&]fv_preview=1/.test(location.search)&&!w.matchMedia("(prefers-reduced-motion: reduce)").matches){h.classList.add("m-on");setTimeout(function(){if(!(w.FVMotion&&w.FVMotion.ready))h.classList.remove("m-on")},3500)}}(document,window)</script>
 </head>
-
 <body data-page="checkout">
   <div id="fv-header"></div>
+  <noscript><p class="noscript">Fresh Valley uses JavaScript for its menu, basket and checkout. <a href="products.html">Browse the collection</a> · <a href="contact.html">Contact us</a></p></noscript>
 
-  <main>
-    <section class="page-header" style="padding-bottom: var(--s-6)">
-      <div class="container">
-        <nav class="breadcrumb"><a href="index.html">Home</a><span>/</span><a href="cart.html">Selection</a><span>/</span><span>Checkout</span></nav>
-        <h1 id="coTitle">Checkout</h1>
+  <main id="main">
+    <section class="s shop-head">
+      <div class="wrap wrap--wide">
+        <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span aria-hidden="true">/</span><a href="cart.html">Basket</a><span aria-hidden="true">/</span><span aria-current="page" id="coCrumb">Checkout</span></nav>
+        <div class="page-head">
+          <div><p class="eyebrow" id="coEyebrow">Secure checkout</p><h1 id="coTitle">Nearly <em class="i">there</em>.</h1></div>
+          <div class="page-head__side"><ol class="steps-bar" id="stepsBar" aria-label="Checkout progress"></ol></div>
+        </div>
       </div>
     </section>
-
-    <section class="section section--tight">
-      <div class="container" id="coRoot"></div>
+    <section class="s sec--flush-top" style="padding-bottom:var(--sec-sm)">
+      <div class="wrap wrap--wide" id="coRoot"></div>
     </section>
   </main>
 
   <div id="fv-footer"></div>
 
   <script src="assets/js/data.js"></script>
+  <script src="assets/js/content.js"></script>
+  <script src="assets/js/theme.js"></script>
   <script src="assets/js/app.js"></script>
+  <script src="assets/js/sections.js"></script>
   <script>
     (function () {
+      const S = window.FVSections, esc = FV.esc, I = FV.icon;
       const root = document.getElementById("coRoot");
-      const SET = (window.FV && FV.settings) ? FV.settings : { freeThreshold: 600, deliveryFee: 45 };
-      const FREE = SET.freeThreshold;
-      const FEE = SET.deliveryFee;
-      function currentUser(){ try { return JSON.parse(localStorage.getItem("fv_user")); } catch { return null; } }
-      let user = currentUser();
+      const SET = FV.settings;
+      const AREAS = (window.FVTheme && FVTheme.settings().areas) || ["New Cairo", "Sheikh Zayed", "October", "Madinaty", "Rehab"];
+      const readJSON = (k) => { try { return JSON.parse(localStorage.getItem(k)); } catch (_) { return null; } };
+      let user = readJSON("fv_user");
       const nameParts = (n) => { const p = (n || "").trim().split(/\s+/); return { first: p[0] || "", last: p.slice(1).join(" ") }; };
-
-      // Saved card (last-4 only — never the full number), shared schema with account.html's Cards tab.
-      function savedCard() {
-        try {
-          const list = JSON.parse(localStorage.getItem("fv_cards")) || [];
-          return list.find((c) => c.default) || list[0] || null;
-        } catch { return null; }
-      }
-
-      const state = { mode: user ? "account" : "guest", payment: user && savedCard() ? "saved" : "card", slotDay: 0, slotTime: 1 };
-
-      const arrow = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+      const savedCard = () => { const l = readJSON("fv_cards") || []; return l.find((c) => c.default) || l[0] || null; };
+      const savedAddr = () => { const l = readJSON("fv_addresses") || []; return l.find((a) => a.default) || l[0] || null; };
+      const code = () => { try { return sessionStorage.getItem("fv_code") || ""; } catch (_) { return ""; } };
+      const state = { mode: user ? "account" : "guest", payment: user && savedCard() ? "saved" : "card", day: 0, time: 1 };
+      const slots = (SET.slots && SET.slots.length ? SET.slots : ["Morning · 9–12", "Midday · 12–3", "Afternoon · 3–6", "Evening · 6–9"]);
+      const days = (() => { const out = []; const now = new Date(); const start = now.getHours() >= (SET.cutoffHour || 18) ? 2 : 1; for (let i = start; i < start + 4; i++) { const d = new Date(); d.setDate(d.getDate() + i); out.push({ top: d.toLocaleDateString("en-GB", { weekday: "short" }), day: d.toLocaleDateString("en-GB", { day: "numeric", month: "short" }) }); } return out; })();
+      const steps = (active) => ["Basket", "Details", "Delivery", "Payment"].map((s, i) => `<li class="${i < active ? "is-done" : i === active ? "is-on" : ""}"><b>${i < active ? I("check") : i + 1}</b>${s}</li>`).join("");
 
       if (!FV.cart.items().length) {
-        root.innerHTML = `<div class="empty-state" style="padding:4rem 1rem">${FV.icon("bag")}
-          <h2 style="font-size:var(--step-2);margin:1rem 0 .4rem">Your selection is empty</h2>
-          <p>Add something lovely before checking out.</p>
-          <a class="btn mt-lg" href="products.html" style="margin-top:1.5rem">Browse the collection ${arrow}</a></div>`;
+        document.getElementById("stepsBar").innerHTML = steps(0);
+        root.innerHTML = `<div class="shop-empty"><div class="empty__art">${S.ART.sprig}</div><h2>Your basket is <em class="i">empty</em>.</h2><p class="muted">Add something lovely before checking out.</p><a class="btn" href="products.html" style="margin-top:1.4rem">Browse the market<span class="btn__ic">${I("arrow")}</span></a></div>`;
         return;
       }
+      FV.track("checkout_start", { value: FV.cart.subtotal() });
+      document.getElementById("stepsBar").innerHTML = steps(1);
 
-      const days = (() => {
-        const out = [], fmt = { weekday: "short", day: "numeric" };
-        for (let i = 1; i <= 4; i++) { const d = new Date(); d.setDate(d.getDate() + i); out.push(d.toLocaleDateString("en-GB", fmt)); }
-        return out;
-      })();
-      const times = ["9–12", "12–3", "3–6", "6–9"];
-
-      function summaryHtml() {
-        const items = FV.cart.items(), sub = FV.cart.subtotal();
-        const remain = Math.max(0, FREE - sub);
-        const delivery = remain > 0 ? FEE : 0;
-        const total = sub + delivery;
-        return `<aside class="co-summary" aria-labelledby="coSumHead">
-          <h2 id="coSumHead">Order summary</h2>
-          ${items.map(it => `<div class="ci">
-            ${it.noPhoto ? `<div class="img" style="width:46px;height:46px;display:grid;place-items:center;background:var(--forest-mid);color:var(--brass)">${FV.icon("leaf2")}</div>` : `<img src="${FV.imgSrc(it.image)}" alt="" loading="lazy" width="46" height="46">`}
-            <div><div class="n">${it.name}</div><div class="v">${it.variant} · ×${it.qty}</div></div>
-            <div class="p">${FV.money(it.price * it.qty)}</div></div>`).join("")}
-          <div class="sr" style="margin-top:.8rem"><span>Subtotal</span><span>${FV.money(sub)}</span></div>
-          <div class="sr"><span>Delivery</span><span>${delivery ? FV.money(delivery) : "Free"}</span></div>
-          <div class="sr tot"><span>Total</span><span>${FV.money(total)}</span></div>
+      function totals() {
+        const sub = FV.cart.subtotal();
+        const delivery = sub >= SET.freeThreshold ? 0 : SET.deliveryFee;
+        const d = FV.discounts.find(code());
+        const off = d ? FV.discounts.value(d, sub, delivery) : 0;
+        return { sub, delivery, d, off, total: Math.max(0, sub + delivery - off) };
+      }
+      function summaryHTML() {
+        const t = totals();
+        return `<aside class="co-summary" aria-labelledby="coSum">
+          <h2 id="coSum">Your order</h2>
+          <div class="co-items">${FV.cart.items().map((it) => `<div class="co-item">
+            <span class="co-item__img">${it.noPhoto ? I("leaf2") : `<img src="${esc(FV.imgSrc(it.image))}" alt="" loading="lazy" width="56" height="56">`}<b>${it.qty}</b></span>
+            <span><span class="co-item__n">${esc(it.name)}</span><br><span class="co-item__v">${esc(it.variant)}</span></span>
+            <span class="co-item__p">${FV.money(it.price * it.qty)}</span></div>`).join("")}</div>
+          <div class="sum-row"><span>Subtotal</span><strong>${FV.money(t.sub)}</strong></div>
+          ${t.d ? `<div class="sum-row sum-row--saving"><span>Discount · ${esc(t.d.code)}</span><strong>− ${FV.money(t.off)}</strong></div>` : ""}
+          <div class="sum-row"><span>Delivery</span><span>${t.delivery ? FV.money(t.delivery) : "Free"}</span></div>
+          <div class="sum-row sum-row--total"><span>Total</span><span id="sumTotal">${FV.money(t.total)}</span></div>
+          ${t.delivery ? `<p class="muted-note">Add ${FV.money(SET.freeThreshold - t.sub)} more for complimentary delivery — <a class="link-btn" href="cart.html">edit basket</a>.</p>` : ""}
+          <ul class="trust" style="margin-top:.8rem"><li>${I("shield")}<span>Not perfect? We replace it — no debate.</span></li><li>${I("snow")}<span>Cold-chain kept to your door.</span></li></ul>
         </aside>`;
       }
-
-      function field(id, name, label, opts) {
-        opts = opts || {};
-        const required = opts.required !== false;
-        const val = opts.value || "";
-        const type = opts.type || "text";
-        const auto = opts.autocomplete ? ` autocomplete="${opts.autocomplete}"` : "";
-        const inputmode = opts.inputmode ? ` inputmode="${opts.inputmode}"` : "";
-        const placeholder = opts.placeholder ? ` placeholder="${opts.placeholder}"` : "";
-        const span = opts.span ? " col-span" : "";
-        const describedby = required ? ` aria-describedby="${id}-msg"` : "";
-        return `<div class="field${span}">
-          <label for="${id}">${label}</label>
-          <input class="input" id="${id}" name="${name}" type="${type}"${auto}${inputmode}${placeholder} value="${val}"${required ? " required" : ""}${describedby}>
-          ${required ? `<p class="field-msg" id="${id}-msg"></p>` : ""}
-        </div>`;
+      function field(id, name, label, o) {
+        o = o || {};
+        const req = o.required !== false;
+        return `<div class="field${o.span ? " span" : ""}">
+          <label for="${id}">${label}${req ? "" : ` <span class="muted">(optional)</span>`}</label>
+          <input class="input" id="${id}" name="${name}" type="${o.type || "text"}"${o.auto ? ` autocomplete="${o.auto}"` : ""}${o.mode ? ` inputmode="${o.mode}"` : ""}${o.ph ? ` placeholder="${o.ph}"` : ""} value="${esc(o.value || "")}"${req ? ` required aria-describedby="${id}-m"` : ""}${o.pattern ? ` pattern="${o.pattern}"` : ""}>
+          ${req ? `<p class="field-msg" id="${id}-m" aria-live="polite"></p>` : ""}</div>`;
       }
-
       function render() {
-        const card = savedCard();
+        const card = savedCard(), addr = savedAddr();
+        const np = nameParts(user && user.name);
+        const pays = [
+          state.mode === "account" && card ? ["saved", `${esc((card.brand || "Card").replace(/^./, (c) => c.toUpperCase()))} ending ${esc(card.last4)}`, FV.payMark(card.brand || "visa")] : null,
+          ["card", "Credit or debit card", FV.payMark("visa") + FV.payMark("mastercard")],
+          ["apple", "Apple Pay", FV.payMark("apple")],
+          ["wallet", "Mobile wallet", FV.payMark("wallet")],
+          SET.codEnabled !== false ? ["cod", "Cash on delivery", FV.payMark("cod")] : null,
+        ].filter(Boolean);
+        if (!pays.some((p) => p[0] === state.payment)) state.payment = "card";
         root.innerHTML = `
-        <div class="co-layout">
-          <div>
-            <div class="co-tabs" role="group" aria-label="Checkout as">
+        <div class="co">
+          <div class="co__main">
+            <div class="co-mode" role="group" aria-label="Checkout as">
               <button type="button" data-mode="guest" aria-pressed="${state.mode === "guest"}">Guest checkout</button>
-              <button type="button" data-mode="account" aria-pressed="${state.mode === "account"}">Sign in</button>
+              <button type="button" data-mode="account" aria-pressed="${state.mode === "account"}">${user ? "My account" : "Sign in"}</button>
             </div>
-
-            ${state.mode === "account" ? (user ? `
-              <div class="co-signed">${FV.icon("check")}<span>Signed in as <strong>${user.name}</strong> · ${user.email}</span><button type="button" id="coSignout">Sign out</button></div>
-            ` : `
-              <div class="co-signin">
-                <div class="grid-2">
+            ${state.mode === "account" ? (user ? `<div class="demo-note">${I("check")}<span>Signed in as <strong>${esc(user.name)}</strong> · ${esc(user.email)} — <button type="button" class="link-btn" id="coOut">sign out</button></span></div>`
+              : `<div class="co-step"><div class="co-grid">
                   <div class="field"><label for="siEmail">Email</label><input class="input" id="siEmail" type="email" autocomplete="email" placeholder="you@email.com"></div>
-                  <div class="field"><label for="siPass">Password</label><input class="input" id="siPass" type="password" autocomplete="current-password" placeholder="••••••••"></div>
-                </div>
-                <button type="button" class="btn btn--outline" id="siBtn" style="margin-top:.7rem">Sign in &amp; continue</button>
-                <p class="demo-hint">Demo account — sign in with <b>guest@freshvalley.eg</b> / <b>fresh123</b> (or any email &amp; password).</p>
-              </div>
-            `) : ``}
-
+                  <div class="field"><label for="siPass">Password</label><input class="input" id="siPass" type="password" autocomplete="current-password" placeholder="••••••••"></div></div>
+                  <div class="row" style="margin-top:1rem"><button type="button" class="btn btn--ghost btn--sm" id="siBtn">Sign in &amp; continue<span class="btn__ic">${I("arrow")}</span></button><span class="muted-note">Demo — any email &amp; password works.</span></div></div>`) : ""}
             <form id="coForm" novalidate>
-              <!-- 1 Contact + address -->
-              <div class="co-step">
-                <div class="step-head"><span class="step-n">01</span><h2>Contact &amp; delivery address</h2></div>
-                <div class="grid-2">
-                  ${field("coFirst", "first", "First name", { autocomplete: "given-name", value: user ? nameParts(user.name).first : "" })}
-                  ${field("coLast", "last", "Last name", { autocomplete: "family-name", value: user ? nameParts(user.name).last : "" })}
-                  ${field("coPhone", "phone", "Phone", { autocomplete: "tel", inputmode: "tel", placeholder: "+20" })}
-                  ${field("coEmail", "email", "Email", { type: "email", autocomplete: "email", value: user ? (user.email || "") : "" })}
-                  <div class="field">
-                    <label for="coArea">Area</label>
-                    <select class="select" id="coArea" name="area" required autocomplete="address-level2" aria-describedby="coArea-msg">
-                      <option value="">Select your area</option>
-                      <option>New Cairo</option><option>Sheikh Zayed</option><option>October</option><option>Madinaty</option><option>Rehab</option>
-                    </select>
-                    <p class="field-msg" id="coArea-msg"></p>
-                  </div>
-                  ${field("coDistrict", "district", "Compound / district", { required: false, placeholder: "Optional", autocomplete: "address-line2" })}
-                  ${field("coStreet", "street", "Street address", { placeholder: "Building, street, apartment", autocomplete: "address-line1", span: true })}
-                  ${field("coNotes", "notes", "Delivery notes", { required: false, placeholder: "Gate code, landmark, anything that helps", span: true })}
-                </div>
-              </div>
-
-              <!-- 2 Delivery slot -->
-              <div class="co-step">
-                <div class="step-head"><span class="step-n">02</span><h2>Delivery slot</h2></div>
-                <p class="muted" style="font-size:var(--step--2);margin-bottom:.8rem" id="dayLabel">Choose a day</p>
-                <div class="slot-grid" id="dayGrid" role="group" aria-labelledby="dayLabel">
-                  ${days.map((d, i) => `<button type="button" class="slot" data-day="${i}" aria-pressed="${i === state.slotDay}"><span class="d">${d}</span></button>`).join("")}
-                </div>
-                <p class="muted" style="font-size:var(--step--2);margin:1.1rem 0 .8rem" id="timeLabel">Choose a time</p>
-                <div class="slot-grid" id="timeGrid" role="group" aria-labelledby="timeLabel">
-                  ${times.map((t, i) => `<button type="button" class="slot" data-time="${i}" aria-pressed="${i === state.slotTime}"><span class="d">${t}</span><span class="s">${["Morning","Midday","Afternoon","Evening"][i]}</span></button>`).join("")}
-                </div>
-              </div>
-
-              <!-- 3 Payment -->
-              <div class="co-step">
-                <div class="step-head"><span class="step-n">03</span><h2>Payment</h2></div>
-                <div role="group" aria-label="Payment method">
-                ${state.mode === "account" && card ? `
-                  <button type="button" class="pay-opt" data-pay="saved" aria-pressed="${state.payment === "saved"}">
-                    <span class="radio"></span><span class="label">${(card.brand || "Card").replace(/^./, c => c.toUpperCase())} ending ${card.last4}</span><span class="pay-opt-marks">${FV.payMark(card.brand || "visa")}</span></button>` : ``}
-                <button type="button" class="pay-opt" data-pay="card" aria-pressed="${state.payment === "card"}">
-                  <span class="radio"></span><span class="label">Credit or debit card</span><span class="pay-opt-marks">${FV.payMark("visa")}${FV.payMark("mastercard")}</span></button>
-                <button type="button" class="pay-opt" data-pay="apple" aria-pressed="${state.payment === "apple"}">
-                  <span class="radio"></span><span class="label">Apple&nbsp;Pay</span><span class="pay-opt-marks">${FV.payMark("apple")}</span></button>
-                <button type="button" class="pay-opt" data-pay="wallet" aria-pressed="${state.payment === "wallet"}">
-                  <span class="radio"></span><span class="label">Mobile wallet</span><span class="pay-opt-marks">${FV.payMark("wallet")}</span></button>
-                </div>
-
-                <div class="card-fields ${state.payment === "card" ? "show" : ""}" id="cardFields">
-                  <div class="grid-2">
-                    <div class="field col-span"><label for="ccNumber">Card number</label><input class="input" id="ccNumber" inputmode="numeric" placeholder="•••• •••• •••• ••••" autocomplete="cc-number"></div>
-                    <div class="field"><label for="ccExpiry">Expiry</label><input class="input" id="ccExpiry" placeholder="MM / YY" autocomplete="cc-exp"></div>
-                    <div class="field"><label for="ccCvc">CVC</label><input class="input" id="ccCvc" inputmode="numeric" placeholder="•••" autocomplete="cc-csc"></div>
-                    <div class="field col-span"><label for="ccName">Name on card</label><input class="input" id="ccName" autocomplete="cc-name"></div>
+              <div class="co__main">
+                <div class="co-step">
+                  <div class="co-step__head"><span class="co-step__n">1</span><h2>Contact <em class="i">&amp; address</em></h2></div>
+                  <div class="co-grid">
+                    ${field("coFirst", "first", "First name", { auto: "given-name", value: np.first })}
+                    ${field("coLast", "last", "Last name", { auto: "family-name", value: np.last })}
+                    ${field("coPhone", "phone", "Phone", { auto: "tel", mode: "tel", ph: "+20 1XX XXX XXXX", type: "tel", value: user && user.phone, pattern: "[0-9+\\s\\(\\)\\-]{8,}" })}
+                    ${field("coEmail", "email", "Email", { type: "email", auto: "email", value: user && user.email })}
+                    <div class="field"><label for="coArea">Area</label><select class="select" id="coArea" name="area" required autocomplete="address-level2" aria-describedby="coArea-m"><option value="">Select your area</option>${AREAS.map((a) => `<option${addr && String(addr.area || "").indexOf(a) === 0 ? " selected" : ""}>${esc(a)}</option>`).join("")}</select><p class="field-msg" id="coArea-m" aria-live="polite"></p></div>
+                    ${field("coDistrict", "district", "Compound / district", { required: false, auto: "address-line2" })}
+                    ${field("coStreet", "street", "Street address", { ph: "Building, street, apartment", auto: "address-line1", span: true, value: addr && addr.line })}
+                    ${field("coNotes", "notes", "Delivery notes", { required: false, ph: "Gate code, landmark, anything that helps", span: true })}
                   </div>
                 </div>
-                <div class="secure-note">${FV.icon("shield")} Encrypted and secure. We never store your full card details — only the last 4 digits.</div>
-              </div>
-
-              <!-- 4 Review -->
-              <div class="co-step">
-                <div class="step-head"><span class="step-n">04</span><h2>Review &amp; place order</h2></div>
-                <p class="muted" style="font-size:var(--step--1)">By placing your order you agree to our <a href="terms.html" style="color:var(--brass-deep);text-decoration:underline">Terms of Use</a> and <a href="policies.html" style="color:var(--brass-deep);text-decoration:underline">Policies</a>.</p>
-                <button class="btn btn--brass btn--block btn--lg" type="submit" style="margin-top:1.3rem">Place order · <span id="placeTotal" style="font-variant-numeric:lining-nums tabular-nums"></span></button>
+                <div class="co-step">
+                  <div class="co-step__head"><span class="co-step__n">2</span><h2>Delivery <em class="i">slot</em></h2></div>
+                  <p class="slot-label" id="dayLab">Choose a day</p>
+                  <div class="slot-grid" role="group" aria-labelledby="dayLab">${days.map((d, i) => `<button type="button" class="slot" data-day="${i}" aria-pressed="${i === state.day}"><small>${d.top}</small><b>${d.day}</b></button>`).join("")}</div>
+                  <p class="slot-label" id="timeLab">Choose a time</p>
+                  <div class="slot-grid" role="group" aria-labelledby="timeLab">${slots.map((t, i) => { const [a, b] = String(t).split("·").map((x) => x.trim()); return `<button type="button" class="slot" data-time="${i}" aria-pressed="${i === state.time}"><b>${esc(b || a)}</b><small>${esc(b ? a : "")}</small></button>`; }).join("")}</div>
+                </div>
+                <div class="co-step">
+                  <div class="co-step__head"><span class="co-step__n">3</span><h2>Payment</h2></div>
+                  <div class="pay-opts" role="group" aria-label="Payment method">${pays.map((p) => `<button type="button" class="pay-opt" data-pay="${p[0]}" aria-pressed="${state.payment === p[0]}"><span class="dotr" aria-hidden="true"></span><span>${p[1]}</span><span class="pay-opt__marks">${p[2]}</span></button>`).join("")}</div>
+                  <div class="card-fields${state.payment === "card" ? " show" : ""}" id="cardFields">
+                    <div class="co-grid">
+                      <div class="field span"><label for="ccNum">Card number</label><input class="input" id="ccNum" inputmode="numeric" placeholder="•••• •••• •••• ••••" autocomplete="off"></div>
+                      <div class="field"><label for="ccExp">Expiry</label><input class="input" id="ccExp" placeholder="MM / YY" autocomplete="off"></div>
+                      <div class="field"><label for="ccCvc">CVC</label><input class="input" id="ccCvc" inputmode="numeric" placeholder="•••" autocomplete="off"></div>
+                    </div>
+                  </div>
+                  <div class="demo-note">${I("shield")}<span>Demo store — no payment is taken and card details are never stored or sent. In production this step is handled by a certified payment provider.</span></div>
+                </div>
+                <div class="co-step">
+                  <div class="co-step__head"><span class="co-step__n">4</span><h2>Review <em class="i">&amp; place</em></h2></div>
+                  <label class="check"><input type="checkbox" id="coNews" checked><span>Send me the Fresh Valley Letter — one quiet note a month.</span></label>
+                  <p class="muted small" style="margin-top:.8rem">By placing your order you agree to our <a class="link-btn" href="terms.html">Terms of Use</a> and <a class="link-btn" href="policies.html">Company Policies</a>.</p>
+                  <button class="btn btn--lg btn--block" type="submit" id="placeBtn" style="margin-top:1.2rem" data-magnetic=".12">Place order · <span id="placeTotal"></span><span class="btn__ic">${I("arrow")}</span></button>
+                </div>
               </div>
             </form>
           </div>
-          ${summaryHtml()}
+          ${summaryHTML()}
         </div>`;
         wire();
       }
-
-      const REQUIRED_FIELDS = [
-        ["coFirst", "Enter your first name."],
-        ["coLast", "Enter your last name."],
-        ["coPhone", "Enter a valid phone number."],
-        ["coEmail", "Enter a valid email address."],
-        ["coArea", "Select your delivery area."],
-        ["coStreet", "Enter your street address."],
-      ];
-      function validateForm(form) {
-        let firstInvalid = null;
-        REQUIRED_FIELDS.forEach(([id, msg]) => {
-          const el = document.getElementById(id);
-          if (!el) return;
-          const wrap = el.closest(".field");
-          const bad = !el.checkValidity();
-          wrap.classList.toggle("has-error", bad);
-          el.setAttribute("aria-invalid", bad ? "true" : "false");
-          const msgEl = document.getElementById(id + "-msg");
-          if (msgEl) msgEl.textContent = bad ? msg : "";
-          if (bad && !firstInvalid) firstInvalid = el;
+      const REQ = [["coFirst", "Enter your first name."], ["coLast", "Enter your last name."], ["coPhone", "Enter a valid phone number."], ["coEmail", "Enter a valid email address."], ["coArea", "Select your delivery area."], ["coStreet", "Enter your street address."]];
+      function validate() {
+        let first = null;
+        REQ.forEach(([id, msg]) => {
+          const el = document.getElementById(id); if (!el) return;
+          const bad = !el.checkValidity() || !String(el.value).trim();
+          el.closest(".field").classList.toggle("has-error", bad);
+          el.setAttribute("aria-invalid", String(bad));
+          const m = document.getElementById(id + "-m"); if (m) m.textContent = bad ? msg : "";
+          if (bad && !first) first = el;
         });
-        return firstInvalid;
+        return first;
       }
-
       function wire() {
-        const sub = FV.cart.subtotal();
-        const delivery = sub >= FREE ? 0 : FEE;
-        document.getElementById("placeTotal").textContent = FV.money(sub + delivery);
-
-        root.querySelectorAll("[data-mode]").forEach(b => b.addEventListener("click", () => { state.mode = b.dataset.mode; render(); }));
-        // checkout sign-in (mock, ties into the same fv_user session)
-        const siBtn = document.getElementById("siBtn");
-        if (siBtn) siBtn.addEventListener("click", () => {
+        document.getElementById("placeTotal").textContent = FV.money(totals().total);
+        root.querySelectorAll("[data-mode]").forEach((b) => b.addEventListener("click", () => { state.mode = b.dataset.mode; render(); }));
+        const si = document.getElementById("siBtn");
+        if (si) si.addEventListener("click", () => {
           const email = (document.getElementById("siEmail").value || "").trim();
-          if (!email || !email.includes("@")) { document.getElementById("siEmail").focus(); FV.toast("Enter a valid email to sign in"); return; }
-          const name = email.split("@")[0].replace(/[._-]+/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { document.getElementById("siEmail").focus(); FV.toast("Enter a valid email to sign in"); return; }
+          const name = email.split("@")[0].replace(/[._-]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
           localStorage.setItem("fv_user", JSON.stringify({ name, email }));
-          user = currentUser(); state.payment = savedCard() ? "saved" : "card";
-          FV.toast("Signed in as " + name.split(" ")[0]);
-          render();
+          user = readJSON("fv_user"); state.payment = savedCard() ? "saved" : "card";
+          FV.toast("Signed in as " + name.split(" ")[0]); render();
         });
-        const soBtn = document.getElementById("coSignout");
-        if (soBtn) soBtn.addEventListener("click", () => { localStorage.removeItem("fv_user"); user = null; state.mode = "guest"; state.payment = "card"; render(); });
-        root.querySelectorAll("[data-day]").forEach(b => b.addEventListener("click", () => {
-          state.slotDay = +b.dataset.day; root.querySelectorAll("[data-day]").forEach(x => x.setAttribute("aria-pressed", x === b));
+        const so = document.getElementById("coOut");
+        if (so) so.addEventListener("click", () => { localStorage.removeItem("fv_user"); user = null; state.mode = "guest"; state.payment = "card"; render(); });
+        const pick = (sel, key) => root.querySelectorAll(sel).forEach((b) => b.addEventListener("click", () => {
+          state[key] = +b.dataset[key]; root.querySelectorAll(sel).forEach((x) => x.setAttribute("aria-pressed", x === b));
+          document.getElementById("stepsBar").innerHTML = steps(2);
         }));
-        root.querySelectorAll("[data-time]").forEach(b => b.addEventListener("click", () => {
-          state.slotTime = +b.dataset.time; root.querySelectorAll("[data-time]").forEach(x => x.setAttribute("aria-pressed", x === b));
-        }));
-        root.querySelectorAll("[data-pay]").forEach(b => b.addEventListener("click", () => {
+        pick("[data-day]", "day"); pick("[data-time]", "time");
+        root.querySelectorAll("[data-pay]").forEach((b) => b.addEventListener("click", () => {
           state.payment = b.dataset.pay;
-          root.querySelectorAll("[data-pay]").forEach(x => x.setAttribute("aria-pressed", x === b));
+          root.querySelectorAll("[data-pay]").forEach((x) => x.setAttribute("aria-pressed", x === b));
           document.getElementById("cardFields").classList.toggle("show", state.payment === "card");
+          document.getElementById("stepsBar").innerHTML = steps(3);
         }));
-        document.getElementById("coForm").addEventListener("submit", e => { e.preventDefault();
-          const bad = validateForm(e.target);
+        document.getElementById("coForm").addEventListener("submit", (e) => {
+          e.preventDefault();
+          const bad = validate();
           if (bad) { bad.focus(); FV.toast("Please check the highlighted fields"); return; }
-          placeOrder(e.target);
+          place(e.target);
         });
+        FV.observeReveals(root);
       }
-
-      async function placeOrder(form) {
-        const sub = FV.cart.subtotal();
-        const delivery = sub >= FREE ? 0 : FEE;
-        const name = form.first.value || "there";
-        const slot = `${days[state.slotDay]}, ${times[state.slotTime]}`;
+      async function place(form) {
+        const btn = document.getElementById("placeBtn");
+        btn.disabled = true; btn.querySelector("span").textContent = "…";
+        const t = totals();
+        const slot = days[state.day].top + " " + days[state.day].day + ", " + slots[state.time];
         const card = savedCard();
-        const payLabel = { card: "Card", saved: card ? `${(card.brand || "Card").replace(/^./, c => c.toUpperCase())} ending ${card.last4}` : "Saved card", apple: "Apple Pay", wallet: "Mobile wallet", cod: "Cash on delivery" }[state.payment];
-        const customer = {
-          name: (form.first.value + " " + form.last.value).trim() || name,
-          email: form.email.value.trim(), phone: form.phone.value.trim(), area: form.area.value || "",
-        };
-        const address = [form.street.value, form.district.value, form.area.value].filter(Boolean).join(", ");
-        const items = FV.cart.items().map((it) => ({ slug: it.slug, kind: it.type, name: it.name, variant: it.variant, price: it.price, qty: it.qty, image: it.image, noPhoto: !!it.noPhoto }));
-
-        let orderObj = {
+        const payLabel = { card: "Card", saved: card ? (card.brand || "Card").replace(/^./, (c) => c.toUpperCase()) + " ending " + card.last4 : "Saved card", apple: "Apple Pay", wallet: "Mobile wallet", cod: "Cash on delivery" }[state.payment];
+        const customer = { name: (form.first.value + " " + form.last.value).trim(), email: form.email.value.trim(), phone: form.phone.value.trim(), area: form.area.value || "" };
+        const address = [form.street.value, form.district.value, form.area.value].map((x) => x.trim()).filter(Boolean).join(", ");
+        const items = FV.cart.items().map((it) => ({ slug: it.slug, type: it.type, name: it.name, variant: it.variant, price: it.price, qty: it.qty, image: it.image, noPhoto: !!it.noPhoto, note: it.note || "" }));
+        let order = {
           id: "FV" + Math.floor(100000 + Math.random() * 899999), date: new Date().toISOString(),
-          customer, items, subtotal: sub, delivery, total: sub + delivery, status: "pending",
-          payment: payLabel, channel: "Website", slot, address,
+          customer, address, slot, items, subtotal: t.sub, discount: t.off, code: t.d ? t.d.code : "", delivery: t.delivery, total: t.total,
+          payment: payLabel, status: "new", fulfillment: "unfulfilled", note: form.notes.value.trim(), channel: "Website",
+          timeline: [{ t: Date.now(), msg: "Order placed on the website" }],
         };
-
-        // Try the real backend (cross-device, server-priced); fall back to the local demo.
         let placed = false;
         if (FV.api && await FV.api.up()) {
-          try {
-            orderObj = await FV.api.checkout({ customer, address, slot, payment: payLabel,
-              items: items.map((i) => ({ slug: i.slug, qty: i.qty, variant: i.variant })) });
-            placed = true;
-          } catch (e) { FV.toast("Couldn't reach the server — saved locally"); }
+          try { order = await FV.api.checkout({ customer, address, slot, payment: payLabel, code: order.code, items: items.map((i) => ({ slug: i.slug, qty: i.qty, variant: i.variant })) }); placed = true; }
+          catch (_) { FV.toast("Couldn't reach the server — saved locally"); }
         }
-        if (!placed && FV.orders) { FV.orders.record(orderObj); FV.clients.upsert(Object.assign({}, customer, { status: "active" })); }
-
+        if (!placed) { FV.orders.record(order); }
+        FV.clients.upsert(Object.assign({}, customer, { status: "active", marketing: document.getElementById("coNews").checked }));
         FV.cart.clear();
-        document.getElementById("coTitle").textContent = "Order confirmed";
-        root.innerHTML = `
-        <div class="conf">
-          <div class="tick">${FV.icon("check")}</div>
-          <p class="eyebrow" style="justify-content:center">Thank you, ${name}</p>
-          <h2 class="mt-sm">Your table is on its way.</h2>
-          <p class="lead mt-md">We've received your order and started grading your produce. A confirmation is on its way to your inbox.</p>
-          <div class="conf-meta">
-            <div class="item"><div class="k">Order</div><div class="v">${orderObj.id}</div></div>
-            <div class="item"><div class="k">Delivery</div><div class="v">${slot}</div></div>
-            <div class="item"><div class="k">Payment</div><div class="v">${payLabel}</div></div>
-            <div class="item"><div class="k">Total</div><div class="v">${FV.money(orderObj.total)}</div></div>
-          </div>
-          <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem">
-            <a class="btn" href="account.html#orders">Track this order ${arrow}</a>
-            <button class="btn btn--outline" id="dlReceipt">Download receipt</button>
-            <a class="btn btn--outline" href="products.html">Continue shopping</a>
-          </div>
-        </div>`;
-        document.getElementById("dlReceipt")?.addEventListener("click", () => FV.receipt.open(orderObj));
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        try { sessionStorage.removeItem("fv_code"); } catch (_) {}
+        confirmView(order, customer.name.split(" ")[0] || "there");
       }
-
+      function confirmView(o, first) {
+        document.getElementById("stepsBar").innerHTML = steps(4);
+        document.getElementById("coTitle").innerHTML = "Thank you, <em class=\"i\">" + esc(first) + "</em>.";
+        document.getElementById("coEyebrow").textContent = "Order confirmed";
+        document.getElementById("coCrumb").textContent = "Confirmed";
+        root.innerHTML = `<div class="conf" role="status">
+          <div class="conf__tick">${I("check")}</div>
+          <p class="eyebrow" style="justify-content:center">Order ${esc(o.id)}</p>
+          <h2>Your table is <em class="i">on its way</em>.</h2>
+          <p class="lede" style="margin:0 auto">We've received your order and started grading your produce. A confirmation is on its way to ${esc(o.customer.email)}.</p>
+          <div class="conf__meta">
+            <div><small>Order</small><b>${esc(o.id)}</b></div>
+            <div><small>Delivery</small><b>${esc(o.slot)}</b></div>
+            <div><small>Payment</small><b>${esc(o.payment)}</b></div>
+            <div><small>Total</small><b>${FV.money(o.total)}</b></div>
+          </div>
+          <div class="conf__actions">
+            <a class="btn" href="account.html#orders">Track this order<span class="btn__ic">${I("arrow")}</span></a>
+            <button class="btn btn--ghost" type="button" id="rcOpen">View receipt<span class="btn__ic">${I("check")}</span></button>
+            <button class="btn btn--ghost btn--noic" type="button" id="rcDl">Download</button>
+          </div>
+          <div class="conf__art" data-draw>${S.ART.bouquet}</div>
+        </div>`;
+        document.getElementById("rcOpen").addEventListener("click", () => FV.receipt.open(o));
+        document.getElementById("rcDl").addEventListener("click", () => FV.receipt.download(o));
+        if (window.FVMotion && FVMotion.lenis) FVMotion.lenis.scrollTo(0, { duration: 1.2 }); else window.scrollTo({ top: 0, behavior: "smooth" });
+        document.querySelectorAll(".toast").forEach((t) => t.remove());
+        FV.observeReveals(root);
+      }
       render();
     })();
   </script>
+  <script defer src="assets/vendor/gsap.min.js"></script>
+  <script defer src="assets/vendor/ScrollTrigger.min.js"></script>
+  <script defer src="assets/vendor/SplitText.min.js"></script>
+  <script defer src="assets/vendor/lenis.min.js"></script>
+  <script defer src="assets/js/motion.js"></script>
 </body>
 </html>

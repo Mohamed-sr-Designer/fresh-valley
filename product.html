@@ -2,165 +2,94 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Product — Fresh Valley</title>
-  <meta name="description" content="Export-grade produce, with origin, weight selection, storage and nutrition. Curated for modern hosting.">
-  <meta name="theme-color" content="#1A2A1D">
-  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/jost-400.woff2" crossorigin>
-  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/cormorant-garamond-500.woff2" crossorigin>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Fresh Valley</title>
+  <meta name="description" content="Export-grade produce from Fresh Valley — graded by hand, delivered next-day across Cairo.">
+  <meta name="theme-color" content="#19291C">
+  <meta property="og:type" content="product">
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/fraunces-v4.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/jakarta.woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/styles.css">
-  <style>
-    /* ================= PDP · gallery + info ================= */
-    .pdp { padding-top: calc(var(--header-h) + clamp(2.25rem, 5vw, 4rem)); padding-bottom: var(--section-y); }
-    .pdp-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: clamp(2.5rem, 5vw, 5rem); align-items: start; }
-
-    .pdp-gallery { position: sticky; top: calc(var(--header-h) + var(--s-6)); }
-    .pdp-main { position: relative; aspect-ratio: 1/1; overflow: hidden; background: var(--surface-warm); }
-    .pdp-main picture { display: block; width: 100%; height: 100%; }
-    .pdp-main img { width: 100%; height: 100%; object-fit: cover; }
-    .pdp-main .badge { position: absolute; top: .9rem; left: .9rem; z-index: 2; }
-    .pdp-gallery .spec-list { margin-top: 1.5rem; }
-
-    .pdp-info h1 { font-size: var(--step-4); margin: .4rem 0 0; }
-    .pdp-rating { display: flex; align-items: center; gap: .65rem; font-size: var(--step--1); color: var(--text-muted); margin-top: var(--s-4); }
-    .pdp-rating .stars { display: inline-flex; gap: 2px; color: var(--brass); }
-    .pdp-rating .stars svg { width: 13px; height: 13px; fill: currentColor; }
-    .pdp-info .lead { margin-top: var(--s-4); }
-
-    .pdp-price { font-family: var(--font-display); font-size: var(--step-3); color: var(--forest); margin-top: var(--s-6); padding-top: var(--s-5); border-top: 1px solid var(--line); }
-    .pdp-price .per { font-family: var(--font-sans); font-size: var(--step--1); font-weight: 500; color: var(--text-faint); }
-    .pdp-sub { font-size: var(--step--2); color: var(--text-faint); margin-top: .4rem; }
-
-    /* Scarcity — flat hairline meter, no glow, no pulse */
-    .scarcity { margin-top: var(--s-6); padding-top: var(--s-5); border-top: 1px solid var(--line); }
-    .sc-row { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
-    .sc-label { display: inline-flex; align-items: center; gap: .55em; font-size: var(--step--2); font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--brass-deep); }
-    .sc-label::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
-    .sc-pct { font-size: var(--step--2); color: var(--text-faint); white-space: nowrap; }
-    .sc-meter { height: 2px; background: var(--line); margin-top: .9rem; }
-    .sc-meter span { display: block; height: 100%; background: var(--brass); }
-    .sc-note { font-size: var(--step--2); color: var(--text-faint); margin-top: .65rem; line-height: 1.6; }
-
-    .selector { margin-top: var(--s-6); padding-top: var(--s-5); border-top: 1px solid var(--line); }
-    .selector .lab { display: flex; justify-content: space-between; font-size: var(--step--2); font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: .9rem; }
-    .selector .lab .sel { color: var(--forest); letter-spacing: .02em; }
-
-    .buy-row { display: flex; gap: .75rem; margin-top: var(--s-6); align-items: stretch; }
-    .buy-row .qty { flex-shrink: 0; }
-    .buy-row .btn { flex: 1; }
-    /* On the PDP the save control lives inline in the buy row — undo the grid card's
-       absolute/hover-reveal treatment inherited from the shared .wish-btn. */
-    .wish-lg {
-      position: static; opacity: 1; transform: none; inset: auto;
-      width: 52px; height: 52px; flex-shrink: 0; border: 1px solid var(--line); border-radius: 50%;
-      display: grid; place-items: center; color: var(--forest); background: var(--surface);
-      transition: border-color .25s, color .25s;
-    }
-    .wish-lg:hover { border-color: var(--forest); }
-    .wish-lg.active { color: var(--pomegranate); border-color: var(--pomegranate); }
-    .wish-lg.active svg { fill: var(--pomegranate); }
-    .wish-lg svg { width: 21px; height: 21px; }
-
-    .assurance { display: grid; gap: .85rem; margin-top: var(--s-6); padding-top: var(--s-5); border-top: 1px solid var(--line); }
-
-    .pdp-detail { margin-top: var(--s-7); }
-    /* Accordion affordance: hover tint + a panel that eases open, not a hard jump */
-    .pdp-detail.accordion summary { transition: color .2s var(--ease-respond); }
-    .pdp-detail.accordion summary:hover { color: var(--brass-deep); }
-    .pdp-detail.accordion details[open] .panel { animation: accPanel .3s var(--ease-settle); }
-    @keyframes accPanel { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
-    @media (prefers-reduced-motion: reduce) { .pdp-detail.accordion details[open] .panel { animation: none; } }
-
-    /* ================= Sticky mobile buy bar — flat, hairline, no glow ================= */
-    .pdp-sticky {
-      position: fixed; left: 0; right: 0; bottom: 0; z-index: 90;
-      background: rgba(252,250,246,.96); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
-      border-top: 1px solid var(--line);
-      transform: translateY(100%); transition: transform .4s var(--ease-out);
-    }
-    .pdp-sticky.show { transform: none; }
-    .pdp-sticky .ps-inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-block: .75rem; }
-    .ps-info { display: flex; flex-direction: column; min-width: 0; }
-    .ps-name { font-family: var(--font-display); font-size: var(--step-0); color: var(--forest); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .ps-price { font-weight: 600; color: var(--text); font-size: var(--step--1); }
-    .pdp-sticky .btn { flex-shrink: 0; }
-    @media (min-width: 921px) { .pdp-sticky { display: none; } }
-    @media (max-width: 860px) { .pdp-sticky { bottom: calc(62px + env(safe-area-inset-bottom)); } }
-
-    /* ================= Hosting recommendation banner (the one dark moment) ================= */
-    .host-rec { display: grid; grid-template-columns: 260px 1fr auto; gap: clamp(1.5rem, 3vw, 2.5rem); align-items: center; background: var(--forest); color: var(--on-dark); }
-    .host-rec img { width: 100%; height: 100%; min-height: 200px; object-fit: cover; }
-    .host-rec .hr-body { padding-block: clamp(1.5rem, 3vw, 2rem); }
-    .host-rec .hr-body h3 { color: var(--cream); font-size: var(--step-2); margin-top: .45rem; }
-    .host-rec .hr-body p { color: var(--on-dark-muted); font-size: var(--step--1); margin-top: .6rem; max-width: 44ch; }
-    .host-rec .hr-cta { padding-right: clamp(1.5rem, 3vw, 2.5rem); }
-
-    /* ================= Box tier selector — hairline radio rows, no boxes/glow ================= */
-    .tier-group { border-top: 1px solid var(--line); }
-    .tier {
-      width: 100%; display: flex; align-items: center; gap: 1rem; text-align: left;
-      padding: 1.05rem .1rem; border-bottom: 1px solid var(--line); transition: background .2s;
-    }
-    .tier:hover { background: var(--paper-2); }
-    .tier[aria-pressed="true"] { background: var(--paper-2); }
-    .tier-radio { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--line-strong); flex-shrink: 0; position: relative; transition: border-color .2s; }
-    .tier[aria-pressed="true"] .tier-radio { border-color: var(--forest); }
-    .tier[aria-pressed="true"] .tier-radio::after { content: ""; position: absolute; inset: 3px; border-radius: 50%; background: var(--forest); }
-    .tier-body { flex: 1; min-width: 0; }
-    .tier .t-label { display: block; font-weight: 600; color: var(--forest); font-size: var(--step-0); }
-    .tier .t-serves { display: block; font-size: var(--step--2); color: var(--text-faint); margin-top: .15rem; }
-    .tier .t-price { font-family: var(--font-display); font-size: var(--step-1); color: var(--forest); flex-shrink: 0; }
-    .includes { display: grid; gap: .7rem; margin-top: 1.1rem; }
-    .includes .inc { display: flex; gap: .7rem; align-items: flex-start; font-size: var(--step--1); color: var(--text-muted); }
-    .includes svg { width: 17px; height: 17px; color: var(--brass-deep); flex-shrink: 0; margin-top: 2px; }
-
-    .not-found { padding-top: calc(var(--header-h) + clamp(3rem, 6vw, 5rem)); padding-bottom: clamp(3rem, 6vw, 5rem); text-align: center; }
-
-    /* ================= Responsive ================= */
-    @media (max-width: 920px) {
-      .pdp-grid { grid-template-columns: 1fr; }
-      .pdp-gallery { position: static; }
-      .host-rec { grid-template-columns: 1fr; }
-      .host-rec img { width: 100%; height: 220px; }
-      .host-rec .hr-body { padding: 0 clamp(1.5rem, 4vw, 2rem); }
-      .host-rec .hr-cta { padding: 0 clamp(1.5rem, 4vw, 2rem) clamp(1.5rem, 4vw, 2rem); }
-    }
-    @media (max-width: 520px) {
-      .buy-row { flex-wrap: wrap; }
-      .buy-row .qty { order: 1; }
-      .wish-lg { order: 2; margin-left: auto; }
-      .buy-row .btn { order: 3; flex: 1 1 100%; }
-    }
-  </style>
+  <link rel="stylesheet" href="assets/css/shop.css">
+  <script>!function(d,w){var h=d.documentElement;if(!/[?&]fv_preview=1/.test(location.search)&&!w.matchMedia("(prefers-reduced-motion: reduce)").matches){h.classList.add("m-on");setTimeout(function(){if(!(w.FVMotion&&w.FVMotion.ready))h.classList.remove("m-on")},3500)}}(document,window)</script>
 </head>
-
-<body data-page="products">
+<body data-page="product">
   <div id="fv-header"></div>
-  <main id="pdpRoot"><!-- rendered by JS --></main>
+  <noscript><p class="noscript">Fresh Valley uses JavaScript for its menu, basket and checkout. <a href="products.html">Browse the collection</a> · <a href="contact.html">Contact us</a></p></noscript>
+  <main id="main"></main>
   <div id="fv-footer"></div>
 
   <script src="assets/js/data.js"></script>
+  <script src="assets/js/content.js"></script>
+  <script src="assets/js/theme.js"></script>
   <script src="assets/js/app.js"></script>
+  <script src="assets/js/sections.js"></script>
   <script>
     (function () {
-      const root = document.getElementById("pdpRoot");
+      const root = document.getElementById("main");
+      const S = window.FVSections, esc = FV.esc, I = FV.icon;
       const params = new URLSearchParams(location.search);
-      const slug = params.get("slug");
-      const boxSlug = params.get("box");
-      const arrow = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+      const slug = params.get("slug"), boxSlug = params.get("box");
+      const $ = (id) => document.getElementById(id);
+      const catName = { fruits: "Fruits", vegetables: "Vegetables", herbs: "Herbs" };
 
-      function notFound() {
-        root.innerHTML = `<section class="section not-found">
-          <div class="container"><h1>Product not found</h1>
-          <p class="muted mt-md">We couldn't find that one. Browse the full collection instead.</p>
-          <a class="btn mt-lg" href="products.html" style="margin-top:1.5rem">View the collection ${arrow}</a></div></section>`;
+      function meta(title, desc) {
+        document.title = title + " — Fresh Valley";
+        const m = document.querySelector('meta[name="description"]'); if (m && desc) m.content = desc;
       }
-
-      function injectLd(obj) {
-        const s = document.createElement("script");
-        s.type = "application/ld+json";
-        s.textContent = JSON.stringify(obj);
-        document.head.appendChild(s);
+      function ld(obj) { const s = document.createElement("script"); s.type = "application/ld+json"; s.textContent = JSON.stringify(obj); document.head.appendChild(s); }
+      function notFound() {
+        meta("Not found");
+        root.innerHTML = `<section class="s shop-head"><div class="wrap wrap--narrow" style="text-align:center"><div class="shop-empty">
+          <div class="empty__art">${S.ART.leaf}</div><h1 class="h2">This one has <em class="i">sold through</em>.</h1>
+          <p class="muted" style="margin-top:.6rem">We couldn't find that product — the rest of the market is fresh and waiting.</p>
+          <a class="btn" href="products.html" style="margin-top:1.4rem">View the collection<span class="btn__ic">${I("arrow")}</span></a></div></div></section>`;
+      }
+      function qtyHTML() {
+        return `<div class="qty"><button type="button" id="qDec" aria-label="Decrease quantity">${I("minus")}</button><input id="qVal" type="text" inputmode="numeric" value="1" aria-label="Quantity"><button type="button" id="qInc" aria-label="Increase quantity">${I("plus")}</button></div>`;
+      }
+      function bindQty(onChange) {
+        let qty = 1;
+        const input = $("qVal");
+        const set = (v) => { qty = Math.max(1, Math.min(99, v)); input.value = qty; onChange(qty); };
+        $("qDec").addEventListener("click", () => set(qty - 1));
+        $("qInc").addEventListener("click", () => set(qty + 1));
+        input.addEventListener("input", () => { const v = input.value.replace(/[^0-9]/g, ""); input.value = v; qty = Math.max(1, parseInt(v || "1", 10)); onChange(qty); });
+        input.addEventListener("blur", () => { if (!input.value || +input.value < 1) set(1); });
+      }
+      function stickyBar(anchorSel) {
+        const bar = $("stickyBuy"), anchor = root.querySelector(anchorSel);
+        if (!bar || !anchor) return;
+        const on = () => {
+          const show = anchor.getBoundingClientRect().bottom < 0;
+          bar.classList.toggle("show", show);
+          bar.setAttribute("aria-hidden", String(!show));
+          bar.toggleAttribute("inert", !show);
+        };
+        addEventListener("scroll", on, { passive: true }); on();
+      }
+      function cutoff() {
+        const el = $("cutoffTime"); if (!el) return;
+        const tick = () => { el.textContent = FV.cutoffText(); };
+        tick(); setInterval(tick, 30000);
+      }
+      function trustList() {
+        return `<ul class="trust">
+          <li>${I("truck")}<span>Complimentary delivery over ${FV.money(FV.settings.freeThreshold)} · next-day slots</span></li>
+          <li>${I("shield")}<span>Export-grade. If it isn't perfect, we replace it.</span></li>
+          <li>${I("snow")}<span>Cold-chain kept from grading table to your door.</span></li></ul>`;
+      }
+      function reviewsFor(names, tags) {
+        let rs = FV.data.reviews.filter((r) => names.some((n) => r.tag === n) || tags.includes(r.tag));
+        if (rs.length < 3) rs = rs.concat(FV.data.reviews.filter((r) => !rs.includes(r))).slice(0, 3);
+        return rs.slice(0, 6);
+      }
+      function afterAdd(btn) {
+        if (window.FVMotion) window.FVMotion.fly(btn);
+        btn.classList.add("is-added");
+        const lbl = btn.querySelector(".lbl"), old = lbl && lbl.textContent;
+        if (lbl) lbl.textContent = "Added to basket";
+        setTimeout(() => { btn.classList.remove("is-added"); if (lbl) lbl.textContent = old; }, 1600);
       }
 
       if (boxSlug) { const b = FV.findBox(boxSlug); b ? renderBox(b) : notFound(); }
@@ -168,431 +97,274 @@
 
       /* ============================ PRODUCT ============================ */
       function renderProduct(p) {
-        document.title = `${p.name} — Fresh Valley`;
-        const catLabel = { fruits: "Fruits", vegetables: "Vegetables", herbs: "Herbs" }[p.category] || "Produce";
-        const isKg = p.unit === "kg";
-        const seasonal = (p.badges || []).includes("seasonal");
-        const scarce = seasonal || (p.collections || []).includes("organic-reserve");
-        const scPct = FV.scarcityPct(p.slug);
-        const galleryImg = p.noPhoto
-          ? `<div class="pdp-main media--herb">
-               <div class="herb-art">${FV.icon("leaf2")}<span>${p.name}</span></div>
-               <span class="badge badge--organic">Organic</span></div>`
-          : `<div class="pdp-main">${FV.isCustomImg(p.image) ? `<img src="${p.image}" alt="${p.name}" width="1000" height="1000" fetchpriority="high">` : `<picture><source type="image/webp" srcset="${FV.webp(FV.img(p.slug))}"><img src="${FV.img(p.slug)}" alt="${p.name}" width="1000" height="1000" fetchpriority="high" decoding="async"></picture>`}
-               ${badge(p)}</div>`;
-
-        const stars = FV.icon("star").repeat(Math.round(p.rating));
+        meta(p.name, p.short + " " + (p.desc || ""));
+        const isKg = p.unit === "kg", cat = catName[p.category] || "Produce";
+        const sold = FV.soldOut(p);
+        const seasonal = (p.badges || []).includes("seasonal") || (p.collections || []).includes("seasonal");
+        const scarce = !sold && (seasonal || (p.collections || []).includes("organic-reserve"));
+        const pct = FV.scarcityPct(p.slug);
+        const custom = FV.isCustomImg(p.image);
+        const media = p.noPhoto
+          ? `<div class="media--herb"><svg class="art herb-art" viewBox="0 0 120 150" aria-hidden="true"><path d="M60 146C58 110 62 70 58 8"/><path d="M59 126c-12-3-22-11-27-21 11 0 21 6 27 16"/><path d="M60 108c11-3 20-11 24-22-11 0-20 7-24 17"/><path d="M59 90c-12-2-22-10-28-20 11-1 21 5 27 15"/><path d="M60 72c11-3 20-11 24-22-11 0-20 7-24 17"/><path d="M58 54c-11-2-20-9-25-18 10-1 19 4 25 13"/><path d="M59 38c9-3 17-10 20-19-9 1-16 6-20 14"/></svg><span>${esc(p.name)}</span></div>`
+          : custom ? `<img src="${esc(p.image)}" alt="${esc(p.name)}" width="1000" height="1000" fetchpriority="high">`
+          : `<picture><source type="image/webp" srcset="${FV.webp(FV.thumb(p.slug))} 540w, ${FV.webp(FV.img(p.slug))} 1000w" sizes="(max-width: 1100px) 92vw, 50vw"><img src="${FV.img(p.slug)}" srcset="${FV.thumb(p.slug)} 540w, ${FV.img(p.slug)} 1000w" sizes="(max-width: 1100px) 92vw, 50vw" alt="${esc(p.name)}" width="1000" height="1000" fetchpriority="high" decoding="async"></picture>`;
+        const flags = [
+          `<span class="chip chip--glass">${I("shield")}${esc(FV.topLabel(p))}</span>`,
+          seasonal ? `<span class="chip chip--olive">${I("sparkle")} In season</span>` : "",
+          sold ? `<span class="chip chip--forest">Sold out</span>` : "",
+          p.compareAt && +p.compareAt > FV.cardPrice(p).value ? `<span class="chip chip--pom">Save ${Math.round((1 - FV.cardPrice(p).value / +p.compareAt) * 100)}%</span>` : "",
+        ].join("");
+        const n = p.nutrition || {};
+        const pair = (p.pairings || []).filter((s) => s !== p.slug).map(FV.find).filter(Boolean).slice(0, 4);
+        const related = FV.byCategory(p.category).filter((x) => x.slug !== p.slug && !pair.includes(x)).slice(0, 10);
+        const recents = FV.recent.list().filter((s) => s !== p.slug).map(FV.find).filter(Boolean).slice(0, 10);
+        const revs = reviewsFor([p.name], []);
 
         root.innerHTML = `
-        <section class="pdp">
-          <div class="container">
-            <nav class="breadcrumb"><a href="index.html">Home</a><span>/</span>
-              <a href="products.html?cat=${p.category}">${catLabel}</a><span>/</span><span>${p.name}</span></nav>
-            <div class="pdp-grid">
-              <!-- gallery -->
-              <div class="pdp-gallery">
-                ${galleryImg}
-                <div class="spec-list">
-                  <div class="row"><span class="k">Origin</span><span class="v">${p.origin}</span></div>
-                  <div class="row"><span class="k">Season</span><span class="v">${p.season}</span></div>
-                  <div class="row"><span class="k">Handling</span><span class="v">Cold-chain kept, hand-graded</span></div>
+        <section class="s pdp" aria-labelledby="pName">
+          <div class="wrap wrap--wide">
+            <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span aria-hidden="true">/</span><a href="products.html?cat=${p.category}">${cat}</a><span aria-hidden="true">/</span><span aria-current="page">${esc(p.name)}</span></nav>
+            <div class="pdp__grid">
+              <div class="pdp__media">
+                <div class="pdp__frame" data-clip>${media}<div class="pdp__flags">${flags}</div></div>
+                <div class="pdp__facts">
+                  <div class="fact">${I("pin")}<small>Origin</small><strong>${esc(p.origin)}</strong></div>
+                  <div class="fact">${I("calendar")}<small>Season</small><strong>${esc(p.season)}</strong></div>
+                  <div class="fact">${I("snow")}<small>Handling</small><strong>Hand-graded, cold-chain</strong></div>
                 </div>
               </div>
-              <!-- info -->
-              <div class="pdp-info">
-                <p class="eyebrow">${badgeWord(p)} · ${catLabel}</p>
-                <h1>${p.name}</h1>
-                <div class="pdp-rating"><span class="stars">${stars}</span> <strong>${p.rating.toFixed(1)}</strong> · ${p.reviews} reviews</div>
-                <p class="lead">${p.desc}</p>
-
-                <div class="pdp-price" id="price">${FV.money(isKg ? FV.priceForWeight(p, 1000) : p.pricePerUnit)}
-                  <span class="per" id="pricePer">${isKg ? "/ 1 kg" : (p.unit === "bunch" ? "/ bunch" : "each")}</span></div>
-                <div class="pdp-sub">${isKg ? "Price updates as you choose your weight." : "Sold as a single " + (p.unit === "bunch" ? "bunch, cut to order." : "piece, hand-selected.")}</div>
-
-                ${scarce ? `<div class="avail" id="availBox" data-avail="${scPct}" style="margin-top:var(--s-6)">
-                  <div class="avail-top"><span class="avail-label">Selling fast this week</span><span class="avail-pct" id="availPct">0%</span></div>
-                  <div class="avail-bar"><span class="avail-fill" id="availFill"></span></div>
-                  <p class="avail-note">${scPct}% of today's allocation claimed. ${seasonal ? "In season now — a limited window while it's at its best." : "A small, limited allocation each week."}</p>
-                </div>` : ``}
-
-                ${isKg ? `<div class="selector">
-                  <div class="lab"><span>Select weight</span><span class="sel" id="selLabel">1 kg</span></div>
-                  <div class="pill-group" id="weightPills">
-                    ${FV.weightOptions.map(w => `<button class="pill ${w.default ? "active" : ""}" data-g="${w.g}" aria-pressed="${!!w.default}">${w.label}</button>`).join("")}
-                  </div>
-                </div>` : ``}
-
-                <div class="buy-row">
-                  <div class="qty">
-                    <button id="qDec" aria-label="Decrease">${FV.icon("minus")}</button>
-                    <input id="qVal" type="text" inputmode="numeric" value="1" aria-label="Quantity">
-                    <button id="qInc" aria-label="Increase">${FV.icon("plus")}</button>
-                  </div>
-                  <button class="btn btn--brass btn--lg" id="addBtn">Add to cart · <span id="btnTotal">${FV.money(isKg ? FV.priceForWeight(p, 1000) : p.pricePerUnit)}</span></button>
-                  <button class="wish-btn wish-lg" id="wishBtn" data-wish="${p.slug}" aria-label="Save to wishlist" aria-pressed="false">${FV.icon("heart")}</button>
+              <div class="pdp__info">
+                <div class="row"><span class="chip chip--soft">${esc(FV.topLabel(p))} · ${cat}</span></div>
+                <h1 id="pName" data-split>${esc(p.name)}</h1>
+                <div class="pdp__rating"><span class="stars" aria-hidden="true">${I("star").repeat(Math.round(p.rating || 5))}</span><strong>${(p.rating || 5).toFixed(1)}</strong><a href="#reviews">${p.reviews || 0} reviews</a></div>
+                <p class="lede">${esc(p.desc || p.short)}</p>
+                <div class="pdp__price" aria-live="polite"><b id="price"></b><small id="per"></small>${p.compareAt && +p.compareAt > FV.cardPrice(p).value ? `<s>${FV.money(+p.compareAt)}</s>` : ""}</div>
+                <p class="pdp__sub">${isKg ? "Price updates as you choose your weight — gentle savings on bigger baskets." : p.unit === "bunch" ? "Sold by the bunch, cut to order." : "Sold as a single piece, hand-selected."}</p>
+                ${scarce ? `<div class="avail" id="avail"><div class="avail__top"><span class="avail__label">Selling fast this week</span><span class="avail__pct" id="availPct">${pct}%</span></div><div class="avail__bar"><i id="availFill"></i></div><p class="avail__note">${pct}% of this week's allocation claimed. ${seasonal ? "In season now — a short window while it's at its best." : "A small, limited allocation each week."}</p></div>` : ""}
+                ${isKg ? `<div class="pick"><div class="pick__lab"><span>Select weight</span><b id="selLabel">1 kg</b></div>
+                  <div class="seg" id="weights" role="group" aria-label="Weight">${FV.weightOptions.map((w) => `<button type="button" data-g="${w.g}" aria-pressed="${!!w.default}">${w.label}</button>`).join("")}</div>
+                  <p class="pick__save" id="saveNote" aria-live="polite"></p></div>` : ""}
+                <div class="pdp__buy" id="buyRow">
+                  ${qtyHTML()}
+                  <button class="btn btn--lg" type="button" id="addBtn"${sold ? " disabled" : ""}><span class="lbl">${sold ? "Sold out" : "Add to basket"}</span> · <span id="btnTotal"></span><span class="btn__ic">${I("bag")}</span></button>
+                  <button class="pdp__wish" type="button" data-wish="${p.slug}" aria-label="Save ${esc(p.name)} to wishlist" aria-pressed="false">${I("heart")}</button>
                 </div>
-
-                <div class="assurance">
-                  <div class="trust-item">${FV.icon("truck")}<span>Complimentary delivery over EGP 600 · next-day slots</span></div>
-                  <div class="trust-item">${FV.icon("shield")}<span>Export-grade. If it isn't perfect, we replace it.</span></div>
-                  <div class="trust-item">${FV.icon("leaf")}<span>Graded and packed by hand on the day it ships.</span></div>
-                </div>
-
-                <!-- details -->
-                <div class="pdp-detail accordion">
-                  <details open><summary>The detail <span class="ico"></span></summary>
-                    <div class="panel">${p.desc} ${p.short}</div></details>
-                  <details><summary>Storage &amp; care <span class="ico"></span></summary>
-                    <div class="panel">${p.storage}</div></details>
-                  <details><summary>Origin &amp; season <span class="ico"></span></summary>
-                    <div class="panel">Grown in ${p.origin}. At its best ${p.season.toLowerCase() === "all year" ? "all year round" : "during " + p.season}. Selected only from lots that meet export specification.</div></details>
-                  <details><summary>Nutrition <span class="ico"></span></summary>
-                    <div class="panel">
-                      <table class="nutri-table"><caption>Typical values · ${p.nutrition.serving}</caption>
-                        <tr><td>Energy</td><td>${p.nutrition.energy}</td></tr>
-                        <tr><td>Carbohydrate</td><td>${p.nutrition.carbs}</td></tr>
-                        <tr><td>of which sugars</td><td>${p.nutrition.sugars}</td></tr>
-                        <tr><td>Fibre</td><td>${p.nutrition.fibre}</td></tr>
-                        <tr><td>Vitamin C</td><td>${p.nutrition.vitc}</td></tr>
-                      </table>
-                    </div></details>
+                <div class="cutoff">${I("clock")}<span>Order within <b id="cutoffTime"></b> for next-day delivery.</span></div>
+                ${trustList()}
+                <div class="acc">
+                  <details open><summary>The detail<span class="pm" aria-hidden="true"></span></summary><div class="acc__panel"><p>${esc(p.desc || "")} ${esc(p.short || "")}</p></div></details>
+                  <details><summary>Storage &amp; care<span class="pm" aria-hidden="true"></span></summary><div class="acc__panel"><p>${esc(p.storage || "Keep cool and dry.")}</p></div></details>
+                  <details><summary>Origin &amp; season<span class="pm" aria-hidden="true"></span></summary><div class="acc__panel"><p>Grown in ${esc(p.origin)}. At its best ${String(p.season).toLowerCase() === "all year" ? "all year round" : "during " + esc(p.season)}. Selected only from lots that meet export specification.</p></div></details>
+                  ${n.energy ? `<details><summary>Nutrition<span class="pm" aria-hidden="true"></span></summary><div class="acc__panel"><table class="nutri"><caption>Typical values · ${esc(n.serving)}</caption><tbody><tr><td>Energy</td><td>${esc(n.energy)}</td></tr><tr><td>Carbohydrate</td><td>${esc(n.carbs)}</td></tr><tr><td>of which sugars</td><td>${esc(n.sugars)}</td></tr><tr><td>Fibre</td><td>${esc(n.fibre)}</td></tr><tr><td>Vitamin C</td><td>${esc(n.vitc)}</td></tr></tbody></table></div></details>` : ""}
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        <!-- pairings -->
-        <section class="section section--paper2">
-          <div class="container">
-            <div class="split-head split-head--plain" data-reveal>
-              <div class="section-head">
-                <p class="eyebrow">For the table</p>
-                <h2 class="title">Pairs beautifully with</h2>
-              </div>
-              <button class="btn btn--outline" id="addPairings">Add the pairing · <span id="pairTotal"></span></button>
-            </div>
-            <div class="products-grid mt-xl" id="pairings"></div>
-          </div>
-        </section>
+        ${pair.length ? `<section class="s sec band--kraft">
+          <div class="wrap wrap--wide">
+            <div class="head pair-head"><div class="head__main"><p class="eyebrow">For the table</p><h2 data-split>Pairs beautifully <em class="i">with</em></h2></div>
+              ${pair.length >= 2 ? `<div class="head__actions"><button class="btn btn--olive" type="button" id="addPair">Add the pairing · ${FV.money(pair.reduce((s, x) => s + FV.defaultVariant(x).price, 0))}<span class="btn__ic">${I("plus")}</span></button></div>` : ""}</div>
+            <div class="grid-products">${pair.map(FV.productCardHTML).join("")}</div>
+          </div></section>` : ""}
 
-        <!-- hosting recommendation -->
-        <section class="section section--tight">
-          <div class="container">
+        <section class="s sec--sm">
+          <div class="wrap wrap--wide">
             <div class="host-rec" data-reveal>
-              <img src="${FV.img("pepper-medley")}" alt="The Hosting Box, a curated arrangement of produce ready to gift" loading="lazy" width="600" height="600">
-              <div class="hr-body">
-                <p class="eyebrow eyebrow--light">Hosting recommendation</p>
-                <h3>Make it a table, not a plate.</h3>
-                <p>Add The Hosting Box and let us arrange the rest — fruit, dates and a finishing herb, ready for guests.</p>
-              </div>
-              <div class="hr-cta"><a class="link-arrow" href="product.html?box=hosting-box">Explore the box ${arrow}</a></div>
+              <div class="host-rec__img">${S.img("pepper-medley", { sizes: "220px", alt: "The Hosting Box" })}</div>
+              <div><p class="eyebrow">Hosting recommendation</p><h3>Make it a table, <em class="i">not a plate</em>.</h3><p>Add The Hosting Box and let us arrange the rest — fruit, dates and a finishing herb, ready for guests.</p></div>
+              <a class="btn btn--olive" href="product.html?box=hosting-box">Explore the box<span class="btn__ic">${I("arrow")}</span></a>
             </div>
           </div>
         </section>
 
-        <!-- related -->
-        <section class="section">
-          <div class="container">
-            <div class="split-head" data-reveal>
-              <div class="section-head"><p class="eyebrow">More from ${catLabel.toLowerCase()}</p><h2 class="title">You may also like</h2></div>
-              <a class="link-arrow hide-mobile" href="products.html?cat=${p.category}">View all ${arrow}</a>
-            </div>
-            <div class="products-grid mt-xl" id="related"></div>
+        <section class="s sec band--paper" id="reviews">
+          <div class="wrap wrap--wide">
+            <div class="head"><div class="head__main"><p class="eyebrow">From our hosts</p><h2 data-split>Loved at <em class="i">real tables</em></h2></div>
+              <div class="head__actions"><span class="rating-pill"><b>${(p.rating || 5).toFixed(1)}</b><span class="stars">${I("star").repeat(5)}</span><span>${p.reviews || 0} reviews</span></span></div></div>
+            <div class="rev-grid" data-stagger>${revs.slice(0, 3).map(FV.reviewCardHTML).join("")}</div>
           </div>
         </section>
 
-        <!-- recently viewed -->
-        <section class="section section--paper2" id="recentSec" style="display:none">
-          <div class="container">
-            <div class="section-head" data-reveal style="margin-bottom:var(--s-6)">
-              <p class="eyebrow">Pick up where you left off</p>
-              <h2 class="title" style="font-size:var(--step-2)">Recently viewed</h2>
-            </div>
-            <div class="products-grid" id="recentGrid"></div>
-          </div>
-        </section>
+        ${related.length ? `<section class="s sec band--sage">
+          <div class="wrap wrap--wide">
+            <div class="head"><div class="head__main"><p class="eyebrow">More ${cat.toLowerCase()}</p><h2 data-split>You may also <em class="i">like</em></h2></div>
+              <div class="head__actions"><a class="link-u" href="products.html?cat=${p.category}">View all ${I("arrow")}</a></div></div>
+            <div class="rail-wrap"><div class="rail" data-cursor="Drag">${related.map(FV.productCardHTML).join("")}</div><div class="rail-progress" aria-hidden="true"><i></i></div></div>
+          </div></section>` : ""}
 
-        <div class="pdp-sticky" id="pdpSticky" aria-hidden="true" inert>
-          <div class="container ps-inner">
-            <div class="ps-info"><span class="ps-name">${p.name}</span><span class="ps-price" id="psPrice">${FV.money(isKg ? FV.priceForWeight(p, 1000) : p.pricePerUnit)}</span></div>
-            <button class="btn btn--brass" id="psAdd">Add to cart</button>
-          </div>
+        ${recents.length >= 2 ? `<section class="s sec band--paper">
+          <div class="wrap wrap--wide">
+            <div class="head"><div class="head__main"><p class="eyebrow">Pick up where you left off</p><h2 data-split>Recently <em class="i">viewed</em></h2></div></div>
+            <div class="rail-wrap"><div class="rail" data-cursor="Drag">${recents.map(FV.productCardHTML).join("")}</div><div class="rail-progress" aria-hidden="true"><i></i></div></div>
+          </div></section>` : ""}
+
+        <div class="sticky-buy" id="stickyBuy" aria-hidden="true" inert>
+          <div class="sticky-buy__info"><strong>${esc(p.name)}</strong><span id="stickyPrice"></span></div>
+          <button class="btn btn--olive btn--sm" type="button" id="stickyAdd"${sold ? " disabled" : ""}>${sold ? "Sold out" : "Add to basket"}<span class="btn__ic">${I("bag")}</span></button>
         </div>`;
 
-        // Pairings
-        const pair = (p.pairings || []).filter(s => s !== p.slug).map(FV.find).filter(Boolean).slice(0, 4);
-        document.getElementById("pairings").innerHTML = pair.map(FV.productCardHTML).join("");
-        // Pairing bundle (AOV)
-        const addPairBtn = document.getElementById("addPairings");
-        if (pair.length >= 2) {
-          const pairTotal = pair.reduce((s, x) => s + FV.defaultVariant(x).price, 0);
-          document.getElementById("pairTotal").textContent = FV.money(pairTotal);
-          addPairBtn.addEventListener("click", () => {
-            pair.forEach(x => { const dv = FV.defaultVariant(x); FV.cart.add({ key: x.slug + "|" + dv.variant, slug: x.slug, type: "product", name: x.name, image: x.slug, noPhoto: !!x.noPhoto, variant: dv.variant, price: dv.price }); });
-            FV.toast(`${pair.length} items added`, "The pairing"); FV.openCart();
-          });
-        } else { addPairBtn.style.display = "none"; }
-        // Related
-        const rel = FV.byCategory(p.category).filter(x => x.slug !== p.slug && !(p.pairings || []).includes(x.slug)).slice(0, 4);
-        document.getElementById("related").innerHTML = rel.map(FV.productCardHTML).join("");
-        // Recently viewed (others first), then record this view
-        const recents = FV.recent.list().filter(s => s !== p.slug).map(FV.find).filter(Boolean).slice(0, 4);
-        if (recents.length) {
-          document.getElementById("recentSec").style.display = "";
-          document.getElementById("recentGrid").innerHTML = recents.map(FV.productCardHTML).join("");
-        }
         FV.recent.push(p.slug);
-
-        // ---- interactivity ----
         let grams = 1000, qty = 1;
         const unitPrice = () => isKg ? FV.priceForWeight(p, grams) : p.pricePerUnit;
-        const variantLabel = () => isKg ? FV.weightLabel(grams) : (p.unit === "bunch" ? "per bunch" : "each");
+        const variant = () => isKg ? FV.weightLabel(grams) : (p.unit === "bunch" ? "per bunch" : "each");
         function refresh() {
           const up = unitPrice();
-          document.getElementById("price").firstChild.textContent = FV.money(up) + " ";
-          document.getElementById("pricePer").textContent = isKg ? "/ " + variantLabel() : (p.unit === "bunch" ? "/ bunch" : "each");
-          document.getElementById("btnTotal").textContent = FV.money(up * qty);
-          const ps = document.getElementById("psPrice"); if (ps) ps.textContent = FV.money(up * qty);
-          if (isKg) document.getElementById("selLabel").textContent = variantLabel();
+          $("price").textContent = FV.money(up);
+          $("per").textContent = isKg ? "/ " + variant() : (p.unit === "bunch" ? "/ bunch" : "each");
+          $("btnTotal").textContent = FV.money(up * qty);
+          $("stickyPrice").textContent = qty + " × " + variant() + " · " + FV.money(up * qty);
+          if (isKg) {
+            $("selLabel").textContent = variant();
+            const full = Math.round(p.pricePerKg * grams / 1000), save = full - up;
+            $("saveNote").textContent = save > 0 ? "You save " + FV.money(save) + " on this size" : "";
+          }
         }
-        function addToCart() {
-          FV.cart.add({ key: p.slug + "|" + variantLabel(), slug: p.slug, type: "product",
-            name: p.name, image: FV.isCustomImg(p.image) ? p.image : p.slug, noPhoto: !!p.noPhoto, variant: variantLabel(), price: unitPrice(), qty });
-          FV.toast(`${p.name} added`, `${qty} × ${variantLabel()}`); FV.openCart();
-        }
-        if (isKg) document.querySelectorAll("#weightPills .pill").forEach(b => b.addEventListener("click", () => {
+        if (isKg) root.querySelectorAll("#weights [data-g]").forEach((b) => b.addEventListener("click", () => {
           grams = +b.dataset.g;
-          document.querySelectorAll("#weightPills .pill").forEach(x => { x.classList.toggle("active", x === b); x.setAttribute("aria-pressed", x === b); });
+          root.querySelectorAll("#weights [data-g]").forEach((x) => x.setAttribute("aria-pressed", x === b));
           refresh();
         }));
-        document.getElementById("qDec").addEventListener("click", () => { qty = Math.max(1, qty - 1); document.getElementById("qVal").value = qty; refresh(); });
-        document.getElementById("qInc").addEventListener("click", () => { qty++; document.getElementById("qVal").value = qty; refresh(); });
-        (function () { const q = document.getElementById("qVal");
-          q.addEventListener("input", () => { const v = q.value.replace(/[^0-9]/g, ""); q.value = v; qty = Math.max(1, parseInt(v || "1", 10)); refresh(); });
-          q.addEventListener("blur", () => { if (!q.value || +q.value < 1) { qty = 1; q.value = 1; refresh(); } });
-        })();
-        document.getElementById("addBtn").addEventListener("click", addToCart);
-        document.getElementById("psAdd").addEventListener("click", addToCart);
-
-        // Reveal the sticky add bar once the main buy controls scroll above the viewport
-        const sticky = document.getElementById("pdpSticky"), buyRow = document.querySelector(".buy-row");
-        if (sticky && buyRow) {
-          const onScroll = () => {
-            const on = buyRow.getBoundingClientRect().bottom < 10;
-            sticky.classList.toggle("show", on);
-            // off-screen means out of the a11y tree AND out of the tab order
-            sticky.setAttribute("aria-hidden", String(!on));
-            sticky.toggleAttribute("inert", !on);
-          };
-          window.addEventListener("scroll", onScroll, { passive: true });
-          onScroll();
+        bindQty((q) => { qty = q; refresh(); });
+        function add(btn) {
+          if (sold) return;
+          FV.cart.add({ key: p.slug + "|" + variant(), slug: p.slug, type: "product", name: p.name, image: custom ? p.image : p.slug, noPhoto: !!p.noPhoto, variant: variant(), price: unitPrice(), qty });
+          FV.toast(p.name + " added", qty + " × " + variant(), true);
+          afterAdd(btn);
         }
-
-        // Availability meter fills + counts up the first time it scrolls into view
-        (function () {
-          const box = document.getElementById("availBox"); if (!box) return;
-          const pct = Math.max(0, Math.min(100, +box.dataset.avail || 0));
-          const fill = document.getElementById("availFill"), num = document.getElementById("availPct");
-          const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-          const run = () => {
-            fill.style.width = pct + "%";
-            if (reduced) { num.textContent = pct + "%"; return; }
-            const t0 = performance.now(), dur = 900;
-            const tick = (t) => { const k = Math.min(1, (t - t0) / dur); num.textContent = Math.round(pct * (1 - Math.pow(1 - k, 3))) + "%"; if (k < 1) requestAnimationFrame(tick); };
-            requestAnimationFrame(tick);
-          };
-          if (!("IntersectionObserver" in window)) { run(); return; }
-          const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { run(); io.disconnect(); } }), { threshold: .4 });
-          io.observe(box);
-        })();
-
-        refresh();
-        FV.observeReveals(); FV.updateWishUI();
-
-        injectLd({
-          "@context": "https://schema.org", "@type": "Product",
-          name: p.name, description: p.desc,
-          image: p.noPhoto ? [] : [location.origin + "/" + FV.img(p.slug)],
-          brand: { "@type": "Brand", name: "Fresh Valley" },
-          category: catLabel,
-          offers: { "@type": "Offer", priceCurrency: "EGP",
-            price: isKg ? FV.priceForWeight(p, 1000) : p.pricePerUnit,
-            availability: "https://schema.org/InStock", url: location.href },
-          aggregateRating: { "@type": "AggregateRating", ratingValue: p.rating, reviewCount: p.reviews }
+        $("addBtn").addEventListener("click", (e) => add(e.currentTarget));
+        $("stickyAdd").addEventListener("click", (e) => add(e.currentTarget));
+        const ap = $("addPair");
+        if (ap) ap.addEventListener("click", () => {
+          pair.forEach((x) => { const dv = FV.defaultVariant(x); FV.cart.add({ key: x.slug + "|" + dv.variant, slug: x.slug, type: "product", name: x.name, image: FV.isCustomImg(x.image) ? x.image : x.slug, noPhoto: !!x.noPhoto, variant: dv.variant, price: dv.price }); });
+          FV.toast(pair.length + " items added", "The pairing", true);
+          if (window.FVMotion) window.FVMotion.fly(ap);
         });
+        const fill = $("availFill");
+        if (fill) {
+          const run = () => { fill.style.width = pct + "%"; };
+          if ("IntersectionObserver" in window) { const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { run(); io.disconnect(); } }), { threshold: 0.4 }); io.observe($("avail")); } else run();
+        }
+        refresh(); cutoff(); stickyBar("#buyRow"); FV.updateWishUI();
+        S.behave(root);
+        ld({ "@context": "https://schema.org", "@type": "Product", name: p.name, description: p.desc, image: p.noPhoto ? [] : [new URL(custom ? p.image : FV.img(p.slug), location.href).href], brand: { "@type": "Brand", name: "Fresh Valley" }, category: cat,
+          offers: { "@type": "Offer", priceCurrency: FV.settings.currency, price: isKg ? FV.priceForWeight(p, 1000) : p.pricePerUnit, availability: sold ? "https://schema.org/OutOfStock" : "https://schema.org/InStock", url: location.href },
+          aggregateRating: { "@type": "AggregateRating", ratingValue: p.rating, reviewCount: p.reviews } });
       }
 
       /* ============================== BOX ============================== */
       function renderBox(b) {
-        document.title = `${b.name} — Fresh Valley`;
-        const tiersHtml = b.tiers.map((t, i) => `
-          <button type="button" class="tier" data-tier="${i}" aria-pressed="${i === 0}">
-            <span class="tier-radio" aria-hidden="true"></span>
-            <span class="tier-body"><span class="t-label">${t.label}</span><span class="t-serves">Serves ${t.serves}</span></span>
-            <span class="t-price">${FV.money(t.price)}</span>
-          </button>`).join("");
-
+        meta(b.name, b.tagline + " " + b.desc);
+        const RIBBONS = [["Mid Forest", "#2D4630"], ["Charcoal", "#2A2622"]];
+        const others = FV.data.boxes.filter((x) => x.slug !== b.slug);
+        const revs = reviewsFor([b.name], ["Hosting Box", "The Art of Hosting"]);
+        const sold = FV.soldOut(b);
         root.innerHTML = `
-        <section class="pdp">
-          <div class="container">
-            <nav class="breadcrumb"><a href="index.html">Home</a><span>/</span>
-              <a href="products.html?cat=boxes">Boxes</a><span>/</span><span>${b.name}</span></nav>
-            <div class="pdp-grid">
-              <div class="pdp-gallery">
-                <div class="pdp-main"><img src="${FV.img(b.image)}" alt="${b.name}" width="1000" height="1000">
-                  <span class="badge badge--export">Curated Box</span></div>
-                <div class="spec-list">
-                  <div class="row"><span class="k">Presentation</span><span class="v">Arranged &amp; wrapped to present</span></div>
-                  <div class="row"><span class="k">Handling</span><span class="v">Cold-chain kept, harvest to door</span></div>
-                  <div class="row"><span class="k">Delivery</span><span class="v">Delivered ready to serve</span></div>
+        <section class="s pdp" aria-labelledby="pName">
+          <div class="wrap wrap--wide">
+            <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span aria-hidden="true">/</span><a href="products.html?cat=boxes">Boxes</a><span aria-hidden="true">/</span><span aria-current="page">${esc(b.name)}</span></nav>
+            <div class="pdp__grid">
+              <div class="pdp__media">
+                <div class="pdp__frame" data-clip>${FV.picture(b.image, "(max-width: 1100px) 92vw, 50vw", b.name, { eager: true })}
+                  <div class="pdp__flags"><span class="chip chip--olive">${I("gift")} Curated box</span>${b.slug === "hosting-box" ? `<span class="chip chip--glass">${I("star")} Most gifted</span>` : ""}</div>
+                  <div class="sticker pdp__stamp" aria-hidden="true"><svg class="ring" viewBox="0 0 120 120"><defs><path id="stkBox" d="M60 60m-47 0a47 47 0 1 1 94 0a47 47 0 1 1-94 0"/></defs><text><textPath href="#stkBox" textLength="292" lengthAdjust="spacing">Wrapped by hand • Tied in ribbon •</textPath></text></svg><span class="sticker__core">${S.ART.leaf}</span></div>
+                </div>
+                <div class="pdp__facts">
+                  <div class="fact">${I("gift")}<small>Presentation</small><strong>Arranged &amp; wrapped</strong></div>
+                  <div class="fact">${I("snow")}<small>Handling</small><strong>Cold-chain to door</strong></div>
+                  <div class="fact">${I("truck")}<small>Delivery</small><strong>Next-day, ready to serve</strong></div>
                 </div>
               </div>
-              <div class="pdp-info">
-                <p class="eyebrow">Fresh Valley Boxes</p>
-                <h1>${b.name}</h1>
-                <p class="lead">${b.desc}</p>
-
-                <div class="pdp-price" id="price">${FV.money(b.tiers[0].price)}</div>
-                <div class="pdp-sub">${b.tiers.length > 1 ? "Choose the size that suits your table." : "A single, generous selection."}</div>
-
-                <div class="selector">
-                  <div class="lab"><span>Select size</span><span class="sel" id="selLabel">${b.tiers[0].label}</span></div>
-                  <div class="tier-group" id="tiers">${tiersHtml}</div>
+              <div class="pdp__info">
+                <div class="row"><span class="chip chip--soft">Fresh Valley boxes</span></div>
+                <h1 id="pName" data-split>${esc(b.name)}</h1>
+                <p class="lede">${esc(b.desc)}</p>
+                <div class="pdp__price" aria-live="polite"><b id="price"></b><small id="per"></small></div>
+                <div class="pick"><div class="pick__lab"><span>Select size</span><b id="selLabel"></b></div>
+                  <div class="tiers" id="tiers" role="group" aria-label="Box size">${b.tiers.map((t, i) => `<button type="button" class="tier" data-tier="${i}" aria-pressed="${i === 0}"><span class="tier__dot" aria-hidden="true"></span><span><span class="tier__name">${esc(t.label)}</span><span class="tier__serves">Serves ${esc(t.serves)}</span></span><span class="tier__price">${FV.money(t.price)}</span></button>`).join("")}</div></div>
+                <div class="pick"><div class="pick__lab"><span>Ribbon</span><b id="ribLabel">${RIBBONS[0][0]}</b></div>
+                  <div class="ribbons" id="ribbons" role="group" aria-label="Ribbon colour">${RIBBONS.map((r, i) => `<button type="button" class="ribbon" data-rib="${r[0]}" aria-pressed="${i === 0}"><i style="background:${r[1]}"></i>${r[0]}</button>`).join("")}</div></div>
+                <div class="field note-field"><label for="giftNote">A handwritten card <span class="muted">(optional)</span></label>
+                  <textarea class="textarea" id="giftNote" maxlength="200" placeholder="Your words, written by hand…"></textarea>
+                  <span class="hint"><span>We write it by hand and tuck it in the box.</span><span id="noteCount">0 / 200</span></span></div>
+                <div class="pdp__buy" id="buyRow">
+                  ${qtyHTML()}
+                  <button class="btn btn--lg" type="button" id="addBtn"${sold ? " disabled" : ""}><span class="lbl">${sold ? "Sold out" : "Add box"}</span> · <span id="btnTotal"></span><span class="btn__ic">${I("gift")}</span></button>
                 </div>
-
-                <div class="buy-row">
-                  <div class="qty">
-                    <button id="qDec" aria-label="Decrease">${FV.icon("minus")}</button>
-                    <input id="qVal" type="text" inputmode="numeric" value="1" aria-label="Quantity">
-                    <button id="qInc" aria-label="Increase">${FV.icon("plus")}</button>
-                  </div>
-                  <button class="btn btn--brass btn--lg" id="addBtn">Add box · <span id="btnTotal">${FV.money(b.tiers[0].price)}</span></button>
-                </div>
-
-                <div class="assurance">
-                  <div class="trust-item">${FV.icon("truck")}<span>Complimentary delivery over EGP 600 · next-day slots</span></div>
-                  <div class="trust-item">${FV.icon("shield")}<span>Export-grade throughout. We replace anything that isn't perfect.</span></div>
-                  <div class="trust-item">${FV.icon("sparkle")}<span>Packed to arrive looking like a gift.</span></div>
-                </div>
-
-                <div class="pdp-detail">
-                  <h2 style="font-family:var(--font-display);font-size:var(--step-1);color:var(--forest);margin-bottom:.6rem">What's inside</h2>
-                  <div class="includes">${b.includes.map(i => `<div class="inc">${FV.icon("check")} ${i}</div>`).join("")}</div>
-                  <p class="muted" style="font-size:var(--step--2);margin-top:1rem">Contents adapt to the season, so every box is at its peak.</p>
+                <div class="cutoff">${I("clock")}<span>Order within <b id="cutoffTime"></b> for next-day delivery.</span></div>
+                ${trustList()}
+                <div class="acc">
+                  <details open><summary>What's inside<span class="pm" aria-hidden="true"></span></summary><div class="acc__panel"><ul class="includes">${(b.includes || []).map((i) => `<li>${I("check")}<span>${esc(i)}</span></li>`).join("")}</ul><p class="muted small" style="margin-top:.8rem">Contents adapt to the season, so every box is at its peak.</p></div></details>
+                  <details><summary>How it arrives<span class="pm" aria-hidden="true"></span></summary><div class="acc__panel"><p>Composed like a still life, wrapped in our own pressed-leaf paper and tied with the ribbon you choose. Delivered cold, next-day, in the slot you pick at checkout.</p></div></details>
+                  <details><summary>Freshness promise<span class="pm" aria-hidden="true"></span></summary><div class="acc__panel"><p>Everything is graded to export standard. If anything isn't perfect, tell us within 24 hours and we'll replace or refund it — no debate.</p></div></details>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        <section class="section section--paper2">
-          <div class="container">
-            <div class="section-head section-head--center" data-reveal>
-              <p class="eyebrow">More boxes</p><h2 class="title">Other ways to host</h2>
-            </div>
-            <div class="box-grid mt-xl" id="otherBoxes"></div>
+        <section class="s sec band--paper" id="reviews">
+          <div class="wrap wrap--wide">
+            <div class="head"><div class="head__main"><p class="eyebrow">From our hosts</p><h2 data-split>The gift they <em class="i">remembered</em></h2></div></div>
+            <div class="rev-grid" data-stagger>${revs.slice(0, 3).map(FV.reviewCardHTML).join("")}</div>
           </div>
         </section>
 
-        <div class="pdp-sticky" id="pdpSticky" aria-hidden="true" inert>
-          <div class="container ps-inner">
-            <div class="ps-info"><span class="ps-name">${b.name}</span><span class="ps-price" id="psPrice">${FV.money(b.tiers[0].price)}</span></div>
-            <button class="btn btn--brass" id="psAdd">Add box</button>
+        <section class="s sec band--kraft">
+          <div class="wrap wrap--wide">
+            <div class="head"><div class="head__main"><p class="eyebrow">More boxes</p><h2 data-split>Other ways to <em class="i">host</em></h2></div>
+              <div class="head__actions"><a class="link-u" href="products.html?cat=boxes">All boxes ${I("arrow")}</a></div></div>
+            <div class="deck deck--3" data-fan>${others.slice(0, 3).map(FV.boxCardHTML).join("")}</div>
           </div>
+        </section>
+
+        <div class="sticky-buy" id="stickyBuy" aria-hidden="true" inert>
+          <div class="sticky-buy__info"><strong>${esc(b.name)}</strong><span id="stickyPrice"></span></div>
+          <button class="btn btn--olive btn--sm" type="button" id="stickyAdd"${sold ? " disabled" : ""}>Add box<span class="btn__ic">${I("gift")}</span></button>
         </div>`;
 
-        document.getElementById("otherBoxes").innerHTML =
-          FV.data.boxes.filter(x => x.slug !== b.slug).slice(0, 3).map(FV.boxCardHTML).join("");
-
-        let tierIdx = 0, qty = 1;
-        const price = () => b.tiers[tierIdx].price;
+        let tier = 0, qty = 1, ribbon = RIBBONS[0][0];
+        const note = $("giftNote");
         function refresh() {
-          document.getElementById("price").textContent = FV.money(price());
-          document.getElementById("btnTotal").textContent = FV.money(price() * qty);
-          document.getElementById("selLabel").textContent = b.tiers[tierIdx].label;
-          const ps = document.getElementById("psPrice"); if (ps) ps.textContent = FV.money(price() * qty);
+          const t = b.tiers[tier];
+          $("price").textContent = FV.money(t.price);
+          $("per").textContent = "serves " + t.serves;
+          $("selLabel").textContent = t.label;
+          $("btnTotal").textContent = FV.money(t.price * qty);
+          $("stickyPrice").textContent = qty + " × " + t.label + " · " + FV.money(t.price * qty);
         }
-        document.querySelectorAll("#tiers .tier").forEach(el => el.addEventListener("click", () => {
-          tierIdx = +el.dataset.tier;
-          document.querySelectorAll("#tiers .tier").forEach(x => x.setAttribute("aria-pressed", x === el));
+        root.querySelectorAll("#tiers [data-tier]").forEach((el) => el.addEventListener("click", () => {
+          tier = +el.dataset.tier;
+          root.querySelectorAll("#tiers [data-tier]").forEach((x) => x.setAttribute("aria-pressed", x === el));
           refresh();
         }));
-        document.getElementById("qDec").addEventListener("click", () => { qty = Math.max(1, qty - 1); document.getElementById("qVal").value = qty; refresh(); });
-        document.getElementById("qInc").addEventListener("click", () => { qty++; document.getElementById("qVal").value = qty; refresh(); });
-        (function () { const q = document.getElementById("qVal");
-          q.addEventListener("input", () => { const v = q.value.replace(/[^0-9]/g, ""); q.value = v; qty = Math.max(1, parseInt(v || "1", 10)); refresh(); });
-          q.addEventListener("blur", () => { if (!q.value || +q.value < 1) { qty = 1; q.value = 1; refresh(); } });
-        })();
-        function addToCart() {
-          const t = b.tiers[tierIdx];
-          FV.cart.add({ key: b.slug + "|" + t.label, slug: b.slug, type: "box",
-            name: b.name, image: b.image, variant: t.label, price: t.price, qty });
-          FV.toast(`${b.name} added`, t.label); FV.openCart();
+        root.querySelectorAll("#ribbons [data-rib]").forEach((el) => el.addEventListener("click", () => {
+          ribbon = el.dataset.rib; $("ribLabel").textContent = ribbon;
+          root.querySelectorAll("#ribbons [data-rib]").forEach((x) => x.setAttribute("aria-pressed", x === el));
+        }));
+        note.addEventListener("input", () => { $("noteCount").textContent = note.value.length + " / 200"; });
+        bindQty((q) => { qty = q; refresh(); });
+        function add(btn) {
+          if (sold) return;
+          const t = b.tiers[tier], msg = note.value.trim().replace(/[<>]/g, "");
+          const noteText = ribbon + " ribbon" + (msg ? " · Card: " + msg : "");
+          FV.cart.add({ key: b.slug + "|" + t.label + "|" + ribbon + "|" + msg.slice(0, 24), slug: b.slug, type: "box", name: b.name, image: b.image, variant: t.label + " · " + ribbon + " ribbon" + (msg ? " · with card" : ""), note: noteText, price: t.price, qty });
+          FV.toast(b.name + " added", t.label + " · " + ribbon + " ribbon", true);
+          afterAdd(btn);
         }
-        document.getElementById("addBtn").addEventListener("click", addToCart);
-        document.getElementById("psAdd").addEventListener("click", addToCart);
-
-        // Reveal the sticky add bar once the main buy controls scroll above the viewport
-        const sticky = document.getElementById("pdpSticky"), buyRow = document.querySelector(".buy-row");
-        if (sticky && buyRow) {
-          const onScroll = () => {
-            const on = buyRow.getBoundingClientRect().bottom < 10;
-            sticky.classList.toggle("show", on);
-            // off-screen means out of the a11y tree AND out of the tab order
-            sticky.setAttribute("aria-hidden", String(!on));
-            sticky.toggleAttribute("inert", !on);
-          };
-          window.addEventListener("scroll", onScroll, { passive: true });
-          onScroll();
-        }
-
-        // Availability meter fills + counts up the first time it scrolls into view
-        (function () {
-          const box = document.getElementById("availBox"); if (!box) return;
-          const pct = Math.max(0, Math.min(100, +box.dataset.avail || 0));
-          const fill = document.getElementById("availFill"), num = document.getElementById("availPct");
-          const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-          const run = () => {
-            fill.style.width = pct + "%";
-            if (reduced) { num.textContent = pct + "%"; return; }
-            const t0 = performance.now(), dur = 900;
-            const tick = (t) => { const k = Math.min(1, (t - t0) / dur); num.textContent = Math.round(pct * (1 - Math.pow(1 - k, 3))) + "%"; if (k < 1) requestAnimationFrame(tick); };
-            requestAnimationFrame(tick);
-          };
-          if (!("IntersectionObserver" in window)) { run(); return; }
-          const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { run(); io.disconnect(); } }), { threshold: .4 });
-          io.observe(box);
-        })();
-
-        refresh();
-        FV.observeReveals(); FV.updateWishUI();
-
-        injectLd({
-          "@context": "https://schema.org", "@type": "Product",
-          name: b.name, description: b.desc,
-          image: [location.origin + "/" + FV.img(b.image)],
-          brand: { "@type": "Brand", name: "Fresh Valley" }, category: "Produce Box",
-          offers: { "@type": "AggregateOffer", priceCurrency: "EGP",
-            lowPrice: Math.min(...b.tiers.map(t => t.price)),
-            highPrice: Math.max(...b.tiers.map(t => t.price)),
-            offerCount: b.tiers.length, availability: "https://schema.org/InStock" }
-        });
-      }
-
-      function badge(p) {
-        if ((p.badges || []).includes("export")) return `<span class="badge badge--export">Export-Grade</span>`;
-        if ((p.badges || []).includes("organic")) return `<span class="badge badge--organic">Organic</span>`;
-        if ((p.badges || []).includes("seasonal")) return `<span class="badge badge--seasonal">Seasonal</span>`;
-        return "";
-      }
-      function badgeWord(p) {
-        if ((p.badges || []).includes("export")) return "Export-Grade";
-        if ((p.badges || []).includes("organic")) return "Organic";
-        if ((p.badges || []).includes("seasonal")) return "Seasonal";
-        return "Selected";
+        $("addBtn").addEventListener("click", (e) => add(e.currentTarget));
+        $("stickyAdd").addEventListener("click", (e) => add(e.currentTarget));
+        refresh(); cutoff(); stickyBar("#buyRow");
+        ld({ "@context": "https://schema.org", "@type": "Product", name: b.name, description: b.desc, image: [new URL(FV.img(b.image), location.href).href], brand: { "@type": "Brand", name: "Fresh Valley" },
+          offers: { "@type": "AggregateOffer", priceCurrency: FV.settings.currency, lowPrice: Math.min(...b.tiers.map((t) => t.price)), highPrice: Math.max(...b.tiers.map((t) => t.price)), offerCount: b.tiers.length } });
       }
     })();
   </script>
+  <script defer src="assets/vendor/gsap.min.js"></script>
+  <script defer src="assets/vendor/ScrollTrigger.min.js"></script>
+  <script defer src="assets/vendor/SplitText.min.js"></script>
+  <script defer src="assets/vendor/lenis.min.js"></script>
+  <script defer src="assets/js/motion.js"></script>
 </body>
 </html>

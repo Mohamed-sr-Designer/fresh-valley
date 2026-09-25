@@ -2,460 +2,316 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>My Account — Fresh Valley</title>
-  <meta name="theme-color" content="#1A2A1D">
-  <meta name="description" content="Your Fresh Valley account — track orders, manage delivery addresses, reorder your regulars and keep your wishlist.">
+  <meta name="description" content="Track orders, save favourites, reorder in a tap and manage your delivery addresses.">
+  <meta name="theme-color" content="#19291C">
   <meta name="robots" content="noindex">
-  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/jost-400.woff2" crossorigin>
-  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/cormorant-garamond-500.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/fraunces-v4.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/jakarta.woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/styles.css">
-  <style>
-    /* ---- Dashboard shell ---- */
-    .acct-layout { display:grid; grid-template-columns:224px 1fr; gap:clamp(2rem,5vw,4.5rem); align-items:start; }
-    .acct-nav { position:sticky; top:calc(var(--header-h) + 2rem); display:flex; flex-direction:column; }
-    .acct-nav .greet { padding-bottom:1.25rem; margin-bottom:.5rem; border-bottom:1px solid var(--line); }
-    .acct-nav .greet .hi { font-family:var(--font-display); font-size:var(--step-2); color:var(--forest); line-height:1.15; }
-    .acct-nav .greet .em { font-size:var(--step--2); color:var(--text-faint); margin-top:.3rem; word-break:break-word; }
-    .acct-nav button {
-      position:relative; display:flex; align-items:center; gap:.85rem; width:100%; min-height:44px;
-      padding:.7rem 0; text-align:left; color:var(--text-muted);
-      font-size:var(--step--2); font-weight:600; letter-spacing:.1em; text-transform:uppercase;
-      transition:color .25s;
-    }
-    .acct-nav button svg { width:17px; height:17px; flex-shrink:0; opacity:.75; transition:opacity .25s; }
-    .acct-nav button:hover { color:var(--forest); }
-    .acct-nav button[aria-current="true"] { color:var(--forest); }
-    .acct-nav button[aria-current="true"] svg { opacity:1; color:var(--brass-deep); }
-    .acct-nav button[aria-current="true"]::before { content:""; position:absolute; left:-1.1rem; top:50%; transform:translateY(-50%); width:2px; height:1.1em; background:var(--brass); }
-    .acct-nav .signout { margin-top:1rem; padding-top:1.1rem; border-top:1px solid var(--line); color:var(--text-faint); }
-
-    /* ---- Panels ---- */
-    .panel { display:none; }
-    .panel.active { display:block; }
-    .panel h2 { font-size:var(--step-3); }
-    .panel .sub { color:var(--text-muted); font-size:var(--step--1); margin:.6rem 0 var(--s-7); padding-bottom:var(--s-5); border-bottom:1px solid var(--line); }
-
-    /* A "box" here is a frame of hairlines, never a floating card */
-    .card-box { background:var(--surface); border:1px solid var(--line); padding:clamp(1.25rem,2.5vw,1.75rem); }
-    .card-box + .card-box { margin-top:.75rem; }
-    .addr-grid, .pay-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem 1.5rem; }
-
-    /* ---- Orders ---- */
-    .order-card { border-top:1px solid var(--line); padding:1.5rem 0; }
-    .order-card:last-of-type { border-bottom:1px solid var(--line); }
-    .order-card .oc-head { display:flex; justify-content:space-between; align-items:baseline; gap:1rem; flex-wrap:wrap; margin-bottom:1.1rem; }
-    .order-card .oc-id { font-family:var(--font-display); font-size:var(--step-1); color:var(--forest); letter-spacing:.01em; }
-    .order-card .oc-meta { font-size:var(--step--2); color:var(--text-faint); margin-top:.2rem; }
-    .status {
-      font-size:10px; font-weight:700; letter-spacing:.16em; text-transform:uppercase;
-      padding:.5em .75em; border-radius:var(--radius-sm); line-height:1;
-    }
-    .status.delivered { background:transparent; color:var(--forest); box-shadow:inset 0 0 0 1px var(--line-strong); }
-    .status.transit { background:var(--brass); color:var(--ink); }
-    .order-card .oc-items { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1.2rem; }
-    .order-card .oc-items img { width:56px; height:56px; object-fit:cover; background:var(--surface-warm); }
-    .order-card .oc-foot { display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; }
-    .order-card .oc-total { font-family:var(--font-display); font-size:var(--step-1); color:var(--forest); font-variant-numeric:lining-nums tabular-nums; }
-
-    /* ---- Read-only fields & settings ---- */
-    .field .flabel { font-size:var(--step--2); font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); }
-    .field-static { padding:.55rem 0; border-bottom:1px solid var(--line-soft); color:var(--text); font-size:var(--step-0); min-height:2.6rem; }
-    .set-row { display:flex; justify-content:space-between; align-items:center; gap:1.5rem; padding:1.2rem 0; border-bottom:1px solid var(--line-soft); }
-    .set-row strong { display:block; font-family:var(--font-display); font-size:var(--step-1); font-weight:400; color:var(--forest); }
-    .set-row small { display:block; font-size:var(--step--2); color:var(--text-faint); margin-top:.2rem; }
-    .toggle-pill { width:46px; height:26px; border-radius:999px; background:var(--muted); position:relative; transition:background .25s; flex-shrink:0; }
-    .toggle-pill[aria-pressed="true"] { background:var(--forest); }
-    .toggle-pill::after { content:""; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:var(--surface); transition:transform .25s; }
-    .toggle-pill[aria-pressed="true"]::after { transform:translateX(20px); }
-
-    /* ---- Auth (signed out) ---- */
-    .auth-wrap { display:grid; grid-template-columns:1fr 1fr; gap:clamp(2rem,5vw,4rem); align-items:stretch; max-width:1000px; margin-inline:auto; }
-    .auth-card { display:flex; flex-direction:column; justify-content:center; }
-    .auth-tabs { display:flex; gap:2rem; border-bottom:1px solid var(--line); margin-bottom:2rem; }
-    .auth-tabs button {
-      position:relative; padding:0 0 .9rem; min-height:44px;
-      font-size:var(--step--2); font-weight:600; letter-spacing:.14em; text-transform:uppercase;
-      color:var(--text-faint); transition:color .25s;
-    }
-    .auth-tabs button::after { content:""; position:absolute; left:0; right:0; bottom:-1px; height:1px; background:var(--brass); transform:scaleX(0); transform-origin:left; transition:transform .35s var(--ease-out); }
-    .auth-tabs button[aria-current="true"] { color:var(--forest); }
-    .auth-tabs button[aria-current="true"]::after { transform:scaleX(1); }
-    .auth-card .field { margin-bottom:1.1rem; }
-    .auth-alt { font-size:var(--step--1); color:var(--text-muted); margin-top:1.25rem; }
-    .auth-alt a, .linkish { color:var(--brass-deep); font-weight:600; cursor:pointer; text-decoration:underline; text-underline-offset:3px; font-size:inherit; }
-    .auth-note { font-size:var(--step--2); color:var(--text-faint); margin-top:1.5rem; line-height:1.6; padding-top:1.25rem; border-top:1px solid var(--line-soft); }
-    .auth-google {
-      display:flex; align-items:center; justify-content:center; gap:.7rem; width:100%; min-height:48px;
-      padding:.9rem 1rem; border:1px solid var(--line-strong); background:transparent; border-radius:var(--radius-sm);
-      font-weight:600; font-size:var(--step--1); letter-spacing:.02em; color:var(--text); cursor:pointer;
-      transition:border-color .25s, background .25s;
-    }
-    .auth-google:hover { border-color:var(--forest); background:var(--surface); }
-    .auth-or { display:flex; align-items:center; gap:1rem; margin:1.4rem 0; color:var(--text-faint); font-size:var(--step--2); letter-spacing:.14em; text-transform:uppercase; }
-    .auth-or::before, .auth-or::after { content:""; flex:1; height:1px; background:var(--line); }
-    .auth-aside { position:relative; overflow:hidden; min-height:440px; display:flex; align-items:flex-end; color:var(--cream); }
-    .auth-aside picture { position:absolute; inset:0; display:block; width:100%; height:100%; }
-    .auth-aside img { width:100%; height:100%; object-fit:cover; }
-    .auth-aside::after { content:""; position:absolute; inset:0; background:linear-gradient(to top, rgba(8,20,14,.88) 0%, rgba(8,20,14,.2) 60%, rgba(8,20,14,0) 100%); }
-    .auth-aside-b { position:relative; z-index:2; padding:clamp(1.6rem,3vw,2.4rem); }
-    .auth-aside-b h2 { color:var(--cream); font-size:var(--step-2); }
-    .auth-aside-b p { color:rgba(246,241,232,.8); font-size:var(--step--1); margin-top:.7rem; max-width:32ch; line-height:1.65; }
-
-    @media (max-width:860px){
-      .auth-wrap { grid-template-columns:1fr; }
-      .auth-aside { min-height:200px; order:-1; }
-      .acct-layout { grid-template-columns:1fr; gap:var(--s-6); }
-      .acct-nav { position:static; flex-direction:row; overflow-x:auto; gap:1.6rem; padding-bottom:.75rem; border-bottom:1px solid var(--line); scrollbar-width:none; }
-      .acct-nav::-webkit-scrollbar { display:none; }
-      .acct-nav .greet { display:none; }
-      .acct-nav button { width:auto; white-space:nowrap; padding:.5rem 0; }
-      .acct-nav button[aria-current="true"]::before { left:0; right:0; top:auto; bottom:-.75rem; transform:none; width:auto; height:2px; }
-      .acct-nav .signout { margin-top:0; padding-top:0; border-top:0; }
-      .addr-grid, .pay-grid { grid-template-columns:1fr; }
-    }
-  </style>
+  <link rel="stylesheet" href="assets/css/shop.css">
+  <script>!function(d,w){var h=d.documentElement;if(!/[?&]fv_preview=1/.test(location.search)&&!w.matchMedia("(prefers-reduced-motion: reduce)").matches){h.classList.add("m-on");setTimeout(function(){if(!(w.FVMotion&&w.FVMotion.ready))h.classList.remove("m-on")},3500)}}(document,window)</script>
 </head>
-
 <body data-page="account">
   <div id="fv-header"></div>
+  <noscript><p class="noscript">Fresh Valley uses JavaScript for its menu, basket and checkout. <a href="products.html">Browse the collection</a> · <a href="contact.html">Contact us</a></p></noscript>
 
-  <main>
-    <section class="page-header" style="padding-bottom:var(--space-lg)">
-      <div class="container">
-        <nav class="breadcrumb"><a href="index.html">Home</a><span>/</span><span id="acctCrumb">My Account</span></nav>
-        <p class="eyebrow">Your Fresh Valley</p>
-        <h1 id="acctTitle">My Account</h1>
+  <main id="main">
+    <section class="s shop-head">
+      <div class="page-head__art" id="headArt" data-draw aria-hidden="true"></div>
+      <div class="wrap wrap--wide">
+        <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span aria-hidden="true">/</span><span aria-current="page" id="acctCrumb">My account</span></nav>
+        <div class="page-head">
+          <div><p class="eyebrow" id="acctEyebrow">Your Fresh Valley</p><h1 id="acctTitle">My <em class="i">account</em></h1></div>
+          <div class="page-head__side"><p class="lede" id="acctLede">Orders, favourites and the details that get your produce to the right door.</p></div>
+        </div>
       </div>
     </section>
-
-    <!-- Auth gate (shown when signed out) -->
-    <section class="section section--tight" id="authGate" style="display:none">
-      <div class="container auth-wrap">
-        <div class="auth-card">
-          <div class="auth-tabs">
-            <button type="button" data-auth="signin" aria-current="true">Sign in</button>
-            <button type="button" data-auth="signup">Create account</button>
-          </div>
-          <button type="button" class="auth-google" id="googleBtn">
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.6v3h3.9c2.3-2.1 3.5-5.2 3.5-8.8Z"/><path fill="#34A853" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.9-3c-1.1.7-2.5 1.2-4 1.2-3.1 0-5.7-2.1-6.6-4.9H1.4v3.1C3.4 21.4 7.4 24 12 24Z"/><path fill="#FBBC05" d="M5.4 14.4c-.2-.7-.4-1.4-.4-2.4s.1-1.7.4-2.4V6.5H1.4C.5 8.2 0 10 0 12s.5 3.8 1.4 5.5l4-3.1Z"/><path fill="#EA4335" d="M12 4.8c1.8 0 3.3.6 4.5 1.8l3.4-3.4C17.9 1.2 15.2 0 12 0 7.4 0 3.4 2.6 1.4 6.5l4 3.1C6.3 6.8 8.9 4.8 12 4.8Z"/></svg>
-            <span id="googleLabel">Continue with Google</span>
-          </button>
-          <div class="auth-or"><span>or</span></div>
-          <form id="authForm" novalidate>
-            <div class="field auth-su" hidden><label for="au_name">Full name</label><input class="input" id="au_name" name="name" autocomplete="name" placeholder="Your name"></div>
-            <div class="field"><label for="au_email">Email</label><input class="input" id="au_email" type="email" name="email" autocomplete="email" placeholder="you@email.com" required></div>
-            <div class="field auth-su" hidden><label for="au_phone">Phone</label><input class="input" id="au_phone" type="tel" name="phone" autocomplete="tel" placeholder="+20 1XX XXX XXXX"></div>
-            <div class="field"><label for="au_pass">Password</label><input class="input" id="au_pass" type="password" name="password" autocomplete="current-password" placeholder="••••••••" required minlength="4"></div>
-            <button class="btn btn--brass btn--block btn--lg" type="submit" id="authSubmit">Sign in</button>
-            <p class="auth-alt" id="authAlt">New here? <button type="button" class="linkish" data-auth-switch="signup">Create an account</button></p>
-          </form>
-          <p class="auth-note">Demo — sign in with any email &amp; password, or continue with Google. Your details stay in this browser only.</p>
-        </div>
-        <aside class="auth-aside">
-          <picture><source type="image/webp" srcset="assets/img/banners/packaging.webp"><img src="assets/img/banners/packaging.jpg" alt="Fresh Valley produce wrapped as a gift" loading="lazy" width="1500" height="779"></picture>
-          <div class="auth-aside-b">
-            <h2>Welcome to Fresh Valley</h2>
-            <p>Track orders, save favourites, reorder in a tap, and manage your hosting boxes.</p>
-          </div>
-        </aside>
-      </div>
+    <section class="s sec--flush-top" style="padding-bottom:var(--sec-sm)">
+      <div class="wrap wrap--wide" id="acctRoot"></div>
     </section>
-
-    <!-- Dashboard (shown when signed in) -->
-    <div id="dashWrap">
-      <section class="section section--tight">
-        <div class="container acct-layout">
-          <nav class="acct-nav" id="acctNav"></nav>
-          <div id="panels"></div>
-        </div>
-      </section>
-    </div>
   </main>
 
   <div id="fv-footer"></div>
 
   <script src="assets/js/data.js"></script>
+  <script src="assets/js/content.js"></script>
+  <script src="assets/js/theme.js"></script>
   <script src="assets/js/app.js"></script>
+  <script src="assets/js/sections.js"></script>
   <script>
     (function () {
-      function currentUser(){ try { return JSON.parse(localStorage.getItem("fv_user")); } catch { return null; } }
-      const stored = currentUser();
-      const authGate = document.getElementById("authGate");
-      const dashWrap = document.getElementById("dashWrap");
+      const S = window.FVSections, esc = FV.esc, I = FV.icon;
+      const root = document.getElementById("acctRoot");
+      const $ = (id) => document.getElementById(id);
+      const store = { get(k, fb) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? fb : v; } catch (_) { return fb; } }, set(k, v) { localStorage.setItem(k, JSON.stringify(v)); } };
+      $("headArt").innerHTML = S.ART.fig;
+      const stored = store.get("fv_user", null);
+      if (!stored) return gate();
 
-      if (!stored) {
-        dashWrap.style.display = "none"; authGate.style.display = "";
-        document.getElementById("acctTitle").textContent = "Welcome";
-        document.getElementById("acctCrumb").textContent = "Sign in";
-        wireAuth();
-        return;
-      }
-      authGate.style.display = "none"; dashWrap.style.display = "";
+      /* ============================ DASHBOARD ============================ */
+      const user = { name: stored.name || "Guest", email: stored.email || "", phone: stored.phone || "" };
+      user.first = user.name.split(" ")[0];
+      $("acctTitle").innerHTML = `Hello, <em class="i">${esc(user.first)}</em>.`;
+      $("acctLede").textContent = "Orders, favourites and the details that get your produce to the right door.";
 
-      function wireAuth() {
-        const form = document.getElementById("authForm"), submit = document.getElementById("authSubmit"), altP = document.getElementById("authAlt");
-        const gLabel = document.getElementById("googleLabel");
-        let mode = "signin";
-        const nameFromEmail = (email) => email.split("@")[0].replace(/[._-]+/g, " ").replace(/\b\w/g, c => c.toUpperCase());
-        function signIn(email, name, isNew, phone) {
-          localStorage.setItem("fv_user", JSON.stringify({ name, email, phone: phone || "" }));
-          if (FV.clients) FV.clients.upsert({ name, email, phone: phone || "", status: isNew ? "pending" : "active" });
-          FV.toast("Welcome, " + name.split(" ")[0]); location.reload();
-        }
-        const suFields = () => document.querySelectorAll(".auth-su");
-        function setMode(m) { mode = m;
-          document.querySelectorAll("[data-auth]").forEach(b => b.setAttribute("aria-current", b.dataset.auth === m));
-          suFields().forEach(f => f.hidden = m !== "signup");
-          form.name.required = m === "signup";
-          submit.textContent = m === "signup" ? "Create account" : "Sign in";
-          if (gLabel) gLabel.textContent = m === "signup" ? "Sign up with Google" : "Continue with Google";
-          altP.innerHTML = m === "signup" ? 'Already have an account? <button type="button" class="linkish" data-auth-switch="signin">Sign in</button>' : 'New here? <button type="button" class="linkish" data-auth-switch="signup">Create an account</button>';
-        }
-        document.querySelectorAll("[data-auth]").forEach(b => b.addEventListener("click", () => setMode(b.dataset.auth)));
-        document.addEventListener("click", e => { const s = e.target.closest("[data-auth-switch]"); if (s) { e.preventDefault(); setMode(s.dataset.authSwitch); } });
-        form.addEventListener("submit", e => { e.preventDefault();
-          if (!form.checkValidity()) { form.reportValidity(); return; }
-          const email = form.email.value.trim();
-          const isNew = mode === "signup";
-          const name = (isNew && form.name.value.trim()) ? form.name.value.trim() : nameFromEmail(email);
-          signIn(email, name, isNew, isNew ? form.phone.value.trim() : "");
-        });
-        // Continue with Google (demo — wire to Google Identity Services in production)
-        document.getElementById("googleBtn").addEventListener("click", () => {
-          const typed = form.email.value.trim();
-          const email = typed && typed.includes("@") ? typed : "guest@gmail.com";
-          signIn(email, (mode === "signup" && form.name.value.trim()) ? form.name.value.trim() : nameFromEmail(email), mode === "signup", mode === "signup" ? form.phone.value.trim() : "");
-        });
-        setMode("signin");
-      }
+      const STEPS = ["new", "confirmed", "packed", "out", "delivered"];
+      const LABEL = { new: "Received", confirmed: "Confirmed", packed: "Packed", out: "Out for delivery", delivered: "Delivered", cancelled: "Cancelled", refunded: "Refunded", pending: "Received", transit: "Out for delivery" };
+      const real = FV.orders.all().filter((o) => o.customer && o.customer.email && o.customer.email.toLowerCase() === user.email.toLowerCase());
+      const sampleItems = [["strawberry", "red-grapes", "medjool-dates"], ["orange", "carrot", "tomato", "cucumber"], ["mango", "green-grapes", "banana"]];
+      const samples = sampleItems.map((sl, i) => {
+        const items = sl.map(FV.find).filter(Boolean).map((p) => { const v = FV.defaultVariant(p); return { slug: p.slug, type: "product", name: p.name, variant: v.variant, price: v.price, qty: 1, image: p.slug }; });
+        const sub = items.reduce((s, x) => s + x.price, 0), del = sub >= FV.settings.freeThreshold ? 0 : FV.settings.deliveryFee;
+        const d = new Date(); d.setDate(d.getDate() - [2, 12, 26][i]);
+        return { id: ["FV204881", "FV198450", "FV191207"][i], date: d.toISOString(), status: ["out", "delivered", "delivered"][i], sample: true, items, subtotal: sub, delivery: del, total: sub + del, slot: i === 0 ? "Tomorrow, 3–6" : "", payment: "Card", customer: { name: user.name, email: user.email, phone: user.phone, area: "New Cairo" }, address: "New Cairo" };
+      });
+      const orders = (real.length ? real : samples).slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+      const spent = orders.filter((o) => o.status !== "cancelled" && o.status !== "refunded").reduce((s, o) => s + (o.total || 0), 0);
 
-      const user = { name: stored.name || "Guest", first: (stored.name || "Guest").split(" ")[0], email: stored.email || "", phone: "+20 10 1234 5678", since: "2026" };
-      // Real orders this customer has placed (captured at checkout) take priority;
-      // fall back to sample orders so the demo account still looks populated.
-      const realOrders = (FV.orders ? FV.orders.all() : [])
-        .filter(o => o.customer && o.customer.email === user.email)
-        .map(o => ({
-          id: o.id,
-          date: new Date(o.date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }),
-          status: o.status === "delivered" ? "delivered" : "transit",
-          items: o.items.map(i => i.slug).filter(sl => FV.find(sl)),
-          total: o.total, slot: o.slot,
-        }));
-      const sampleOrders = [
-        { id: "FV204881", date: "2 June 2026", status: "transit", items: ["strawberry","red-grapes","medjool-dates"], total: 0, slot: "Wed, 3–6" },
-        { id: "FV198450", date: "24 May 2026", status: "delivered", items: ["orange","carrot","tomato","cucumber"], total: 0 },
-        { id: "FV191207", date: "11 May 2026", status: "delivered", items: ["mango","green-grapes","banana"], total: 0 },
-      ];
-      sampleOrders.forEach(o => o.total = o.items.reduce((s, sl) => s + FV.defaultVariant(FV.find(sl)).price, 0) + 45);
-      const orders = realOrders.length ? realOrders : sampleOrders;
-
-      const NAV = [
-        ["profile","user","Profile"], ["addresses","pin","Addresses"], ["orders","bag","Orders"],
-        ["wishlist","heart","Wishlist"], ["reorder","truck","Reorder"], ["settings","sparkle","Settings"],
-      ];
-
-      // ---- Nav ----
-      const navEl = document.getElementById("acctNav");
-      navEl.innerHTML = `<div class="greet"><div class="hi">Hello, ${user.first}</div><div class="em">${user.email}</div></div>` +
-        NAV.map(n => `<button data-tab="${n[0]}">${FV.icon(n[1])} ${n[2]}</button>`).join("") +
-        `<button class="signout">${FV.icon("arrow")} Sign out</button>`;
-      navEl.querySelector(".signout").addEventListener("click", () => { localStorage.removeItem("fv_user"); location.assign("account.html"); });
-
-      // ---- Panels ----
-      const orderItemsHtml = o => o.items.map(s => `<img src="${FV.img(s)}" alt="${FV.find(s).name}" title="${FV.find(s).name}">`).join("");
-      const panelsEl = document.getElementById("panels");
-      const arrow = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
-
-      panelsEl.innerHTML = `
-      <div class="panel" data-panel="profile">
-        <h2>Profile</h2><p class="sub">Your details, kept simple.</p>
-        <div id="profileBox"></div>
-      </div>
-
-      <div class="panel" data-panel="addresses">
-        <h2>Addresses</h2><p class="sub">Where we bring your produce.</p>
-        <div id="addrBox"></div>
-      </div>
-
-      <div class="panel" data-panel="orders">
-        <h2>Orders</h2><p class="sub">Everything you've ordered, and where it is.</p>
-        ${orders.map(o => `
-          <div class="order-card">
-            <div class="oc-head">
-              <div><div class="oc-id">${o.id}</div><div class="oc-meta">${o.date}${o.slot ? " · arriving " + o.slot : ""}</div></div>
-              <span class="status ${o.status}">${o.status === "transit" ? "In transit" : "Delivered"}</span>
-            </div>
-            <div class="oc-items">${orderItemsHtml(o)}</div>
-            <div class="oc-foot">
-              <span class="oc-total">${FV.money(o.total)}</span>
-              <div style="display:flex;gap:.6rem;flex-wrap:wrap">
-                <button class="btn btn--outline btn--sm" data-reorder="${o.id}">Reorder</button>
-                <button class="btn btn--outline btn--sm" data-receipt="${o.id}">Receipt</button>
-                ${o.status === "transit" ? `<button class="btn btn--sm" data-track>Track</button>` : ``}
-              </div>
-            </div>
-          </div>`).join("")}
-      </div>
-
-      <div class="panel" data-panel="wishlist">
-        <h2>Wishlist</h2><p class="sub">Saved for the right moment.</p>
-        <div id="wishMini"></div>
-      </div>
-
-      <div class="panel" data-panel="reorder">
-        <h2>Reorder</h2><p class="sub">Your regulars, one tap away.</p>
-        <div class="card-box" style="margin-bottom:1.4rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">
-          <div><strong style="font-family:var(--font-display);font-size:var(--step-1);font-weight:400;color:var(--forest)">Reorder your last order</strong><div style="font-size:var(--step--2);color:var(--text-faint);margin-top:.25rem">${orders[0].id} · ${orders[0].items.length} items</div></div>
-          <button class="btn btn--sm" data-reorder="${orders[0].id}">Add all to cart</button>
-        </div>
-        <p class="eyebrow" style="margin-bottom:1rem">Your most-ordered</p>
-        <div class="products-grid" id="reorderGrid"></div>
-      </div>
-
-      <div class="panel" data-panel="settings">
-        <h2>Settings</h2><p class="sub">Notifications and preferences.</p>
-        <div class="card-box">
-          <div class="set-row"><div><strong>Order updates</strong><small>Delivery status by SMS</small></div><button class="toggle-pill" aria-pressed="true" aria-label="Toggle"></button></div>
-          <div class="set-row"><div><strong>The Fresh Valley Letter</strong><small>A monthly note, what&#39;s in season</small></div><button class="toggle-pill" aria-pressed="true" aria-label="Toggle"></button></div>
-          <div class="set-row" style="border-bottom:none"><div><strong>Seasonal reminders</strong><small>A nudge when your favourites are at their peak</small></div><button class="toggle-pill" aria-pressed="false" aria-label="Toggle"></button></div>
+      const NAV = [["overview", "home", "Overview"], ["orders", "bag", "Orders"], ["reorder", "truck", "Reorder"], ["wishlist", "heart", "Wishlist"], ["addresses", "pin", "Addresses"], ["profile", "user", "Profile"], ["settings", "sparkle", "Preferences"]];
+      root.innerHTML = `<div class="acct">
+        <nav class="acct__nav" aria-label="Account">
+          <div class="acct__greet"><span class="acct__av">${esc(user.name.split(" ").map((w) => w[0]).slice(0, 2).join(""))}</span><span><strong>${esc(user.name)}</strong><small>${esc(user.email)}</small></span></div>
+          ${NAV.map((n) => `<button type="button" data-tab="${n[0]}">${I(n[1])}${n[2]}</button>`).join("")}
+          <button type="button" class="acct__out" id="signOut">${I("arrowL")}Sign out</button>
+        </nav>
+        <div id="panels">
+          <section class="acct__panel" data-panel="overview" aria-labelledby="h-ov"><h2 id="h-ov">Overview</h2>
+            <div class="acct__stats"><div><small>Orders</small><b>${orders.length}</b></div><div><small>Total spent</small><b>${FV.money(spent)}</b></div><div><small>Saved items</small><b id="wishStat">${FV.wish.items().length}</b></div></div>
+            ${orders[0] ? orderCard(orders[0], true) : ""}
+            <div class="host-rec"><div class="host-rec__img">${S.img("pepper-medley", { sizes: "220px", alt: "" })}</div><div><p class="eyebrow">For your next gathering</p><h3>The Hosting <em class="i">Box</em></h3><p>Fruit, dates and a finishing herb — arranged, wrapped and ready for guests.</p></div><a class="btn btn--olive" href="product.html?box=hosting-box">Explore<span class="btn__ic">${I("arrow")}</span></a></div>
+          </section>
+          <section class="acct__panel" data-panel="orders" aria-labelledby="h-or"><h2 id="h-or">Orders</h2>
+            ${real.length ? "" : `<div class="demo-note">${I("sparkle")}<span>Sample orders shown — your real orders appear here as soon as you check out with ${esc(user.email)}.</span></div>`}
+            ${orders.map((o) => orderCard(o)).join("")}
+          </section>
+          <section class="acct__panel" data-panel="reorder" aria-labelledby="h-re"><h2 id="h-re">Reorder</h2>
+            ${orders[0] ? `<div class="box-card row" style="justify-content:space-between"><div><strong class="cart-line__name">Your last order</strong><div class="muted small">${esc(orders[0].id)} · ${orders[0].items.length} items</div></div><button class="btn btn--sm" type="button" data-reorder="${esc(orders[0].id)}">Add all to basket<span class="btn__ic">${I("bag")}</span></button></div>` : ""}
+            <p class="eyebrow">Your regulars</p>
+            <div class="grid-products" id="regulars"></div>
+          </section>
+          <section class="acct__panel" data-panel="wishlist" aria-labelledby="h-wi"><h2 id="h-wi">Wishlist</h2><div id="wishMini"></div></section>
+          <section class="acct__panel" data-panel="addresses" aria-labelledby="h-ad"><h2 id="h-ad">Addresses</h2><div id="addrBox"></div></section>
+          <section class="acct__panel" data-panel="profile" aria-labelledby="h-pr"><h2 id="h-pr">Profile</h2><div id="profileBox"></div></section>
+          <section class="acct__panel" data-panel="settings" aria-labelledby="h-se"><h2 id="h-se">Preferences</h2>
+            <div class="box-card" id="prefs"></div>
+          </section>
         </div>
       </div>`;
 
-      // ---- Wishlist mini ----
-      function renderWishMini() {
-        const el = document.getElementById("wishMini");
-        const items = FV.wish.items().map(FV.find).filter(Boolean);
-        if (!items.length) el.innerHTML = `<div class="empty-state">${FV.icon("heart")}<p>Nothing saved yet.</p><a class="btn btn--outline btn--sm" href="products.html" style="margin-top:1.2rem">Browse the collection</a></div>`;
-        else { el.innerHTML = `<div class="products-grid">${items.slice(0, 8).map(FV.productCardHTML).join("")}</div>`; FV.updateWishUI(); }
+      function orderCard(o, compact) {
+        const st = o.status === "pending" ? "new" : o.status === "transit" ? "out" : o.status;
+        const idx = STEPS.indexOf(st);
+        const date = new Date(o.date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+        return `<article class="order-card">
+          <div class="order-card__head"><div><div class="order-card__id">${esc(o.id)}</div><div class="order-card__meta">${date}${o.slot && idx > -1 && idx < 4 ? " · arriving " + esc(o.slot) : ""}</div></div>
+            <span class="status-chip status-chip--${esc(st)}">${esc(LABEL[st] || st)}</span></div>
+          ${idx > -1 ? `<div class="tracker" aria-label="Progress: ${esc(LABEL[st])}">${STEPS.map((s, i) => `<i class="${i <= idx ? "on" : ""}"></i>`).join("")}</div>` : ""}
+          ${compact ? "" : `<div class="order-card__thumbs">${(o.items || []).slice(0, 8).map((it) => `<span title="${esc(it.name)}">${it.noPhoto ? I("leaf2") : `<img src="${esc(FV.imgSrc(it.image || it.slug))}" alt="${esc(it.name)}" loading="lazy" width="54" height="54">`}</span>`).join("")}</div>`}
+          <div class="order-card__foot"><span class="order-card__total">${FV.money(o.total)}</span>
+            <div class="row"><button class="btn btn--ghost btn--sm btn--noic" type="button" data-receipt="${esc(o.id)}">Receipt</button><button class="btn btn--sm" type="button" data-reorder="${esc(o.id)}">Reorder<span class="btn__ic">${I("bag")}</span></button></div></div>
+        </article>`;
       }
-
-      // ---- Reorder grid ----
-      document.getElementById("reorderGrid").innerHTML =
-        FV.byCollection("best-sellers").slice(0, 4).map(FV.productCardHTML).join("");
-
-      /* ---- Editable account sections (saved per-browser; map to /api/me in prod) ---- */
-      const acct = { get(k, fb) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? fb : v; } catch { return fb; } }, set(k, v) { localStorage.setItem(k, JSON.stringify(v)); } };
-      const gv = (id) => { const e = document.getElementById(id); return e ? String(e.value).trim() : ""; };
-      const esc = (s) => String(s == null ? "" : s).replace(/"/g, "&quot;").replace(/</g, "&lt;");
-      const $b = (id) => document.getElementById(id);
-      const nameParts = (user.name || "").split(/\s+/);
-      let addrs = acct.get("fv_addresses", [
+      // Regulars = most-ordered products across this customer's orders
+      (function () {
+        const count = {};
+        orders.forEach((o) => (o.items || []).forEach((it) => { if (it.type !== "box") count[it.slug] = (count[it.slug] || 0) + (it.qty || 1); }));
+        let regs = Object.keys(count).sort((a, b) => count[b] - count[a]).map(FV.find).filter(Boolean);
+        if (regs.length < 4) regs = regs.concat(FV.byCollection("best-sellers").filter((p) => !regs.includes(p)));
+        $("regulars").innerHTML = regs.slice(0, 8).map(FV.productCardHTML).join("");
+      })();
+      function renderWish() {
+        const items = FV.wish.items().map(FV.find).filter(Boolean);
+        $("wishStat").textContent = items.length;
+        $("wishMini").innerHTML = items.length ? `<div class="grid-products">${items.slice(0, 12).map(FV.productCardHTML).join("")}</div>`
+          : `<div class="shop-empty"><div class="empty__art">${S.ART.strawberry}</div><h2>Nothing saved <em class="i">yet</em>.</h2><a class="btn btn--sm" href="products.html" style="margin-top:1rem">Browse the market<span class="btn__ic">${I("arrow")}</span></a></div>`;
+        FV.updateWishUI();
+      }
+      /* ---- profile ---- */
+      const np = user.name.split(/\s+/);
+      const profile = () => store.get("fv_profile", { first: np[0] || user.first, last: np.slice(1).join(" "), email: user.email, phone: user.phone || "" });
+      const gv = (id) => { const e = $(id); return e ? String(e.value).trim() : ""; };
+      function renderProfile(edit) {
+        const p = profile(), b = $("profileBox");
+        if (edit) {
+          b.innerHTML = `<form class="box-card" id="pfForm"><div class="addr-grid">
+            <div class="field"><label for="pf_first">First name</label><input class="input" id="pf_first" value="${esc(p.first)}" autocomplete="given-name"></div>
+            <div class="field"><label for="pf_last">Last name</label><input class="input" id="pf_last" value="${esc(p.last)}" autocomplete="family-name"></div>
+            <div class="field"><label for="pf_email">Email</label><input class="input" id="pf_email" type="email" value="${esc(p.email)}" autocomplete="email"></div>
+            <div class="field"><label for="pf_phone">Phone</label><input class="input" id="pf_phone" type="tel" value="${esc(p.phone)}" autocomplete="tel"></div></div>
+            <div class="row" style="margin-top:1.2rem"><button class="btn btn--sm" type="submit">Save changes<span class="btn__ic">${I("check")}</span></button><button class="btn btn--ghost btn--sm btn--noic" type="button" id="pfCancel">Cancel</button></div></form>`;
+          $("pfForm").addEventListener("submit", (e) => {
+            e.preventDefault();
+            const n = { first: gv("pf_first") || p.first, last: gv("pf_last"), email: gv("pf_email") || p.email, phone: gv("pf_phone") };
+            store.set("fv_profile", n);
+            const u = store.get("fv_user", {}); u.name = (n.first + " " + n.last).trim() || u.name; u.email = n.email || u.email; u.phone = n.phone; store.set("fv_user", u);
+            FV.clients.upsert({ name: u.name, email: u.email, phone: n.phone });
+            FV.toast("Profile saved"); renderProfile(false);
+          });
+          $("pfCancel").addEventListener("click", () => renderProfile(false));
+        } else {
+          b.innerHTML = `<div class="box-card"><div class="addr-grid">
+            ${[["First name", p.first], ["Last name", p.last], ["Email", p.email], ["Phone", p.phone]].map(([k, v]) => `<div class="static-field"><span>${k}</span><b>${esc(v) || "—"}</b></div>`).join("")}</div>
+            <button class="btn btn--ghost btn--sm btn--noic" type="button" id="pfEdit" style="margin-top:1.2rem">Edit details</button></div>`;
+          $("pfEdit").addEventListener("click", () => renderProfile(true));
+        }
+      }
+      /* ---- addresses ---- */
+      let addrs = store.get("fv_addresses", [
         { id: 1, label: "Home", line: "Villa 22, South Lake", area: "New Cairo, Cairo", default: true },
         { id: 2, label: "Office", line: "Building 4, Beverly Hills", area: "Sheikh Zayed, Giza", default: false }]);
-
-      function profile() { return acct.get("fv_profile", { first: nameParts[0] || user.first, last: nameParts.slice(1).join(" "), email: user.email, phone: user.phone || "" }); }
-      function renderProfile(editing) {
-        const p = profile(), b = $b("profileBox"); if (!b) return;
-        if (editing) {
-          b.innerHTML = `<div class="card-box"><div class="addr-grid">
-            <div class="field"><label for="pf_first">First name</label><input class="input" id="pf_first" value="${esc(p.first)}"></div>
-            <div class="field"><label for="pf_last">Last name</label><input class="input" id="pf_last" value="${esc(p.last)}"></div>
-            <div class="field"><label for="pf_email">Email</label><input class="input" id="pf_email" type="email" value="${esc(p.email)}"></div>
-            <div class="field"><label for="pf_phone">Phone</label><input class="input" id="pf_phone" value="${esc(p.phone)}"></div></div>
-            <div style="margin-top:1.2rem;display:flex;gap:.6rem"><button class="btn btn--sm" id="pf_save">Save changes</button><button class="btn btn--outline btn--sm" id="pf_cancel">Cancel</button></div></div>`;
-          b.querySelector("#pf_save").onclick = () => {
-            const np = { first: gv("pf_first") || p.first, last: gv("pf_last"), email: gv("pf_email") || p.email, phone: gv("pf_phone") };
-            acct.set("fv_profile", np);
-            const u = acct.get("fv_user", {}); u.name = (np.first + " " + np.last).trim() || u.name; u.email = np.email || u.email; localStorage.setItem("fv_user", JSON.stringify(u));
-            if (FV.clients) FV.clients.upsert({ name: u.name, email: np.email, phone: np.phone });
-            FV.toast("Profile saved"); renderProfile(false);
-          };
-          b.querySelector("#pf_cancel").onclick = () => renderProfile(false);
-        } else {
-          b.innerHTML = `<div class="card-box"><div class="addr-grid">
-            <div class="field"><span class="flabel">First name</span><div class="field-static">${esc(p.first) || "—"}</div></div>
-            <div class="field"><span class="flabel">Last name</span><div class="field-static">${esc(p.last) || "—"}</div></div>
-            <div class="field"><span class="flabel">Email</span><div class="field-static">${esc(p.email) || "—"}</div></div>
-            <div class="field"><span class="flabel">Phone</span><div class="field-static">${esc(p.phone) || "—"}</div></div></div>
-            <button class="btn btn--outline btn--sm" id="pf_edit" style="margin-top:1.2rem">Edit details</button></div>`;
-          b.querySelector("#pf_edit").onclick = () => renderProfile(true);
-        }
-      }
-      let adGeo = null;
-      const mapSrc = (q) => `https://maps.google.com/maps?q=${encodeURIComponent(q)}&z=14&output=embed`;
+      let geo = null;
+      const mapSrc = (q) => "https://maps.google.com/maps?q=" + encodeURIComponent(q) + "&z=14&output=embed";
       function renderAddr(editId) {
-        const b = $b("addrBox"); if (!b) return;
-        let html = addrs.length ? `<div class="pay-grid">` + addrs.map(a => `<div class="card-box">
-          <div style="display:flex;justify-content:space-between;align-items:center"><strong style="color:var(--forest)">${esc(a.label)}</strong>${a.default ? `<span class="status delivered">Default</span>` : `<button type="button" class="link-arrow" style="font-size:var(--step--2)" data-adef="${a.id}">Set default</button>`}</div>
-          <p class="muted" style="margin-top:.6rem;font-size:var(--step--1)">${esc(a.line)}<br>${esc(a.area)}</p>
-          <div style="margin-top:1rem;display:flex;gap:.8rem;flex-wrap:wrap"><button type="button" class="link-arrow" style="font-size:var(--step--2)" data-aedit="${a.id}">Edit</button><button type="button" class="link-arrow" style="font-size:var(--step--2)" data-arem="${a.id}">Remove</button>${a.geo ? `<a class="link-arrow" style="font-size:var(--step--2)" target="_blank" href="https://maps.google.com/?q=${a.geo.lat},${a.geo.lng}">View on map</a>` : ""}</div></div>`).join("") + `</div>`
-          : `<div class="empty-state"><p>No addresses yet.</p></div>`;
-        if (editId) { const a = editId === "new" ? null : addrs.find(x => x.id === editId);
-          adGeo = (a && a.geo) ? a.geo : null;
-          const q = adGeo ? `${adGeo.lat},${adGeo.lng}` : (a ? [a.line, a.area].filter(Boolean).join(", ") : "Cairo, Egypt");
-          html += `<div class="card-box" style="margin-top:1rem"><div class="addr-grid">
-          <div class="field"><label for="ad_label">Label</label><input class="input" id="ad_label" value="${esc(a ? a.label : "")}" placeholder="Home / Office"></div>
-          <div class="field"><label for="ad_area">Area</label><input class="input" id="ad_area" value="${esc(a ? a.area : "")}" placeholder="New Cairo, Cairo"></div>
-          <div class="field" style="grid-column:1/-1"><label for="ad_line">Address</label><input class="input" id="ad_line" value="${esc(a ? a.line : "")}" placeholder="Building, street, apartment"></div></div>
-          <div style="margin:.2rem 0 .7rem;display:flex;gap:.6rem;flex-wrap:wrap">
-            <button type="button" class="btn btn--outline btn--sm" id="ad_geo">${FV.icon("pin")} Use my location</button>
-            <button type="button" class="btn btn--outline btn--sm" id="ad_showmap">Show on map</button></div>
-          <div style="border-radius:var(--radius);overflow:hidden;border:1px solid var(--line-soft)"><iframe id="adMap" title="Delivery location map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" style="width:100%;height:220px;border:0;display:block" src="${mapSrc(q)}"></iframe></div>
-          <div style="margin-top:1rem;display:flex;gap:.6rem"><button class="btn btn--sm" id="ad_save">Save address</button><button class="btn btn--outline btn--sm" id="ad_cancel">Cancel</button></div></div>`; }
-        else html += `<button class="btn btn--outline btn--sm" id="ad_add" style="margin-top:1rem">${FV.icon("plus")} Add an address</button>`;
+        const b = $("addrBox");
+        let html = addrs.length ? `<div class="addr-grid">${addrs.map((a) => `<div class="addr"><div class="addr__top"><strong>${esc(a.label)}</strong>${a.default ? `<span class="status-chip status-chip--delivered">Default</span>` : `<button type="button" class="link-btn" data-adef="${a.id}">Set default</button>`}</div>
+          <p>${esc(a.line)}<br>${esc(a.area)}</p>
+          <div class="addr__acts"><button type="button" class="link-btn" data-aedit="${a.id}">Edit</button><button type="button" class="link-btn" data-arem="${a.id}">Remove</button>${a.geo ? `<a class="link-btn" target="_blank" rel="noopener" href="https://maps.google.com/?q=${a.geo.lat},${a.geo.lng}">View on map</a>` : ""}</div></div>`).join("")}</div>`
+          : `<div class="shop-empty"><h2>No addresses <em class="i">yet</em>.</h2></div>`;
+        if (editId) {
+          const a = editId === "new" ? null : addrs.find((x) => x.id === editId);
+          geo = a && a.geo ? a.geo : null;
+          const q = geo ? geo.lat + "," + geo.lng : (a ? [a.line, a.area].filter(Boolean).join(", ") : "Cairo, Egypt");
+          html += `<form class="box-card" id="adForm" style="margin-top:1rem"><div class="addr-grid">
+            <div class="field"><label for="ad_label">Label</label><input class="input" id="ad_label" value="${esc(a ? a.label : "")}" placeholder="Home / Office"></div>
+            <div class="field"><label for="ad_area">Area</label><input class="input" id="ad_area" value="${esc(a ? a.area : "")}" placeholder="New Cairo, Cairo"></div>
+            <div class="field" style="grid-column:1/-1"><label for="ad_line">Address</label><input class="input" id="ad_line" value="${esc(a ? a.line : "")}" placeholder="Building, street, apartment"></div></div>
+            <div class="row" style="margin:.8rem 0"><button type="button" class="btn btn--ghost btn--sm btn--noic" id="ad_geo">Use my location</button><button type="button" class="btn btn--ghost btn--sm btn--noic" id="ad_map">Show on map</button></div>
+            <div class="map-frame"><iframe id="adMap" title="Delivery location map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="${mapSrc(q)}"></iframe></div>
+            <div class="row" style="margin-top:1rem"><button class="btn btn--sm" type="submit">Save address<span class="btn__ic">${I("check")}</span></button><button class="btn btn--ghost btn--sm btn--noic" type="button" id="ad_cancel">Cancel</button></div></form>`;
+        } else html += `<button class="btn btn--ghost btn--sm" type="button" id="ad_add" style="margin-top:1rem">Add an address<span class="btn__ic">${I("plus")}</span></button>`;
         b.innerHTML = html;
         if (editId) {
-          const setMap = (q) => { const f = $b("adMap"); if (f) f.src = mapSrc(q); };
-          b.querySelector("#ad_showmap").onclick = () => setMap([gv("ad_line"), gv("ad_area")].filter(Boolean).join(", ") || "Cairo, Egypt");
-          b.querySelector("#ad_geo").onclick = () => {
+          const setMap = (q) => { const f = $("adMap"); if (f) f.src = mapSrc(q); };
+          $("ad_map").addEventListener("click", () => setMap([gv("ad_line"), gv("ad_area")].filter(Boolean).join(", ") || "Cairo, Egypt"));
+          $("ad_geo").addEventListener("click", () => {
             if (!navigator.geolocation) { FV.toast("Location isn't available on this device"); return; }
-            FV.toast("Finding your location…");
-            navigator.geolocation.getCurrentPosition(
-              p => { adGeo = { lat: +p.coords.latitude.toFixed(6), lng: +p.coords.longitude.toFixed(6) }; setMap(adGeo.lat + "," + adGeo.lng); FV.toast("Location captured ✓"); },
-              () => FV.toast("Couldn't get your location — allow permission"));
-          };
-          b.querySelector("#ad_save").onclick = () => { const o = { label: gv("ad_label") || "Address", area: gv("ad_area"), line: gv("ad_line"), geo: adGeo };
-            if (editId === "new") { o.id = Date.now(); o.default = !addrs.length; addrs.push(o); } else Object.assign(addrs.find(x => x.id === editId), o);
-            acct.set("fv_addresses", addrs); FV.toast("Address saved"); renderAddr(null); };
-          b.querySelector("#ad_cancel").onclick = () => renderAddr(null);
+            navigator.geolocation.getCurrentPosition((p) => { geo = { lat: +p.coords.latitude.toFixed(6), lng: +p.coords.longitude.toFixed(6) }; setMap(geo.lat + "," + geo.lng); FV.toast("Location captured"); }, () => FV.toast("Couldn't get your location — allow permission"));
+          });
+          $("adForm").addEventListener("submit", (e) => {
+            e.preventDefault();
+            const o = { label: gv("ad_label") || "Address", area: gv("ad_area"), line: gv("ad_line"), geo };
+            if (editId === "new") { o.id = Date.now(); o.default = !addrs.length; addrs.push(o); } else Object.assign(addrs.find((x) => x.id === editId), o);
+            store.set("fv_addresses", addrs); FV.toast("Address saved"); renderAddr(null);
+          });
+          $("ad_cancel").addEventListener("click", () => renderAddr(null));
         } else {
-          b.querySelector("#ad_add").onclick = () => renderAddr("new");
-          b.querySelectorAll("[data-aedit]").forEach(el => el.onclick = () => renderAddr(+el.dataset.aedit));
-          b.querySelectorAll("[data-arem]").forEach(el => el.onclick = () => { addrs = addrs.filter(x => x.id !== +el.dataset.arem); if (addrs.length && !addrs.some(x => x.default)) addrs[0].default = true; acct.set("fv_addresses", addrs); FV.toast("Address removed"); renderAddr(null); });
-          b.querySelectorAll("[data-adef]").forEach(el => el.onclick = () => { addrs.forEach(x => x.default = x.id === +el.dataset.adef); acct.set("fv_addresses", addrs); renderAddr(null); });
+          $("ad_add").addEventListener("click", () => renderAddr("new"));
+          b.querySelectorAll("[data-aedit]").forEach((el) => el.addEventListener("click", () => renderAddr(+el.dataset.aedit)));
+          b.querySelectorAll("[data-arem]").forEach((el) => el.addEventListener("click", () => { addrs = addrs.filter((x) => x.id !== +el.dataset.arem); if (addrs.length && !addrs.some((x) => x.default)) addrs[0].default = true; store.set("fv_addresses", addrs); FV.toast("Address removed"); renderAddr(null); }));
+          b.querySelectorAll("[data-adef]").forEach((el) => el.addEventListener("click", () => { addrs.forEach((x) => { x.default = x.id === +el.dataset.adef; }); store.set("fv_addresses", addrs); renderAddr(null); }));
         }
       }
-      renderProfile(false); renderAddr(null);
+      /* ---- preferences ---- */
+      const PREFS = [["updates", "Order updates", "Delivery status by SMS", true], ["letter", "The Fresh Valley Letter", "A monthly note — what's in season", true], ["seasonal", "Seasonal reminders", "A nudge when your favourites are at their peak", false]];
+      function renderPrefs() {
+        const pr = store.get("fv_prefs", {});
+        $("prefs").innerHTML = PREFS.map(([k, t, d, def]) => `<div class="set-row"><div><strong id="pl-${k}">${t}</strong><small>${d}</small></div><button type="button" class="toggle" data-pref="${k}" aria-labelledby="pl-${k}" aria-pressed="${pr[k] == null ? def : !!pr[k]}"></button></div>`).join("");
+        $("prefs").querySelectorAll("[data-pref]").forEach((b) => b.addEventListener("click", () => {
+          const on = b.getAttribute("aria-pressed") !== "true";
+          b.setAttribute("aria-pressed", on);
+          const p = store.get("fv_prefs", {}); p[b.dataset.pref] = on; store.set("fv_prefs", p);
+          if (b.dataset.pref === "letter") FV.clients.upsert({ name: user.name, email: user.email, marketing: on });
+          FV.toast("Preferences saved");
+        }));
+      }
+      renderProfile(false); renderAddr(null); renderPrefs();
 
-      // ---- Tabs ----
+      /* ---- tabs ---- */
+      const nav = root.querySelector(".acct__nav");
       function show(tab) {
-        navEl.querySelectorAll("[data-tab]").forEach(b => b.setAttribute("aria-current", b.dataset.tab === tab));
-        panelsEl.querySelectorAll(".panel").forEach(p => p.classList.toggle("active", p.dataset.panel === tab));
-        if (tab === "wishlist") renderWishMini();
+        nav.querySelectorAll("[data-tab]").forEach((b) => b.setAttribute("aria-current", b.dataset.tab === tab));
+        root.querySelectorAll(".acct__panel").forEach((p) => p.classList.toggle("active", p.dataset.panel === tab));
+        if (tab === "wishlist") renderWish();
         history.replaceState({}, "", "#" + tab);
-        window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
-        FV.observeReveals(); FV.updateWishUI();
+        $("acctCrumb").textContent = (NAV.find((n) => n[0] === tab) || [0, 0, "My account"])[2];
+        FV.observeReveals(root); FV.updateWishUI();
       }
-      navEl.querySelectorAll("[data-tab]").forEach(b => b.addEventListener("click", () => show(b.dataset.tab)));
-
-      // Reorder + track
-      // Build a full order object for the designed receipt (real order if captured, else from sample)
-      function fullOrder(o) {
-        const real = (FV.orders ? FV.orders.all() : []).find(x => x.id === o.id);
-        if (real) return real;
-        const items = o.items.map(sl => { const p = FV.find(sl); const v = FV.defaultVariant(p); return { name: p.name, variant: v.variant, qty: 1, price: v.price }; });
-        const sub = items.reduce((s, i) => s + i.price * i.qty, 0);
-        const delivery = sub >= (FV.settings ? FV.settings.freeThreshold : 600) ? 0 : (FV.settings ? FV.settings.deliveryFee : 45);
-        return { id: o.id, date: new Date().toISOString(), status: o.status,
-          customer: { name: user.name, email: user.email, phone: user.phone, area: "New Cairo" },
-          address: "New Cairo", slot: o.slot, payment: "Credit card", channel: "Website",
-          items, subtotal: sub, delivery, total: sub + delivery };
-      }
-
-      panelsEl.addEventListener("click", e => {
+      nav.querySelectorAll("[data-tab]").forEach((b) => b.addEventListener("click", () => show(b.dataset.tab)));
+      $("signOut").addEventListener("click", () => { localStorage.removeItem("fv_user"); location.assign("account.html"); });
+      root.addEventListener("click", (e) => {
         const ro = e.target.closest("[data-reorder]");
-        if (ro) { const o = orders.find(x => x.id === ro.dataset.reorder); o.items.forEach(s => FV.quickAdd(s)); return; }
+        if (ro) {
+          const o = orders.find((x) => x.id === ro.dataset.reorder); if (!o) return;
+          let n = 0;
+          (o.items || []).forEach((it) => {
+            if (it.type === "box") { const b = FV.findBox(it.slug); if (b) { const t = b.tiers.find((x) => String(it.variant || "").indexOf(x.label) === 0) || b.tiers[0]; FV.cart.add({ key: b.slug + "|" + t.label, slug: b.slug, type: "box", name: b.name, image: b.image, variant: t.label, price: t.price, qty: it.qty || 1 }); n++; } return; }
+            const p = FV.find(it.slug); if (!p || FV.soldOut(p)) return;
+            const g = p.unit === "kg" ? (FV.weightOptions.find((w) => w.label === it.variant) || { g: 1000 }).g : 0;
+            const variant = p.unit === "kg" ? FV.weightLabel(g) : FV.defaultVariant(p).variant;
+            FV.cart.add({ key: p.slug + "|" + variant, slug: p.slug, type: "product", name: p.name, image: FV.isCustomImg(p.image) ? p.image : p.slug, noPhoto: !!p.noPhoto, variant, price: p.unit === "kg" ? FV.priceForWeight(p, g) : p.pricePerUnit, qty: it.qty || 1 });
+            n++;
+          });
+          FV.toast(n + " items added", "From " + o.id, true);
+          if (window.FVMotion) FVMotion.fly(ro);
+          return;
+        }
         const rc = e.target.closest("[data-receipt]");
-        if (rc && FV.receipt) { const o = orders.find(x => x.id === rc.dataset.receipt); if (o) FV.receipt.open(fullOrder(o)); return; }
-        if (e.target.closest("[data-track]")) { FV.toast("Your order is on the way", "Arriving " + orders[0].slot); }
-        const t = e.target.closest(".toggle-pill");
-        if (t) t.setAttribute("aria-pressed", t.getAttribute("aria-pressed") !== "true");
+        if (rc) { const o = orders.find((x) => x.id === rc.dataset.receipt); if (o) FV.receipt.open(o); }
       });
+      document.addEventListener("fv:wish", () => { if (root.querySelector('[data-panel="wishlist"].active')) { /* guard: re-render lightly */ const n = FV.wish.items().length; $("wishStat").textContent = n; } });
+      const initial = (location.hash || "#overview").slice(1);
+      show(NAV.some((n) => n[0] === initial) ? initial : "overview");
 
-      const initial = (location.hash || "#profile").slice(1);
-      show(NAV.some(n => n[0] === initial) ? initial : "profile");
+      /* ============================== AUTH GATE ============================== */
+      function gate() {
+        $("acctTitle").innerHTML = "Welcome <em class=\"i\">in</em>.";
+        $("acctCrumb").textContent = "Sign in";
+        $("acctEyebrow").textContent = "Your Fresh Valley";
+        root.innerHTML = `<div class="auth">
+          <div class="auth__card">
+            <div class="auth__tabs" role="group" aria-label="Account"><button type="button" data-auth="signin" aria-pressed="true">Sign in</button><button type="button" data-auth="signup" aria-pressed="false">Create account</button></div>
+            <button type="button" class="auth__google" id="gBtn"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.6v3h3.9c2.3-2.1 3.5-5.2 3.5-8.8Z"/><path fill="#34A853" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.9-3c-1.1.7-2.5 1.2-4 1.2-3.1 0-5.7-2.1-6.6-4.9H1.4v3.1C3.4 21.4 7.4 24 12 24Z"/><path fill="#FBBC05" d="M5.4 14.4c-.2-.7-.4-1.4-.4-2.4s.1-1.7.4-2.4V6.5H1.4C.5 8.2 0 10 0 12s.5 3.8 1.4 5.5l4-3.1Z"/><path fill="#EA4335" d="M12 4.8c1.8 0 3.3.6 4.5 1.8l3.4-3.4C17.9 1.2 15.2 0 12 0 7.4 0 3.4 2.6 1.4 6.5l4 3.1C6.3 6.8 8.9 4.8 12 4.8Z"/></svg><span id="gLabel">Continue with Google</span></button>
+            <div class="auth__or">or</div>
+            <form class="auth__form" id="authForm" novalidate>
+              <div class="field su" hidden><label for="au_name">Full name</label><input class="input" id="au_name" name="name" autocomplete="name" placeholder="Your name"></div>
+              <div class="field"><label for="au_email">Email</label><input class="input" id="au_email" type="email" name="email" autocomplete="email" placeholder="you@email.com" required></div>
+              <div class="field su" hidden><label for="au_phone">Phone</label><input class="input" id="au_phone" type="tel" name="phone" autocomplete="tel" placeholder="+20 1XX XXX XXXX"></div>
+              <div class="field"><label for="au_pass">Password</label><input class="input" id="au_pass" type="password" name="password" autocomplete="current-password" placeholder="••••••••" required minlength="4"></div>
+              <button class="btn btn--lg btn--block" type="submit" id="authSubmit"><span id="authLabel">Sign in</span><span class="btn__ic">${I("arrow")}</span></button>
+            </form>
+            <p class="muted-note">Demo — sign in with any email &amp; password, or continue with Google. Your details stay in this browser only.</p>
+          </div>
+          <aside class="auth__aside">${S.img("banner:packaging", { sizes: "(max-width: 960px) 100vw, 50vw", alt: "" })}<div><h2>Welcome to <em class="i">Fresh Valley</em></h2><p>Track orders, save favourites, reorder in a tap, and manage your hosting boxes.</p></div></aside>
+        </div>`;
+        const form = $("authForm");
+        let mode = "signin";
+        const nameFrom = (email) => email.split("@")[0].replace(/[._-]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+        function signIn(email, name, isNew, phone) {
+          store.set("fv_user", { name, email, phone: phone || "" });
+          FV.clients.upsert({ name, email, phone: phone || "", status: isNew ? "new" : "active" });
+          FV.toast("Welcome, " + name.split(" ")[0]);
+          setTimeout(() => location.reload(), 400);
+        }
+        function setMode(m) {
+          mode = m;
+          root.querySelectorAll("[data-auth]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.auth === m));
+          root.querySelectorAll(".su").forEach((f) => { f.hidden = m !== "signup"; });
+          form.name.required = m === "signup";
+          $("authLabel").textContent = m === "signup" ? "Create account" : "Sign in";
+          $("gLabel").textContent = m === "signup" ? "Sign up with Google" : "Continue with Google";
+          $("au_pass").setAttribute("autocomplete", m === "signup" ? "new-password" : "current-password");
+        }
+        root.querySelectorAll("[data-auth]").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.auth)));
+        form.addEventListener("submit", (e) => {
+          e.preventDefault();
+          if (!form.checkValidity()) { form.reportValidity(); return; }
+          const email = form.email.value.trim(), isNew = mode === "signup";
+          signIn(email, isNew && form.name.value.trim() ? form.name.value.trim() : nameFrom(email), isNew, isNew ? form.phone.value.trim() : "");
+        });
+        $("gBtn").addEventListener("click", () => {
+          const typed = form.email.value.trim(), email = typed.includes("@") ? typed : "guest@gmail.com";
+          signIn(email, mode === "signup" && form.name.value.trim() ? form.name.value.trim() : nameFrom(email), mode === "signup", "");
+        });
+        if (location.hash === "#signup") setMode("signup");
+      }
     })();
   </script>
+  <script defer src="assets/vendor/gsap.min.js"></script>
+  <script defer src="assets/vendor/ScrollTrigger.min.js"></script>
+  <script defer src="assets/vendor/SplitText.min.js"></script>
+  <script defer src="assets/vendor/lenis.min.js"></script>
+  <script defer src="assets/js/motion.js"></script>
 </body>
 </html>

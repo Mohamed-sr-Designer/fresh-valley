@@ -2,166 +2,37 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Contact — Fresh Valley</title>
-  <meta name="description" content="Talk to Fresh Valley. Delivery across New Cairo, Sheikh Zayed, October, Madinaty and Rehab. We're glad to help.">
-  <meta name="theme-color" content="#1A2A1D">
+  <meta name="description" content="A question about an order, a hosting idea, or a wholesale enquiry — WhatsApp, phone or email. We reply like people.">
+  <meta name="theme-color" content="#19291C">
   <link rel="canonical" href="https://freshvalley.eg/contact.html">
-  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/jost-400.woff2" crossorigin>
-  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/cormorant-garamond-500.woff2" crossorigin>
+  <meta property="og:title" content="Contact — Fresh Valley">
+  <meta property="og:description" content="A question about an order, a hosting idea, or a wholesale enquiry — WhatsApp, phone or email. We reply like people.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="assets/img/banners/delivery-van.jpg">
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/fraunces-v4.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/jakarta.woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/styles.css">
-  <style>
-    /* ================= Two-column editorial contact ================= */
-    .contact-layout { display: grid; grid-template-columns: 1.05fr .95fr; gap: 0 clamp(2.5rem, 6vw, 5rem); align-items: start; }
-    .contact-info-col { border-left: 1px solid var(--line); padding-left: clamp(2.5rem, 6vw, 5rem); }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; }
-
-    .info-list { margin-top: 1.6rem; }
-    .info-item { display: flex; gap: 1.1rem; align-items: flex-start; padding: 1.35rem 0; border-top: 1px solid var(--line); }
-    .info-item:first-child { border-top: 0; padding-top: 0; }
-    .info-item .ic { width: 22px; height: 22px; flex-shrink: 0; color: var(--brass-deep); margin-top: .2rem; }
-    .info-item .ic svg { width: 100%; height: 100%; }
-    .info-item h3 { font-size: var(--step-1); color: var(--forest); }
-    .info-item p { font-size: var(--step--1); color: var(--text-muted); margin-top: .35rem; line-height: 1.65; }
-    .info-item a { color: var(--brass-deep); }
-
-    @media (max-width: 900px) {
-      .contact-layout { grid-template-columns: 1fr; gap: var(--s-8); }
-      .contact-info-col { border-left: 0; padding-left: 0; padding-top: var(--s-7); border-top: 1px solid var(--line); }
-      .form-row { grid-template-columns: 1fr; }
-    }
-  </style>
+  <script>!function(d,w){var h=d.documentElement;if(!/[?&]fv_preview=1/.test(location.search)&&!w.matchMedia("(prefers-reduced-motion: reduce)").matches){h.classList.add("m-on");setTimeout(function(){if(!(w.FVMotion&&w.FVMotion.ready))h.classList.remove("m-on")},3500)}}(document,window)</script>
 </head>
-
 <body data-page="contact">
   <div id="fv-header"></div>
+  <noscript><p class="noscript">Fresh Valley uses JavaScript for its menu, basket and checkout. <a href="products.html">Browse the collection</a> · <a href="contact.html">Contact us</a></p></noscript>
 
-  <main>
-    <section class="page-header">
-      <div class="container">
-        <nav class="breadcrumb"><a href="index.html">Home</a><span>/</span><span>Contact</span></nav>
-        <p class="eyebrow" data-fv="contact_eyebrow">We're glad to help</p>
-        <h1 data-fv="contact_title">Talk to Fresh Valley</h1>
-        <p data-fv="contact_sub">A question about an order, a hosting idea, or a wholesale enquiry — we read everything, and we reply like people.</p>
-      </div>
-    </section>
-
-    <section class="section section--tight">
-      <div class="container contact-layout">
-        <!-- form -->
-        <div class="contact-form-col">
-          <p class="eyebrow">Get in touch</p>
-          <h2 style="font-size:var(--step-2);margin-top:.5rem">Send a message</h2>
-          <form id="contactForm" novalidate style="margin-top:1.8rem">
-            <div class="form-row">
-              <div class="field"><label for="cf-first">First name</label><input class="input" id="cf-first" name="first" required autocomplete="given-name"></div>
-              <div class="field"><label for="cf-last">Last name</label><input class="input" id="cf-last" name="last" required autocomplete="family-name"></div>
-              <div class="field"><label for="cf-email">Email</label><input class="input" id="cf-email" type="email" name="email" required autocomplete="email"></div>
-              <div class="field"><label for="cf-phone">Phone</label><input class="input" id="cf-phone" name="phone" placeholder="Optional" autocomplete="tel"></div>
-              <div class="field" style="grid-column:1/-1">
-                <label for="cf-subject">Subject</label>
-                <select class="select" id="cf-subject" name="subject">
-                  <option value="order">An order</option>
-                  <option value="product">A product question</option>
-                  <option value="hosting">Hosting &amp; events</option>
-                  <option value="corporate">Corporate &amp; events</option>
-                  <option value="wholesale">Wholesale &amp; partnerships</option>
-                  <option value="other">Something else</option>
-                </select>
-              </div>
-              <div class="field" style="grid-column:1/-1">
-                <label for="cf-message">Message</label>
-                <textarea class="textarea" id="cf-message" name="message" required placeholder="How can we help?"></textarea>
-              </div>
-            </div>
-            <button class="btn btn--lg" type="submit" style="margin-top:1.4rem">Send message
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-            <p class="muted" style="font-size:var(--step--2);margin-top:1rem">We usually reply within one working day.</p>
-          </form>
-        </div>
-
-        <!-- info -->
-        <div class="contact-info-col">
-          <p class="eyebrow">Reach us directly</p>
-          <h2 style="font-size:var(--step-2);margin-top:.5rem">Contact details</h2>
-          <div class="info-list" id="infoList"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- AREAS -->
-    <section class="section section--paper2" id="areas">
-      <div class="container">
-        <div class="section-head" data-reveal>
-          <p class="eyebrow">Where we deliver</p>
-          <h2 class="title">Delivery areas</h2>
-          <p class="muted measure">We keep our delivery close to home, so the cold chain stays short and the service stays personal. Complimentary delivery on orders over EGP 600; a flat EGP 45 below that.</p>
-        </div>
-      </div>
-      <div class="trust-strip" style="margin-top:var(--s-7)">
-        <div class="container"><div class="inner" id="areaChips"></div></div>
-      </div>
-      <div class="container">
-        <p class="muted" style="font-size:var(--step--2);margin-top:1.5rem">Outside these areas? <a href="#contactForm" style="color:var(--brass-deep);text-decoration:underline">Tell us where you are</a> — we're expanding.</p>
-      </div>
-    </section>
-
-    <!-- FAQ -->
-    <section class="section">
-      <div class="container container-narrow">
-        <div class="section-head section-head--center" data-reveal style="margin-bottom:var(--space-xl)">
-          <p class="eyebrow">Good to know</p>
-          <h2 class="title">Common questions</h2>
-        </div>
-        <div class="accordion" id="faq"></div>
-      </div>
-    </section>
-  </main>
+  <main id="main" data-fv-page="contact"></main>
 
   <div id="fv-footer"></div>
 
   <script src="assets/js/data.js"></script>
+  <script src="assets/js/content.js"></script>
+  <script src="assets/js/theme.js"></script>
   <script src="assets/js/app.js"></script>
-  <script>
-    (function () {
-      const info = [
-        ["user", "WhatsApp &amp; phone", `<a href="tel:+201000000000">+20 100 000 0000</a><br>Fastest for anything about a live order.`],
-        ["sparkle", "Email", `<a href="mailto:hello@freshvalley.eg">hello@freshvalley.eg</a><br>For everything else.`],
-        ["snow", "Hours", "Saturday – Thursday, 9am – 9pm<br>Friday, 1pm – 9pm"],
-        ["leaf", "Follow along", "Seasonal notes and hosting ideas on Instagram &amp; TikTok — @freshvalley.eg"],
-      ];
-      document.getElementById("infoList").innerHTML = info.map(([ic, h, p]) =>
-        `<div class="info-item"><span class="ic">${FV.icon(ic)}</span><div><h3>${h}</h3><p>${p}</p></div></div>`).join("");
-
-      const areas = ["New Cairo", "Sheikh Zayed", "October", "Madinaty", "Rehab"];
-      document.getElementById("areaChips").innerHTML = areas.map(a => `<span class="trust-item">${FV.icon("pin")} ${a}</span>`).join("");
-
-      const faqs = [
-        ["When will my order arrive?", "Choose a next-day delivery slot at checkout — morning, midday, afternoon or evening. We'll send an update by SMS when your produce is on the way."],
-        ["What does 'export-grade' mean?", "It is the standard the export market demands: each piece graded by hand for size, colour, firmness and ripeness. Anything that doesn't pass is set aside, so what reaches you is consistent and beautiful."],
-        ["What if something isn't perfect?", "Then it isn't on us to keep. Tell us within 24 hours and we'll replace it or refund it — no debate. Quality is the whole promise."],
-        ["Do you offer subscriptions?", "Yes. Any box can be set to a weekly or fortnightly schedule from your account, and you can pause or change it any time."],
-        ["How is delivery priced?", "Complimentary on orders over EGP 600, and a flat EGP 45 below that, across all our areas."],
-      ];
-      document.getElementById("faq").innerHTML = faqs.map(([q, a]) => `
-        <details><summary>${q} <span class="ico"></span></summary><div class="panel">${a}</div></details>`).join("");
-
-      // ?topic=corporate (and other topic keys) prefill the subject select
-      const topic = new URLSearchParams(location.search).get("topic");
-      if (topic) {
-        const sel = document.getElementById("cf-subject");
-        if (sel && Array.from(sel.options).some(o => o.value === topic)) sel.value = topic;
-      }
-
-      document.getElementById("contactForm").addEventListener("submit", e => {
-        e.preventDefault();
-        if (!e.target.checkValidity()) { e.target.reportValidity(); return; }
-        e.target.reset();
-        FV.toast("Thank you — we'll be in touch", "Usually within a working day");
-      });
-
-      FV.observeReveals();
-    })();
-  </script>
+  <script src="assets/js/sections.js"></script>
+  <script defer src="assets/vendor/gsap.min.js"></script>
+  <script defer src="assets/vendor/ScrollTrigger.min.js"></script>
+  <script defer src="assets/vendor/SplitText.min.js"></script>
+  <script defer src="assets/vendor/lenis.min.js"></script>
+  <script defer src="assets/js/motion.js"></script>
 </body>
 </html>
