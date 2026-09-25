@@ -11,9 +11,10 @@
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/jakarta-s.woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/styles.css">
   <link rel="stylesheet" href="assets/css/shop.css">
-  <script>!function(d,w){var h=d.documentElement;if(!/[?&]fv_preview=1/.test(location.search)&&!w.matchMedia("(prefers-reduced-motion: reduce)").matches){h.classList.add("m-on");setTimeout(function(){if(!(w.FVMotion&&w.FVMotion.ready))h.classList.remove("m-on")},3500)}}(document,window)</script>
+  <script>!function(d,w){var h=d.documentElement,L=0;if(/[?&](fv_preview|bake)=1/.test(location.search)||w.matchMedia("(prefers-reduced-motion: reduce)").matches)return;h.classList.add("m-on");try{if(!sessionStorage.getItem("fv_seen")){sessionStorage.setItem("fv_seen","1");h.classList.add("is-loading");L=1}}catch(e){}setTimeout(function(){if(!(w.FVMotion&&w.FVMotion.ready))h.classList.remove("m-on");h.classList.remove("is-loading","is-lifting")},L?5200:3500)}(document,window)</script>
 </head>
 <body data-page="checkout">
+  <!--loader--><div class="loader" aria-hidden="true"><div class="loader__in"><span class="loader__logo"></span><span class="loader__line"></span><span class="loader__note" id="fvLoadNote">Picked at first light</span></div></div><script>!function(){var d=new Date,m=d.getMonth(),s=new Date(d.getFullYear(),0,1),w=Math.ceil(((d-s)/864e5+s.getDay()+1)/7),n=[11,0,1].indexOf(m)>-1?"winter":m<5?"spring":m<8?"summer":"autumn",o={winter:11,spring:2,summer:5,autumn:8}[n],e=document.getElementById("fvLoadNote");e&&(e.textContent="Week "+w+" \u00b7 "+["Early","Mid","Late"][(m-o+12)%12]+" "+n+" in the valley")}()</script><!--/loader-->
   <div id="fv-header"></div>
   <noscript><p class="noscript">Fresh Valley uses JavaScript for its menu, basket and checkout. <a href="products.html">Browse the collection</a> · <a href="contact.html">Contact us</a></p></noscript>
 
@@ -58,7 +59,7 @@
 
       if (!FV.cart.items().length) {
         document.getElementById("stepsBar").innerHTML = steps(0);
-        root.innerHTML = `<div class="shop-empty"><div class="empty__art">${S.ART.sprig}</div><h2>Your basket is <em class="i">empty</em>.</h2><p class="muted">Add something lovely before checking out.</p><a class="btn" href="products.html" style="margin-top:1.4rem">Browse the market<span class="btn__ic">${I("arrow")}</span></a></div>`;
+        root.innerHTML = `<div class="shop-empty"><h2>Your basket is <em class="i">empty</em>.</h2><p class="muted">Add something lovely before checking out.</p><a class="btn" href="products.html" style="margin-top:1.4rem">Browse the market<span class="btn__ic">${I("arrow")}</span></a></div>`;
         return;
       }
       FV.track("checkout_start", { value: FV.cart.subtotal() });
@@ -154,9 +155,8 @@
                 </div>
                 <div class="co-step">
                   <div class="co-step__head"><span class="co-step__n">4</span><h2>Review <em class="i">&amp; place</em></h2></div>
-                  <label class="check"><input type="checkbox" id="coNews" checked><span>Send me the Fresh Valley Letter — one quiet note a month.</span></label>
                   <p class="muted small" style="margin-top:.8rem">By placing your order you agree to our <a class="link-btn" href="terms.html">Terms of Use</a> and <a class="link-btn" href="policies.html">Company Policies</a>.</p>
-                  <button class="btn btn--lg btn--block" type="submit" id="placeBtn" style="margin-top:1.2rem" data-magnetic=".12">Place order · <span id="placeTotal"></span><span class="btn__ic">${I("arrow")}</span></button>
+                  <button class="btn btn--lg btn--block" type="submit" id="placeBtn" style="margin-top:1.2rem">Place order · <span id="placeTotal"></span><span class="btn__ic">${I("arrow")}</span></button>
                 </div>
               </div>
             </form>
@@ -233,7 +233,7 @@
           catch (_) { FV.toast("Couldn't reach the server — saved locally"); }
         }
         if (!placed) { FV.orders.record(order); }
-        FV.clients.upsert(Object.assign({}, customer, { status: "active", marketing: document.getElementById("coNews").checked }));
+        FV.clients.upsert(Object.assign({}, customer, { status: "active", marketing: false }));
         FV.cart.clear();
         try { sessionStorage.removeItem("fv_code"); } catch (_) {}
         confirmView(order, customer.name.split(" ")[0] || "there");
@@ -259,7 +259,7 @@
             <button class="btn btn--ghost" type="button" id="rcOpen">View receipt<span class="btn__ic">${I("check")}</span></button>
             <button class="btn btn--ghost btn--noic" type="button" id="rcDl">Download</button>
           </div>
-          <div class="conf__art" data-draw>${S.ART.bouquet}</div>
+          
         </div>`;
         document.getElementById("rcOpen").addEventListener("click", () => FV.receipt.open(o));
         document.getElementById("rcDl").addEventListener("click", () => FV.receipt.download(o));

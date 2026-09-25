@@ -11,9 +11,10 @@
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/jakarta-s.woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/styles.css">
   <link rel="stylesheet" href="assets/css/shop.css">
-  <script>!function(d,w){var h=d.documentElement;if(!/[?&]fv_preview=1/.test(location.search)&&!w.matchMedia("(prefers-reduced-motion: reduce)").matches){h.classList.add("m-on");setTimeout(function(){if(!(w.FVMotion&&w.FVMotion.ready))h.classList.remove("m-on")},3500)}}(document,window)</script>
+  <script>!function(d,w){var h=d.documentElement,L=0;if(/[?&](fv_preview|bake)=1/.test(location.search)||w.matchMedia("(prefers-reduced-motion: reduce)").matches)return;h.classList.add("m-on");try{if(!sessionStorage.getItem("fv_seen")){sessionStorage.setItem("fv_seen","1");h.classList.add("is-loading");L=1}}catch(e){}setTimeout(function(){if(!(w.FVMotion&&w.FVMotion.ready))h.classList.remove("m-on");h.classList.remove("is-loading","is-lifting")},L?5200:3500)}(document,window)</script>
 </head>
 <body data-page="product">
+  <!--loader--><div class="loader" aria-hidden="true"><div class="loader__in"><span class="loader__logo"></span><span class="loader__line"></span><span class="loader__note" id="fvLoadNote">Picked at first light</span></div></div><script>!function(){var d=new Date,m=d.getMonth(),s=new Date(d.getFullYear(),0,1),w=Math.ceil(((d-s)/864e5+s.getDay()+1)/7),n=[11,0,1].indexOf(m)>-1?"winter":m<5?"spring":m<8?"summer":"autumn",o={winter:11,spring:2,summer:5,autumn:8}[n],e=document.getElementById("fvLoadNote");e&&(e.textContent="Week "+w+" \u00b7 "+["Early","Mid","Late"][(m-o+12)%12]+" "+n+" in the valley")}()</script><!--/loader-->
   <div id="fv-header"></div>
   <noscript><p class="noscript">Fresh Valley uses JavaScript for its menu, basket and checkout. <a href="products.html">Browse the collection</a> · <a href="contact.html">Contact us</a></p></noscript>
   <main id="main"></main>
@@ -41,7 +42,7 @@
       function notFound() {
         meta("Not found");
         root.innerHTML = `<section class="s shop-head"><div class="wrap wrap--narrow" style="text-align:center"><div class="shop-empty">
-          <div class="empty__art">${S.ART.leaf}</div><h1 class="h2">This one has <em class="i">sold through</em>.</h1>
+          <p class="eyebrow">Not in the market</p><h1 class="h2">This one has <em class="i">sold through</em>.</h1>
           <p class="muted" style="margin-top:.6rem">We couldn't find that product — the rest of the market is fresh and waiting.</p>
           <a class="btn" href="products.html" style="margin-top:1.4rem">View the collection<span class="btn__ic">${I("arrow")}</span></a></div></div></section>`;
       }
@@ -79,10 +80,15 @@
           <li>${I("shield")}<span>Export-grade. If it isn't perfect, we replace it.</span></li>
           <li>${I("snow")}<span>Cold-chain kept from grading table to your door.</span></li></ul>`;
       }
-      function reviewsFor(names, tags) {
-        let rs = FV.data.reviews.filter((r) => names.some((n) => r.tag === n) || tags.includes(r.tag));
-        if (rs.length < 3) rs = rs.concat(FV.data.reviews.filter((r) => !rs.includes(r))).slice(0, 3);
-        return rs.slice(0, 6);
+      /* The product's own line of the Valley Almanac */
+      function harvestHTML(p) {
+        const sm = FV.seasonMonths(p), now = new Date().getMonth();
+        const note = sm.all ? "Graded and delivered all year — we buy only the week's best lots."
+          : sm.m[now] ? "In season now — at its peak for a short window, " + esc(p.season) + "."
+          : "Out of season right now. Back " + esc(p.season) + " — save it to your wishlist and we'll keep it in mind.";
+        return `<div class="harvest"><div class="pick__lab"><span>Harvest window</span><b>${sm.all ? "All year" : esc(p.season)}</b></div>
+          <div class="harvest__months" aria-hidden="true">${FV.MONTHS.map((m, i) => `<span class="${sm.m[i] ? "is-on" : "is-off"}${i === now ? " is-now" : ""}">${m.charAt(0)}</span>`).join("")}</div>
+          <p class="harvest__note">${note}</p></div>`;
       }
       function afterAdd(btn) {
         if (window.FVMotion) window.FVMotion.fly(btn);
@@ -100,25 +106,21 @@
         meta(p.name, p.short + " " + (p.desc || ""));
         const isKg = p.unit === "kg", cat = catName[p.category] || "Produce";
         const sold = FV.soldOut(p);
-        const seasonal = (p.badges || []).includes("seasonal") || (p.collections || []).includes("seasonal");
-        const scarce = !sold && (seasonal || (p.collections || []).includes("organic-reserve"));
-        const pct = FV.scarcityPct(p.slug);
+        const seasonal = FV.inSeasonNow(p);
         const custom = FV.isCustomImg(p.image);
         const media = p.noPhoto
-          ? `<div class="media--herb"><svg class="art herb-art" viewBox="0 0 120 150" aria-hidden="true"><path d="M60 146C58 110 62 70 58 8"/><path d="M59 126c-12-3-22-11-27-21 11 0 21 6 27 16"/><path d="M60 108c11-3 20-11 24-22-11 0-20 7-24 17"/><path d="M59 90c-12-2-22-10-28-20 11-1 21 5 27 15"/><path d="M60 72c11-3 20-11 24-22-11 0-20 7-24 17"/><path d="M58 54c-11-2-20-9-25-18 10-1 19 4 25 13"/><path d="M59 38c9-3 17-10 20-19-9 1-16 6-20 14"/></svg><span>${esc(p.name)}</span></div>`
+          ? `<div class="media--herb">${FV.herbTile(p)}</div>`
           : custom ? `<img src="${esc(p.image)}" alt="${esc(p.name)}" width="1000" height="1000" fetchpriority="high">`
           : `<picture><source type="image/webp" srcset="${FV.webp(FV.thumb(p.slug))} 540w, ${FV.webp(FV.img(p.slug))} 1000w" sizes="(max-width: 1100px) 92vw, 50vw"><img src="${FV.img(p.slug)}" srcset="${FV.thumb(p.slug)} 540w, ${FV.img(p.slug)} 1000w" sizes="(max-width: 1100px) 92vw, 50vw" alt="${esc(p.name)}" width="1000" height="1000" fetchpriority="high" decoding="async"></picture>`;
         const flags = [
-          `<span class="chip chip--glass">${I("shield")}${esc(FV.topLabel(p))}</span>`,
-          seasonal ? `<span class="chip chip--olive">${I("sparkle")} In season</span>` : "",
-          sold ? `<span class="chip chip--forest">Sold out</span>` : "",
-          p.compareAt && +p.compareAt > FV.cardPrice(p).value ? `<span class="chip chip--pom">Save ${Math.round((1 - FV.cardPrice(p).value / +p.compareAt) * 100)}%</span>` : "",
+          seasonal ? `<span class="tag">In season</span>` : "",
+          sold ? `<span class="tag tag--dark">Sold out</span>` : "",
+          p.compareAt && +p.compareAt > FV.cardPrice(p).value ? `<span class="tag tag--pom">Save ${Math.round((1 - FV.cardPrice(p).value / +p.compareAt) * 100)}%</span>` : "",
         ].join("");
         const n = p.nutrition || {};
         const pair = (p.pairings || []).filter((s) => s !== p.slug).map(FV.find).filter(Boolean).slice(0, 4);
         const related = FV.byCategory(p.category).filter((x) => x.slug !== p.slug && !pair.includes(x)).slice(0, 10);
         const recents = FV.recent.list().filter((s) => s !== p.slug).map(FV.find).filter(Boolean).slice(0, 10);
-        const revs = reviewsFor([p.name], []);
 
         root.innerHTML = `
         <section class="s pdp" aria-labelledby="pName">
@@ -128,25 +130,25 @@
               <div class="pdp__media">
                 <div class="pdp__frame" data-clip>${media}<div class="pdp__flags">${flags}</div></div>
                 <div class="pdp__facts">
-                  <div class="fact">${I("pin")}<small>Origin</small><strong>${esc(p.origin)}</strong></div>
-                  <div class="fact">${I("calendar")}<small>Season</small><strong>${esc(p.season)}</strong></div>
-                  <div class="fact">${I("snow")}<small>Handling</small><strong>Hand-graded, cold-chain</strong></div>
+                  <div class="fact"><small>Grown in</small><strong>${esc(FV.originShort(p.origin))}</strong></div>
+                  <div class="fact"><small>Season</small><strong>${esc(p.season)}</strong></div>
+                  <div class="fact"><small>Handling</small><strong>Hand-graded, kept cold</strong></div>
                 </div>
               </div>
               <div class="pdp__info">
-                <div class="row"><span class="chip chip--soft">${esc(FV.topLabel(p))} · ${cat}</span></div>
+                <p class="eyebrow">${esc(FV.topLabel(p))} · ${cat}</p>
                 <h1 id="pName" data-split>${esc(p.name)}</h1>
-                <div class="pdp__rating"><span class="stars" aria-hidden="true">${I("star").repeat(Math.round(p.rating || 5))}</span><strong>${(p.rating || 5).toFixed(1)}</strong><a href="#reviews">${p.reviews || 0} reviews</a></div>
+                ${p.latin ? `<p class="pdp__latin">${esc(p.latin)}</p>` : ""}
                 <p class="lede">${esc(p.desc || p.short)}</p>
                 <div class="pdp__price" aria-live="polite"><b id="price"></b><small id="per"></small>${p.compareAt && +p.compareAt > FV.cardPrice(p).value ? `<s>${FV.money(+p.compareAt)}</s>` : ""}</div>
                 <p class="pdp__sub">${isKg ? "Price updates as you choose your weight — gentle savings on bigger baskets." : p.unit === "bunch" ? "Sold by the bunch, cut to order." : "Sold as a single piece, hand-selected."}</p>
-                ${scarce ? `<div class="avail" id="avail"><div class="avail__top"><span class="avail__label">Selling fast this week</span><span class="avail__pct" id="availPct">${pct}%</span></div><div class="avail__bar"><i id="availFill"></i></div><p class="avail__note">${pct}% of this week's allocation claimed. ${seasonal ? "In season now — a short window while it's at its best." : "A small, limited allocation each week."}</p></div>` : ""}
+                ${harvestHTML(p)}
                 ${isKg ? `<div class="pick"><div class="pick__lab"><span>Select weight</span><b id="selLabel">1 kg</b></div>
                   <div class="seg" id="weights" role="group" aria-label="Weight">${FV.weightOptions.map((w) => `<button type="button" data-g="${w.g}" aria-pressed="${!!w.default}">${w.label}</button>`).join("")}</div>
                   <p class="pick__save" id="saveNote" aria-live="polite"></p></div>` : ""}
                 <div class="pdp__buy" id="buyRow">
                   ${qtyHTML()}
-                  <button class="btn btn--lg" type="button" id="addBtn"${sold ? " disabled" : ""}><span class="lbl">${sold ? "Sold out" : "Add to basket"}</span> · <span id="btnTotal"></span><span class="btn__ic">${I("bag")}</span></button>
+                  <button class="btn btn--lg" type="button" id="addBtn"${sold ? " disabled" : ""}><span class="lbl">${sold ? "Sold out" : "Add to basket"}</span> · <span id="btnTotal"></span><span class="btn__ic">${I("arrow")}</span></button>
                   <button class="pdp__wish" type="button" data-wish="${p.slug}" aria-label="Save ${esc(p.name)} to wishlist" aria-pressed="false">${I("heart")}</button>
                 </div>
                 <div class="cutoff">${I("clock")}<span>Order within <b id="cutoffTime"></b> for next-day delivery.</span></div>
@@ -154,7 +156,7 @@
                 <div class="acc">
                   <details open><summary>The detail<span class="pm" aria-hidden="true"></span></summary><div class="acc__panel"><p>${esc(p.desc || "")} ${esc(p.short || "")}</p></div></details>
                   <details><summary>Storage &amp; care<span class="pm" aria-hidden="true"></span></summary><div class="acc__panel"><p>${esc(p.storage || "Keep cool and dry.")}</p></div></details>
-                  <details><summary>Origin &amp; season<span class="pm" aria-hidden="true"></span></summary><div class="acc__panel"><p>Grown in ${esc(p.origin)}. At its best ${String(p.season).toLowerCase() === "all year" ? "all year round" : "during " + esc(p.season)}. Selected only from lots that meet export specification.</p></div></details>
+                  <details><summary>Origin &amp; season<span class="pm" aria-hidden="true"></span></summary><div class="acc__panel"><p>Grown in ${esc(p.origin)}${p.latin ? " (" + esc(p.latin) + ")" : ""}. At its best ${String(p.season).toLowerCase() === "all year" ? "all year round" : "during " + esc(p.season)}. Selected only from lots that meet export specification.</p></div></details>
                   ${n.energy ? `<details><summary>Nutrition<span class="pm" aria-hidden="true"></span></summary><div class="acc__panel"><table class="nutri"><caption>Typical values · ${esc(n.serving)}</caption><tbody><tr><td>Energy</td><td>${esc(n.energy)}</td></tr><tr><td>Carbohydrate</td><td>${esc(n.carbs)}</td></tr><tr><td>of which sugars</td><td>${esc(n.sugars)}</td></tr><tr><td>Fibre</td><td>${esc(n.fibre)}</td></tr><tr><td>Vitamin C</td><td>${esc(n.vitc)}</td></tr></tbody></table></div></details>` : ""}
                 </div>
               </div>
@@ -162,10 +164,10 @@
           </div>
         </section>
 
-        ${pair.length ? `<section class="s sec band--kraft">
+        ${pair.length ? `<section class="s sec band--mist">
           <div class="wrap wrap--wide">
             <div class="head pair-head"><div class="head__main"><p class="eyebrow">For the table</p><h2 data-split>Pairs beautifully <em class="i">with</em></h2></div>
-              ${pair.length >= 2 ? `<div class="head__actions"><button class="btn btn--olive" type="button" id="addPair">Add the pairing · ${FV.money(pair.reduce((s, x) => s + FV.defaultVariant(x).price, 0))}<span class="btn__ic">${I("plus")}</span></button></div>` : ""}</div>
+              ${pair.length >= 2 ? `<div class="head__actions"><button class="btn" type="button" id="addPair">Add the pairing · ${FV.money(pair.reduce((s, x) => s + FV.defaultVariant(x).price, 0))}<span class="btn__ic">${I("plus")}</span></button></div>` : ""}</div>
             <div class="grid-products">${pair.map(FV.productCardHTML).join("")}</div>
           </div></section>` : ""}
 
@@ -174,35 +176,27 @@
             <div class="host-rec" data-reveal>
               <div class="host-rec__img">${S.img("pepper-medley", { sizes: "220px", alt: "The Hosting Box" })}</div>
               <div><p class="eyebrow">Hosting recommendation</p><h3>Make it a table, <em class="i">not a plate</em>.</h3><p>Add The Hosting Box and let us arrange the rest — fruit, dates and a finishing herb, ready for guests.</p></div>
-              <a class="btn btn--olive" href="product.html?box=hosting-box">Explore the box<span class="btn__ic">${I("arrow")}</span></a>
+              <a class="btn" href="product.html?box=hosting-box">Explore the box<span class="btn__ic">${I("arrow")}</span></a>
             </div>
           </div>
         </section>
 
-        <section class="s sec band--paper" id="reviews">
-          <div class="wrap wrap--wide">
-            <div class="head"><div class="head__main"><p class="eyebrow">From our hosts</p><h2 data-split>Loved at <em class="i">real tables</em></h2></div>
-              <div class="head__actions"><span class="rating-pill"><b>${(p.rating || 5).toFixed(1)}</b><span class="stars">${I("star").repeat(5)}</span><span>${p.reviews || 0} reviews</span></span></div></div>
-            <div class="rev-grid" data-stagger>${revs.slice(0, 3).map(FV.reviewCardHTML).join("")}</div>
-          </div>
-        </section>
-
-        ${related.length ? `<section class="s sec band--sage">
+        ${related.length ? `<section class="s sec band--paper">
           <div class="wrap wrap--wide">
             <div class="head"><div class="head__main"><p class="eyebrow">More ${cat.toLowerCase()}</p><h2 data-split>You may also <em class="i">like</em></h2></div>
               <div class="head__actions"><a class="link-u" href="products.html?cat=${p.category}">View all ${I("arrow")}</a></div></div>
-            <div class="rail-wrap"><div class="rail" data-cursor="Drag">${related.map(FV.productCardHTML).join("")}</div><div class="rail-progress" aria-hidden="true"><i></i></div></div>
+            <div class="rail-wrap"><div class="rail">${related.map(FV.productCardHTML).join("")}</div><div class="rail-progress" aria-hidden="true"><i></i></div></div>
           </div></section>` : ""}
 
-        ${recents.length >= 2 ? `<section class="s sec band--paper">
+        ${recents.length >= 2 ? `<section class="s sec band--mist">
           <div class="wrap wrap--wide">
             <div class="head"><div class="head__main"><p class="eyebrow">Pick up where you left off</p><h2 data-split>Recently <em class="i">viewed</em></h2></div></div>
-            <div class="rail-wrap"><div class="rail" data-cursor="Drag">${recents.map(FV.productCardHTML).join("")}</div><div class="rail-progress" aria-hidden="true"><i></i></div></div>
+            <div class="rail-wrap"><div class="rail">${recents.map(FV.productCardHTML).join("")}</div><div class="rail-progress" aria-hidden="true"><i></i></div></div>
           </div></section>` : ""}
 
         <div class="sticky-buy" id="stickyBuy" aria-hidden="true" inert>
           <div class="sticky-buy__info"><strong>${esc(p.name)}</strong><span id="stickyPrice"></span></div>
-          <button class="btn btn--olive btn--sm" type="button" id="stickyAdd"${sold ? " disabled" : ""}>${sold ? "Sold out" : "Add to basket"}<span class="btn__ic">${I("bag")}</span></button>
+          <button class="btn btn--light btn--sm" type="button" id="stickyAdd"${sold ? " disabled" : ""}>${sold ? "Sold out" : "Add to basket"}<span class="btn__ic">${I("bag")}</span></button>
         </div>`;
 
         FV.recent.push(p.slug);
@@ -241,16 +235,10 @@
           FV.toast(pair.length + " items added", "The pairing", true);
           if (window.FVMotion) window.FVMotion.fly(ap);
         });
-        const fill = $("availFill");
-        if (fill) {
-          const run = () => { fill.style.width = pct + "%"; };
-          if ("IntersectionObserver" in window) { const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { run(); io.disconnect(); } }), { threshold: 0.4 }); io.observe($("avail")); } else run();
-        }
         refresh(); cutoff(); stickyBar("#buyRow"); FV.updateWishUI();
         S.behave(root);
         ld({ "@context": "https://schema.org", "@type": "Product", name: p.name, description: p.desc, image: p.noPhoto ? [] : [new URL(custom ? p.image : FV.img(p.slug), location.href).href], brand: { "@type": "Brand", name: "Fresh Valley" }, category: cat,
-          offers: { "@type": "Offer", priceCurrency: FV.settings.currency, price: isKg ? FV.priceForWeight(p, 1000) : p.pricePerUnit, availability: sold ? "https://schema.org/OutOfStock" : "https://schema.org/InStock", url: location.href },
-          aggregateRating: { "@type": "AggregateRating", ratingValue: p.rating, reviewCount: p.reviews } });
+          offers: { "@type": "Offer", priceCurrency: FV.settings.currency, price: isKg ? FV.priceForWeight(p, 1000) : p.pricePerUnit, availability: sold ? "https://schema.org/OutOfStock" : "https://schema.org/InStock", url: location.href } });
       }
 
       /* ============================== BOX ============================== */
@@ -258,7 +246,6 @@
         meta(b.name, b.tagline + " " + b.desc);
         const RIBBONS = [["Mid Forest", "#2D4630"], ["Charcoal", "#2A2622"]];
         const others = FV.data.boxes.filter((x) => x.slug !== b.slug);
-        const revs = reviewsFor([b.name], ["Hosting Box", "The Art of Hosting"]);
         const sold = FV.soldOut(b);
         root.innerHTML = `
         <section class="s pdp" aria-labelledby="pName">
@@ -267,17 +254,16 @@
             <div class="pdp__grid">
               <div class="pdp__media">
                 <div class="pdp__frame" data-clip>${FV.picture(b.image, "(max-width: 1100px) 92vw, 50vw", b.name, { eager: true })}
-                  <div class="pdp__flags"><span class="chip chip--olive">${I("gift")} Curated box</span>${b.slug === "hosting-box" ? `<span class="chip chip--glass">${I("star")} Most gifted</span>` : ""}</div>
-                  <div class="sticker pdp__stamp" aria-hidden="true"><svg class="ring" viewBox="0 0 120 120"><defs><path id="stkBox" d="M60 60m-47 0a47 47 0 1 1 94 0a47 47 0 1 1-94 0"/></defs><text><textPath href="#stkBox" textLength="292" lengthAdjust="spacing">Wrapped by hand • Tied in ribbon •</textPath></text></svg><span class="sticker__core">${S.ART.leaf}</span></div>
+                  <div class="pdp__flags"><span class="tag">Curated box</span>${b.slug === "hosting-box" ? `<span class="tag">Most gifted</span>` : ""}</div>
                 </div>
                 <div class="pdp__facts">
-                  <div class="fact">${I("gift")}<small>Presentation</small><strong>Arranged &amp; wrapped</strong></div>
-                  <div class="fact">${I("snow")}<small>Handling</small><strong>Cold-chain to door</strong></div>
-                  <div class="fact">${I("truck")}<small>Delivery</small><strong>Next-day, ready to serve</strong></div>
+                  <div class="fact"><small>Presentation</small><strong>Arranged &amp; wrapped</strong></div>
+                  <div class="fact"><small>Handling</small><strong>Kept cold to your door</strong></div>
+                  <div class="fact"><small>Delivery</small><strong>Next-day, ready to serve</strong></div>
                 </div>
               </div>
               <div class="pdp__info">
-                <div class="row"><span class="chip chip--soft">Fresh Valley boxes</span></div>
+                <p class="eyebrow">Fresh Valley boxes</p>
                 <h1 id="pName" data-split>${esc(b.name)}</h1>
                 <p class="lede">${esc(b.desc)}</p>
                 <div class="pdp__price" aria-live="polite"><b id="price"></b><small id="per"></small></div>
@@ -290,13 +276,13 @@
                   <span class="hint"><span>We write it by hand and tuck it in the box.</span><span id="noteCount">0 / 200</span></span></div>
                 <div class="pdp__buy" id="buyRow">
                   ${qtyHTML()}
-                  <button class="btn btn--lg" type="button" id="addBtn"${sold ? " disabled" : ""}><span class="lbl">${sold ? "Sold out" : "Add box"}</span> · <span id="btnTotal"></span><span class="btn__ic">${I("gift")}</span></button>
+                  <button class="btn btn--lg" type="button" id="addBtn"${sold ? " disabled" : ""}><span class="lbl">${sold ? "Sold out" : "Add box"}</span> · <span id="btnTotal"></span><span class="btn__ic">${I("arrow")}</span></button>
                 </div>
                 <div class="cutoff">${I("clock")}<span>Order within <b id="cutoffTime"></b> for next-day delivery.</span></div>
                 ${trustList()}
                 <div class="acc">
                   <details open><summary>What's inside<span class="pm" aria-hidden="true"></span></summary><div class="acc__panel"><ul class="includes">${(b.includes || []).map((i) => `<li>${I("check")}<span>${esc(i)}</span></li>`).join("")}</ul><p class="muted small" style="margin-top:.8rem">Contents adapt to the season, so every box is at its peak.</p></div></details>
-                  <details><summary>How it arrives<span class="pm" aria-hidden="true"></span></summary><div class="acc__panel"><p>Composed like a still life, wrapped in our own pressed-leaf paper and tied with the ribbon you choose. Delivered cold, next-day, in the slot you pick at checkout.</p></div></details>
+                  <details><summary>How it arrives<span class="pm" aria-hidden="true"></span></summary><div class="acc__panel"><p>Composed like a still life, wrapped by hand in our own paper and tied with the ribbon you choose. Delivered cold, next-day, in the slot you pick at checkout.</p></div></details>
                   <details><summary>Freshness promise<span class="pm" aria-hidden="true"></span></summary><div class="acc__panel"><p>Everything is graded to export standard. If anything isn't perfect, tell us within 24 hours and we'll replace or refund it — no debate.</p></div></details>
                 </div>
               </div>
@@ -304,24 +290,17 @@
           </div>
         </section>
 
-        <section class="s sec band--paper" id="reviews">
-          <div class="wrap wrap--wide">
-            <div class="head"><div class="head__main"><p class="eyebrow">From our hosts</p><h2 data-split>The gift they <em class="i">remembered</em></h2></div></div>
-            <div class="rev-grid" data-stagger>${revs.slice(0, 3).map(FV.reviewCardHTML).join("")}</div>
-          </div>
-        </section>
-
-        <section class="s sec band--kraft">
+        <section class="s sec band--mist">
           <div class="wrap wrap--wide">
             <div class="head"><div class="head__main"><p class="eyebrow">More boxes</p><h2 data-split>Other ways to <em class="i">host</em></h2></div>
               <div class="head__actions"><a class="link-u" href="products.html?cat=boxes">All boxes ${I("arrow")}</a></div></div>
-            <div class="deck deck--3" data-fan>${others.slice(0, 3).map(FV.boxCardHTML).join("")}</div>
+            <div class="deck deck--3" data-stagger>${others.slice(0, 3).map(FV.boxCardHTML).join("")}</div>
           </div>
         </section>
 
         <div class="sticky-buy" id="stickyBuy" aria-hidden="true" inert>
           <div class="sticky-buy__info"><strong>${esc(b.name)}</strong><span id="stickyPrice"></span></div>
-          <button class="btn btn--olive btn--sm" type="button" id="stickyAdd"${sold ? " disabled" : ""}>Add box<span class="btn__ic">${I("gift")}</span></button>
+          <button class="btn btn--light btn--sm" type="button" id="stickyAdd"${sold ? " disabled" : ""}>Add box<span class="btn__ic">${I("arrow")}</span></button>
         </div>`;
 
         let tier = 0, qty = 1, ribbon = RIBBONS[0][0];

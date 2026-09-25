@@ -83,7 +83,7 @@
     user: sv('<circle cx="12" cy="8" r="4"/><path d="M4 20.5c0-3.6 3.6-6.2 8-6.2s8 2.6 8 6.2"/>'),
     heart: sv('<path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 7 4.5c2.1 0 3.6 1.2 5 3 1.4-1.8 2.9-3 5-3 3.6 0 5.6 3.5 4.3 6.8-1.8 4.6-9.3 9.2-9.3 9.2Z"/>'),
     bag: sv('<path d="M5.5 8.5h13l-1 11.2a1.8 1.8 0 0 1-1.8 1.6H8.3a1.8 1.8 0 0 1-1.8-1.6l-1-11.2Z"/><path d="M9 8.5V7a3 3 0 0 1 6 0v1.5"/>'),
-    menu: sv('<path d="M4 8h16M4 16h10"/>', 1.9),
+    menu: sv('<path d="M4 9h16M8 15h12"/>', 1.4),
     home: sv('<path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z"/>'),
     grid: sv('<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>'),
     close: sv('<path d="m6 6 12 12M18 6 6 18"/>'),
@@ -157,6 +157,40 @@
   }
   const isCustomImg = (s) => /^(https?:|data:|\/|assets\/)/.test(s || "");
 
+  /* ------------------------------------------------------------------ *
+   * Seasons — "Dec – Mar" → 12 months, the almanac, what's at peak now
+   * ------------------------------------------------------------------ */
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  function seasonMonths(p) {
+    const s = String((p && p.season) || "").trim();
+    if (!s || /all\s*year/i.test(s)) return { all: true, m: MONTHS.map(() => true) };
+    const found = (s.match(/[A-Za-z]{3}/g) || []).map((x) => MONTHS.findIndex((m) => m.toLowerCase() === x.toLowerCase())).filter((i) => i > -1);
+    if (!found.length) return { all: true, m: MONTHS.map(() => true) };
+    const a = found[0], b = found.length > 1 ? found[found.length - 1] : a, m = MONTHS.map(() => false);
+    for (let i = a; ; i = (i + 1) % 12) { m[i] = true; if (i === b) break; }
+    return { all: false, m };
+  }
+  const inSeasonNow = (p) => { const s = seasonMonths(p); return !s.all && s.m[new Date().getMonth()]; };
+  function peakNow(n) {
+    const mo = new Date().getMonth(), out = [];
+    const push = (arr) => arr.forEach((p) => { if (out.length < n && !out.includes(p) && seasonMonths(p).m[mo]) out.push(p); });
+    push(D.products.filter(inSeasonNow));
+    push(D.products.filter((p) => (p.collections || []).includes("seasonal")));
+    push(D.products.filter((p) => (p.collections || []).includes("best-sellers")));
+    return out;
+  }
+  function almanac(d) {
+    d = d || new Date();
+    const start = new Date(d.getFullYear(), 0, 1), week = Math.ceil(((d - start) / 864e5 + start.getDay() + 1) / 7);
+    const mo = d.getMonth();
+    const season = [11, 0, 1].includes(mo) ? "winter" : mo <= 4 ? "spring" : mo <= 7 ? "summer" : "autumn";
+    const startMo = { winter: 11, spring: 2, summer: 5, autumn: 8 }[season];
+    const pos = (mo - startMo + 12) % 12;
+    return { week, month: MONTHS_LONG[mo], season, phase: ["Early", "Mid", "Late"][pos] + " " + season, text: "Week " + week + " · " + ["Early", "Mid", "Late"][pos] + " " + season + " in the valley" };
+  }
+  const originShort = (o) => String(o || "").replace(/,\s*Egypt$/i, "");
+
   const FV = (window.FV = {
     data: D, icon: (n) => I[n] || "", payMark: (k) => PAY[k] || "", payMarks: PAY_MARKS, esc,
     money, weightOptions, weightLabel, priceForWeight, cardPrice, defaultVariant,
@@ -169,11 +203,13 @@
     findBox: (slug) => D.boxes.find((b) => b.slug === slug),
     byCategory: (c) => D.products.filter((p) => p.category === c),
     byCollection: (c) => {
-      if (c === "premium") return D.products.filter((p) => (p.pricePerKg >= 110 || p.pricePerUnit >= 130) && (p.rating || 0) >= 4.7);
+      if (c === "premium") return D.products.filter((p) => p.pricePerKg >= 110 || p.pricePerUnit >= 130);
+      if (c === "now") return peakNow(24);
       if (c === "organic") return D.products.filter((p) => (p.badges || []).includes("organic") || (p.collections || []).includes("organic-reserve"));
       return D.products.filter((p) => (p.collections || []).includes(c));
     },
     catalog: CATALOG,
+    MONTHS, seasonMonths, inSeasonNow, peakNow, almanac, originShort,
   });
   FV.stock = (slug) => { const p = FV.find(slug) || FV.findBox(slug); return p && p.stock != null && p.stock !== "" ? +p.stock : null; };
   FV.soldOut = (p) => !!p && p.stock != null && p.stock !== "" && +p.stock <= 0;
@@ -401,7 +437,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
         <a class="hdr__logo" href="index.html" aria-label="${esc(SETTINGS.storeName)} — home">
           <img src="assets/img/logo-sm.png" srcset="assets/img/logo-sm.png 1x, assets/img/logo.png 2x" alt="${esc(SETTINGS.storeName)}" width="61" height="40">
         </a>
-        <nav class="nav" aria-label="Primary"><ul>${nav}</ul><span class="nav__hover" aria-hidden="true"></span><span class="nav__pill" aria-hidden="true"></span></nav>
+        <nav class="nav" aria-label="Primary"><ul>${nav}</ul></nav>
         <div class="hdr__actions">
           <button class="icon-btn" id="searchBtn" aria-label="Search" aria-haspopup="dialog">${I.search}</button>
           <a class="icon-btn hide-sm" href="account.html" aria-label="Account">${I.user}</a>
@@ -413,59 +449,59 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
     </header>`;
   }
 
-  const ART_SPRIG = '<svg class="art" viewBox="0 0 200 260" aria-hidden="true"><path d="M100 255C98 190 104 120 96 10"/><path d="M99 222c-18-4-34-16-42-32 16-1 32 8 42 24"/><path d="M100 196c17-5 31-18 38-35-16 0-30 11-38 27"/><path d="M99 168c-19-3-35-15-44-31 17-2 33 7 43 23"/><path d="M100 140c17-5 31-18 38-35-16 0-30 11-38 27"/><path d="M98 112c-18-3-33-14-41-29 16-2 31 6 40 21"/><path d="M99 86c15-5 27-16 33-31-14 1-26 10-33 24"/><path d="M97 60c-15-3-27-12-34-25 13-1 26 6 33 18"/><path d="M97 36c12-4 21-12 26-24-11 1-20 8-26 18"/></svg>';
+  function socialLinks() {
+    const s = TS.social || {};
+    return `${s.instagram ? `<a href="${esc(s.instagram)}" aria-label="Instagram" target="_blank" rel="noopener">${I.instagram}</a>` : ""}${s.facebook ? `<a href="${esc(s.facebook)}" aria-label="Facebook" target="_blank" rel="noopener">${I.facebook}</a>` : ""}${s.tiktok ? `<a href="${esc(s.tiktok)}" aria-label="TikTok" target="_blank" rel="noopener">${I.tiktok}</a>` : ""}`;
+  }
 
   function buildMenu() {
     const extra = [
       { label: "My account", href: "account.html" }, { label: "Wishlist", href: "wishlist.html" }, { label: "Contact", href: "contact.html" }, { label: "Delivery areas", href: "contact.html#areas" },
     ];
-    const s = TS.social || {}, c = TS.contact || {};
+    const c = TS.contact || {}, al = almanac();
     return `<div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Menu" aria-hidden="true" inert data-lenis-prevent>
-      <img class="menu__logo" src="assets/img/logo-cream-sm.png" srcset="assets/img/logo-cream-sm.png 1x, assets/img/logo-cream.png 2x" alt="" width="58" height="38">
-      <button class="icon-btn menu__close" data-close aria-label="Close menu">${I.close}</button>
-      <nav aria-label="Menu"><a href="index.html"><small>00</small>Home</a>${NAV.map((n, i) => `<a href="${esc(n.href)}"><small>${String(i + 1).padStart(2, "0")}</small>${esc(n.label)}</a>`).join("")}</nav>
-      <div class="menu__sub">${extra.map((e) => `<a href="${e.href}">${e.label}</a>`).join("")}</div>
-      <div class="menu__foot">
-        <div>${c.whatsapp ? `<a class="btn btn--olive btn--sm" href="https://wa.me/${esc(c.whatsapp)}" target="_blank" rel="noopener">WhatsApp us<span class="btn__ic">${I.whatsapp}</span></a>` : ""}</div>
-        <div class="ftr__social">${s.instagram ? `<a href="${esc(s.instagram)}" aria-label="Instagram" target="_blank" rel="noopener">${I.instagram}</a>` : ""}${s.facebook ? `<a href="${esc(s.facebook)}" aria-label="Facebook" target="_blank" rel="noopener">${I.facebook}</a>` : ""}${s.tiktok ? `<a href="${esc(s.tiktok)}" aria-label="TikTok" target="_blank" rel="noopener">${I.tiktok}</a>` : ""}</div>
+      <div class="menu__scrim" data-close></div>
+      <div class="menu__panel">
+        <div class="menu__top">
+          <span class="menu__almanac">${esc(al.text)}</span>
+          <button class="icon-btn menu__close" data-close aria-label="Close menu">${I.close}</button>
+        </div>
+        <nav class="menu__nav" aria-label="Menu"><a href="index.html"${pageFile() === "index.html" || pageFile() === "" ? ' aria-current="page"' : ""}><small>01</small>Home</a>${NAV.map((n, i) => `<a href="${esc(n.href)}"${isCurrent(n.href) ? ' aria-current="page"' : ""}><small>${String(i + 2).padStart(2, "0")}</small>${esc(n.label)}</a>`).join("")}</nav>
+        <div class="menu__sub">${extra.map((e) => `<a href="${e.href}">${e.label}</a>`).join("")}</div>
+        <div class="menu__foot">
+          ${c.whatsapp ? `<a class="link-u" href="https://wa.me/${esc(c.whatsapp)}" target="_blank" rel="noopener">${I.whatsapp}WhatsApp us</a>` : ""}
+          <div class="social">${socialLinks()}</div>
+        </div>
       </div>
-      <div class="menu__art">${ART_SPRIG}</div>
     </div>`;
   }
 
   function buildFooter() {
-    const f = TS.footer || {}, s = TS.social || {}, c = TS.contact || {};
+    const f = TS.footer || {}, c = TS.contact || {};
     const cols = (f.columns || []).map((col) => `<div class="ftr__col"><h3>${esc(col.title)}</h3>${(col.links || []).map((l) => `<a href="${esc(l.href)}">${esc(l.label)}</a>`).join("")}</div>`).join("");
     return `<footer class="ftr" id="siteFooter">
-      <div class="ftr__art" aria-hidden="true">${ART_SPRIG}</div>
       <div class="wrap wrap--wide">
         <div class="ftr__top">
-          <h2 class="ftr__title" data-split>${md(f.title || "Eat with the season.")}</h2>
-          <div class="ftr__news">
-            <p>${esc(f.newsletter_text || "")}</p>
-            <form class="news-form" data-newsletter novalidate>
-              <label class="sr-only" for="ftrEmail">Email address</label>
-              <input id="ftrEmail" type="email" required placeholder="Your email address" autocomplete="email">
-              <button class="btn btn--olive btn--sm" type="submit">Subscribe<span class="btn__ic">${I.arrow}</span></button>
-            </form>
+          <h2 class="ftr__title" data-split>${md(f.title || "From the valley, *with care.*")}</h2>
+          <div class="ftr__intro">
+            <p>${esc(f.blurb || "")}</p>
+            <div class="ftr__contact">${c.phone ? `<a href="tel:${esc(c.phone.replace(/\s/g, ""))}">${esc(c.phone)}</a>` : ""}${c.email ? `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : ""}${c.hours ? `<span>${esc(c.hours)}</span>` : ""}</div>
           </div>
         </div>
         <div class="ftr__cols">
           <div class="ftr__brand">
             <img src="assets/img/logo-cream-sm.png" srcset="assets/img/logo-cream-sm.png 1x, assets/img/logo-cream.png 2x" alt="${esc(SETTINGS.storeName)}" width="86" height="56" loading="lazy">
-            <p>${esc(f.blurb || "")}</p>
-            <div class="ftr__contact">${c.phone ? `<a href="tel:${esc(c.phone.replace(/\s/g, ""))}">${I.phone}<span>${esc(c.phone)}</span></a>` : ""}${c.email ? `<a href="mailto:${esc(c.email)}">${I.mail}<span>${esc(c.email)}</span></a>` : ""}</div>
+            <p class="ftr__almanac">${esc(almanac().text)}</p>
           </div>
           ${cols}
         </div>
         <div class="ftr__bottom">
           <span>© ${new Date().getFullYear()} ${esc(SETTINGS.storeName)} · ${esc(c.city || "Cairo, Egypt")}</span>
           <div class="pay-row" aria-label="Accepted payment methods">${PAY_MARKS}${PAY.cod}</div>
-          <div class="ftr__social">${s.instagram ? `<a href="${esc(s.instagram)}" aria-label="Instagram" target="_blank" rel="noopener">${I.instagram}</a>` : ""}${s.facebook ? `<a href="${esc(s.facebook)}" aria-label="Facebook" target="_blank" rel="noopener">${I.facebook}</a>` : ""}${s.tiktok ? `<a href="${esc(s.tiktok)}" aria-label="TikTok" target="_blank" rel="noopener">${I.tiktok}</a>` : ""}</div>
-          <a class="admin-link" href="admin/index.html">${I.gear} Store admin</a>
+          <div class="social">${socialLinks()}</div>
+          <a class="admin-link" href="admin/index.html">Store admin</a>
         </div>
       </div>
-      <div class="ftr__mega" aria-hidden="true"><div class="ftr__mega-logo" data-parallax="-12"></div></div>
     </footer>`;
   }
 
@@ -484,14 +520,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
         <div class="search__chips" id="searchChips">${popular.map((p) => `<button class="chip" type="button" data-q="${p}">${p}</button>`).join("")}</div>
       </div>
     </div>
-    <div class="toasts" id="toastWrap" aria-live="polite" aria-atomic="false"></div>
-    <nav class="tabbar" aria-label="Quick navigation">
-      <a href="index.html" data-tab="index" aria-label="Home">${I.home}</a>
-      <a href="products.html" data-tab="products" aria-label="Shop">${I.grid}</a>
-      <button id="tabSearch" aria-label="Search">${I.search}</button>
-      <a href="wishlist.html" data-tab="wishlist" aria-label="Wishlist">${I.heart}</a>
-      <button id="tabCart" aria-label="Cart">${I.bag}<span class="badge-count" id="tabCartCount" data-n="0" aria-hidden="true"></span></button>
-    </nav>`;
+    <div class="toasts" id="toastWrap" aria-live="polite" aria-atomic="false"></div>`;
   }
 
   /* ------------------------------------------------------------------ *
@@ -524,6 +553,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
     setTimeout(() => { const b = $("#cartDrawer [data-close]"); b && b.focus(); }, 80);
   }
   function openMenu() {
+    if (openPanel) closeAll();
     lastTrigger = document.activeElement;
     show($("#menu")); $("#menuBtn").setAttribute("aria-expanded", "true");
     lockScroll(true); openPanel = "menu";
@@ -564,7 +594,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
     if (!body) return;
     $("#cartTitle").innerHTML = `Your basket${cart.length ? ` <small class="muted">(${FV.cart.count()})</small>` : ""}`;
     if (!cart.length) {
-      body.innerHTML = `<div class="empty"><div class="empty__art">${ART_SPRIG}</div><h3>Your basket is empty.</h3><p>The season is waiting — start with a best seller.</p><a class="btn btn--sm" href="products.html" style="margin-top:1.2rem">Browse the market<span class="btn__ic">${I.arrow}</span></a></div>`;
+      body.innerHTML = `<div class="empty"><p class="eyebrow">Your basket</p><h3>Nothing picked <em class="i">yet</em>.</h3><p>The season is waiting — start with what is at its peak.</p><a class="btn btn--sm" href="products.html" style="margin-top:1.4rem">Shop the harvest<span class="btn__ic">${I.arrow}</span></a></div>`;
       foot.innerHTML = ""; return;
     }
     body.innerHTML = shipMeter(FV.cart.subtotal()) + cart.map((it) => `
@@ -589,10 +619,9 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
   function updateCartUI() {
     const c = FV.cart.count();
     const label = c ? `Cart, ${c} item${c > 1 ? "s" : ""}` : "Cart, empty";
-    ["#cartCount", "#tabCartCount"].forEach((s) => { const el = $(s); if (el) { el.dataset.n = c; el.classList.toggle("show", c > 0); if (lastCount != null && c > lastCount && window.FVMotion) window.FVMotion.bump(el); } });
+    ["#cartCount"].forEach((s) => { const el = $(s); if (el) { el.dataset.n = c; el.classList.toggle("show", c > 0); if (lastCount != null && c > lastCount && window.FVMotion) window.FVMotion.bump(el); } });
     lastCount = c;
     $("#cartBtn") && $("#cartBtn").setAttribute("aria-label", label);
-    $("#tabCart") && $("#tabCart").setAttribute("aria-label", label);
     if (openPanel === "cart") renderCartDrawer();
     document.dispatchEvent(new CustomEvent("fv:cart"));
   }
@@ -637,7 +666,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
     res.innerHTML = [
       ...ps.map((p) => `<a class="search__row" href="product.html?slug=${p.slug}">${p.noPhoto ? `<span class="media--herb" style="width:54px;height:54px;border-radius:12px;display:grid;place-items:center">${I.leaf2}</span>` : `<img src="${isCustomImg(p.image) ? p.image : FV.thumb(p.slug)}" alt="" loading="lazy">`}<span><strong>${esc(p.name)}</strong><em>${esc(p.category)} · ${money(cardPrice(p).value)} ${cardPrice(p).per}</em></span></a>`),
       ...bs.map((b) => `<a class="search__row" href="product.html?box=${b.slug}"><img src="${FV.thumb(b.image)}" alt="" loading="lazy"><span><strong>${esc(b.name)}</strong><em>Box · from ${money(Math.min(...b.tiers.map((t) => t.price)))}</em></span></a>`),
-      ...as.map((a) => `<a class="search__row" href="article.html?slug=${a.slug}"><img src="${FV.thumb(a.image)}" alt="" loading="lazy"><span><strong>${esc(a.title)}</strong><em>Journal · ${esc(a.read)}</em></span></a>`),
+      ...as.map((a) => `<a class="search__row" href="article.html?slug=${a.slug}"><img src="${FV.thumb(a.image)}" alt="" loading="lazy"><span><strong>${esc(a.title)}</strong><em>Field notes · ${esc(a.read)}</em></span></a>`),
     ].join("") + `<a class="search__all" href="products.html?q=${encodeURIComponent(q)}">See all results for “${esc(q)}” ${I.arrow}</a>`;
   }
 
@@ -646,18 +675,17 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
    * ------------------------------------------------------------------ */
   function topLabel(p) {
     const b = p.badges || [], c = p.collections || [];
-    if (b.includes("export")) return "Export-grade";
+    if (inSeasonNow(p)) return "In season";
     if (b.includes("organic")) return "Organic";
-    if (c.includes("best-sellers")) return "Bestseller";
-    if (b.includes("seasonal")) return "In season";
+    if (b.includes("export")) return "Export-grade";
+    if (c.includes("best-sellers")) return "House favourite";
     return p.category ? p.category.charAt(0).toUpperCase() + p.category.slice(1) : "Fresh Valley";
   }
   FV.topLabel = topLabel;
   function flag(p) {
-    if (FV.soldOut(p)) return `<span class="chip chip--forest pcard__tag">Sold out</span>`;
-    if (p.compareAt && +p.compareAt > cardPrice(p).value) return `<span class="chip chip--pom pcard__tag">−${Math.round((1 - cardPrice(p).value / +p.compareAt) * 100)}%</span>`;
-    if ((p.collections || []).includes("seasonal")) return `<span class="chip chip--glass pcard__tag">${I.sparkle} In season</span>`;
-    if ((p.collections || []).includes("best-sellers")) return `<span class="chip chip--glass pcard__tag">${I.star} Bestseller</span>`;
+    if (FV.soldOut(p)) return `<span class="tag tag--dark pcard__tag">Sold out</span>`;
+    if (p.compareAt && +p.compareAt > cardPrice(p).value) return `<span class="tag tag--pom pcard__tag">−${Math.round((1 - cardPrice(p).value / +p.compareAt) * 100)}%</span>`;
+    if (inSeasonNow(p)) return `<span class="tag pcard__tag">In season</span>`;
     return "";
   }
   FV.picture = function (slug, sizes, alt, opt) {
@@ -665,57 +693,55 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
     if (isCustomImg(slug)) return `<img src="${esc(slug)}" alt="${esc(alt || "")}" loading="${opt.eager ? "eager" : "lazy"}" decoding="async">`;
     return `<picture><source type="image/webp" srcset="${FV.webp(FV.thumb(slug))} 540w, ${FV.webp(FV.img(slug))} 1000w" sizes="${sizes}"><img src="${FV.thumb(slug)}" srcset="${FV.thumb(slug)} 540w, ${FV.img(slug)} 1000w" sizes="${sizes}" alt="${esc(alt || "")}" loading="${opt.eager ? "eager" : "lazy"}" decoding="async" width="540" height="540"></picture>`;
   };
-  function herbArt(name) {
-    return `<div class="pcard__media media--herb" data-placeholder="true"><svg class="art herb-art" viewBox="0 0 120 150" aria-hidden="true"><path d="M60 146C58 110 62 70 58 8"/><path d="M59 126c-12-3-22-11-27-21 11 0 21 6 27 16"/><path d="M60 108c11-3 20-11 24-22-11 0-20 7-24 17"/><path d="M59 90c-12-2-22-10-28-20 11-1 21 5 27 15"/><path d="M60 72c11-3 20-11 24-22-11 0-20 7-24 17"/><path d="M58 54c-11-2-20-9-25-18 10-1 19 4 25 13"/><path d="M59 38c9-3 17-10 20-19-9 1-16 6-20 14"/></svg><span>${esc(name)}</span>`;
+  /* Produce without a photograph (cut herbs) gets a typographic field label */
+  function herbTile(p) {
+    return `<span class="herb-tile" aria-hidden="true"><span class="herb-tile__latin">${esc(p.latin || p.name)}</span><span class="herb-tile__note">${p.unit === "bunch" ? "Cut the morning it leaves" : esc(originShort(p.origin))}</span></span>`;
   }
+  FV.herbTile = herbTile;
   FV.productCardHTML = function (p) {
     const cp = cardPrice(p), sold = FV.soldOut(p);
     const wishB = `<button class="pcard__wish" data-wish="${p.slug}" aria-label="Save ${esc(p.name)}" aria-pressed="false">${I.heart}</button>`;
-    const addB = sold ? "" : `<button class="pcard__add" data-add="${p.slug}" aria-label="Add ${esc(p.name)} to basket">${I.plus}</button>`;
     const media = p.noPhoto
-      ? herbArt(p.name) + flag(p) + wishB + addB + `</div>`
-      : `<div class="pcard__media">${FV.picture(isCustomImg(p.image) ? p.image : p.slug, "(max-width:640px) 46vw, (max-width:1180px) 30vw, 300px", p.name)}${flag(p)}${wishB}${addB}</div>`;
+      ? `<div class="pcard__media media--herb">${herbTile(p)}${flag(p)}${wishB}</div>`
+      : `<div class="pcard__media">${FV.picture(isCustomImg(p.image) ? p.image : p.slug, "(max-width:640px) 46vw, (max-width:1180px) 30vw, 320px", p.name)}${flag(p)}${wishB}</div>`;
     const cmp = p.compareAt && +p.compareAt > cp.value ? ` <s class="was">${money(+p.compareAt)}</s>` : "";
+    const season = String(p.season || "").replace(/\s*–\s*/, "–");
     return `<article class="pcard${sold ? " pcard--sold" : ""}" data-reveal>
       ${media}
       <div class="pcard__body">
-        <div class="pcard__meta"><span>${esc(topLabel(p))}</span><span class="pcard__rate">${I.star}${(p.rating || 5).toFixed(1)}</span></div>
-        <h3 class="pcard__name"><a href="product.html?slug=${p.slug}">${esc(p.name)}</a></h3>
-        <div class="pcard__price">${money(cp.value)} <small>${cp.per}</small>${cmp}</div>
+        <div class="pcard__row">
+          <h3 class="pcard__name"><a href="product.html?slug=${p.slug}">${esc(p.name)}</a></h3>
+          <span class="pcard__price">${money(cp.value)} <small>${cp.per}</small>${cmp}</span>
+        </div>
+        ${p.latin ? `<p class="pcard__latin">${esc(p.latin)}</p>` : ""}
+        <div class="pcard__foot">
+          <span class="pcard__origin">${esc(originShort(p.origin))}${season ? ` · ${esc(season)}` : ""}</span>
+          ${sold ? "" : `<button class="pcard__add" data-add="${p.slug}" aria-label="Add ${esc(p.name)} to basket"><span>Add</span>${I.plus}</button>`}
+        </div>
       </div>
     </article>`;
   };
   FV.boxCardHTML = function (b) {
     const from = Math.min(...b.tiers.map((t) => t.price));
-    const tag = b.slug === "hosting-box" ? "Most gifted" : ((b.collections || []).includes("best-sellers") ? "Bestseller" : ((b.collections || []).includes("seasonal") ? "Limited" : ((b.collections || []).includes("organic-reserve") ? "Reserve" : "")));
+    const tag = b.slug === "hosting-box" ? "Most gifted" : ((b.collections || []).includes("seasonal") ? "This month" : ((b.collections || []).includes("organic-reserve") ? "Reserve" : ""));
     return `<article class="bcard" data-reveal>
-      <div class="bcard__media">${FV.picture(b.image, "(max-width:640px) 92vw, (max-width:1180px) 46vw, 320px", b.name)}${tag ? `<span class="chip chip--olive bcard__tag">${I.star} ${tag}</span>` : ""}</div>
+      <div class="bcard__media">${FV.picture(b.image, "(max-width:640px) 92vw, (max-width:1180px) 46vw, 360px", b.name)}${tag ? `<span class="tag bcard__tag">${tag}</span>` : ""}</div>
       <div class="bcard__body">
         <h3 class="bcard__name"><a href="product.html?box=${b.slug}">${esc(b.name)}</a></h3>
         <p class="bcard__tagline">${esc(b.tagline)}</p>
         <div class="bcard__foot">
-          <div class="bcard__price"><small>From</small>${money(from)}</div>
-          <span class="bcard__go" aria-hidden="true">${I.arrowUR}</span>
+          <span class="bcard__price"><small>From</small> ${money(from)}</span>
+          <span class="bcard__go" aria-hidden="true">View box ${I.arrow}</span>
         </div>
       </div>
     </article>`;
   };
-  const AV = ["#2D4630", "#6E5F2E", "#7A2B21", "#4F5A2E", "#2A2622", "#19291C"];
-  FV.reviewCardHTML = function (r) {
-    const initials = r.name.split(" ").map((w) => w[0]).slice(0, 2).join("");
-    let h = 0; for (let i = 0; i < r.name.length; i++) h = (h * 31 + r.name.charCodeAt(i)) >>> 0;
-    return `<article class="rcard">
-      <div class="stars" role="img" aria-label="Rated ${r.stars} out of 5">${I.star.repeat(r.stars)}</div>
-      <p class="rcard__q">${esc(r.text)}</p>
-      <div class="rcard__who"><span class="rcard__av" style="background:${AV[h % AV.length]}">${esc(initials)}</span><span><strong>${esc(r.name)}</strong><small>${esc(r.area)} · ${esc(r.tag)}</small></span></div>
-    </article>`;
-  };
   FV.articleCardHTML = function (a, row) {
-    const media = `<div class="acard__media" data-clip>${FV.picture(a.image, row ? "(max-width:960px) 92vw, 460px" : "(max-width:960px) 92vw, 420px", "")}<span class="chip chip--glass">${esc(a.category)}</span></div>`;
+    const media = `<div class="acard__media" data-clip>${FV.picture(a.image, row ? "(max-width:960px) 92vw, 460px" : "(max-width:960px) 92vw, 440px", "")}</div>`;
     return `<article class="acard${row ? " acard--row" : ""}" data-reveal>
       ${media}
       <div class="acard__body">
-        <span class="acard__meta">${esc(a.date)} · ${esc(a.read)}</span>
+        <span class="acard__meta">${esc(a.category)} · ${esc(a.read)}</span>
         <h3><a href="article.html?slug=${a.slug}">${esc(a.title)}</a></h3>
         <p>${esc(a.excerpt)}</p>
       </div>
@@ -748,18 +774,6 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
   /* ------------------------------------------------------------------ *
    * Wiring
    * ------------------------------------------------------------------ */
-  function navIndicator() {
-    const nav = $(".nav"); if (!nav) return;
-    const pill = $(".nav__pill", nav), hov = $(".nav__hover", nav);
-    const place = (el, a) => { el.style.width = a.offsetWidth + "px"; el.style.transform = "translateX(" + a.offsetLeft + "px)"; el.style.opacity = 1; };
-    const cur = $("a[aria-current]", nav);
-    const set = () => { if (cur) place(pill, cur); };
-    set();
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(set);
-    window.addEventListener("resize", set);
-    $$("a", nav).forEach((a) => a.addEventListener("pointerenter", () => { if (a !== cur) place(hov, a); else hov.style.opacity = 0; }));
-    nav.addEventListener("pointerleave", () => { hov.style.opacity = 0; });
-  }
   function wire() {
     const header = $("#siteHeader");
     const ann = $(".announce");
@@ -768,6 +782,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
       const y = window.scrollY;
       if (header) {
         header.classList.toggle("is-top", y < 12);
+        document.documentElement.classList.toggle("is-scrolled", y > 12);
         if (ann) header.style.top = Math.max(0, annH - y) + "px";
         if (openPanel) header.classList.remove("is-hidden");
         else if (y > 260 && y > lastY + 6) header.classList.add("is-hidden");
@@ -778,20 +793,15 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", () => { annH = ann ? ann.offsetHeight : 0; onScroll(); });
-    navIndicator();
 
     $("#cartBtn") && $("#cartBtn").addEventListener("click", openCart);
-    $("#tabCart") && $("#tabCart").addEventListener("click", openCart);
     $("#menuBtn") && $("#menuBtn").addEventListener("click", openMenu);
     $("#searchBtn") && $("#searchBtn").addEventListener("click", openSearch);
-    $("#tabSearch") && $("#tabSearch").addEventListener("click", openSearch);
     $("#scrim") && $("#scrim").addEventListener("click", closeAll);
     $("#searchOverlay") && $("#searchOverlay").addEventListener("click", (e) => { if (e.target.id === "searchOverlay") closeAll(); });
     $$("[data-close]").forEach((b) => b.addEventListener("click", closeAll));
     $$("#menu a").forEach((a) => a.addEventListener("click", () => { hide($("#menu")); lockScroll(false); openPanel = null; }));
     document.addEventListener("keydown", (e) => { if (e.key === "Escape" && openPanel) closeAll(); trap(e); if ((e.key === "/" || (e.key === "k" && (e.metaKey || e.ctrlKey))) && !openPanel && !/INPUT|TEXTAREA|SELECT/.test((document.activeElement || {}).tagName)) { e.preventDefault(); openSearch(); } });
-    const pg = page();
-    $$(".tabbar [data-tab]").forEach((a) => { if (a.dataset.tab === pg) a.setAttribute("aria-current", "page"); });
 
     const si = $("#searchInput");
     si && si.addEventListener("input", (e) => runSearch(e.target.value));
@@ -860,6 +870,31 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
   }
 
   /* ------------------------------------------------------------------ *
+   * "First light" — the loading screen (first visit of a session only).
+   * The head script adds html.is-loading and the markup is static in each
+   * page, so it paints on the first frame. It lifts once fonts and the
+   * hero image are ready — never sooner than 1.7s (the logo needs its
+   * moment), never later than 3.2s.
+   * ------------------------------------------------------------------ */
+  function liftLoader() {
+    const h = document.documentElement;
+    const done = () => document.dispatchEvent(new CustomEvent("fv:loaded"));
+    if (!h.classList.contains("is-loading")) { done(); return; }
+    let gone = false;
+    const lift = () => {
+      if (gone) return; gone = true;
+      h.classList.add("is-lifting");
+      document.dispatchEvent(new CustomEvent("fv:lifting"));
+      setTimeout(() => { h.classList.remove("is-loading", "is-lifting"); done(); }, 1250);
+    };
+    const now = () => (window.performance && performance.now ? performance.now() : 0);
+    const heroImg = document.querySelector(".s-hero img, .page-head__media img, main img");
+    const waits = [document.fonts && document.fonts.ready, heroImg && heroImg.decode ? heroImg.decode().catch(() => {}) : null].filter(Boolean);
+    Promise.all(waits).catch(() => {}).then(() => setTimeout(lift, Math.max(0, 1700 - now())));
+    setTimeout(lift, Math.max(0, 3200 - now()));
+  }
+
+  /* ------------------------------------------------------------------ *
    * Boot
    * ------------------------------------------------------------------ */
   function boot() {
@@ -889,6 +924,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
     track("page_view", { path: pageFile() + location.search });
     FV.booted = true;
     document.dispatchEvent(new CustomEvent("fv:ready"));
+    liftLoader();
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();

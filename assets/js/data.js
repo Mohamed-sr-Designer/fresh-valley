@@ -1,6 +1,6 @@
 /* =====================================================================
    FRESH VALLEY — Catalog data
-   Single source of truth for products, boxes, collections, reviews,
+   Single source of truth for products, boxes, collections,
    and journal content. Consumed by app.js. In production this maps to
    a headless commerce API (see /docs/HANDOFF.md).
    ===================================================================== */
@@ -385,36 +385,26 @@ window.FV_DATA = (function () {
       badges:["organic","export"], collections:["boxes","organic-reserve"] },
   ];
 
-  /* ----- Reviews (20) --------------------------------------------- */
-  const reviews = [
-    { name:"Nour El-Din", area:"New Cairo", stars:5, text:"The hosting box made my dinner. Guests genuinely asked where the fruit was from. It looked like art on the table.", tag:"Hosting Box" },
-    { name:"Yasmine Fahmy", area:"Sheikh Zayed", stars:5, text:"I stopped buying produce anywhere else. The strawberries arrive smelling like strawberries — I forgot they could.", tag:"Winter Strawberries" },
-    { name:"Omar Sherif", area:"Madinaty", stars:5, text:"Export quality is not a slogan here. The grapes are the same I've only seen abroad. Delivery was quiet and on time.", tag:"Red Grapes" },
-    { name:"Mariam Adel", area:"October", stars:5, text:"The dates are extraordinary. Soft, huge, and beautifully packed. I now keep a box for guests at all times.", tag:"Medjool Dates" },
-    { name:"Hana Mostafa", area:"Rehab", stars:5, text:"It feels less like grocery shopping and more like choosing something special. The packaging alone makes you slow down.", tag:"Premium Fruit Box" },
-    { name:"Karim Naguib", area:"New Cairo", stars:5, text:"The mango season here is a small event in our home now. Nothing in the market comes close.", tag:"Egyptian Mango" },
-    { name:"Salma Ezzat", area:"Sheikh Zayed", stars:4, text:"Lovely vegetables, always clean and even. I wish the seasonal box came twice a month — we finish it fast.", tag:"Seasonal Box" },
-    { name:"Tarek Hassan", area:"October", stars:5, text:"I host a lot for work. The family box keeps my kitchen ready without a single thought. Worth every pound.", tag:"Family Box" },
-    { name:"Dina Saleh", area:"Madinaty", stars:5, text:"The cherries sold me. Short season, perfect fruit, gone in a day. I'll be first in line next year.", tag:"Dark Cherries" },
-    { name:"Ahmed Lotfy", area:"New Cairo", stars:5, text:"Everything arrives like it was hand-picked for you, because it was. The reorder button saves me every week.", tag:"Reorder" },
-    { name:"Farida Kamal", area:"Rehab", stars:5, text:"My children actually eat more fruit now. It simply tastes better, so it disappears faster.", tag:"Apple Medley" },
-    { name:"Sherif Abdel-Aziz", area:"Sheikh Zayed", stars:5, text:"The peppers are thick, sweet and beautiful on a board. Guests think I went to a lot of trouble. I didn't.", tag:"Pepper Medley" },
-    { name:"Laila Younis", area:"October", stars:5, text:"Quiet, premium, no noise. The site feels like the brand — calm and considered. Checkout took a minute.", tag:"Checkout" },
-    { name:"Mostafa Galal", area:"New Cairo", stars:4, text:"Consistently excellent fruit. Occasionally I want more vegetable variety, but the quality never slips.", tag:"Vegetables" },
-    { name:"Rana Sobhy", area:"Madinaty", stars:5, text:"I gifted the organic reserve box to my mother. She called me twice about it. That says everything.", tag:"Organic Reserve" },
-    { name:"Ziad Mansour", area:"Sheikh Zayed", stars:5, text:"The watermelon was perfect — that hollow, ripe sound when you tap it. A real summer evening at home.", tag:"Watermelon" },
-    { name:"Habiba Roshdy", area:"Rehab", stars:5, text:"Beautiful oranges, full of juice, no seeds. My morning routine genuinely improved.", tag:"Navel Oranges" },
-    { name:"Amr Fathy", area:"October", stars:5, text:"You can taste the grading. Nothing bruised, nothing off-size. This is how produce should be sold.", tag:"Quality" },
-    { name:"Nadia Wahba", area:"New Cairo", stars:5, text:"The hosting culture they talk about is real. My gatherings feel more generous, and I barely lifted a finger.", tag:"The Art of Hosting" },
-    { name:"Hossam Darwish", area:"Madinaty", stars:5, text:"Subscribed to the weekly family box three months ago. Best small decision I've made for the house.", tag:"Subscription" },
-    { name:"Aya Soliman", area:"New Cairo", stars:5, text:"I brought a hosting box instead of the usual chocolates. My friend texted me the next morning just to say thank you.", tag:"Hosting Box" },
-    { name:"Khaled Mansour", area:"Sheikh Zayed", stars:5, text:"The wrapping alone is worth it. It arrives looking like something from a boutique, not a grocery.", tag:"The details" },
-    { name:"Mona Reda", area:"October", stars:5, text:"Figs, grapes and dates, all perfect, all in one box. My mother thought I spent the whole day preparing.", tag:"Premium Fruit Box" },
-    { name:"Sara El-Gohary", area:"Rehab", stars:4, text:"Genuinely the freshest produce I've had in Cairo. The only problem is now I can't go back to the supermarket.", tag:"Vegetables" },
-    { name:"Tamer Fouad", area:"Madinaty", stars:5, text:"Ordered at midnight, arrived the next afternoon, cold and flawless. The delivery is faster than I expected.", tag:"Delivery" },
-    { name:"Reem Adel", area:"New Cairo", stars:5, text:"I keep a box on the counter just for how it looks. Then guests arrive and it does the rest of the work.", tag:"The Art of Hosting" },
-    { name:"Youssef Halim", area:"Sheikh Zayed", stars:5, text:"Gave the organic reserve box as a corporate gift. Three clients asked me where it was from. Quietly impressive.", tag:"Organic Reserve" },
-  ];
+  /* ----- Reviews — retired in v5 (the storefront no longer shows reviews
+     or ratings). Kept as an empty list so older integrations don't break. */
+  const reviews = [];
+
+  /* ----- Botanical names — shown on the product "field labels" ---- */
+  const LATIN = {
+    strawberry: "Fragaria × ananassa", mango: "Mangifera indica", orange: "Citrus × sinensis",
+    "red-grapes": "Vitis vinifera", "green-grapes": "Vitis vinifera", "red-apple": "Malus domestica",
+    "green-apple": "Malus domestica", "golden-apple": "Malus domestica", "apple-medley": "Malus domestica",
+    peach: "Prunus persica", cherry: "Prunus avium", "medjool-dates": "Phoenix dactylifera",
+    lemon: "Citrus × limon", banana: "Musa acuminata", pineapple: "Ananas comosus",
+    watermelon: "Citrullus lanatus", cantaloupe: "Cucumis melo", tomato: "Solanum lycopersicum",
+    cucumber: "Cucumis sativus", carrot: "Daucus carota", potato: "Solanum tuberosum",
+    onion: "Allium cepa", garlic: "Allium sativum", "red-pepper": "Capsicum annuum",
+    "green-pepper": "Capsicum annuum", "yellow-pepper": "Capsicum annuum", "pepper-medley": "Capsicum annuum",
+    eggplant: "Solanum melongena", "white-eggplant": "Solanum melongena", cauliflower: "Brassica oleracea",
+    mint: "Mentha spicata", basil: "Ocimum basilicum", coriander: "Coriandrum sativum",
+    rosemary: "Salvia rosmarinus", dill: "Anethum graveolens",
+  };
+  products.forEach((p) => { if (!p.latin && LATIN[p.slug]) p.latin = LATIN[p.slug]; });
 
   /* ----- Journal / blog ------------------------------------------- */
   const articles = [

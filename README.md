@@ -2,9 +2,9 @@
 
 # Fresh Valley
 
-### Export-grade produce · The Art of Hosting · Cairo
+### Grown in Egypt · graded by hand · Cairo
 
-**v4 “Market Day”** — a fully branded, motion-rich storefront with a Shopify-style CMS.
+**v5 “Field & Herb”** — a calm, spacious, farm-rooted storefront with a Shopify-style CMS.
 
 </div>
 
@@ -15,8 +15,9 @@
 | | |
 |---|---|
 | **Storefront** | 15 pages: Home, Collection, Product & Box pages, The Art of Hosting, About, Journal + Article, Basket, Checkout, Wishlist, Account, Contact, Policies, Terms, 404 |
-| **Brand system** | The real palette sampled from the logo and wrapping paper — forest ink `#19291C`, olive wordmark `#AE9D57`, kraft `#E6DAC4`, Mid Forest & Charcoal ribbons — Fraunces Soft (echoing the logo's “Valley”) + Plus Jakarta Sans, botanical line-art from the packaging, the logo re-vectorised (identical artwork) for the giant footer sign-off |
-| **Motion** | GSAP + ScrollTrigger + SplitText + Lenis smooth scroll: masked headline reveals, rotating hero word, floating produce orbs, crossed marquee ribbons, pinned stacking “ritual” cards, horizontal scroll story, count-ups, self-drawing line-art, fly-to-basket, custom cursor, magnetic buttons, page view-transitions. All of it switches off for reduced-motion users |
+| **Brand system** | The real palette from the logo and wrapping paper (forest ink `#19291C`, olive `#AE9D57`) on a v5 field palette — linen `#F4F2EA` and herb mist `#E5E8DA`. Fraunces Light (never bold) + Plus Jakarta Sans, hairlines instead of shadows, the greenhouse arch as the one signature shape. No patterns, textures, marquees, reviews or newsletter — see [`docs/DESIGN-SYSTEM.md`](docs/DESIGN-SYSTEM.md) |
+| **Signature modules** | The Valley Almanac (harvest calendar, live “now” month), Provenance (eight Egyptian growing regions), field-label product cards with botanical names, the product page’s harvest window, and the live almanac line (“Week 39 · Early autumn in the valley”) |
+| **Motion** | GSAP + ScrollTrigger + SplitText + Lenis, deliberately slow and soft: masked line reveals, fade-ups, image unveils, gentle parallax, count-ups. “First light” loading screen on the first visit of a session. All of it switches off for reduced-motion users |
 | **CMS (admin/)** | Shopify-style back office: dashboard & analytics, orders, products, boxes, collections, inventory, customers (RFM segments), discounts, subscribers, inbox, reports, live view, files, navigation, preferences, users & roles, publishing, demo data |
 | **Theme editor** | `admin/theme.html` — Online Store 2.0-style: add / reorder / hide sections and blocks, edit every text and image with a live preview (desktop, tablet, mobile), undo/redo, save, publish |
 

@@ -1,60 +1,78 @@
-# Design System — v4 “Market Day”
+# Design System — v5 “Field & Herb”
 
-Premium, but warm and lively: the brand's own packaging (forest ink on kraft, the olive
-wordmark, Mid Forest & Charcoal ribbons, pressed-leaf line-art) turned into an interface.
-Everything lives in `assets/css/styles.css` (tokens + components + sections + motion
-states) and `assets/css/shop.css` (commerce pages).
+A walk through the valley at first light. Calm, spacious and unmistakably ours: the
+forest ink of the logo on linen and herb-mist grounds, olive as low morning sun,
+Fraunces Light for a quiet literary voice. Space instead of ornament, hairlines instead
+of shadows, one signature shape — the greenhouse arch. **No patterns, no textures,
+no marquees, no reviews.** Everything lives in `assets/css/styles.css` (tokens,
+components, sections, motion states) and `assets/css/shop.css` (commerce pages).
 
-## Colour (sampled from the logo and wrapping paper)
+## Colour
+
+Brand tokens are unchanged (sampled from the logo and wrapping paper). v5 adds a
+field palette derived from the brand greens for the grounds.
 
 | Token | Hex | Role |
 |---|---|---|
-| `--forest` | `#19291C` | Logo ink · primary buttons · dark bands · footer |
-| `--forest-2` / `--moss` | `#223A29` / `#2D4630` | Raised dark surfaces · “Mid Forest” ribbon |
-| `--olive` | `#AE9D57` | The olive wordmark — accent fills, arrow chips, underlines |
-| `--olive-lt` | `#CFC287` | Accent on dark backgrounds |
-| `--olive-dk` | `#6E5F2E` | Accent **text** on light backgrounds (AA contrast) |
-| `--sage` / `--sage-lt` | `#8A8E57` / `#DCDDC5` | Secondary · soft bands and icon tiles |
-| `--kraft` | `#E6DAC4` | Wrapping-paper band |
-| `--paper` / `--card` | `#F3EDE1` / `#FFFDF8` | Page · cards |
-| `--charcoal` | `#2A2622` | “Charcoal” ribbon |
-| `--pom` | `#7A2B21` | Pomegranate — sale, alerts, low stock |
+| `--forest` | `#19291C` | Logo ink · type · primary buttons · dark bands · footer |
+| `--moss` | `#2D4630` | Button hover · “Mid Forest” ribbon |
+| `--olive` / `--olive-lt` / `--olive-dk` | `#AE9D57` / `#CFC287` / `#6E5F2E` | Morning sun — italic accents, labels, the almanac “now” column |
+| `--sage` / `--sage-lt` | `#8A8E57` / `#DCDDC5` | Harvest-calendar bars · selection |
+| `--paper` | `#F4F2EA` | **Linen** — the page |
+| `--mist` / `--mist-2` | `#E5E8DA` / `#D8DDC9` | **Herb mist** — calm bands, image placeholders, herb labels |
+| `--leaf` | `#3F5B42` | A living green for small positive states |
+| `--card` | `#FAF9F4` | Panels and inputs |
+| `--pom` | `#7A2B21` | Sale · errors only |
+
+Bands: `band--paper` (linen), `band--mist`, `band--kraft` (a warmer linen), `band--dark`
+(forest). Legacy `sage` / `olive` bands map to mist.
 
 ## Type
 
-* **Fraunces** (variable, `SOFT 100`, optical sizes) for display — its soft, bold serif
-  echoes “Valley” in the logo. Italic (`WONK 1`) in olive for the one accented word:
-  `*word*` in any CMS text field.
-* **Plus Jakarta Sans** (“Jakarta”) for everything else.
-* Scale tokens: `--t-xs … --t-mega` (fluid `clamp()`); hero headline up to 9.2rem.
+* **Fraunces** at weights 200–350 with `SOFT 100` and automatic optical sizing — large
+  sizes pick the delicate high-opsz cut. Headlines are never bold.
+* The one accent: `*word*` in any CMS text → light italic in olive (`.i`).
+* **Plus Jakarta Sans** 400 for text; 500 uppercase with wide tracking (`.eyebrow`,
+  `.label`) for field-tag labels, buttons and meta.
+* Scale: `--t-mega` (hero, up to 8.6rem) · `--t-h1` · `--t-h2` · `--t-h3`.
 
 ## Shape, depth, space
 
-Radii `--r-xs 10 · --r-sm 14 · --r 22 · --r-lg 32 · --r-xl 44 · --pill`; warm forest-tinted
-shadows `--sh-1/2/3`; section rhythm `--sec` / `--sec-sm`; `--gutter` fluid side padding;
-`.wrap` (1320) / `.wrap--wide` (1560) / `.wrap--narrow` (760).
+Near-square radii (`--r-xs 2` … `--r-xl 8`), hairlines `--line` / `--line-2`; shadows
+only on floating layers (drawer, search, toasts). The **arch**
+(`border-radius: 50% 50% … / 37.5% 37.5% …`) is reserved for the hero photo, the hosting
+story photo and the loading screen’s lifting curve. Section rhythm `--sec`
+(up to 12.5rem), fluid `--gutter` (up to 5rem), `.wrap--wide` 1520px.
 
-## Components
+## Signature components
 
-Buttons `.btn` (+ `--olive --ghost --light --ghost-light --sm --lg --block --noic`) with a
-colour wipe and the round arrow chip `.btn__ic` · `.link-u` · `.chip` (`--olive --forest
---pom --glass --soft`) · `.icon-btn` + `.badge-count` · fields `.field .input .select
-.textarea .check .qty .seg` · cards `.pcard` (product), `.bcard` (box), `.rcard` (review),
-`.acard` (+ `--row`, article), `.ctile` (category), `.feature`, `.stat`, `.sticker`
-(rotating ring), `.orb` (produce orb) · `.rail` + `.rail-progress` · `.acc` accordion ·
-`.crumbs` · `.marquee` (`--brand --olive`, crossed ribbons) · `.drawer`, `.search`,
-`.menu`, `.toast`, `.tabbar` (mobile) · botanical `.art` SVGs from `FVSections.ART`
-(sprig, leaf, citrus, fig, tomato, strawberry, herbs, bouquet).
+* **Field label product card** (`.pcard`) — 4:5 still life, name + price, botanical name in
+  italic (`p.latin`), origin · season, a quiet `Add +`. No stars, no ratings.
+* **Herb label** (`.media--herb`, `FV.herbTile`) — typographic tile for produce without
+  photography (cut herbs).
+* **Valley Almanac** (`almanac` section) — a harvest calendar; the current month is shaded
+  and crops at their peak are drawn in forest.
+* **Provenance** (`origins` section) — the eight Egyptian growing regions, what grows there,
+  and roughly how far from Cairo.
+* **Harvest window** (product page) — that product’s line of the almanac.
+* **The almanac line** — “Week 39 · Early autumn in the valley”, live in the hero, menu,
+  footer and loading screen (`FV.almanac()`).
 
-## Bands
+## Header
 
-`.band--paper | --kraft | --sage | --dark | --olive | --charcoal` — any section can switch
-band from the theme editor ("Background").
+Logo left · navigation centred · actions right. On phones: logo left, and search ·
+basket · **menu on the far right**; the menu opens as a linen sheet from the right,
+where the button lives. Transparent at the top, linen with a hairline once scrolled.
 
 ## Motion
 
-Driven by data attributes (see `docs/V4-ARCHITECTURE.md`): reveals, staggers, clip wipes,
-masked line splits, parallax, count-ups, self-drawing line-art, marquees that react to
-scroll speed, magnetic buttons, custom cursor labels, pinned stories, horizontal scroll,
-fly-to-basket, cross-document view transitions. Easing `--e-out` (expo-like) and
-`--e-spring`. With `prefers-reduced-motion` everything is visible and still.
+Slow and soft (`--e-out`): lines rise from masks, blocks fade up, images unveil and settle,
+gentle parallax, count-ups, Lenis smooth scrolling. Removed in v5: custom cursor,
+magnetic buttons, marquees, fan-ins, floating orbs, pinned stacks, spinning stickers.
+With `prefers-reduced-motion` everything is visible and still.
+
+**First light** — the loading screen on the first visit of a session: the valley at night,
+the logo fills with light from below like a sunrise, an olive horizon draws, the almanac
+line appears, and the dark lifts away with a soft hill curve as the hero rises in. Never
+shorter than 1.7s, never longer than 3.2s; skipped for reduced motion, the theme editor and
+every later page in the session (those get a quiet cross-fade).

@@ -11,15 +11,15 @@
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/jakarta-s.woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/styles.css">
   <link rel="stylesheet" href="assets/css/shop.css">
-  <script>!function(d,w){var h=d.documentElement;if(!/[?&]fv_preview=1/.test(location.search)&&!w.matchMedia("(prefers-reduced-motion: reduce)").matches){h.classList.add("m-on");setTimeout(function(){if(!(w.FVMotion&&w.FVMotion.ready))h.classList.remove("m-on")},3500)}}(document,window)</script>
+  <script>!function(d,w){var h=d.documentElement,L=0;if(/[?&](fv_preview|bake)=1/.test(location.search)||w.matchMedia("(prefers-reduced-motion: reduce)").matches)return;h.classList.add("m-on");try{if(!sessionStorage.getItem("fv_seen")){sessionStorage.setItem("fv_seen","1");h.classList.add("is-loading");L=1}}catch(e){}setTimeout(function(){if(!(w.FVMotion&&w.FVMotion.ready))h.classList.remove("m-on");h.classList.remove("is-loading","is-lifting")},L?5200:3500)}(document,window)</script>
 </head>
 <body data-page="account">
+  <!--loader--><div class="loader" aria-hidden="true"><div class="loader__in"><span class="loader__logo"></span><span class="loader__line"></span><span class="loader__note" id="fvLoadNote">Picked at first light</span></div></div><script>!function(){var d=new Date,m=d.getMonth(),s=new Date(d.getFullYear(),0,1),w=Math.ceil(((d-s)/864e5+s.getDay()+1)/7),n=[11,0,1].indexOf(m)>-1?"winter":m<5?"spring":m<8?"summer":"autumn",o={winter:11,spring:2,summer:5,autumn:8}[n],e=document.getElementById("fvLoadNote");e&&(e.textContent="Week "+w+" \u00b7 "+["Early","Mid","Late"][(m-o+12)%12]+" "+n+" in the valley")}()</script><!--/loader-->
   <div id="fv-header"></div>
   <noscript><p class="noscript">Fresh Valley uses JavaScript for its menu, basket and checkout. <a href="products.html">Browse the collection</a> · <a href="contact.html">Contact us</a></p></noscript>
 
   <main id="main">
     <section class="s shop-head">
-      <div class="page-head__art" id="headArt" data-draw aria-hidden="true"></div>
       <div class="wrap wrap--wide">
         <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span aria-hidden="true">/</span><span aria-current="page" id="acctCrumb">My account</span></nav>
         <div class="page-head">
@@ -46,7 +46,6 @@
       const root = document.getElementById("acctRoot");
       const $ = (id) => document.getElementById(id);
       const store = { get(k, fb) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? fb : v; } catch (_) { return fb; } }, set(k, v) { localStorage.setItem(k, JSON.stringify(v)); } };
-      $("headArt").innerHTML = S.ART.fig;
       const stored = store.get("fv_user", null);
       if (!stored) return gate();
 
@@ -80,7 +79,7 @@
           <section class="acct__panel" data-panel="overview" aria-labelledby="h-ov"><h2 id="h-ov">Overview</h2>
             <div class="acct__stats"><div><small>Orders</small><b>${orders.length}</b></div><div><small>Total spent</small><b>${FV.money(spent)}</b></div><div><small>Saved items</small><b id="wishStat">${FV.wish.items().length}</b></div></div>
             ${orders[0] ? orderCard(orders[0], true) : ""}
-            <div class="host-rec"><div class="host-rec__img">${S.img("pepper-medley", { sizes: "220px", alt: "" })}</div><div><p class="eyebrow">For your next gathering</p><h3>The Hosting <em class="i">Box</em></h3><p>Fruit, dates and a finishing herb — arranged, wrapped and ready for guests.</p></div><a class="btn btn--olive" href="product.html?box=hosting-box">Explore<span class="btn__ic">${I("arrow")}</span></a></div>
+            <div class="host-rec"><div class="host-rec__img">${S.img("pepper-medley", { sizes: "220px", alt: "" })}</div><div><p class="eyebrow">For your next gathering</p><h3>The Hosting <em class="i">Box</em></h3><p>Fruit, dates and a finishing herb — arranged, wrapped and ready for guests.</p></div><a class="btn" href="product.html?box=hosting-box">Explore<span class="btn__ic">${I("arrow")}</span></a></div>
           </section>
           <section class="acct__panel" data-panel="orders" aria-labelledby="h-or"><h2 id="h-or">Orders</h2>
             ${real.length ? "" : `<div class="demo-note">${I("sparkle")}<span>Sample orders shown — your real orders appear here as soon as you check out with ${esc(user.email)}.</span></div>`}
@@ -125,7 +124,7 @@
         const items = FV.wish.items().map(FV.find).filter(Boolean);
         $("wishStat").textContent = items.length;
         $("wishMini").innerHTML = items.length ? `<div class="grid-products">${items.slice(0, 12).map(FV.productCardHTML).join("")}</div>`
-          : `<div class="shop-empty"><div class="empty__art">${S.ART.strawberry}</div><h2>Nothing saved <em class="i">yet</em>.</h2><a class="btn btn--sm" href="products.html" style="margin-top:1rem">Browse the market<span class="btn__ic">${I("arrow")}</span></a></div>`;
+          : `<div class="shop-empty"><h2>Nothing saved <em class="i">yet</em>.</h2><a class="btn btn--sm" href="products.html" style="margin-top:1rem">Browse the market<span class="btn__ic">${I("arrow")}</span></a></div>`;
         FV.updateWishUI();
       }
       /* ---- profile ---- */
@@ -204,7 +203,7 @@
         }
       }
       /* ---- preferences ---- */
-      const PREFS = [["updates", "Order updates", "Delivery status by SMS", true], ["letter", "The Fresh Valley Letter", "A monthly note — what's in season", true], ["seasonal", "Seasonal reminders", "A nudge when your favourites are at their peak", false]];
+      const PREFS = [["updates", "Order updates", "Delivery status by SMS", true], ["seasonal", "Seasonal reminders", "A nudge when your favourites are at their peak", false]];
       function renderPrefs() {
         const pr = store.get("fv_prefs", {});
         $("prefs").innerHTML = PREFS.map(([k, t, d, def]) => `<div class="set-row"><div><strong id="pl-${k}">${t}</strong><small>${d}</small></div><button type="button" class="toggle" data-pref="${k}" aria-labelledby="pl-${k}" aria-pressed="${pr[k] == null ? def : !!pr[k]}"></button></div>`).join("");
@@ -212,7 +211,6 @@
           const on = b.getAttribute("aria-pressed") !== "true";
           b.setAttribute("aria-pressed", on);
           const p = store.get("fv_prefs", {}); p[b.dataset.pref] = on; store.set("fv_prefs", p);
-          if (b.dataset.pref === "letter") FV.clients.upsert({ name: user.name, email: user.email, marketing: on });
           FV.toast("Preferences saved");
         }));
       }

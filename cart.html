@@ -11,15 +11,15 @@
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/jakarta-s.woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/styles.css">
   <link rel="stylesheet" href="assets/css/shop.css">
-  <script>!function(d,w){var h=d.documentElement;if(!/[?&]fv_preview=1/.test(location.search)&&!w.matchMedia("(prefers-reduced-motion: reduce)").matches){h.classList.add("m-on");setTimeout(function(){if(!(w.FVMotion&&w.FVMotion.ready))h.classList.remove("m-on")},3500)}}(document,window)</script>
+  <script>!function(d,w){var h=d.documentElement,L=0;if(/[?&](fv_preview|bake)=1/.test(location.search)||w.matchMedia("(prefers-reduced-motion: reduce)").matches)return;h.classList.add("m-on");try{if(!sessionStorage.getItem("fv_seen")){sessionStorage.setItem("fv_seen","1");h.classList.add("is-loading");L=1}}catch(e){}setTimeout(function(){if(!(w.FVMotion&&w.FVMotion.ready))h.classList.remove("m-on");h.classList.remove("is-loading","is-lifting")},L?5200:3500)}(document,window)</script>
 </head>
 <body data-page="cart">
+  <!--loader--><div class="loader" aria-hidden="true"><div class="loader__in"><span class="loader__logo"></span><span class="loader__line"></span><span class="loader__note" id="fvLoadNote">Picked at first light</span></div></div><script>!function(){var d=new Date,m=d.getMonth(),s=new Date(d.getFullYear(),0,1),w=Math.ceil(((d-s)/864e5+s.getDay()+1)/7),n=[11,0,1].indexOf(m)>-1?"winter":m<5?"spring":m<8?"summer":"autumn",o={winter:11,spring:2,summer:5,autumn:8}[n],e=document.getElementById("fvLoadNote");e&&(e.textContent="Week "+w+" \u00b7 "+["Early","Mid","Late"][(m-o+12)%12]+" "+n+" in the valley")}()</script><!--/loader-->
   <div id="fv-header"></div>
   <noscript><p class="noscript">Fresh Valley uses JavaScript for its menu, basket and checkout. <a href="products.html">Browse the collection</a> · <a href="contact.html">Contact us</a></p></noscript>
 
   <main id="main">
     <section class="s shop-head">
-      <div class="page-head__art" id="headArt" data-draw aria-hidden="true"></div>
       <div class="wrap wrap--wide">
         <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span aria-hidden="true">/</span><span aria-current="page">Basket</span></nav>
         <div class="page-head">
@@ -33,11 +33,11 @@
       <div class="wrap wrap--wide"><div id="cartWrap" aria-live="polite"></div></div>
     </section>
 
-    <section class="s sec band--kraft" id="suggestSec">
+    <section class="s sec band--mist" id="suggestSec">
       <div class="wrap wrap--wide">
         <div class="head"><div class="head__main"><p class="eyebrow">Complete your table</p><h2 data-split>You might also <em class="i">like</em></h2></div>
           <div class="head__actions"><a class="link-u" href="products.html" id="shopAll">Shop all</a></div></div>
-        <div class="rail-wrap"><div class="rail" id="suggest" data-cursor="Drag"></div><div class="rail-progress" aria-hidden="true"><i></i></div></div>
+        <div class="rail-wrap"><div class="rail" id="suggest"></div><div class="rail-progress" aria-hidden="true"><i></i></div></div>
       </div>
     </section>
   </main>
@@ -54,7 +54,6 @@
       const S = window.FVSections, esc = FV.esc, I = FV.icon;
       const wrap = document.getElementById("cartWrap");
       const SET = FV.settings;
-      document.getElementById("headArt").innerHTML = S.ART.bouquet;
       document.getElementById("shopAll").insertAdjacentHTML("beforeend", " " + I("arrow"));
       const getCode = () => { try { return sessionStorage.getItem("fv_code") || ""; } catch (_) { return ""; } };
       const setCode = (c) => { try { c ? sessionStorage.setItem("fv_code", c) : sessionStorage.removeItem("fv_code"); } catch (_) {} };
@@ -76,7 +75,7 @@
         document.getElementById("headCount").textContent = items.length ? FV.cart.count() : "";
         if (!items.length) {
           document.getElementById("headMeter").innerHTML = "";
-          wrap.innerHTML = `<div class="shop-empty"><div class="empty__art">${S.ART.sprig}</div><h2>Your basket is <em class="i">empty</em>.</h2>
+          wrap.innerHTML = `<div class="shop-empty"><h2>Your basket is <em class="i">empty</em>.</h2>
             <p class="muted">The season is waiting — start with a best seller or a curated box.</p>
             <div class="row" style="justify-content:center;margin-top:1.4rem"><a class="btn" href="products.html">Browse the market<span class="btn__ic">${I("arrow")}</span></a><a class="btn btn--ghost" href="products.html?cat=boxes">Hosting boxes<span class="btn__ic">${I("gift")}</span></a></div></div>`;
           return;
@@ -109,7 +108,7 @@
             ${t.off ? `<div class="sum-row sum-row--saving"><span>Discount</span><strong>− ${FV.money(t.off)}</strong></div>` : ""}
             <div class="sum-row"><span>Delivery</span><span>${t.delivery ? FV.money(t.delivery) : "Free"}</span></div>
             <div class="sum-row sum-row--total"><span>Total</span><span>${FV.money(t.total)}</span></div>
-            <a class="btn btn--lg btn--block" href="checkout.html" data-magnetic=".15">Checkout<span class="btn__ic">${I("arrow")}</span></a>
+            <a class="btn btn--lg btn--block" href="checkout.html">Checkout<span class="btn__ic">${I("arrow")}</span></a>
             <ul class="trust">
               <li>${I("snow")}<span>Cold-chain from harvest to door</span></li>
               <li>${I("shield")}<span>Not perfect? We replace it.</span></li>
