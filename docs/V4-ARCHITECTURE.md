@@ -1,4 +1,16 @@
-# Fresh Valley v4 — "Market Day" architecture
+# Fresh Valley architecture (v4 engine · v5 "Field & Herb" design)
+
+> **v5 notes (Sept 2026).** Same engine, new design. Section types `marquee` and
+> `testimonials` are retired (saved themes that list them render nothing); new types
+> `statement`, `almanac` and `origins`. Hero settings: `almanac`, `eyebrow`, `title`
+> (one line per row), `lede`, CTAs, `image`, `caption`, `peak`. Theme `version: 5` —
+> page layouts saved before v5 are ignored so the redesign shows. Motion attributes now:
+> `data-reveal`, `data-stagger`, `data-clip`, `data-split`, `data-parallax`, `data-count`,
+> `data-strike` (cursor, magnetic, marquee, fan, float, rotate, story and hscroll pins are
+> gone). New `FV` helpers: `MONTHS`, `seasonMonths(p)`, `inSeasonNow(p)`, `peakNow(n)`,
+> `almanac()`, `originShort(o)`, `herbTile(p)`; smart collection `now`. Loading screen:
+> static `.loader` markup + head script (`html.is-loading`), lifted by `app.js`
+> (`fv:lifting` → `fv:loaded`). `data.reviews` is empty; products carry `latin`.
 
 Static multi-page site (HTML + CSS + vanilla JS). No build step required; `_build/bake.js`
 optionally pre-renders theme sections into the HTML for SEO. Motion: GSAP 3.15 + ScrollTrigger +

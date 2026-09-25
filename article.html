@@ -3,16 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>The Journal — Fresh Valley</title>
+  <title>Field Notes — Fresh Valley</title>
   <meta name="description" content="Recipes, hosting tips and a little produce education from Fresh Valley.">
   <meta name="theme-color" content="#19291C">
   <meta property="og:type" content="article">
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/fraunces-v4s.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/jakarta-s.woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/styles.css">
-  <script>!function(d,w){var h=d.documentElement;if(!/[?&]fv_preview=1/.test(location.search)&&!w.matchMedia("(prefers-reduced-motion: reduce)").matches){h.classList.add("m-on");setTimeout(function(){if(!(w.FVMotion&&w.FVMotion.ready))h.classList.remove("m-on")},3500)}}(document,window)</script>
+  <script>!function(d,w){var h=d.documentElement,L=0;if(/[?&](fv_preview|bake)=1/.test(location.search)||w.matchMedia("(prefers-reduced-motion: reduce)").matches)return;h.classList.add("m-on");try{if(!sessionStorage.getItem("fv_seen")){sessionStorage.setItem("fv_seen","1");h.classList.add("is-loading");L=1}}catch(e){}setTimeout(function(){if(!(w.FVMotion&&w.FVMotion.ready))h.classList.remove("m-on");h.classList.remove("is-loading","is-lifting")},L?5200:3500)}(document,window)</script>
 </head>
 <body data-page="article">
+  <!--loader--><div class="loader" aria-hidden="true"><div class="loader__in"><span class="loader__logo"></span><span class="loader__line"></span><span class="loader__note" id="fvLoadNote">Picked at first light</span></div></div><script>!function(){var d=new Date,m=d.getMonth(),s=new Date(d.getFullYear(),0,1),w=Math.ceil(((d-s)/864e5+s.getDay()+1)/7),n=[11,0,1].indexOf(m)>-1?"winter":m<5?"spring":m<8?"summer":"autumn",o={winter:11,spring:2,summer:5,autumn:8}[n],e=document.getElementById("fvLoadNote");e&&(e.textContent="Week "+w+" \u00b7 "+["Early","Mid","Late"][(m-o+12)%12]+" "+n+" in the valley")}()</script><!--/loader-->
   <div id="fv-header"></div>
   <noscript><p class="noscript">Fresh Valley uses JavaScript for its menu, basket and checkout. <a href="products.html">Browse the collection</a> · <a href="contact.html">Contact us</a></p></noscript>
   <div class="read-bar" aria-hidden="true"><i id="readBar"></i></div>
@@ -37,12 +38,12 @@
 
       if (!a) {
         root.innerHTML = `<section class="s s-page-head"><div class="wrap wrap--narrow" style="text-align:center">
-          <div class="empty"><div class="empty__art">${S.ART.leaf}</div><h1 class="h2">This story has <em class="i">wandered off</em>.</h1>
-          <p class="lede" style="margin:1rem auto 1.6rem">It may have moved — the rest of the Journal is right here.</p>
-          <a class="btn" href="journal.html">Back to the Journal<span class="btn__ic">${arrow}</span></a></div></div></section>`;
+          <div class="empty"><h1 class="h2">This story has <em class="i">wandered off</em>.</h1>
+          <p class="lede" style="margin:1rem auto 1.6rem">It may have moved — the rest of Field Notes is right here.</p>
+          <a class="btn" href="journal.html">Back to Field Notes<span class="btn__ic">${arrow}</span></a></div></div></section>`;
         return;
       }
-      document.title = a.title + " — Fresh Valley Journal";
+      document.title = a.title + " — Fresh Valley Field Notes";
       const md = document.querySelector('meta[name="description"]'); if (md) md.content = a.excerpt;
 
       // Shop the story: the article's hero produce + anything it mentions by name
@@ -59,15 +60,15 @@
       let quote = (a.body[mid - 1] || a.body[0]).split(". ")[0].trim();
       if (!/[.!?]$/.test(quote)) quote += ".";
       const paras = a.body.map((p) => `<p>${esc(p)}</p>`);
-      const body = paras.slice(0, mid).join("") + (a.body.length > 2 ? `<figure class="pull" data-reveal><div class="pull__art" data-draw>${S.ART.sprig}</div><blockquote>${esc(quote)}</blockquote></figure>` : "") + paras.slice(mid).join("");
+      const body = paras.slice(0, mid).join("") + (a.body.length > 2 ? `<figure class="pull" data-reveal><blockquote>${esc(quote)}</blockquote></figure>` : "") + paras.slice(mid).join("");
       const related = list.filter((x) => x.slug !== a.slug).sort((x, y) => (y.category === a.category) - (x.category === a.category)).slice(0, 3);
 
       root.innerHTML = `
       <article class="article">
         <header class="s art-head">
           <div class="wrap wrap--narrow">
-            <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span aria-hidden="true">/</span><a href="journal.html">Journal</a><span aria-hidden="true">/</span><span aria-current="page">${esc(a.category)}</span></nav>
-            <span class="chip chip--olive">${esc(a.category)}</span>
+            <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span aria-hidden="true">/</span><a href="journal.html">Field Notes</a><span aria-hidden="true">/</span><span aria-current="page">${esc(a.category)}</span></nav>
+            <span class="eyebrow">${esc(a.category)}</span>
             <h1 data-split>${esc(a.title)}</h1>
             <p class="art-head__meta">${esc(a.author)} · ${esc(a.date)} · ${esc(a.read)}</p>
           </div>
@@ -76,17 +77,17 @@
         <div class="wrap wrap--narrow">
           <div class="art-body">${body}</div>
           <div class="art-foot">
-            <a class="link-u" href="journal.html">${back} All articles</a>
+            <a class="link-u" href="journal.html">${back} All field notes</a>
             <div class="row"><span class="muted small">Share</span>
               <a class="icon-btn art-share" href="https://wa.me/?text=${encodeURIComponent(a.title + " — " + location.href)}" target="_blank" rel="noopener" aria-label="Share on WhatsApp">${FV.icon("whatsapp")}</a>
               <button class="btn btn--ghost btn--sm btn--noic" type="button" id="shareBtn">Copy link</button></div>
           </div>
         </div>
-        ${shop.length || boxes.length ? `<section class="s sec band--kraft">
+        ${shop.length || boxes.length ? `<section class="s sec band--mist">
           <div class="wrap wrap--wide">
             <div class="head"><div class="head__main"><p class="eyebrow">Shop the story</p><h2 data-split>Everything on this <em class="i">table</em></h2></div>
               <div class="head__actions"><a class="link-u" href="products.html">Browse the market ${arrow}</a></div></div>
-            <div class="rail-wrap"><div class="rail" data-cursor="Drag">${boxes.map(FV.boxCardHTML).join("")}${shop.slice(0, 8).map(FV.productCardHTML).join("")}</div><div class="rail-progress" aria-hidden="true"><i></i></div></div>
+            <div class="rail-wrap"><div class="rail">${boxes.map(FV.boxCardHTML).join("")}${shop.slice(0, 8).map(FV.productCardHTML).join("")}</div><div class="rail-progress" aria-hidden="true"><i></i></div></div>
           </div></section>` : ""}
         <section class="s sec band--paper">
           <div class="wrap wrap--wide">

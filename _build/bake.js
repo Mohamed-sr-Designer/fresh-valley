@@ -12,6 +12,8 @@
      node _build/bake.js [http://localhost:5517] [http://127.0.0.1:9333]
    Requires puppeteer-core (npm i -D puppeteer-core).
    Re-run whenever theme.js defaults, data.js or section markup change.
+   The signature includes the almanac week, so a page baked in one week
+   quietly re-renders live (fresh season line + calendar) in the next.
    ===================================================================== */
 const puppeteer = require("puppeteer-core");
 const fs = require("fs");
@@ -36,9 +38,9 @@ const PAGES = [["index", "index.html"], ["hosting", "hosting.html"], ["about", "
     const out = await page.evaluate((key) => {
       const main = document.querySelector("main[data-fv-page]");
       // runtime-only details that depend on the viewport or listeners
-      main.querySelectorAll(".hero__title").forEach((t) => { t.removeAttribute("style"); t.classList.remove("orbs-tight", "orbs-none"); });
       main.querySelectorAll(".tabs__ink").forEach((i) => i.removeAttribute("style"));
       const header = document.getElementById("fv-header"), footer = document.getElementById("fv-footer");
+      const hdr = header && header.querySelector(".hdr"); if (hdr) hdr.removeAttribute("style");
       const ann = document.querySelector(".announce");
       return { sig: window.FVSections.signature(key), main: main.innerHTML.trim(), header: header ? header.innerHTML.trim() : "", footer: footer ? footer.innerHTML.trim() : "", ann: ann ? ann.outerHTML : "" };
     }, key);
@@ -48,10 +50,10 @@ const PAGES = [["index", "index.html"], ["hosting", "hosting.html"], ["about", "
     html = html.replace(/\n?\s*<!--bake:ann-->[\s\S]*?<!--\/bake:ann-->/, "");
     if (out.ann) html = html.replace(/(<body[^>]*>)/, `$1\n  <!--bake:ann-->${out.ann}<!--/bake:ann-->`);
     // header + footer
-    html = html.replace(/<div id="fv-header">(?:<!--bake:header-->[\s\S]*?<!--\/bake:header-->)?<\/div>/, `<div id="fv-header"><!--bake:header-->${out.header}<!--/bake:header--></div>`);
-    html = html.replace(/<div id="fv-footer">(?:<!--bake:footer-->[\s\S]*?<!--\/bake:footer-->)?<\/div>/, `<div id="fv-footer"><!--bake:footer-->${out.footer}<!--/bake:footer--></div>`);
+    html = html.replace(/<div id="fv-header">(?:<!--bake:header-->[\s\S]*?<!--\/bake:header-->)?<\/div>/, () => `<div id="fv-header"><!--bake:header-->${out.header}<!--/bake:header--></div>`);
+    html = html.replace(/<div id="fv-footer">(?:<!--bake:footer-->[\s\S]*?<!--\/bake:footer-->)?<\/div>/, () => `<div id="fv-footer"><!--bake:footer-->${out.footer}<!--/bake:footer--></div>`);
     // sections
-    html = html.replace(/<main id="main" data-fv-page="([a-z]+)"[^>]*>[\s\S]*?<\/main>/, `<main id="main" data-fv-page="$1" data-sig="${out.sig}">\n${out.main}\n  </main>`);
+    html = html.replace(/<main id="main" data-fv-page="([a-z]+)"[^>]*>[\s\S]*?<\/main>/, (m, k) => `<main id="main" data-fv-page="${k}" data-sig="${out.sig}">\n${out.main}\n  </main>`);
     fs.writeFileSync(path.join(ROOT, file), html);
     console.log("baked", file.padEnd(14), (html.length / 1024).toFixed(0) + " KB", "sig " + out.sig);
   }

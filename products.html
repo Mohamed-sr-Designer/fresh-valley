@@ -13,15 +13,15 @@
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/jakarta-s.woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/styles.css">
   <link rel="stylesheet" href="assets/css/shop.css">
-  <script>!function(d,w){var h=d.documentElement;if(!/[?&]fv_preview=1/.test(location.search)&&!w.matchMedia("(prefers-reduced-motion: reduce)").matches){h.classList.add("m-on");setTimeout(function(){if(!(w.FVMotion&&w.FVMotion.ready))h.classList.remove("m-on")},3500)}}(document,window)</script>
+  <script>!function(d,w){var h=d.documentElement,L=0;if(/[?&](fv_preview|bake)=1/.test(location.search)||w.matchMedia("(prefers-reduced-motion: reduce)").matches)return;h.classList.add("m-on");try{if(!sessionStorage.getItem("fv_seen")){sessionStorage.setItem("fv_seen","1");h.classList.add("is-loading");L=1}}catch(e){}setTimeout(function(){if(!(w.FVMotion&&w.FVMotion.ready))h.classList.remove("m-on");h.classList.remove("is-loading","is-lifting")},L?5200:3500)}(document,window)</script>
 </head>
 <body data-page="products">
+  <!--loader--><div class="loader" aria-hidden="true"><div class="loader__in"><span class="loader__logo"></span><span class="loader__line"></span><span class="loader__note" id="fvLoadNote">Picked at first light</span></div></div><script>!function(){var d=new Date,m=d.getMonth(),s=new Date(d.getFullYear(),0,1),w=Math.ceil(((d-s)/864e5+s.getDay()+1)/7),n=[11,0,1].indexOf(m)>-1?"winter":m<5?"spring":m<8?"summer":"autumn",o={winter:11,spring:2,summer:5,autumn:8}[n],e=document.getElementById("fvLoadNote");e&&(e.textContent="Week "+w+" \u00b7 "+["Early","Mid","Late"][(m-o+12)%12]+" "+n+" in the valley")}()</script><!--/loader-->
   <div id="fv-header"></div>
   <noscript><p class="noscript">Fresh Valley uses JavaScript for its menu, basket and checkout. <a href="products.html">Browse the collection</a> · <a href="contact.html">Contact us</a></p></noscript>
 
   <main id="main">
     <section class="s shop-head">
-      <div class="page-head__art" id="headArt" data-draw aria-hidden="true"></div>
       <div class="wrap wrap--wide">
         <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span aria-hidden="true">/</span><span id="crumb" aria-current="page">The Collection</span></nav>
         <div class="page-head">
@@ -44,14 +44,12 @@
               <option value="featured">Featured</option>
               <option value="price-asc">Price · low to high</option>
               <option value="price-desc">Price · high to low</option>
-              <option value="rating">Top rated</option>
               <option value="name">Name · A to Z</option>
             </select>
           </div>
         </div>
         <div class="grid-products" id="grid"></div>
         <div class="shop-empty" id="empty" hidden>
-          <div class="empty__art" id="emptyArt" aria-hidden="true"></div>
           <h2>Nothing here <em class="i">just yet</em>.</h2>
           <p class="muted">Try another category, or clear your search.</p>
           <a class="btn btn--sm" href="products.html" style="margin-top:1.4rem">View all produce<span class="btn__ic" id="emptyArrow"></span></a>
@@ -59,20 +57,20 @@
       </div>
     </section>
 
-    <section class="s sec band--kraft" id="boxTeaser">
+    <section class="s sec band--mist" id="boxTeaser">
       <div class="wrap wrap--wide">
         <div class="head">
           <div class="head__main"><p class="eyebrow">Curated &amp; ready to host</p><h2 data-split>Prefer it <em class="i">chosen for you</em>?</h2></div>
           <div class="head__actions"><a class="link-u" href="products.html?cat=boxes" id="allBoxes">All boxes</a></div>
         </div>
-        <div class="deck deck--3" data-fan id="boxTeaserGrid"></div>
+        <div class="deck deck--3" data-stagger id="boxTeaserGrid"></div>
       </div>
     </section>
 
     <section class="s sec band--paper" id="recentSec" hidden>
       <div class="wrap wrap--wide">
         <div class="head"><div class="head__main"><p class="eyebrow">Pick up where you left off</p><h2 data-split>Recently <em class="i">viewed</em></h2></div></div>
-        <div class="rail-wrap"><div class="rail" id="recentRail" data-cursor="Drag"></div><div class="rail-progress" aria-hidden="true"><i></i></div></div>
+        <div class="rail-wrap"><div class="rail" id="recentRail"></div><div class="rail-progress" aria-hidden="true"><i></i></div></div>
       </div>
     </section>
   </main>
@@ -96,24 +94,23 @@
       };
       const CATS = [
         { key: "all", label: "All" }, { key: "fruits", label: "Fruits" }, { key: "vegetables", label: "Vegetables" },
-        { key: "herbs", label: "Herbs" }, { key: "boxes", label: "Boxes" }, { key: "seasonal", label: "Seasonal" },
+        { key: "herbs", label: "Herbs" }, { key: "boxes", label: "Boxes" }, { key: "seasonal", label: "In season" },
         { key: "organic-reserve", label: "Organic Reserve" },
       ];
       const catMeta = (k) => FV.data.categories.find((c) => c.slug === k);
       const TITLES = {
-        all: ["The *collection*", "Every piece graded by hand and chosen for the table. Browse by category, and select the weight that suits your week.", "Export-grade · Egypt", "sprig"],
+        all: ["The *market*", "Every piece chosen by hand, every one with the name of the place it grew. Browse by category, and choose the weight that suits your week.", "Grown in Egypt · graded by hand", "sprig"],
         fruits: ["Sun-ripened *fruits*", "Sun-ripened and graded by hand — sweet, fragrant and ready to present.", "The orchard", "strawberry"],
         vegetables: ["Crisp *vegetables*", "Crisp, clean and picked at peak — graded for the kitchen and the table.", "The field", "tomato"],
-        herbs: ["Fresh-cut *herbs*", "Cut fresh for the table, bright and aromatic.", "The garden", "herbs"],
+        herbs: ["Fresh-cut *herbs*", "Cut the morning they leave the garden — bright, aromatic, sold by the bunch.", "The herb garden", "herbs"],
         boxes: ["Fresh Valley *boxes*", "Produce chosen and arranged for you — from a weekly family box to a grand hosting selection.", "Curated & wrapped", "bouquet"],
-        seasonal: ["In *season*", "What is best, right now. A changing selection at the peak of its moment.", "At its peak", "citrus"],
+        seasonal: ["In *season*", "What the valley gives right now — a changing selection, offered only while it is at its peak.", "At its peak · " + FV.almanac().month, "citrus"],
         "organic-reserve": ["Organic *reserve*", "Our quietest, rarest selections — organic where we can, rare where we can't.", "Small allocation", "fig"],
       };
-      const COLL = { "best-sellers": "Best *sellers*", essentials: "The *essentials*", hosting: "For *hosting*", premium: "The *premium* edit", organic: "*Organic*" };
+      const COLL = { now: "In *season*", "best-sellers": "House *favourites*", essentials: "The *essentials*", hosting: "For *hosting*", premium: "The *premium* edit", organic: "*Organic*" };
       const $ = (id) => document.getElementById(id);
       const grid = $("grid"), empty = $("empty");
       $("qIcon").innerHTML = FV.icon("search");
-      $("emptyArt").innerHTML = S.ART.leaf;
       $("emptyArrow").innerHTML = FV.icon("arrow");
       $("allBoxes").insertAdjacentHTML("beforeend", " " + FV.icon("arrow"));
 
@@ -128,7 +125,8 @@
         if (state.collection) return { type: "product", list: FV.byCollection(state.collection) };
         if (state.cat === "boxes") return { type: "box", list: FV.data.boxes.slice() };
         if (["fruits", "vegetables", "herbs"].includes(state.cat)) return { type: "product", list: FV.byCategory(state.cat) };
-        if (state.cat === "seasonal" || state.cat === "organic-reserve") return { type: "product", list: FV.byCollection(state.cat) };
+        if (state.cat === "seasonal") return { type: "product", list: FV.byCollection("now") };
+        if (state.cat === "organic-reserve") return { type: "product", list: FV.byCollection(state.cat) };
         return { type: "product", list: FV.data.products.slice() };
       }
       function sorted(type, list) {
@@ -136,7 +134,6 @@
         const a = list.slice();
         if (state.sort === "price-asc") a.sort((x, y) => price(x) - price(y));
         else if (state.sort === "price-desc") a.sort((x, y) => price(y) - price(x));
-        else if (state.sort === "rating") a.sort((x, y) => (y.rating || 0) - (x.rating || 0));
         else if (state.sort === "name") a.sort((x, y) => x.name.localeCompare(y.name));
         else if (type !== "box") a.sort((x, y) => (FV.soldOut(x) - FV.soldOut(y)) || ((y.featured ? 1 : 0) - (x.featured ? 1 : 0)));
         return a;
@@ -154,7 +151,6 @@
         $("pageBlurb").textContent = t[1];
         $("eyebrow").textContent = t[2];
         $("crumb").textContent = t[0].replace(/[*~]/g, "");
-        $("headArt").innerHTML = S.ART[t[3]] || S.ART.sprig;
         document.title = t[0].replace(/[*~]/g, "") + " — Fresh Valley";
       }
       function render(first) {

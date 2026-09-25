@@ -1,8 +1,11 @@
 /* =====================================================================
-   FRESH VALLEY — Section renderers + schema (the theme engine)
+   FRESH VALLEY — Section renderers + schema (the theme engine) · v5
    Pure string renderers: the storefront renders pages from FVTheme, the
    admin theme editor builds its forms from SCHEMA and previews drafts,
    and _build/bake.js pre-renders the defaults into the HTML for SEO.
+   v5 "Field & Herb": calm, spacious, typographic — no reviews, no
+   marquees, no decorative patterns. Signature modules: the Valley
+   Almanac (harvest calendar) and Provenance (where it grows).
    ===================================================================== */
 window.FVSections = (function () {
   "use strict";
@@ -11,7 +14,8 @@ window.FVSections = (function () {
   const list = (s, sep) => String(s || "").split(sep || "|").map((x) => x.trim()).filter(Boolean);
 
   /* ------------------------------------------------------------------ *
-   * Botanical line-art — echoes the pressed-leaf wrapping paper
+   * Botanical line-art — kept for the admin theme editor only (v5 removed
+   * all decorative line-art and patterns from the storefront)
    * ------------------------------------------------------------------ */
   function citrusPaths() {
     let d = "";
@@ -39,14 +43,12 @@ window.FVSections = (function () {
     herbs: `<svg class="art" viewBox="0 0 200 260" aria-hidden="true">${P.herbs}</svg>`,
     bouquet: `<svg class="art" viewBox="0 0 420 400" aria-hidden="true"><g transform="translate(150 20) rotate(8 100 130)">${P.sprig}</g><g transform="translate(20 150) rotate(-10 100 100) scale(.95)">${P.leaf}</g><g transform="translate(236 176) scale(.9)">${P.fig}</g><g transform="translate(40 18) scale(.62)">${citrusPaths()}</g><g transform="translate(250 30) scale(.7)">${P.strawberry}</g></svg>`,
   };
-  const MARK = '<svg class="mq-mark" viewBox="0 0 40 40" aria-hidden="true"><path fill="currentColor" d="M5 35C5 16 17 5 35 5c0 19-11 30-30 30Z"/><path d="M5 35 22 18" stroke="var(--mq-bg, #19291C)" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg>';
-  const SWASH = '<svg viewBox="0 0 200 22" preserveAspectRatio="none" aria-hidden="true" data-draw><path d="M4 15C52 6 118 4 196 9"/><path d="M40 19c40-5 84-6 128-3"/></svg>';
 
   /* ------------------------------------------------------------------ *
    * Text + images
    * ------------------------------------------------------------------ */
   function md(s) {
-    return esc(s).replace(/\*([^*]+)\*/g, '<em class="i">$1</em>').replace(/~([^~]+)~/g, (m, w) => `<span class="swash">${w}${SWASH}</span>`).replace(/\n/g, "<br>");
+    return esc(s).replace(/\*([^*]+)\*/g, '<em class="i">$1</em>').replace(/~([^~]+)~/g, '<em class="i">$1</em>').replace(/\n/g, "<br>");
   }
   function paras(s, cls) {
     return String(s || "").split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean).map((p) => {
@@ -64,7 +66,10 @@ window.FVSections = (function () {
   function img(ref, o) {
     o = o || {};
     const alt = esc(o.alt || ""), load = o.eager ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"', attrs = o.attrs || "";
-    if (!ref) return "";
+    if (!ref || ref.indexOf("art:") === 0) return "";
+    if (ref === "hero-portrait") {
+      return `<picture><source type="image/webp" srcset="assets/img/hero/hero-portrait-700.webp 700w, assets/img/hero/hero-portrait-1000.webp 1000w" sizes="${o.sizes || "(max-width: 960px) 100vw, 42vw"}"><img src="assets/img/hero/hero-portrait-1000.jpg" srcset="assets/img/hero/hero-portrait-700.jpg 700w, assets/img/hero/hero-portrait-1000.jpg 1000w" sizes="${o.sizes || "(max-width: 960px) 100vw, 42vw"}" alt="${alt}" ${load} decoding="async" width="1000" height="1333" ${attrs}></picture>`;
+    }
     if (ref === "hero") {
       return `<picture><source media="(max-width: 700px)" type="image/webp" srcset="assets/img/hero/hero-portrait-700.webp 700w, assets/img/hero/hero-portrait-1000.webp 1000w" sizes="100vw"><source media="(max-width: 700px)" srcset="assets/img/hero/hero-portrait-700.jpg 700w, assets/img/hero/hero-portrait-1000.jpg 1000w" sizes="100vw"><source type="image/webp" srcset="assets/img/hero/hero-800.webp 800w, assets/img/hero/hero-1200.webp 1200w, assets/img/hero/hero-1800.webp 1800w, assets/img/hero/hero-2400.webp 2400w" sizes="${o.sizes || "100vw"}"><img src="assets/img/hero/hero-1800.jpg" srcset="assets/img/hero/hero-800.jpg 800w, assets/img/hero/hero-1200.jpg 1200w, assets/img/hero/hero-1800.jpg 1800w, assets/img/hero/hero-2400.jpg 2400w" sizes="${o.sizes || "100vw"}" alt="${alt}" ${load} decoding="async" width="2400" height="982" ${attrs}></picture>`;
     }
@@ -72,7 +77,6 @@ window.FVSections = (function () {
       const k = ref.slice(7).replace(/[^a-z0-9-]/gi, "");
       return `<picture><source type="image/webp" srcset="assets/img/banners/sm/${k}.webp 540w, assets/img/banners/${k}.webp 1500w" sizes="${o.sizes || "(max-width: 960px) 100vw, 60vw"}"><img src="assets/img/banners/${k}.jpg" srcset="assets/img/banners/sm/${k}.jpg 540w, assets/img/banners/${k}.jpg 1500w" sizes="${o.sizes || "(max-width: 960px) 100vw, 60vw"}" alt="${alt}" ${load} decoding="async" width="1500" height="779" ${attrs}></picture>`;
     }
-    if (ref.indexOf("art:") === 0) return ART[ref.slice(4)] || ART.sprig;
     if (FV.isCustomImg(ref)) return `<img src="${esc(ref)}" alt="${alt}" ${load} decoding="async" ${attrs}>`;
     return `<picture><source type="image/webp" srcset="${FV.webp(FV.thumb(ref))} 540w, ${FV.webp(FV.img(ref))} 1000w" sizes="${o.sizes || "(max-width: 960px) 90vw, 40vw"}"><img src="${FV.thumb(ref)}" srcset="${FV.thumb(ref)} 540w, ${FV.img(ref)} 1000w" sizes="${o.sizes || "(max-width: 960px) 90vw, 40vw"}" alt="${alt}" ${load} decoding="async" width="1000" height="1000" ${attrs}></picture>`;
   }
@@ -80,17 +84,23 @@ window.FVSections = (function () {
   /* ------------------------------------------------------------------ *
    * Shared bits
    * ------------------------------------------------------------------ */
-  const band = (b) => "band--" + (b || "paper");
+  const BANDS = ["paper", "mist", "kraft", "sage", "dark", "olive"];
+  const band = (b) => "band--" + (BANDS.includes(b) ? (b === "olive" || b === "sage" ? "mist" : b) : "paper");
   const attrs = (s, extra) => `id="${esc(s.id)}" data-section-id="${esc(s.id)}" data-section-type="${esc(s.type)}"${extra ? " " + extra : ""}`;
   const eyebrow = (t) => t ? `<p class="eyebrow">${md(t)}</p>` : "";
-  function btn(label, link, cls, magnetic) {
+  const two = (i) => String(i + 1).padStart(2, "0");
+  function btn(label, link, cls) {
     if (!label) return "";
-    return `<a class="btn ${cls || ""}" href="${esc(link || "#")}"${magnetic ? " data-magnetic" : ""}>${esc(label)}<span class="btn__ic">${I("arrow")}</span></a>`;
+    return `<a class="btn ${cls || ""}" href="${esc(link || "#")}">${esc(label)}<span class="btn__ic">${I("arrow")}</span></a>`;
   }
-  const btnDark = (st, dark) => btn(st.cta_label, st.cta_link, dark ? "btn--olive" : "", true) + btn(st.cta2_label, st.cta2_link, dark ? "btn--ghost-light" : "btn--ghost");
+  function tlink(label, link, cls) {
+    if (!label) return "";
+    return `<a class="link-u ${cls || ""}" href="${esc(link || "#")}">${esc(label)} ${I("arrow")}</a>`;
+  }
+  const ctas = (st, dark) => (st.cta_label || st.cta2_label) ? `<div class="row cta-row">${btn(st.cta_label, st.cta_link, dark ? "btn--light" : "")}${tlink(st.cta2_label, st.cta2_link)}</div>` : "";
   function head(st, opt) {
     opt = opt || {};
-    const cta = st.cta_label && !opt.noCta ? `<a class="link-u" href="${esc(st.cta_link || "#")}">${esc(st.cta_label)} ${I("arrow")}</a>` : "";
+    const cta = st.cta_label && !opt.noCta ? tlink(st.cta_label, st.cta_link || "#") : "";
     const side = opt.side || cta;
     return `<div class="head${opt.center ? " head--center" : ""}">
       <div class="head__main">${eyebrow(st.eyebrow)}<h2 data-split>${md(st.title)}</h2>${st.text && !opt.noText ? `<p class="lede">${md(st.text)}</p>` : ""}</div>
@@ -103,6 +113,7 @@ window.FVSections = (function () {
     else if (["fruits", "vegetables", "herbs"].includes(key)) ps = FV.byCategory(key);
     else ps = FV.byCollection(key);
     if (key === "best-sellers" && ps.length < (limit || 12)) ps = ps.concat(FV.byCollection("essentials").filter((p) => !ps.includes(p)));
+    if (key === "seasonal") ps = ps.slice().sort((a, b) => (FV.inSeasonNow(b) ? 1 : 0) - (FV.inSeasonNow(a) ? 1 : 0));
     return limit ? ps.slice(0, limit) : ps;
   }
   function countFor(key) {
@@ -111,7 +122,22 @@ window.FVSections = (function () {
     if (["fruits", "vegetables", "herbs"].includes(key)) return FV.byCategory(key).length;
     return FV.byCollection(key).length;
   }
-  const stars = (n) => `<span class="stars" aria-hidden="true">${I("star").repeat(n || 5)}</span>`;
+  const railNav = () => `<div class="rail-nav"><button class="rail-btn" data-rail-prev aria-label="Previous">${I("arrowL")}</button><button class="rail-btn" data-rail-next aria-label="Next">${I("arrow")}</button></div>`;
+  /* The herb field label — a typographic tile for produce without photography */
+  const herbsTile = () => `<span class="herb-tile herb-tile--list" aria-hidden="true">${FV.byCategory("herbs").slice(0, 5).map((p) => `<span>${esc(p.latin || p.name)}</span>`).join("")}</span>`;
+
+  /* Egypt's growing regions — geography notes for the Provenance index */
+  const REGIONS = {
+    "Qalyubia": ["The Delta, just north of Cairo", 45],
+    "Sharqia": ["The eastern Delta", 80],
+    "Beheira": ["The western Delta", 160],
+    "Nubaria": ["Reclaimed desert, west of the Delta", 110],
+    "Ismailia": ["Orchards along the canal", 120],
+    "Minya": ["Middle Egypt, on the Nile", 245],
+    "Qena": ["Upper Egypt, in the Nile's bend", 620],
+    "Siwa Oasis": ["The Western Desert", 800],
+  };
+  const REGION_ORDER = Object.keys(REGIONS);
 
   /* ------------------------------------------------------------------ *
    * Renderers
@@ -120,130 +146,132 @@ window.FVSections = (function () {
   const CTX = { page: null };
 
   R.hero = (s, st) => {
-    const words = list(st.words);
-    const orbs = list(st.orbs, ",").slice(0, 4);
-    const chips = list(st.chips);
-    const chipIc = ["shield", "snow", "truck", "leaf"];
-    const ring = "fvStk-" + esc(s.id);
-    const av = [["NE", "#2D4630"], ["YF", "#6E5F2E"], ["OS", "#7A2B21"], ["MA", "#2A2622"]];
+    const title = st.title || [st.line1, st.line2, st.line3].filter(Boolean).join("\n");
+    const al = FV.almanac();
+    const eb = st.almanac ? al.text : st.eyebrow;
+    const peak = st.peak === false ? [] : FV.peakNow(3);
+    const image = !st.image || st.image === "hero" ? "hero-portrait" : st.image;
     return `<section class="s s-hero" ${attrs(s)}>
-      <div class="wrap wrap--wide">
-        <div class="hero__grid">
-          <div class="hero__head">
-            ${st.badge ? `<a class="hero__badge" href="${esc(st.badge_link || "products.html")}"><span class="dot" aria-hidden="true"></span>${md(st.badge)}${I("arrow")}</a>` : ""}
-            <h1 class="hero__title">
-              <span class="hero__orbs" aria-hidden="true">${orbs.map((o, i) => `<span class="orb" data-depth="${[0.9, 0.5, 0.7, 0.4][i]}"><span class="orb__in" data-float="${[12, 16, 10, 14][i]}">${img(o, { sizes: "130px", attrs: 'fetchpriority="low"' })}</span></span>`).join("")}</span>
-              <span class="line" style="--i:0"><span class="line__in">${md(st.line1)}</span></span>
-              <span class="line" style="--i:1"><span class="line__in">${md(st.line2)}</span></span>
-              <span class="line" style="--i:2"><span class="line__in">${md(st.line3)}${words.length ? ` <em class="i rot" data-rotate="${esc(words.join("|"))}"><span class="rot__w">${esc(words[0])}</span></em>.` : ""}</span></span>
-            </h1>
-          </div>
-          <div class="hero__side">
-            ${st.lede ? `<p class="lede">${md(st.lede)}</p>` : ""}
-            <div class="hero__cta">${btn(st.cta1_label, st.cta1_link, "btn--lg", true)}${btn(st.cta2_label, st.cta2_link, "btn--ghost btn--lg")}</div>
-            ${st.proof ? `<div class="hero__proof"><span class="avatars" aria-hidden="true">${av.map((a) => `<span style="background:${a[1]}">${a[0]}</span>`).join("")}</span><span>${stars(5)}<br>${md(st.proof)}</span></div>` : ""}
-          </div>
+      <div class="wrap wrap--wide hero">
+        <div class="hero__copy">
+          ${eb ? `<p class="eyebrow hero__eyebrow">${esc(eb)}</p>` : ""}
+          <h1 class="hero__title">${String(title).split("\n").map((l, i) => `<span class="line" style="--i:${i}"><span class="line__in">${md(l)}</span></span>`).join("")}</h1>
+          ${st.lede ? `<p class="lede hero__lede">${md(st.lede)}</p>` : ""}
+          <div class="hero__cta">${btn(st.cta1_label, st.cta1_link, "btn--lg")}${tlink(st.cta2_label, st.cta2_link)}</div>
         </div>
-      </div>
-      <div class="hero__media-wrap">
-        ${st.sticker ? `<div class="sticker hero__sticker" aria-hidden="true"><svg class="ring" viewBox="0 0 120 120"><defs><path id="${ring}" d="M60 60m-47 0a47 47 0 1 1 94 0a47 47 0 1 1-94 0"/></defs><text><textPath href="#${ring}" textLength="292" lengthAdjust="spacing">${esc(st.sticker)}</textPath></text></svg><span class="sticker__core">${ART.leaf}</span></div>` : ""}
-        <div class="hero__media">
-          ${img(st.image || "hero", { eager: true, alt: st.image_alt, sizes: "100vw" })}
-          ${chips.length ? `<div class="hero__caption">${chips.map((c, i) => `<span class="chip chip--glass">${I(chipIc[i % 4])}${esc(c)}</span>`).join("")}</div>` : ""}
-          ${st.rating ? `<div class="hero__rating"><span class="rating-pill"><b>${esc(st.rating)}</b>${stars(5)}<span>${esc(st.rating_label || "")}</span></span></div>` : ""}
+        <div class="hero__side">
+          <figure class="hero__media">${img(image, { eager: true, alt: st.image_alt, sizes: "(max-width: 960px) 92vw, 40vw" })}</figure>
+          <div class="hero__notes">
+            ${st.caption ? `<p class="hero__caption">${esc(st.caption)}</p>` : ""}
+            ${peak.length ? `<div class="hero__peak"><p class="label">At its best this week</p><ul>${peak.map((p) => `<li><a href="product.html?slug=${p.slug}">${esc(p.name)}</a><small>${esc(FV.originShort(p.origin))}</small></li>`).join("")}</ul></div>` : ""}
+          </div>
         </div>
       </div>
     </section>`;
   };
 
-  R.marquee = (s, st) => {
-    const items = list(st.items);
-    const unit = `<div class="marquee__item">${items.map((t) => `<span>${esc(t)}</span>${MARK}`).join("")}</div>`;
-    const sp = +st.speed || 1;
-    if (st.style === "cross") {
-      return `<section class="s-marquee s-marquee--cross" ${attrs(s)}>
-        <div class="marquee marquee--olive" data-marquee="right" data-speed="${sp * 0.8}" aria-hidden="true"><div class="marquee__track">${unit}</div></div>
-        <div class="marquee marquee--brand" data-marquee data-speed="${sp}"><div class="marquee__track">${unit}</div></div>
-      </section>`;
-    }
-    return `<section class="s-marquee" ${attrs(s)}><div class="marquee marquee--${st.style === "olive" ? "olive" : "brand"}" data-marquee data-speed="${sp}"><div class="marquee__track">${unit}</div></div></section>`;
-  };
+  R.statement = (s, st) => `<section class="s sec ${band(st.band)} s-statement" ${attrs(s)}><div class="wrap wrap--wide"><div class="statement">
+      ${eyebrow(st.eyebrow)}
+      <p class="statement__text" data-split>${md(st.text)}</p>
+      ${st.sign || st.cta_label ? `<div class="statement__foot">${st.sign ? `<span class="statement__sign">${esc(st.sign)}</span>` : ""}${tlink(st.cta_label, st.cta_link)}</div>` : ""}
+    </div></div></section>`;
 
   R.categories = (s, st, blocks) => {
-    const tiles = blocks.map((b) => {
-      const t = b.settings || {}, n = countFor(t.count), isArt = String(t.image || "").indexOf("art:") === 0;
-      return `<a class="ctile${isArt ? " ctile--art" : ""}" href="${esc(t.link || "products.html")}" data-cursor="Explore">
-        ${isArt ? `<span class="ctile__art" data-draw>${img(t.image)}</span>` : img(t.image, { sizes: "(max-width: 960px) 92vw, 45vw", alt: "" })}
-        ${n ? `<span class="ctile__top"><span class="ctile__count">${n} ${t.count === "boxes" ? "boxes" : "items"}</span></span>` : ""}
-        <span class="ctile__body"><span><h3>${md(t.title)}</h3>${t.text ? `<p>${md(t.text)}</p>` : ""}</span><span class="ctile__go" aria-hidden="true">${I("arrowUR")}</span></span>
+    const tiles = blocks.map((b, i) => {
+      const t = b.settings || {}, n = countFor(t.count), pic = img(t.image, { sizes: "(max-width: 640px) 92vw, (max-width: 960px) 46vw, 30vw", alt: "" });
+      return `<a class="cat" href="${esc(t.link || "products.html")}">
+        <span class="cat__media${pic ? "" : " media--herb"}">${pic || herbsTile()}</span>
+        <span class="cat__body"><span class="cat__n">${two(i)}</span><span class="cat__t"><h3>${md(t.title)}</h3>${t.text ? `<span class="cat__d">${md(t.text)}</span>` : ""}</span>${n ? `<span class="cat__count">${n}</span>` : ""}</span>
       </a>`;
     }).join("");
-    return `<section class="s sec ${band(st.band)}" ${attrs(s)}><div class="wrap wrap--wide">${head(st)}<div class="bento" data-stagger>${tiles}</div></div></section>`;
+    return `<section class="s sec ${band(st.band)}" ${attrs(s)}><div class="wrap wrap--wide">${head(st)}<div class="cats" data-stagger>${tiles}</div></div></section>`;
   };
 
   R.product_rail = (s, st) => {
     const ps = productsFor(st.collection, +st.limit || 12);
-    const nav = `<div class="rail-nav"><button class="rail-btn" data-rail-prev aria-label="Previous">${I("arrowL")}</button><button class="rail-btn" data-rail-next aria-label="Next">${I("arrow")}</button></div>`;
-    const cta = st.cta_label ? `<a class="link-u" href="${esc(st.cta_link || "products.html")}">${esc(st.cta_label)} ${I("arrow")}</a>` : "";
+    const cta = st.cta_label ? tlink(st.cta_label, st.cta_link || "products.html") : "";
     return `<section class="s sec ${band(st.band)}" ${attrs(s)}><div class="wrap wrap--wide">
-      ${head(st, { side: cta + nav })}
-      <div class="rail-wrap"><div class="rail" data-cursor="Drag">${ps.map(FV.productCardHTML).join("")}</div><div class="rail-progress" aria-hidden="true"><i></i></div></div>
+      ${head(st, { side: cta + railNav() })}
+      <div class="rail-wrap"><div class="rail">${ps.map(FV.productCardHTML).join("")}</div><div class="rail-progress" aria-hidden="true"><i></i></div></div>
+    </div></section>`;
+  };
+
+  R.almanac = (s, st) => {
+    const mo = new Date().getMonth(), M = FV.MONTHS;
+    const rel = (p) => { const m = FV.seasonMonths(p).m; if (m[mo]) return -1; for (let k = 1; k < 12; k++) if (m[(mo + k) % 12]) return k; return 12; };
+    const rows = D.products.filter((p) => !FV.seasonMonths(p).all).sort((a, b) => rel(a) - rel(b)).slice(0, +st.limit || 10);
+    const cells = (p) => { const m = FV.seasonMonths(p).m; return m.map((on, i) => `<td class="alm__c${on ? " is-on" : ""}${on && !m[(i + 11) % 12] ? " is-start" : ""}${on && !m[(i + 1) % 12] ? " is-end" : ""}${i === mo ? " is-now" : ""}"><span class="sr-only">${on ? "in season" : "—"}</span></td>`).join(""); };
+    const al = FV.almanac();
+    return `<section class="s sec ${band(st.band || "mist")} s-almanac" ${attrs(s)}><div class="wrap wrap--wide">
+      ${head(st, { side: `<p class="alm__now"><span class="label">Now</span>${esc(al.month)} · week ${al.week}</p>` })}
+      <div class="alm-wrap" data-reveal>
+        <table class="alm">
+          <caption class="sr-only">Harvest calendar — the months each crop is in season</caption>
+          <thead><tr><th scope="col" class="alm__h">Crop · origin</th>${M.map((m, i) => `<th scope="col" class="alm__m${i === mo ? " is-now" : ""}"><span class="l">${m}</span><span class="s" aria-hidden="true">${m.charAt(0)}</span></th>`).join("")}</tr></thead>
+          <tbody>${rows.map((p) => `<tr${FV.inSeasonNow(p) ? ' class="is-peak"' : ""}><th scope="row"><a href="product.html?slug=${p.slug}">${esc(p.name)}</a><small>${esc(FV.originShort(p.origin))}${FV.inSeasonNow(p) ? " · at its peak" : ""}</small></th>${cells(p)}</tr>`).join("")}</tbody>
+        </table>
+      </div>
+      <p class="alm__note">Staples — apples, citrus, dates, vegetables and cut herbs — are graded and delivered all year.</p>
+    </div></section>`;
+  };
+
+  R.origins = (s, st) => {
+    const by = {};
+    D.products.forEach((p) => { const r = FV.originShort(p.origin); if (REGIONS[r]) (by[r] = by[r] || []).push(p); });
+    const regions = REGION_ORDER.filter((r) => by[r]);
+    return `<section class="s sec ${band(st.band)} s-origins" ${attrs(s)}><div class="wrap wrap--wide">
+      ${head(st, { noCta: true, side: `<p class="origins__sum"><b>${regions.length}</b> regions · <b>${regions.reduce((n, r) => n + by[r].length, 0)}</b> crops</p>` })}
+      <ol class="origins" data-stagger>${regions.map((r, i) => { const ps = by[r]; return `<li class="origin">
+        <span class="origin__n">${two(i)}</span>
+        <div class="origin__place"><h3>${esc(r)}</h3><p>${esc(REGIONS[r][0])}</p></div>
+        <p class="origin__crops">${ps.map((p) => `<a href="product.html?slug=${p.slug}">${esc(p.name)}</a>`).join(", ")}</p>
+        <span class="origin__km">≈ ${REGIONS[r][1]} km<small>from Cairo</small></span>
+      </li>`; }).join("")}</ol>
     </div></section>`;
   };
 
   R.story = (s, st, blocks) => {
     const struck = list(st.struck);
-    return `<section class="s sec s-story band--dark" ${attrs(s, "data-story")}><div class="wrap wrap--wide"><div class="story">
+    const pic = st.image || (blocks.find((b) => b.settings && b.settings.image) || { settings: {} }).settings.image;
+    return `<section class="s sec ${band(st.band)} s-story" ${attrs(s)}><div class="wrap wrap--wide"><div class="story">
+      <figure class="story__media" data-clip>${img(pic, { sizes: "(max-width: 960px) 92vw, 46vw", alt: "" })}</figure>
       <div class="story__copy">
         ${eyebrow(st.eyebrow)}
         ${struck.length ? `<div class="story__struck" data-strike>${struck.map((t) => `<p>${esc(t)}.</p>`).join("")}</div>` : ""}
         <h2 data-split>${md(st.title)}</h2>
         ${st.text ? `<p class="lede">${md(st.text)}</p>` : ""}
-        <div class="row">${btnDark(st, true)}</div>
-        <div class="story__progress" aria-hidden="true">${blocks.map(() => "<i></i>").join("")}</div>
+        ${blocks.length ? `<ol class="story__steps" data-stagger>${blocks.map((b, i) => { const t = b.settings || {}; return `<li><span class="n">${two(i)}</span><div><h3>${md(t.title)}</h3><p>${md(t.text)}</p></div></li>`; }).join("")}</ol>` : ""}
+        ${ctas(st)}
       </div>
-      <div class="story__steps">${blocks.map((b, i) => { const t = b.settings || {}; return `<article class="step" data-reveal><div class="step__img">${img(t.image, { sizes: "(max-width: 960px) 92vw, 48vw", alt: "" })}</div><div class="step__body"><span class="step__n">${String(i + 1).padStart(2, "0")}</span><h3>${md(t.title)}</h3><p>${md(t.text)}</p></div></article>`; }).join("")}</div>
     </div></div></section>`;
   };
 
   R.boxes = (s, st) => {
     const slugs = list(st.boxes, ",");
     const bx = (slugs.length ? slugs.map(FV.findBox).filter(Boolean) : D.boxes);
-    return `<section class="s sec ${band(st.band)}" ${attrs(s)}><div class="wrap wrap--wide">${head(st)}<div class="deck${bx.length === 5 ? " deck--5" : bx.length === 3 ? " deck--3" : ""}" data-fan>${bx.map(FV.boxCardHTML).join("")}</div></div></section>`;
+    return `<section class="s sec ${band(st.band)}" ${attrs(s)}><div class="wrap wrap--wide">${head(st)}<div class="deck deck--${Math.min(5, Math.max(2, bx.length))}" data-stagger>${bx.map(FV.boxCardHTML).join("")}</div></div></section>`;
   };
 
   R.stats = (s, st, blocks) => {
     const items = blocks.map((b) => {
       const t = b.settings || {}, v = parseFloat(t.value), dec = +t.decimals || 0;
       const shown = isNaN(v) ? esc(t.value) : (dec ? v.toFixed(dec) : Math.round(v).toLocaleString("en-US")) + esc(t.suffix || "");
-      return `<div class="stat" data-reveal><span class="stat__n"${isNaN(v) ? "" : ` data-count="${v}" data-dec="${dec}" data-suffix="${esc(t.suffix || "")}"`}>${shown}</span><span class="stat__l">${md(t.label)}</span></div>`;
+      return `<div class="stat"><span class="stat__n"${isNaN(v) ? "" : ` data-count="${v}" data-dec="${dec}" data-suffix="${esc(t.suffix || "")}"`}>${shown}</span><span class="stat__l">${md(t.label)}</span></div>`;
     }).join("");
-    return `<section class="s sec ${band(st.band || "dark")}" ${attrs(s)}><div class="wrap wrap--wide">${head(st, { noCta: true })}<div class="stats">${items}</div></div></section>`;
+    return `<section class="s sec ${band(st.band || "dark")} s-stats" ${attrs(s)}><div class="wrap wrap--wide">${head(st, { noCta: true })}<div class="stats" data-stagger>${items}</div></div></section>`;
   };
 
   R.image_text = (s, st) => {
-    const items = list(st.list).map((l) => { const [a, b] = l.split(/\s+—\s+/); return `<li>${I("check")}<span>${b ? `<strong>${md(a)}</strong> — ${md(b)}` : md(a)}</span></li>`; }).join("");
+    const items = list(st.list).map((l, i) => { const [a, b] = l.split(/\s+—\s+/); return `<li><span class="n">${two(i)}</span><span>${b ? `<strong>${md(a)}</strong>${md(b)}` : md(a)}</span></li>`; }).join("");
     return `<section class="s sec ${band(st.band)}" ${attrs(s)}><div class="wrap wrap--wide"><div class="it${st.flip ? " it--flip" : ""}">
-      <div class="it__media" data-clip data-parallax-root>${img(st.image, { sizes: "(max-width: 960px) 92vw, 46vw", alt: "", attrs: 'data-parallax="6"' })}${st.chip ? `<span class="chip chip--glass">${I("leaf")}${esc(st.chip)}</span>` : ""}</div>
-      <div class="it__copy">${eyebrow(st.eyebrow)}<h2 data-split>${md(st.title)}</h2>${paras(st.text, "lede")}${items ? `<ul class="it__list" data-stagger>${items}</ul>` : ""}${st.cta_label ? `<div class="row">${btn(st.cta_label, st.cta_link, st.band === "dark" ? "btn--olive" : "")}</div>` : ""}</div>
+      <figure class="it__media"><span class="it__frame" data-clip>${img(st.image, { sizes: "(max-width: 960px) 92vw, 46vw", alt: "" })}</span>${st.chip ? `<figcaption>${esc(st.chip)}</figcaption>` : ""}</figure>
+      <div class="it__copy">${eyebrow(st.eyebrow)}<h2 data-split>${md(st.title)}</h2>${paras(st.text, "lede")}${items ? `<ol class="it__list" data-stagger>${items}</ol>` : ""}${st.cta_label ? `<div class="row cta-row">${btn(st.cta_label, st.cta_link, st.band === "dark" ? "btn--light" : "")}</div>` : ""}</div>
     </div></div></section>`;
   };
 
-  R.testimonials = (s, st) => {
-    const tags = list(st.tags, ",");
-    let rs = tags.length ? D.reviews.filter((r) => tags.includes(r.tag)) : D.reviews.slice();
-    if (rs.length < 8) rs = rs.concat(D.reviews.filter((r) => !rs.includes(r)));
-    rs = rs.slice(0, Math.max(8, +st.limit || 16));
-    const half = Math.ceil(rs.length / 2);
-    const row = (arr, dir, sp) => `<div class="t-mask" data-marquee${dir ? '="right"' : ""} data-speed="${sp}" data-pause><div class="t-row marquee__track"><div class="t-unit">${arr.map(FV.reviewCardHTML).join("")}</div></div></div>`;
-    const pill = st.rating ? `<span class="rating-pill"><b>${esc(st.rating)}</b>${stars(5)}<span>${esc(st.rating_label || "")}</span></span>` : "";
-    return `<section class="s sec ${band(st.band)} s-testimonials" ${attrs(s)}><div class="wrap wrap--wide">${head(st, { side: pill, noText: true })}</div>
-      <div class="t-rows">${row(rs.slice(0, half), false, 0.55)}${row(rs.slice(half), true, 0.45)}</div></section>`;
-  };
-
-  R.banner = (s, st) => `<section class="s sec s-banner" ${attrs(s)}><div class="wrap wrap--wide"><div class="banner" data-parallax-root>
-      ${img(st.image, { sizes: "(max-width: 960px) 100vw, 92vw", alt: "", attrs: 'data-parallax="7"' })}
-      <div class="banner__body">${eyebrow(st.eyebrow)}<h2 data-split>${md(st.title)}</h2>${st.text ? `<p class="lede">${md(st.text)}</p>` : ""}<div class="row">${btnDark(st, true)}</div></div>
+  R.banner = (s, st) => `<section class="s sec s-banner" ${attrs(s)}><div class="wrap wrap--wide"><div class="banner">
+      <div class="banner__media" data-clip data-parallax-root>${img(st.image, { sizes: "(max-width: 960px) 100vw, 92vw", alt: "", attrs: 'data-parallax="5"' })}</div>
+      <div class="banner__body">${eyebrow(st.eyebrow)}<h2 data-split>${md(st.title)}</h2>${st.text ? `<p class="lede">${md(st.text)}</p>` : ""}${ctas(st)}</div>
     </div></div></section>`;
 
   R.journal = (s, st) => {
@@ -252,10 +280,10 @@ window.FVSections = (function () {
       const cats = Array.from(new Set(D.articles.map((a) => a.category)));
       const f = arts[0];
       return `<section class="s sec band--paper" ${attrs(s)}><div class="wrap wrap--wide">
-        <article class="feature-post" data-reveal><a class="feature-post__media" href="article.html?slug=${f.slug}" data-cursor="Read" data-clip>${img(f.image, { sizes: "(max-width: 960px) 92vw, 60vw", alt: "" })}</a>
-          <div class="feature-post__body"><span class="chip chip--olive">${esc(f.category)}</span><h2><a href="article.html?slug=${f.slug}">${esc(f.title)}</a></h2><p class="lede">${esc(f.excerpt)}</p><span class="acard__meta">${esc(f.author)} · ${esc(f.date)} · ${esc(f.read)}</span>${btn("Read the story", "article.html?slug=" + f.slug)}</div></article>
-        <div class="head" style="margin-top:clamp(3rem,6vw,6rem)"><div class="head__main">${eyebrow(st.eyebrow)}<h2 data-split>${md(st.title)}</h2></div>
-          <div class="tabs" role="tablist" aria-label="Filter the journal" data-jtabs><button role="tab" aria-selected="true" data-cat="all">All</button>${cats.map((c) => `<button role="tab" aria-selected="false" data-cat="${esc(c)}">${esc(c)}</button>`).join("")}<span class="tabs__ink" aria-hidden="true"></span></div></div>
+        <article class="feature-post" data-reveal><a class="feature-post__media" href="article.html?slug=${f.slug}" data-clip>${img(f.image, { sizes: "(max-width: 960px) 92vw, 58vw", alt: "" })}</a>
+          <div class="feature-post__body"><p class="eyebrow">${esc(f.category)} · ${esc(f.read)}</p><h2><a href="article.html?slug=${f.slug}">${esc(f.title)}</a></h2><p class="lede">${esc(f.excerpt)}</p><span class="acard__meta">${esc(f.author)} · ${esc(f.date)}</span>${tlink("Read the note", "article.html?slug=" + f.slug)}</div></article>
+        <div class="head head--tabs"><div class="head__main">${eyebrow(st.eyebrow)}<h2 data-split>${md(st.title)}</h2></div>
+          <div class="tabs" role="tablist" aria-label="Filter the notes" data-jtabs><button role="tab" aria-selected="true" data-cat="all">All</button>${cats.map((c) => `<button role="tab" aria-selected="false" data-cat="${esc(c)}">${esc(c)}</button>`).join("")}<span class="tabs__ink" aria-hidden="true"></span></div></div>
         <div class="jlist" data-jlist>${arts.slice(1).map((a) => FV.articleCardHTML(a, true).replace('class="acard acard--row"', `class="acard acard--row" data-cat="${esc(a.category)}"`)).join("")}</div>
       </div></section>`;
     }
@@ -265,20 +293,19 @@ window.FVSections = (function () {
   R.page_head = (s, st) => {
     const crumbTitle = (CTX.page && CTX.page.title) || String(st.title || "").replace(/[*~]/g, "");
     return `<section class="s s-page-head${st.compact ? " s-page-head--compact" : ""}" ${attrs(s)}>
-      ${st.art ? `<div class="page-head__art" data-draw>${ART[st.art] || ""}</div>` : ""}
       <div class="wrap wrap--wide">
         <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span aria-hidden="true">/</span><span aria-current="page">${esc(crumbTitle)}</span></nav>
         <div class="page-head">
           <div>${eyebrow(st.eyebrow)}<h1 class="ph-title">${md(st.title)}</h1></div>
-          <div class="page-head__side">${st.text ? `<p class="lede">${md(st.text)}</p>` : ""}${st.cta_label || st.cta2_label ? `<div class="row">${btn(st.cta_label, st.cta_link, "", true)}${btn(st.cta2_label, st.cta2_link, "btn--ghost")}</div>` : ""}</div>
+          <div class="page-head__side">${st.text ? `<p class="lede">${md(st.text)}</p>` : ""}${st.cta_label || st.cta2_label ? `<div class="row cta-row">${btn(st.cta_label, st.cta_link)}${tlink(st.cta2_label, st.cta2_link)}</div>` : ""}</div>
         </div>
-        ${st.image ? `<figure class="page-head__media" data-parallax-root>${img(st.image, { eager: true, sizes: "100vw", alt: "", attrs: 'data-parallax="8"' })}${st.caption ? `<figcaption class="chip chip--glass">${esc(st.caption)}</figcaption>` : ""}</figure>` : ""}
+        ${st.image ? `<figure class="page-head__media"><span class="page-head__frame" data-parallax-root>${img(st.image, { eager: true, sizes: "100vw", alt: "", attrs: 'data-parallax="6"' })}</span>${st.caption ? `<figcaption>${esc(st.caption)}</figcaption>` : ""}</figure>` : ""}
       </div>
     </section>`;
   };
 
   R.strike_list = (s, st) => {
-    const items = list(st.items).map((l) => { const [a, b] = l.split(/\s+—\s+/); return `<li><span class="sl__t">${md(a)}.</span>${b ? `<span class="sl__n">— ${md(b)}</span>` : ""}</li>`; }).join("");
+    const items = list(st.items).map((l) => { const [a, b] = l.split(/\s+—\s+/); return `<li><span class="sl__t">${md(a)}</span>${b ? `<span class="sl__n">${md(b)}</span>` : ""}</li>`; }).join("");
     return `<section class="s sec ${band(st.band)}" ${attrs(s)}><div class="wrap wrap--wide">
       <div class="head head--split"><div class="head__main">${eyebrow(st.eyebrow)}<h2 data-split>${md(st.title)}</h2></div>${st.text ? `<p class="head__side">${md(st.text)}</p>` : ""}</div>
       <ul class="strike-list" data-strike>${items}</ul>
@@ -287,55 +314,51 @@ window.FVSections = (function () {
 
   R.seasons = (s, st, blocks) => `<section class="s sec ${band(st.band)}" ${attrs(s)}><div class="wrap wrap--wide">
       <div class="head head--split"><div class="head__main">${eyebrow(st.eyebrow)}<h2 data-split>${md(st.title)}</h2></div>${st.text ? `<p class="head__side">${md(st.text)}</p>` : ""}</div>
-      <div class="seasons" data-stagger>${blocks.map((b) => { const t = b.settings || {}; return `<figure class="season">${img(t.image, { sizes: "(max-width: 960px) 46vw, 24vw", alt: "" })}<figcaption><small>${esc(t.label)}</small><h3>${md(t.title)}</h3>${t.text ? `<p>${md(t.text)}</p>` : ""}</figcaption></figure>`; }).join("")}</div>
+      <div class="seasons" data-stagger>${blocks.map((b) => { const t = b.settings || {}; return `<figure class="season"><span class="season__img">${img(t.image, { sizes: "(max-width: 960px) 46vw, 24vw", alt: "" })}</span><figcaption><span class="label">${esc(t.label)}</span><h3>${md(t.title)}</h3>${t.text ? `<p>${md(t.text)}</p>` : ""}</figcaption></figure>`; }).join("")}</div>
     </div></section>`;
 
-  R.hscroll = (s, st, blocks) => `<section class="s s-hscroll ${band(st.band || "dark")}" ${attrs(s, "data-hscroll")}>
-      <div class="wrap wrap--wide">${head(st, { noCta: true })}</div>
-      <div class="hs__viewport" data-cursor="Scroll"><div class="hs__track">${blocks.map((b, i) => { const t = b.settings || {}; return `<article class="hs__card"><div class="hs__img">${img(t.image, { sizes: "(max-width: 960px) 80vw, 34vw", alt: "" })}</div><div class="hs__body"><span class="hs__n">${String(i + 1).padStart(2, "0")}</span><h3>${md(t.title)}</h3><p>${md(t.text)}</p></div></article>`; }).join("")}<div class="hs__end" aria-hidden="true">${ART.sprig}</div></div></div>
+  R.hscroll = (s, st, blocks) => `<section class="s sec s-ritual ${band(st.band || "dark")}" ${attrs(s)}>
+      <div class="wrap wrap--wide">${head(st, { noCta: true, side: railNav() })}
+      <div class="rail-wrap"><div class="rail rail--ritual">${blocks.map((b, i) => { const t = b.settings || {}; return `<article class="ritual"><div class="ritual__img">${img(t.image, { sizes: "(max-width: 960px) 78vw, 30vw", alt: "" })}</div><div class="ritual__body"><span class="ritual__n">${two(i)}</span><div><h3>${md(t.title)}</h3><p>${md(t.text)}</p></div></div></article>`; }).join("")}</div><div class="rail-progress" aria-hidden="true"><i></i></div></div>
+      </div>
     </section>`;
 
-  R.gallery = (s, st, blocks) => {
-    const nav = `<div class="rail-nav"><button class="rail-btn" data-rail-prev aria-label="Previous">${I("arrowL")}</button><button class="rail-btn" data-rail-next aria-label="Next">${I("arrow")}</button></div>`;
-    return `<section class="s sec ${band(st.band)}" ${attrs(s)}><div class="wrap wrap--wide">${head(st, { side: nav })}
-      <div class="rail-wrap gallery"><div class="rail rail--wide" data-cursor="Drag">${blocks.map((b) => { const t = b.settings || {}; return `<a class="moment" href="${esc(t.link || "products.html?cat=boxes")}" data-reveal>${img(t.image, { sizes: "(max-width: 640px) 84vw, 30vw", alt: "" })}<span class="moment__cap"><small>Moment</small><strong>${md(t.title)}</strong><span>${md(t.text)}</span></span></a>`; }).join("")}</div><div class="rail-progress" aria-hidden="true"><i></i></div></div>
-      ${st.cta_label ? `<div class="row" style="margin-top:1.4rem">${btn(st.cta_label, st.cta_link, "btn--ghost")}</div>` : ""}
+  R.gallery = (s, st, blocks) => `<section class="s sec ${band(st.band)}" ${attrs(s)}><div class="wrap wrap--wide">${head(st, { side: railNav() })}
+      <div class="rail-wrap gallery"><div class="rail rail--wide">${blocks.map((b) => { const t = b.settings || {}; return `<a class="moment" href="${esc(t.link || "products.html?cat=boxes")}"><span class="moment__img">${img(t.image, { sizes: "(max-width: 640px) 80vw, 28vw", alt: "" })}</span><span class="moment__cap"><strong>${md(t.title)}</strong><span>${md(t.text)}</span></span></a>`; }).join("")}</div><div class="rail-progress" aria-hidden="true"><i></i></div></div>
+      ${st.cta_label ? `<div class="row cta-row">${tlink(st.cta_label, st.cta_link)}</div>` : ""}
     </div></section>`;
-  };
 
   R.compare = (s, st) => {
-    const col = (title, items, isNew) => `<div class="compare__col compare__col--${isNew ? "new" : "old"}" data-reveal><h3>${md(title)}</h3><ul>${list(items).map((i) => `<li>${isNew ? I("check") : I("x")}<span>${md(i)}</span></li>`).join("")}</ul></div>`;
+    const col = (title, items, isNew) => `<div class="compare__col compare__col--${isNew ? "new" : "old"}" data-reveal><h3>${md(title)}</h3><ul>${list(items).map((i) => `<li>${isNew ? I("check") : I("minus")}<span>${md(i)}</span></li>`).join("")}</ul></div>`;
     return `<section class="s sec ${band(st.band)}" ${attrs(s)}><div class="wrap wrap--wide">${head(st, { noCta: true })}<div class="compare">${col(st.old_title, st.old_items)}${col(st.new_title, st.new_items, true)}</div></div></section>`;
   };
 
   R.quote = (s, st) => `<section class="s s-quote" ${attrs(s)}>
-      ${st.image ? `<div class="s-quote__bg" data-parallax-root>${img(st.image, { sizes: "100vw", alt: "", attrs: 'data-parallax="10"' })}</div>` : ""}
-      <div class="wrap wrap--narrow"><blockquote data-split="words">${md(st.quote)}</blockquote>${st.cite ? `<cite>${esc(st.cite)}</cite>` : ""}</div>
+      ${st.image ? `<div class="s-quote__bg" data-parallax-root>${img(st.image, { sizes: "100vw", alt: "", attrs: 'data-parallax="8"' })}</div>` : ""}
+      <div class="wrap wrap--narrow"><blockquote data-split>${md(st.quote)}</blockquote>${st.cite ? `<cite>${esc(st.cite)}</cite>` : ""}</div>
     </section>`;
 
   R.cta = (s, st) => {
-    const olive = st.style === "olive";
-    const form = st.newsletter ? `<form class="news-form" data-newsletter novalidate><label class="sr-only" for="nl-${esc(s.id)}">Email address</label><input id="nl-${esc(s.id)}" type="email" required placeholder="Your email address" autocomplete="email"><button class="btn ${olive ? "" : "btn--olive"} btn--sm" type="submit">Subscribe<span class="btn__ic">${I("arrow")}</span></button></form>` : "";
-    return `<section class="s sec" ${attrs(s)}><div class="wrap wrap--wide"><div class="cta-block${olive ? " cta-block--olive" : ""}">
-      <div>${eyebrow(st.eyebrow)}<h2 data-split>${md(st.title)}</h2>${st.text ? `<p class="lede">${md(st.text)}</p>` : ""}${form}${st.cta_label || st.cta2_label ? `<div class="row" style="margin-top:1.6rem">${btn(st.cta_label, st.cta_link, olive ? "" : "btn--olive", true)}${btn(st.cta2_label, st.cta2_link, olive ? "btn--ghost" : "btn--ghost-light")}</div>` : ""}</div>
-      ${st.art ? `<div class="cta-block__art" data-draw>${ART[st.art] || ""}</div>` : ""}
+    const dark = st.style === "forest";
+    return `<section class="s sec" ${attrs(s)}><div class="wrap wrap--wide"><div class="cta-block${dark ? " cta-block--dark" : ""}">
+      ${eyebrow(st.eyebrow)}<h2 data-split>${md(st.title)}</h2>${st.text ? `<p class="lede">${md(st.text)}</p>` : ""}${ctas(st, dark)}
     </div></div></section>`;
   };
 
   R.steps = (s, st, blocks) => `<section class="s sec ${band(st.band)}" ${attrs(s)}><div class="wrap wrap--wide">${head(st, { noCta: true })}
-      <ol class="steps" data-stagger>${blocks.map((b, i) => { const t = b.settings || {}; return `<li class="steps__item"><span class="steps__n">${String(i + 1).padStart(2, "0")}</span><h3>${md(t.title)}</h3><p>${md(t.text)}</p></li>`; }).join("")}</ol>
+      <ol class="steps" data-stagger>${blocks.map((b, i) => { const t = b.settings || {}; return `<li class="steps__item"><span class="steps__n">${two(i)}</span><h3>${md(t.title)}</h3><p>${md(t.text)}</p></li>`; }).join("")}</ol>
     </div></section>`;
 
   R.features = (s, st, blocks) => `<section class="s sec ${band(st.band)}" ${attrs(s)}><div class="wrap wrap--wide">${head(st, { noCta: true })}
-      <div class="features" style="--cols:${Math.min(4, Math.max(2, +st.cols || 3))}" data-stagger>${blocks.map((b, i) => { const t = b.settings || {}; return `<div class="feature">${st.numbered ? `<span class="feature__n">${String(i + 1).padStart(2, "0")}</span>` : `<span class="feature__ic">${I(t.icon || "leaf")}</span>`}<h3>${md(t.title)}</h3><p>${md(t.text)}</p></div>`; }).join("")}</div>
+      <div class="features" style="--cols:${Math.min(4, Math.max(2, +st.cols || 3))}" data-stagger>${blocks.map((b, i) => { const t = b.settings || {}; return `<div class="feature">${st.numbered ? `<span class="feature__n">${two(i)}</span>` : `<span class="feature__ic">${I(t.icon || "leaf")}</span>`}<h3>${md(t.title)}</h3><p>${md(t.text)}</p></div>`; }).join("")}</div>
     </div></section>`;
 
   R.areas = (s, st) => {
     const areas = (T.settings().areas || []);
     return `<section class="s sec ${band(st.band)}" ${attrs(s)}><div class="wrap wrap--wide"><div class="areas">
-      <div class="stack">${eyebrow(st.eyebrow)}<h2 data-split>${md(st.title)}</h2>${st.text ? `<p class="lede">${md(st.text)}</p>` : ""}
-        <div class="area-list" data-stagger>${areas.map((a) => `<span>${I("pin")}${esc(a)}</span>`).join("")}</div>${st.note ? `<p class="muted small">${md(st.note)}</p>` : ""}</div>
-      ${st.image ? `<div class="areas__media" data-clip>${img(st.image, { sizes: "(max-width: 960px) 92vw, 52vw", alt: "" })}<span class="areas__stamp">${I("truck")}<span><strong>Next-day</strong> order before 6pm</span></span></div>` : ""}
+      <div class="areas__copy">${eyebrow(st.eyebrow)}<h2 data-split>${md(st.title)}</h2>${st.text ? `<p class="lede">${md(st.text)}</p>` : ""}
+        <ol class="area-list" data-stagger>${areas.map((a, i) => `<li><span class="n">${two(i)}</span>${esc(a)}<span class="area-list__t">Next-day</span></li>`).join("")}</ol>${st.note ? `<p class="muted small">${md(st.note)}</p>` : ""}</div>
+      ${st.image ? `<figure class="areas__media"><span class="areas__frame" data-clip>${img(st.image, { sizes: "(max-width: 960px) 92vw, 50vw", alt: "" })}</span><figcaption>Order before 6pm · delivered next-day</figcaption></figure>` : ""}
     </div></div></section>`;
   };
 
@@ -343,10 +366,10 @@ window.FVSections = (function () {
     const c = T.settings().contact || {}, soc = T.settings().social || {};
     const subjects = list(st.subjects);
     const info = [
-      c.whatsapp || c.phone ? ["whatsapp", "WhatsApp & phone", `${c.phone ? `<a href="tel:${esc(String(c.phone).replace(/\s/g, ""))}">${esc(c.phone)}</a>` : ""}${c.whatsapp ? ` · <a href="https://wa.me/${esc(c.whatsapp)}" target="_blank" rel="noopener">Chat on WhatsApp</a>` : ""}<br>Fastest for anything about a live order.`] : null,
-      c.email ? ["mail", "Email", `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a><br>For everything else.`] : null,
-      c.hours ? ["clock", "Hours", esc(c.hours)] : null,
-      ["instagram", "Follow along", `Seasonal notes and hosting ideas${soc.instagram ? ` — <a href="${esc(soc.instagram)}" target="_blank" rel="noopener">@freshvalley.eg</a>` : ""}`],
+      c.whatsapp || c.phone ? ["WhatsApp & phone", `${c.phone ? `<a href="tel:${esc(String(c.phone).replace(/\s/g, ""))}">${esc(c.phone)}</a>` : ""}${c.whatsapp ? ` · <a href="https://wa.me/${esc(c.whatsapp)}" target="_blank" rel="noopener">Chat on WhatsApp</a>` : ""}<br>Fastest for anything about a live order.`] : null,
+      c.email ? ["Email", `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a><br>For everything else.`] : null,
+      c.hours ? ["Hours", esc(c.hours)] : null,
+      ["Follow along", `Seasonal notes and hosting ideas${soc.instagram ? ` — <a href="${esc(soc.instagram)}" target="_blank" rel="noopener">@freshvalley.eg</a>` : ""}`],
     ].filter(Boolean);
     return `<section class="s sec ${band(st.band)}" ${attrs(s)}><div class="wrap wrap--wide"><div class="contact">
       <form class="contact__form" data-contact-form novalidate>
@@ -357,9 +380,9 @@ window.FVSections = (function () {
         <div class="field"><label for="cf-phone">Phone</label><input class="input" id="cf-phone" name="phone" type="tel" autocomplete="tel"></div>
         <div class="field full"><label for="cf-subject">Subject</label><select class="select" id="cf-subject" name="subject">${subjects.map((x) => `<option value="${esc(x)}">${esc(x)}</option>`).join("")}</select></div>
         <div class="field full"><label for="cf-msg">Message</label><textarea class="textarea" id="cf-msg" name="message" required></textarea></div>
-        <div class="full row" style="justify-content:space-between"><p class="muted small">${md(st.note)}</p><button class="btn" type="submit" data-magnetic>Send message<span class="btn__ic">${I("arrow")}</span></button></div>
+        <div class="full row contact__send"><p class="muted small">${md(st.note)}</p><button class="btn" type="submit">Send message<span class="btn__ic">${I("arrow")}</span></button></div>
       </form>
-      <div class="contact__info" data-stagger>${info.map(([ic, h, p]) => `<div class="info-card"><span class="info-card__ic">${I(ic)}</span><div><strong>${h}</strong><span>${p}</span></div></div>`).join("")}</div>
+      <div class="contact__info" data-stagger>${info.map(([h, p]) => `<div class="info-card"><p class="label">${h}</p><span>${p}</span></div>`).join("")}</div>
     </div></div></section>`;
   };
 
@@ -371,73 +394,79 @@ window.FVSections = (function () {
   R.legal = (s, st, blocks) => {
     const slug = (t) => String(t || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
     return `<section class="s sec band--paper" ${attrs(s)}><div class="wrap wrap--wide"><div class="legal">
-      <nav class="legal__toc" aria-label="On this page"><p>On this page</p>${blocks.map((b) => `<a href="#${slug(b.settings.title)}">${esc(b.settings.title)}</a>`).join("")}</nav>
+      <nav class="legal__toc" aria-label="On this page"><p class="label">On this page</p>${blocks.map((b) => `<a href="#${slug(b.settings.title)}">${esc(b.settings.title)}</a>`).join("")}</nav>
       <div class="legal__body">${st.updated ? `<p class="legal__updated">${esc(st.updated)}</p>` : ""}${blocks.map((b) => `<section id="${slug(b.settings.title)}"><h2>${esc(b.settings.title)}</h2>${paras(b.settings.body)}</section>`).join("")}</div>
     </div></div></section>`;
   };
+
+  /* Retired in v5 — saved themes that still list them simply render nothing */
+  R.marquee = () => "";
+  R.testimonials = () => "";
 
   /* ------------------------------------------------------------------ *
    * Schema — drives the admin theme editor forms
    * ------------------------------------------------------------------ */
   const F = (id, type, label, extra) => Object.assign({ id, type, label }, extra || {});
-  const BAND = F("band", "select", "Background", { options: [["paper", "Paper"], ["kraft", "Kraft"], ["sage", "Sage"], ["dark", "Forest"], ["olive", "Olive"]] });
-  const HEAD = [F("eyebrow", "text", "Eyebrow"), F("title", "text", "Heading", { info: "*word* = olive italic · ~word~ = hand-drawn underline" }), F("text", "textarea", "Text")];
+  const BAND = F("band", "select", "Background", { options: [["paper", "Linen"], ["mist", "Herb mist"], ["kraft", "Kraft"], ["dark", "Forest"]] });
+  const HEAD = [F("eyebrow", "text", "Eyebrow"), F("title", "text", "Heading", { info: "*word* = light italic accent" }), F("text", "textarea", "Text")];
   const CTA = [F("cta_label", "text", "Button label"), F("cta_link", "link", "Button link")];
-  const CTA2 = [F("cta2_label", "text", "Second button label"), F("cta2_link", "link", "Second button link")];
-  const ARTS = [["", "None"], ["sprig", "Sprig"], ["leaf", "Leaf"], ["citrus", "Citrus"], ["fig", "Fig"], ["tomato", "Tomato"], ["strawberry", "Strawberry"], ["herbs", "Herbs"], ["bouquet", "Bouquet"]];
-  const COLL = [["best-sellers", "Best sellers"], ["seasonal", "Seasonal"], ["essentials", "Essentials"], ["hosting", "Hosting"], ["organic-reserve", "Organic Reserve"], ["premium", "Premium (smart)"], ["organic", "Organic (smart)"], ["fruits", "Fruits"], ["vegetables", "Vegetables"], ["herbs", "Herbs"], ["all", "Everything"]];
+  const CTA2 = [F("cta2_label", "text", "Second link label"), F("cta2_link", "link", "Second link")];
+  const COLL = [["now", "In season now (smart)"], ["seasonal", "Seasonal"], ["best-sellers", "House favourites"], ["essentials", "Essentials"], ["hosting", "Hosting"], ["organic-reserve", "Organic Reserve"], ["premium", "Premium (smart)"], ["organic", "Organic (smart)"], ["fruits", "Fruits"], ["vegetables", "Vegetables"], ["herbs", "Herbs"], ["all", "Everything"]];
   const SCHEMA = {
-    hero: { name: "Hero", icon: "star", limit: 1, settings: [F("badge", "text", "Badge"), F("badge_link", "link", "Badge link"), F("line1", "text", "Headline · line 1"), F("line2", "text", "Headline · line 2", { info: "~word~ draws the olive underline" }), F("line3", "text", "Headline · line 3"), F("words", "text", "Rotating words", { info: "Separate with |" }), F("lede", "textarea", "Intro"), F("cta1_label", "text", "Button label"), F("cta1_link", "link", "Button link"), F("cta2_label", "text", "Second button label"), F("cta2_link", "link", "Second button link"), F("proof", "text", "Proof line"), F("image", "image", "Image"), F("image_alt", "text", "Image description"), F("orbs", "products", "Floating produce", { max: 4 }), F("sticker", "text", "Rotating sticker"), F("chips", "text", "Image chips", { info: "Separate with |" }), F("rating", "text", "Rating"), F("rating_label", "text", "Rating label")] },
-    marquee: { name: "Scrolling words", icon: "sparkle", settings: [F("items", "list", "Words"), F("style", "select", "Style", { options: [["cross", "Crossed ribbons"], ["forest", "Forest ribbon"], ["olive", "Olive ribbon"]] }), F("speed", "range", "Speed", { min: 0.3, max: 3, step: 0.1 })] },
-    categories: { name: "Category bento", icon: "grid", settings: [...HEAD, ...CTA, BAND], blocks: { tile: { name: "Tile", settings: [F("title", "text", "Title"), F("text", "text", "Text"), F("image", "image", "Image", { info: "art:herbs draws a botanical tile" }), F("link", "link", "Link"), F("count", "select", "Show product count of", { options: [["", "—"], ["fruits", "Fruits"], ["vegetables", "Vegetables"], ["herbs", "Herbs"], ["boxes", "Boxes"], ["seasonal", "Seasonal"], ["organic-reserve", "Organic Reserve"]] })] } }, max_blocks: 6 },
+    hero: { name: "Hero", icon: "star", limit: 1, settings: [F("almanac", "toggle", "Show the live almanac line", { info: "e.g. “Week 39 · Early autumn in the valley”" }), F("eyebrow", "text", "Eyebrow (when the almanac is off)"), F("title", "textarea", "Headline", { info: "One line per row · *word* = italic accent" }), F("lede", "textarea", "Intro"), F("cta1_label", "text", "Button label"), F("cta1_link", "link", "Button link"), F("cta2_label", "text", "Second link label"), F("cta2_link", "link", "Second link"), F("image", "image", "Image"), F("image_alt", "text", "Image description"), F("caption", "text", "Image caption"), F("peak", "toggle", "List what's at its best this week")] },
+    statement: { name: "Statement", icon: "leaf", settings: [F("eyebrow", "text", "Eyebrow"), F("text", "textarea", "Statement", { info: "*word* = italic accent" }), F("sign", "text", "Signed by"), ...CTA, BAND] },
+    categories: { name: "Category index", icon: "grid", settings: [...HEAD, ...CTA, BAND], blocks: { tile: { name: "Tile", settings: [F("title", "text", "Title"), F("text", "text", "Text"), F("image", "image", "Image", { info: "Leave empty for the typographic herb label" }), F("link", "link", "Link"), F("count", "select", "Show product count of", { options: [["", "—"], ["fruits", "Fruits"], ["vegetables", "Vegetables"], ["herbs", "Herbs"], ["boxes", "Boxes"], ["seasonal", "Seasonal"], ["organic-reserve", "Organic Reserve"]] })] } }, max_blocks: 6 },
     product_rail: { name: "Product carousel", icon: "bag", settings: [...HEAD, F("collection", "select", "Collection", { options: COLL }), F("limit", "range", "Products shown", { min: 4, max: 20, step: 1 }), ...CTA, BAND] },
-    story: { name: "Pinned story", icon: "sparkle", settings: [...HEAD, F("struck", "list", "Crossed-out gifts"), ...CTA, ...CTA2], blocks: { step: { name: "Card", settings: [F("title", "text", "Title"), F("text", "textarea", "Text"), F("image", "image", "Image")] } }, max_blocks: 5 },
+    almanac: { name: "Valley Almanac", icon: "calendar", settings: [...HEAD, F("limit", "range", "Crops shown", { min: 4, max: 16, step: 1 }), BAND] },
+    origins: { name: "Provenance", icon: "pin", settings: [...HEAD, BAND] },
+    story: { name: "Hosting story", icon: "gift", settings: [...HEAD, F("image", "image", "Image"), F("struck", "list", "Crossed-out gifts"), ...CTA, ...CTA2, BAND], blocks: { step: { name: "Step", settings: [F("title", "text", "Title"), F("text", "textarea", "Text")] } }, max_blocks: 5 },
     boxes: { name: "Boxes", icon: "box", settings: [...HEAD, F("boxes", "boxes", "Boxes"), ...CTA, BAND] },
     stats: { name: "Numbers", icon: "check", settings: [F("eyebrow", "text", "Eyebrow"), F("title", "text", "Heading"), BAND], blocks: { stat: { name: "Number", settings: [F("value", "text", "Value"), F("decimals", "range", "Decimals", { min: 0, max: 2, step: 1 }), F("suffix", "text", "Suffix"), F("label", "text", "Label")] } }, max_blocks: 4 },
-    image_text: { name: "Image with text", icon: "leaf", settings: [...HEAD, F("list", "list", "Checklist", { info: "One per line · Title — text" }), F("image", "image", "Image"), F("chip", "text", "Image label"), ...CTA, F("flip", "toggle", "Image on the right"), BAND] },
-    testimonials: { name: "Reviews", icon: "star", settings: [F("eyebrow", "text", "Eyebrow"), F("title", "text", "Heading"), F("rating", "text", "Rating"), F("rating_label", "text", "Rating label"), F("limit", "range", "Reviews shown", { min: 8, max: 27, step: 1 }), F("tags", "text", "Only reviews tagged", { info: "Comma separated · blank = all" }), BAND] },
+    image_text: { name: "Image with text", icon: "leaf", settings: [...HEAD, F("list", "list", "Numbered list", { info: "One per line · Title — text" }), F("image", "image", "Image"), F("chip", "text", "Image caption"), ...CTA, F("flip", "toggle", "Image on the right"), BAND] },
     banner: { name: "Image banner", icon: "truck", settings: [...HEAD, F("image", "image", "Image"), ...CTA, ...CTA2] },
-    journal: { name: "Journal posts", icon: "leaf", settings: [F("eyebrow", "text", "Eyebrow"), F("title", "text", "Heading"), F("limit", "range", "Posts (0 = all)", { min: 0, max: 12, step: 1 }), F("layout", "select", "Layout", { options: [["grid", "Three cards"], ["magazine", "Feature + list"]] }), ...CTA] },
-    page_head: { name: "Page header", icon: "home", settings: [...HEAD, ...CTA, ...CTA2, F("image", "image", "Image"), F("caption", "text", "Image caption"), F("art", "select", "Line-art", { options: ARTS }), F("compact", "toggle", "Compact")] },
+    journal: { name: "Field notes", icon: "leaf", settings: [F("eyebrow", "text", "Eyebrow"), F("title", "text", "Heading"), F("limit", "range", "Posts (0 = all)", { min: 0, max: 12, step: 1 }), F("layout", "select", "Layout", { options: [["grid", "Three cards"], ["magazine", "Feature + list"]] }), ...CTA] },
+    page_head: { name: "Page header", icon: "home", settings: [...HEAD, ...CTA, ...CTA2, F("image", "image", "Image"), F("caption", "text", "Image caption"), F("compact", "toggle", "Compact")] },
     strike_list: { name: "Crossed-out list", icon: "x", settings: [...HEAD, F("items", "list", "Items", { info: "One per line · Item — note" }), BAND] },
     seasons: { name: "Four seasons", icon: "sparkle", settings: [...HEAD, BAND], blocks: { season: { name: "Season", settings: [F("image", "image", "Image"), F("label", "text", "Label"), F("title", "text", "Title"), F("text", "text", "Text")] } }, max_blocks: 4 },
-    hscroll: { name: "Horizontal scroll", icon: "arrow", settings: [...HEAD, BAND], blocks: { card: { name: "Card", settings: [F("title", "text", "Title"), F("text", "text", "Text"), F("image", "image", "Image")] } }, max_blocks: 8 },
+    hscroll: { name: "Ritual steps", icon: "arrow", settings: [...HEAD, BAND], blocks: { card: { name: "Card", settings: [F("title", "text", "Title"), F("text", "text", "Text"), F("image", "image", "Image")] } }, max_blocks: 8 },
     gallery: { name: "Moments carousel", icon: "gift", settings: [...HEAD, ...CTA, BAND], blocks: { moment: { name: "Moment", settings: [F("image", "image", "Image"), F("title", "text", "Title"), F("text", "text", "Text"), F("link", "link", "Link")] } } },
     compare: { name: "Comparison", icon: "check", settings: [F("eyebrow", "text", "Eyebrow"), F("title", "text", "Heading"), F("old_title", "text", "Left title"), F("old_items", "list", "Left items"), F("new_title", "text", "Right title"), F("new_items", "list", "Right items"), BAND] },
     quote: { name: "Big quote", icon: "sparkle", settings: [F("quote", "textarea", "Quote"), F("cite", "text", "Attribution"), F("image", "image", "Background image")] },
-    cta: { name: "Call to action", icon: "arrow", settings: [...HEAD, ...CTA, ...CTA2, F("style", "select", "Style", { options: [["forest", "Forest"], ["olive", "Olive"]] }), F("art", "select", "Line-art", { options: ARTS }), F("newsletter", "toggle", "Show newsletter form")] },
+    cta: { name: "Call to action", icon: "arrow", settings: [...HEAD, ...CTA, ...CTA2, F("style", "select", "Style", { options: [["mist", "Herb mist"], ["forest", "Forest"]] })] },
     steps: { name: "Numbered steps", icon: "check", settings: [...HEAD, BAND], blocks: { step: { name: "Step", settings: [F("title", "text", "Title"), F("text", "textarea", "Text")] } }, max_blocks: 6 },
-    features: { name: "Feature cards", icon: "shield", settings: [...HEAD, F("cols", "range", "Columns", { min: 2, max: 4, step: 1 }), F("numbered", "toggle", "Numbers instead of icons"), BAND], blocks: { feature: { name: "Card", settings: [F("icon", "icon", "Icon"), F("title", "text", "Title"), F("text", "textarea", "Text")] } } },
+    features: { name: "Feature columns", icon: "shield", settings: [...HEAD, F("cols", "range", "Columns", { min: 2, max: 4, step: 1 }), F("numbered", "toggle", "Numbers instead of icons"), BAND], blocks: { feature: { name: "Column", settings: [F("icon", "icon", "Icon"), F("title", "text", "Title"), F("text", "textarea", "Text")] } } },
     areas: { name: "Delivery areas", icon: "pin", settings: [...HEAD, F("note", "text", "Note"), F("image", "image", "Image"), BAND] },
     contact: { name: "Contact form", icon: "mail", settings: [F("eyebrow", "text", "Eyebrow"), F("title", "text", "Heading"), F("subjects", "list", "Subjects"), F("note", "text", "Note"), BAND] },
     faq: { name: "FAQ", icon: "plus", settings: [...HEAD, BAND], blocks: { qa: { name: "Question", settings: [F("q", "text", "Question"), F("a", "textarea", "Answer")] } } },
     legal: { name: "Policy text", icon: "shield", only: ["policies", "terms"], settings: [F("updated", "text", "Updated line")], blocks: { clause: { name: "Clause", settings: [F("title", "text", "Title"), F("body", "textarea", "Body", { info: "Blank line = new paragraph · start lines with - for bullets" })] } } },
   };
+  const sec = (page, id) => { const pg = T.defaults().pages[page]; return (pg && pg.sections.find((x) => x.id === id)) || { settings: {} }; };
   const PRESETS = {
-    hero: () => T.defaults().pages.index.sections[0],
-    marquee: () => ({ settings: { items: "Export-grade|Hand-graded|Next-day across Cairo", style: "forest", speed: 1 } }),
-    categories: () => T.defaults().pages.index.sections[2],
-    product_rail: () => ({ settings: { eyebrow: "Hand-picked", title: "New *arrivals*", text: "", collection: "best-sellers", limit: 10, cta_label: "Shop all", cta_link: "products.html", band: "paper" } }),
-    story: () => T.defaults().pages.index.sections[4],
-    boxes: () => ({ settings: { eyebrow: "Curated", title: "Our *boxes*", text: "", boxes: "hosting-box,premium-fruit-box,family-box", cta_label: "All boxes", cta_link: "products.html?cat=boxes", band: "kraft" } }),
-    stats: () => T.defaults().pages.index.sections[6],
-    image_text: () => ({ settings: { eyebrow: "Our story", title: "A heading with an *accent*", text: "Tell the story in a sentence or two.", list: "", image: "banner:packaging", chip: "", cta_label: "", cta_link: "", flip: false, band: "paper" } }),
-    testimonials: () => ({ settings: { eyebrow: "From our hosts", title: "Loved across *Cairo*", rating: "4.9", rating_label: "Verified orders", limit: 16, tags: "", band: "paper" } }),
+    hero: () => sec("index", "hero"),
+    statement: () => sec("index", "intro"),
+    categories: () => sec("index", "categories"),
+    product_rail: () => ({ settings: { eyebrow: "Hand-picked", title: "New to the *market*", text: "", collection: "now", limit: 10, cta_label: "Shop all", cta_link: "products.html", band: "paper" } }),
+    almanac: () => sec("index", "almanac"),
+    origins: () => sec("index", "origins"),
+    story: () => sec("index", "story"),
+    boxes: () => ({ settings: { eyebrow: "Curated", title: "Our *boxes*", text: "", boxes: "hosting-box,premium-fruit-box,family-box", cta_label: "All boxes", cta_link: "products.html?cat=boxes", band: "paper" } }),
+    stats: () => sec("index", "facts"),
+    image_text: () => ({ settings: { eyebrow: "Our story", title: "A heading with an *accent*", text: "Tell the story in a sentence or two.", list: "", image: "banner:delivery-van", chip: "", cta_label: "", cta_link: "", flip: false, band: "paper" } }),
     banner: () => ({ settings: { eyebrow: "Next-day delivery", title: "A banner *headline*", text: "Short supporting line.", image: "banner:door-delivery", cta_label: "Shop now", cta_link: "products.html", cta2_label: "", cta2_link: "" } }),
-    journal: () => ({ settings: { eyebrow: "The Journal", title: "Notes on eating *well*", limit: 3, layout: "grid", cta_label: "All entries", cta_link: "journal.html" } }),
-    page_head: () => ({ settings: { eyebrow: "Eyebrow", title: "Page *title*", text: "", art: "sprig" } }),
-    strike_list: () => T.defaults().pages.hosting.sections[1],
-    seasons: () => T.defaults().pages.hosting.sections[2],
-    hscroll: () => T.defaults().pages.hosting.sections[3],
-    gallery: () => T.defaults().pages.hosting.sections[4],
-    compare: () => T.defaults().pages.hosting.sections[6],
-    quote: () => T.defaults().pages.hosting.sections[9],
-    cta: () => T.defaults().pages.hosting.sections[10],
-    steps: () => T.defaults().pages.about.sections[2],
-    features: () => T.defaults().pages.about.sections[4],
-    areas: () => T.defaults().pages.about.sections[5],
-    contact: () => T.defaults().pages.contact.sections[1],
-    faq: () => T.defaults().pages.contact.sections[3],
+    journal: () => ({ settings: { eyebrow: "Field notes", title: "Notes from the *valley*", limit: 3, layout: "grid", cta_label: "All field notes", cta_link: "journal.html" } }),
+    page_head: () => ({ settings: { eyebrow: "Eyebrow", title: "Page *title*", text: "" } }),
+    strike_list: () => sec("hosting", "forgettable"),
+    seasons: () => sec("hosting", "philosophy"),
+    hscroll: () => sec("hosting", "ritual"),
+    gallery: () => sec("hosting", "moments"),
+    compare: () => sec("hosting", "difference"),
+    quote: () => sec("hosting", "belief"),
+    cta: () => sec("hosting", "begin"),
+    steps: () => sec("about", "quality"),
+    features: () => sec("about", "values"),
+    areas: () => sec("about", "areas"),
+    contact: () => sec("contact", "form"),
+    faq: () => sec("contact", "faq"),
     legal: () => ({ settings: { updated: "Last updated: " + new Date().toLocaleDateString("en-GB", { month: "long", year: "numeric" }) }, blocks: [{ type: "clause", settings: { title: "New clause", body: "Write the clause here." } }] }),
   };
 
@@ -456,32 +485,15 @@ window.FVSections = (function () {
   }
   const BOUND = new WeakSet();
   /* Signature of everything a page render depends on — baked HTML is kept
-     only while it still matches (any CMS edit changes it → live re-render). */
+     only while it still matches (any CMS edit, or a new almanac week,
+     changes it → live re-render). */
   function signature(key) {
-    const str = JSON.stringify([T.page(key), T.settings(), FV.catalog, FV.settings.currency]);
+    const str = JSON.stringify([T.page(key), T.settings(), FV.catalog, FV.settings.currency, FV.almanac().week]);
     let h = 5381; for (let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) >>> 0;
     return h.toString(36) + str.length.toString(36);
   }
-  /* Hero orbs sit in the gaps the headline leaves: measure lines 1–2 (in em)
-     and hide orbs that wouldn't fit beside a longer, owner-edited headline. */
-  function placeOrbs(root) {
-    Array.from(root.querySelectorAll(".hero__title")).forEach((t) => {
-      const measure = () => {
-        const fs = parseFloat(getComputedStyle(t).fontSize) || 1, lines = t.querySelectorAll(".line__in");
-        const w = (i) => lines[i] ? lines[i].getBoundingClientRect().width / fs : 0;
-        const l1 = w(0), l2 = w(1), avail = t.clientWidth / fs;
-        t.style.setProperty("--l1", l1.toFixed(2)); t.style.setProperty("--l2", l2.toFixed(2));
-        t.classList.toggle("orbs-tight", Math.max(l1, l2) + 2.1 > avail);
-        t.classList.toggle("orbs-none", Math.min(l1 + 1.4, l2 + 1.2) > avail);
-      };
-      measure();
-      if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
-      if (!BOUND.has(t)) { BOUND.add(t); window.addEventListener("resize", measure, { passive: true }); }
-    });
-  }
   function behave(root) {
     root = root || document;
-    placeOrbs(root);
     // rails with prev/next
     Array.from(root.querySelectorAll("[data-section-id]")).forEach((sec) => {
       const rail = sec.querySelector(".rail"), p = sec.querySelector("[data-rail-prev]"), n = sec.querySelector("[data-rail-next]");
