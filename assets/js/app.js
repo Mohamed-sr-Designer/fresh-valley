@@ -83,7 +83,7 @@
     user: sv('<circle cx="12" cy="8" r="4"/><path d="M4 20.5c0-3.6 3.6-6.2 8-6.2s8 2.6 8 6.2"/>'),
     heart: sv('<path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 7 4.5c2.1 0 3.6 1.2 5 3 1.4-1.8 2.9-3 5-3 3.6 0 5.6 3.5 4.3 6.8-1.8 4.6-9.3 9.2-9.3 9.2Z"/>'),
     bag: sv('<path d="M5.5 8.5h13l-1 11.2a1.8 1.8 0 0 1-1.8 1.6H8.3a1.8 1.8 0 0 1-1.8-1.6l-1-11.2Z"/><path d="M9 8.5V7a3 3 0 0 1 6 0v1.5"/>'),
-    menu: sv('<path d="M4 8h16M4 16h10"/>', 1.9),
+    menu: sv('<path d="M4 8h16M10 16h10"/>', 1.9),
     home: sv('<path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z"/>'),
     grid: sv('<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>'),
     close: sv('<path d="m6 6 12 12M18 6 6 18"/>'),
@@ -157,6 +157,165 @@
   }
   const isCustomImg = (s) => /^(https?:|data:|\/|assets\/)/.test(s || "");
 
+  /* Seasons + origins — the farm facts every product carries */
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  function seasonMonths(s) {
+    const all = MONTHS.map((_, i) => i);
+    if (!s || /all\s*year/i.test(s)) return all;
+    const m = String(s).match(/([A-Za-z]{3})[A-Za-z]*\s*[–—-]\s*([A-Za-z]{3})/);
+    if (!m) return all;
+    const a = MONTHS.findIndex((x) => x.toLowerCase() === m[1].toLowerCase()), b = MONTHS.findIndex((x) => x.toLowerCase() === m[2].toLowerCase());
+    if (a < 0 || b < 0) return all;
+    const out = [];
+    for (let i = a, g = 0; g < 12; i = (i + 1) % 12, g++) { out.push(i); if (i === b) break; }
+    return out;
+  }
+  const originShort = (o) => { const s = String(o || "").replace(/,\s*Egypt$/i, "").replace(/^Select\s+/i, "").replace(/\s+Oasis$/i, ""); return s.charAt(0).toUpperCase() + s.slice(1); };
+  const isYearRound = (p) => seasonMonths(p && p.season).length === 12;
+
+  /* ------------------------------------------------------------------ *
+   * Herb drawings — each herb is drawn as itself (the herbs have no
+   * photography): mint's serrated pairs, basil's cupped leaves and flower
+   * spike, coriander's scalloped leaflets, rosemary's needles, dill's
+   * threads and umbel. Generated once, line-art in the brand's hand.
+   * ------------------------------------------------------------------ */
+  const HERB = (function () {
+    const f = (n) => Math.round(n * 10) / 10;
+    const rad = (a) => (a * Math.PI) / 180;
+    function smooth(pts) { // Catmull-Rom → cubic Bézier through the points
+      let d = `M${f(pts[0][0])} ${f(pts[0][1])}`;
+      for (let i = 0; i < pts.length - 1; i++) {
+        const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+        d += `C${f(p1[0] + (p2[0] - p0[0]) / 6)} ${f(p1[1] + (p2[1] - p0[1]) / 6)} ${f(p2[0] - (p3[0] - p1[0]) / 6)} ${f(p2[1] - (p3[1] - p1[1]) / 6)} ${f(p2[0])} ${f(p2[1])}`;
+      }
+      return d;
+    }
+    // a leaf from (x,y) at angle a (deg, 0 = right, -90 = up), length L, width W, widest at p
+    function leaf(x, y, a, L, W, o) {
+      o = o || {};
+      const p = o.p || 0.4, pa = 2 * p, pb = 2 * (1 - p), mx = Math.pow(p, pa) * Math.pow(1 - p, pb);
+      const ca = Math.cos(rad(a)), sa = Math.sin(rad(a));
+      const at = (t, s, k) => { const w = (Math.pow(t, pa) * Math.pow(1 - t, pb)) / mx * (W / 2) * (k || 1); return [x + t * L * ca - s * w * sa, y + t * L * sa + s * w * ca]; };
+      let d;
+      if (o.teeth) { // serrated edge (mint)
+        const n = o.teeth * 2, side = (s) => { const r = []; for (let i = 0; i <= n; i++) { const t = i / n; r.push(at(t, s, t > 0.12 && t < 0.96 && i % 2 ? 1.16 : 0.94)); } return r; };
+        const up = side(1), dn = side(-1).reverse();
+        d = "M" + up.concat(dn.slice(1)).map((q) => f(q[0]) + " " + f(q[1])).join("L") + "Z";
+      } else {
+        const up = [], dn = [];
+        for (let i = 0; i <= 6; i++) { const t = i / 6; up.push(at(t, 1)); dn.push(at(t, -1)); }
+        d = smooth(up.concat(dn.reverse().slice(1))) + "Z";
+      }
+      const tip = at(0.86, 0);
+      let rib = `M${f(x)} ${f(y)}L${f(tip[0])} ${f(tip[1])}`;
+      if (o.veins) [0.3, 0.52, 0.72].forEach((t) => { const m = at(t, 0), e1 = at(t + 0.16, 1, 0.8), e2 = at(t + 0.16, -1, 0.8); rib += `M${f(m[0])} ${f(m[1])}L${f(e1[0])} ${f(e1[1])}M${f(m[0])} ${f(m[1])}L${f(e2[0])} ${f(e2[1])}`; });
+      return `<path class="lf" d="${d}"/><path d="${rib}"/>`;
+    }
+    // quadratic stem helpers
+    const q = (P0, C, P2) => ({ P0, C, P2, d: `M${P0[0]} ${P0[1]}Q${C[0]} ${C[1]} ${P2[0]} ${P2[1]}` });
+    const on = (s, t) => [(1 - t) * (1 - t) * s.P0[0] + 2 * (1 - t) * t * s.C[0] + t * t * s.P2[0], (1 - t) * (1 - t) * s.P0[1] + 2 * (1 - t) * t * s.C[1] + t * t * s.P2[1]];
+    const dir = (s, t) => { const dx = 2 * (1 - t) * (s.C[0] - s.P0[0]) + 2 * t * (s.P2[0] - s.C[0]), dy = 2 * (1 - t) * (s.C[1] - s.P0[1]) + 2 * t * (s.P2[1] - s.C[1]); return (Math.atan2(dy, dx) * 180) / Math.PI; };
+    function fan(x, y, a, r, lobes) { // scalloped leaflet (coriander)
+      const n = lobes || 3, span = 110, pts = [];
+      for (let i = 0; i <= n; i++) { const ang = rad(a - span / 2 + (span * i) / n); pts.push([x + r * Math.cos(ang), y + r * Math.sin(ang)]); }
+      let d = `M${f(x)} ${f(y)}L${f(pts[0][0])} ${f(pts[0][1])}`, v = "";
+      for (let i = 0; i < n; i++) { const mid = rad(a - span / 2 + (span * (i + 0.5)) / n); d += `Q${f(x + r * 1.42 * Math.cos(mid))} ${f(y + r * 1.42 * Math.sin(mid))} ${f(pts[i + 1][0])} ${f(pts[i + 1][1])}`; v += `M${f(x)} ${f(y)}L${f(x + r * 0.95 * Math.cos(mid))} ${f(y + r * 0.95 * Math.sin(mid))}`; }
+      return `<path class="lf" d="${d}Z"/><path d="${v}"/>`;
+    }
+    const dot = (x, y, r) => `<circle class="dt" cx="${f(x)}" cy="${f(y)}" r="${r || 1.5}"/>`;
+
+    const draw = {
+      mint() {
+        const s = q([80, 198], [74, 120], [82, 34]);
+        let g = `<path d="${s.d}"/>`;
+        [[0.16, 44, 0], [0.34, 40, 1], [0.5, 34, 0], [0.64, 28, 1], [0.77, 21, 0], [0.87, 15, 1]].forEach(([t, L, alt]) => {
+          const [x, y] = on(s, t), up = alt ? 28 : 12;
+          g += leaf(x, y, -180 + up, L, L * 0.56, { p: 0.36, teeth: 7 }) + leaf(x, y, -up, L, L * 0.56, { p: 0.36, teeth: 7 });
+        });
+        const [tx, ty] = on(s, 1);
+        g += leaf(tx, ty, -118, 12, 7, { p: 0.4, teeth: 4 }) + leaf(tx, ty, -62, 12, 7, { p: 0.4, teeth: 4 }) + leaf(tx, ty, -90, 10, 6, { p: 0.4 });
+        return g;
+      },
+      basil() {
+        const s = q([80, 198], [86, 132], [80, 62]);
+        let g = `<path d="${s.d}"/><path d="M80 62L80 16"/>`;
+        [[0.2, 48, 168], [0.42, 43, 152], [0.62, 35, 140], [0.8, 25, 126]].forEach(([t, L, a]) => {
+          const [x, y] = on(s, t);
+          g += leaf(x, y, -a, L, L * 0.64, { p: 0.44, veins: true }) + leaf(x, y, -180 + a, L, L * 0.64, { p: 0.44, veins: true });
+        });
+        [54, 45, 36, 28, 21].forEach((y, i) => { const w = 8 - i; g += leaf(80, y, -160, w, w * 0.7, { p: 0.5 }) + leaf(80, y, -20, w, w * 0.7, { p: 0.5 }) + dot(80 - w * 0.9, y - 2.5, 1.2) + dot(80 + w * 0.9, y - 2.5, 1.2); });
+        g += dot(80, 14, 1.6);
+        return g;
+      },
+      coriander() {
+        const st = [q([80, 198], [58, 150], [36, 122]), q([80, 198], [72, 128], [60, 70]), q([80, 198], [94, 124], [106, 58]), q([80, 198], [106, 160], [128, 132])];
+        let g = st.map((s) => `<path d="${s.d}"/>`).join("");
+        [st[0], st[3]].forEach((s) => {
+          const [x, y] = on(s, 1), a = dir(s, 1);
+          g += fan(x, y, a - 38, 15, 3) + fan(x, y, a, 18, 3) + fan(x, y, a + 38, 15, 3);
+          const [mx, my] = on(s, 0.62), ma = dir(s, 0.62);
+          g += fan(mx, my, ma - 70, 11, 3) + fan(mx, my, ma + 70, 11, 3);
+        });
+        [st[1], st[2]].forEach((s, k) => {
+          [0.55, 0.72, 0.86].forEach((t, i) => {
+            const [x, y] = on(s, t), a = dir(s, t), side = (i + k) % 2 ? 1 : -1, b = a + side * 48, L = 16 - i * 3;
+            const ex = x + L * Math.cos(rad(b)), ey = y + L * Math.sin(rad(b));
+            g += `<path d="M${f(x)} ${f(y)}L${f(ex)} ${f(ey)}M${f(ex)} ${f(ey)}l${f(6 * Math.cos(rad(b - 30)))} ${f(6 * Math.sin(rad(b - 30)))}M${f(ex)} ${f(ey)}l${f(6 * Math.cos(rad(b + 30)))} ${f(6 * Math.sin(rad(b + 30)))}"/>`;
+          });
+        });
+        const [ux, uy] = on(st[2], 1);
+        for (let i = 0; i < 5; i++) { const a = rad(-150 + i * 30), ex = ux + 13 * Math.cos(a), ey = uy + 13 * Math.sin(a) - 2; g += `<path d="M${f(ux)} ${f(uy)}L${f(ex)} ${f(ey)}"/>` + dot(ex, ey, 1.8); }
+        return g;
+      },
+      rosemary() {
+        const main = { P0: [78, 198], C: [88, 112], P2: [82, 22] }, b1 = q([83, 124], [62, 96], [46, 52]), b2 = q([85, 98], [106, 76], [118, 40]);
+        main.d = `M78 198Q88 112 82 22`;
+        let g = `<path class="wd" d="${main.d}"/><path class="wd" d="${b1.d}"/><path class="wd" d="${b2.d}"/>`;
+        [[main, 0.08, 0.98, 15], [b1, 0.12, 0.98, 10], [b2, 0.12, 0.98, 9]].forEach(([s, t0, t1, n]) => {
+          for (let i = 0; i < n; i++) {
+            const t = t0 + ((t1 - t0) * i) / (n - 1), [x, y] = on(s, t), a = dir(s, t), L = 14 - t * 5, side = i % 2 ? 1 : -1;
+            g += leaf(x, y, a + side * 48, L, 3.4, { p: 0.5 });
+          }
+        });
+        return g;
+      },
+      dill() {
+        const s = q([80, 198], [84, 118], [80, 40]);
+        let g = `<path d="${s.d}"/>`;
+        [[0.3, -1, 46], [0.44, 1, 44], [0.58, -1, 38], [0.7, 1, 30]].forEach(([t, side, L]) => {
+          const [x, y] = on(s, t), br = q([f(x), f(y)], [f(x + side * L * 0.6), f(y - 6)], [f(x + side * L), f(y - L * 0.62)]);
+          g += `<path d="${br.d}"/>`;
+          for (let i = 1; i <= 6; i++) {
+            const u = i / 6.4, [bx, by] = on(br, u), a = dir(br, u), l = 11 - i;
+            [-1, 1].forEach((k) => { const ang = rad(a + k * 42), ex = bx + l * Math.cos(ang), ey = by + l * Math.sin(ang); g += `<path d="M${f(bx)} ${f(by)}Q${f(bx + l * 0.5 * Math.cos(ang) + k)} ${f(by + l * 0.5 * Math.sin(ang) - 1.5)} ${f(ex)} ${f(ey)}"/>`; });
+          }
+        });
+        const [ux, uy] = on(s, 1);
+        for (let i = 0; i < 9; i++) {
+          const a = rad(-164 + i * 18.5), L = 26 + 5 * Math.sin((i / 8) * Math.PI), ex = ux + L * Math.cos(a), ey = uy + L * Math.sin(a) * 0.9;
+          g += `<path d="M${f(ux)} ${f(uy)}Q${f(ux + L * 0.55 * Math.cos(a))} ${f(uy + L * 0.62 * Math.sin(a))} ${f(ex)} ${f(ey)}"/>`;
+          for (let j = 0; j < 4; j++) { const b = rad(-150 + j * 40), fx = ex + 5 * Math.cos(b), fy = ey + 5 * Math.sin(b); g += `<path d="M${f(ex)} ${f(ey)}L${f(fx)} ${f(fy)}"/>` + dot(fx, fy, 1.2); }
+        }
+        return g;
+      },
+      sprout() {
+        return `<path d="M80 198Q80 150 80 118"/>` + leaf(80, 124, -152, 46, 26, { p: 0.46, veins: true }) + leaf(80, 118, -30, 54, 30, { p: 0.46, veins: true });
+      },
+    };
+    const cache = {};
+    return (kind) => (cache[kind] || (cache[kind] = draw[kind] ? draw[kind]() : draw.sprout()));
+  })();
+  const HERB_INFO = {
+    mint: { latin: "Mentha spicata", note: "Serrated, cool, bright" },
+    basil: { latin: "Ocimum basilicum", note: "Sweet, clove-warm" },
+    coriander: { latin: "Coriandrum sativum", note: "Citrus-green, fresh-cut" },
+    rosemary: { latin: "Salvia rosmarinus", note: "Resinous, woody" },
+    dill: { latin: "Anethum graveolens", note: "Feathery, anise-soft" },
+  };
+  // an <svg> herb; `kind` = herb slug, anything else draws a young sprout
+  const herbSVG = (kind, cls) => `<svg class="art herb ${cls || ""}" viewBox="0 0 160 200" aria-hidden="true" data-herb="${esc(kind)}"><g class="herb__sway">${HERB(kind)}</g></svg>`;
+
   const FV = (window.FV = {
     data: D, icon: (n) => I[n] || "", payMark: (k) => PAY[k] || "", payMarks: PAY_MARKS, esc,
     money, weightOptions, weightLabel, priceForWeight, cardPrice, defaultVariant,
@@ -165,6 +324,9 @@
     webp: (u) => u.replace(/\.jpe?g$/i, ".webp"),
     imgSrc: (s) => isCustomImg(s) ? s : D.IMG + s + ".jpg",
     isCustomImg,
+    MONTHS, MONTHS_LONG, seasonMonths, originShort, isYearRound,
+    inSeason: (p, m) => seasonMonths(p && p.season).includes(m == null ? new Date().getMonth() : m),
+    herbSVG, herbPaths: HERB, herbInfo: (slug) => HERB_INFO[slug] || null,
     find: (slug) => D.products.find((p) => p.slug === slug),
     findBox: (slug) => D.boxes.find((b) => b.slug === slug),
     byCategory: (c) => D.products.filter((p) => p.category === c),
@@ -413,7 +575,20 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
     </header>`;
   }
 
-  const ART_SPRIG = '<svg class="art" viewBox="0 0 200 260" aria-hidden="true"><path d="M100 255C98 190 104 120 96 10"/><path d="M99 222c-18-4-34-16-42-32 16-1 32 8 42 24"/><path d="M100 196c17-5 31-18 38-35-16 0-30 11-38 27"/><path d="M99 168c-19-3-35-15-44-31 17-2 33 7 43 23"/><path d="M100 140c17-5 31-18 38-35-16 0-30 11-38 27"/><path d="M98 112c-18-3-33-14-41-29 16-2 31 6 40 21"/><path d="M99 86c15-5 27-16 33-31-14 1-26 10-33 24"/><path d="M97 60c-15-3-27-12-34-25 13-1 26 6 33 18"/><path d="M97 36c12-4 21-12 26-24-11 1-20 8-26 18"/></svg>';
+
+  /* The valley — layered hills (the "Valley" in the name). Scenery, used
+     at a few horizons only: the hero, dark bands and the footer. */
+  const HILLS = {
+    a: ["M0 160V80C120 54 250 36 400 48C560 60 650 94 820 90C990 86 1100 40 1260 42C1350 43 1410 58 1440 66V160Z",
+        "M0 160V106C150 84 300 72 460 88C640 106 760 126 930 114C1110 101 1240 80 1440 98V160Z",
+        "M0 160V134C200 120 380 114 560 126C760 139 900 148 1100 138C1260 130 1360 124 1440 128V160Z"],
+    b: ["M0 160V86C170 52 330 40 520 62C700 83 820 104 1000 88C1180 72 1320 48 1440 56V160Z",
+        "M0 160V120C180 100 360 96 560 110C760 124 900 130 1100 118C1260 109 1360 102 1440 106V160Z"],
+    c: ["M0 160V70C140 88 300 104 470 92C650 79 760 44 950 46C1130 48 1250 76 1440 70V160Z",
+        "M0 160V116C200 128 400 132 600 120C790 108 920 94 1110 102C1260 108 1370 118 1440 114V160Z"],
+  };
+  const hills = (v, cls) => `<svg class="hills ${cls || ""}" viewBox="0 0 1440 160" preserveAspectRatio="none" aria-hidden="true" focusable="false">${(HILLS[v] || HILLS.a).map((d, i, a) => `<path class="h${a.length - i}" d="${d}"/>`).join("")}</svg>`;
+  FV.hills = hills;
 
   function buildMenu() {
     const extra = [
@@ -425,11 +600,11 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
       <button class="icon-btn menu__close" data-close aria-label="Close menu">${I.close}</button>
       <nav aria-label="Menu"><a href="index.html"><small>00</small>Home</a>${NAV.map((n, i) => `<a href="${esc(n.href)}"><small>${String(i + 1).padStart(2, "0")}</small>${esc(n.label)}</a>`).join("")}</nav>
       <div class="menu__sub">${extra.map((e) => `<a href="${e.href}">${e.label}</a>`).join("")}</div>
+      ${window.FVSections && FVSections.harvestNote ? `<p class="menu__harvest" data-harvest-note>${FVSections.harvestNote()}</p>` : ""}
       <div class="menu__foot">
         <div>${c.whatsapp ? `<a class="btn btn--olive btn--sm" href="https://wa.me/${esc(c.whatsapp)}" target="_blank" rel="noopener">WhatsApp us<span class="btn__ic">${I.whatsapp}</span></a>` : ""}</div>
         <div class="ftr__social">${s.instagram ? `<a href="${esc(s.instagram)}" aria-label="Instagram" target="_blank" rel="noopener">${I.instagram}</a>` : ""}${s.facebook ? `<a href="${esc(s.facebook)}" aria-label="Facebook" target="_blank" rel="noopener">${I.facebook}</a>` : ""}${s.tiktok ? `<a href="${esc(s.tiktok)}" aria-label="TikTok" target="_blank" rel="noopener">${I.tiktok}</a>` : ""}</div>
       </div>
-      <div class="menu__art">${ART_SPRIG}</div>
     </div>`;
   }
 
@@ -437,17 +612,15 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
     const f = TS.footer || {}, s = TS.social || {}, c = TS.contact || {};
     const cols = (f.columns || []).map((col) => `<div class="ftr__col"><h3>${esc(col.title)}</h3>${(col.links || []).map((l) => `<a href="${esc(l.href)}">${esc(l.label)}</a>`).join("")}</div>`).join("");
     return `<footer class="ftr" id="siteFooter">
-      <div class="ftr__art" aria-hidden="true">${ART_SPRIG}</div>
+      <div class="ftr__horizon" aria-hidden="true">${hills("c")}</div>
       <div class="wrap wrap--wide">
         <div class="ftr__top">
           <h2 class="ftr__title" data-split>${md(f.title || "Eat with the season.")}</h2>
-          <div class="ftr__news">
-            <p>${esc(f.newsletter_text || "")}</p>
-            <form class="news-form" data-newsletter novalidate>
-              <label class="sr-only" for="ftrEmail">Email address</label>
-              <input id="ftrEmail" type="email" required placeholder="Your email address" autocomplete="email">
-              <button class="btn btn--olive btn--sm" type="submit">Subscribe<span class="btn__ic">${I.arrow}</span></button>
-            </form>
+          <div class="ftr__order">
+            <p class="eyebrow">Next-day across Cairo</p>
+            <p class="ftr__cut">Order within <b data-cutoff>${FV.cutoffText ? FV.cutoffText() : ""}</b> and it arrives tomorrow — cold, graded, ready for the table.</p>
+            ${f.note ? `<p class="ftr__note">${esc(f.note)}</p>` : ""}
+            <div class="row"><a class="btn btn--olive btn--sm" href="products.html">Shop the market<span class="btn__ic">${I.arrow}</span></a>${c.whatsapp ? `<a class="btn btn--ghost-light btn--sm" href="https://wa.me/${esc(c.whatsapp)}" target="_blank" rel="noopener">WhatsApp us<span class="btn__ic">${I.whatsapp}</span></a>` : ""}</div>
           </div>
         </div>
         <div class="ftr__cols">
@@ -551,7 +724,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
    * Basket UI
    * ------------------------------------------------------------------ */
   function lineImage(it) {
-    if (it.noPhoto) return `<div class="cline__img media--herb" style="display:grid;place-items:center">${I.leaf2}</div>`;
+    if (it.noPhoto) return `<div class="cline__img media--herb">${herbSVG(it.slug)}</div>`;
     return `<div class="cline__img"><img src="${FV.imgSrc(it.image)}" alt="" loading="lazy" width="76" height="76"></div>`;
   }
   function shipMeter(sub) {
@@ -564,7 +737,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
     if (!body) return;
     $("#cartTitle").innerHTML = `Your basket${cart.length ? ` <small class="muted">(${FV.cart.count()})</small>` : ""}`;
     if (!cart.length) {
-      body.innerHTML = `<div class="empty"><div class="empty__art">${ART_SPRIG}</div><h3>Your basket is empty.</h3><p>The season is waiting — start with a best seller.</p><a class="btn btn--sm" href="products.html" style="margin-top:1.2rem">Browse the market<span class="btn__ic">${I.arrow}</span></a></div>`;
+      body.innerHTML = `<div class="empty"><div class="empty__art">${herbSVG("sprout")}</div><h3>Your basket is empty.</h3><p>The season is waiting — start with a best seller.</p><a class="btn btn--sm" href="products.html" style="margin-top:1.2rem">Browse the market<span class="btn__ic">${I.arrow}</span></a></div>`;
       foot.innerHTML = ""; return;
     }
     body.innerHTML = shipMeter(FV.cart.subtotal()) + cart.map((it) => `
@@ -635,7 +808,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
     const as = D.articles.filter((a) => hit(a.title + " " + a.category)).slice(0, 2);
     if (!ps.length && !bs.length && !as.length) { res.innerHTML = `<p class="search__hint">No matches for “${esc(q)}”. Try “mango”, “box” or “herbs”.</p>`; return; }
     res.innerHTML = [
-      ...ps.map((p) => `<a class="search__row" href="product.html?slug=${p.slug}">${p.noPhoto ? `<span class="media--herb" style="width:54px;height:54px;border-radius:12px;display:grid;place-items:center">${I.leaf2}</span>` : `<img src="${isCustomImg(p.image) ? p.image : FV.thumb(p.slug)}" alt="" loading="lazy">`}<span><strong>${esc(p.name)}</strong><em>${esc(p.category)} · ${money(cardPrice(p).value)} ${cardPrice(p).per}</em></span></a>`),
+      ...ps.map((p) => `<a class="search__row" href="product.html?slug=${p.slug}">${p.noPhoto ? `<span class="search__herb media--herb">${herbSVG(p.slug)}</span>` : `<img src="${isCustomImg(p.image) ? p.image : FV.thumb(p.slug)}" alt="" loading="lazy">`}<span><strong>${esc(p.name)}</strong><em>${esc(originShort(p.origin))} · ${money(cardPrice(p).value)} ${cardPrice(p).per}</em></span></a>`),
       ...bs.map((b) => `<a class="search__row" href="product.html?box=${b.slug}"><img src="${FV.thumb(b.image)}" alt="" loading="lazy"><span><strong>${esc(b.name)}</strong><em>Box · from ${money(Math.min(...b.tiers.map((t) => t.price)))}</em></span></a>`),
       ...as.map((a) => `<a class="search__row" href="article.html?slug=${a.slug}"><img src="${FV.thumb(a.image)}" alt="" loading="lazy"><span><strong>${esc(a.title)}</strong><em>Journal · ${esc(a.read)}</em></span></a>`),
     ].join("") + `<a class="search__all" href="products.html?q=${encodeURIComponent(q)}">See all results for “${esc(q)}” ${I.arrow}</a>`;
@@ -656,30 +829,31 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
   function flag(p) {
     if (FV.soldOut(p)) return `<span class="chip chip--forest pcard__tag">Sold out</span>`;
     if (p.compareAt && +p.compareAt > cardPrice(p).value) return `<span class="chip chip--pom pcard__tag">−${Math.round((1 - cardPrice(p).value / +p.compareAt) * 100)}%</span>`;
-    if ((p.collections || []).includes("seasonal")) return `<span class="chip chip--glass pcard__tag">${I.sparkle} In season</span>`;
-    if ((p.collections || []).includes("best-sellers")) return `<span class="chip chip--glass pcard__tag">${I.star} Bestseller</span>`;
+    if (!isYearRound(p)) { const ms = seasonMonths(p.season), now = new Date().getMonth(); let k = 0; while (k < 12 && !ms.includes((now + k) % 12)) k++; return `<span class="chip chip--glass pcard__tag${k ? " is-off" : ""}" data-months="${ms.join(",")}">${I.sparkle}<span>${k ? "Back in " + MONTHS[(now + k) % 12] : "In season"}</span></span>`; }
+    if ((p.collections || []).includes("best-sellers")) return `<span class="chip chip--glass pcard__tag">${I.leaf} Bestseller</span>`;
     return "";
   }
+  const seasonLabel = (p) => isYearRound(p) ? "All year" : String(p.season || "").replace(/\s*[–—-]\s*/, "–");
+  FV.seasonLabel = seasonLabel;
   FV.picture = function (slug, sizes, alt, opt) {
     opt = opt || {};
     if (isCustomImg(slug)) return `<img src="${esc(slug)}" alt="${esc(alt || "")}" loading="${opt.eager ? "eager" : "lazy"}" decoding="async">`;
     return `<picture><source type="image/webp" srcset="${FV.webp(FV.thumb(slug))} 540w, ${FV.webp(FV.img(slug))} 1000w" sizes="${sizes}"><img src="${FV.thumb(slug)}" srcset="${FV.thumb(slug)} 540w, ${FV.img(slug)} 1000w" sizes="${sizes}" alt="${esc(alt || "")}" loading="${opt.eager ? "eager" : "lazy"}" decoding="async" width="540" height="540"></picture>`;
   };
-  function herbArt(name) {
-    return `<div class="pcard__media media--herb" data-placeholder="true"><svg class="art herb-art" viewBox="0 0 120 150" aria-hidden="true"><path d="M60 146C58 110 62 70 58 8"/><path d="M59 126c-12-3-22-11-27-21 11 0 21 6 27 16"/><path d="M60 108c11-3 20-11 24-22-11 0-20 7-24 17"/><path d="M59 90c-12-2-22-10-28-20 11-1 21 5 27 15"/><path d="M60 72c11-3 20-11 24-22-11 0-20 7-24 17"/><path d="M58 54c-11-2-20-9-25-18 10-1 19 4 25 13"/><path d="M59 38c9-3 17-10 20-19-9 1-16 6-20 14"/></svg><span>${esc(name)}</span>`;
-  }
+  /* Product card — a produce tag: photo (or the herb, drawn), a tear-off
+     line, then where it grew and when it is in season. */
   FV.productCardHTML = function (p) {
     const cp = cardPrice(p), sold = FV.soldOut(p);
     const wishB = `<button class="pcard__wish" data-wish="${p.slug}" aria-label="Save ${esc(p.name)}" aria-pressed="false">${I.heart}</button>`;
     const addB = sold ? "" : `<button class="pcard__add" data-add="${p.slug}" aria-label="Add ${esc(p.name)} to basket">${I.plus}</button>`;
     const media = p.noPhoto
-      ? herbArt(p.name) + flag(p) + wishB + addB + `</div>`
+      ? `<div class="pcard__media media--herb">${herbSVG(p.slug)}${flag(p)}${wishB}${addB}</div>`
       : `<div class="pcard__media">${FV.picture(isCustomImg(p.image) ? p.image : p.slug, "(max-width:640px) 46vw, (max-width:1180px) 30vw, 300px", p.name)}${flag(p)}${wishB}${addB}</div>`;
     const cmp = p.compareAt && +p.compareAt > cp.value ? ` <s class="was">${money(+p.compareAt)}</s>` : "";
     return `<article class="pcard${sold ? " pcard--sold" : ""}" data-reveal>
       ${media}
       <div class="pcard__body">
-        <div class="pcard__meta"><span>${esc(topLabel(p))}</span><span class="pcard__rate">${I.star}${(p.rating || 5).toFixed(1)}</span></div>
+        <div class="pcard__meta"><span class="pcard__origin">${I.pin}${esc(originShort(p.origin))}</span><span class="pcard__season">${esc(seasonLabel(p))}</span></div>
         <h3 class="pcard__name"><a href="product.html?slug=${p.slug}">${esc(p.name)}</a></h3>
         <div class="pcard__price">${money(cp.value)} <small>${cp.per}</small>${cmp}</div>
       </div>
@@ -689,7 +863,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
     const from = Math.min(...b.tiers.map((t) => t.price));
     const tag = b.slug === "hosting-box" ? "Most gifted" : ((b.collections || []).includes("best-sellers") ? "Bestseller" : ((b.collections || []).includes("seasonal") ? "Limited" : ((b.collections || []).includes("organic-reserve") ? "Reserve" : "")));
     return `<article class="bcard" data-reveal>
-      <div class="bcard__media">${FV.picture(b.image, "(max-width:640px) 92vw, (max-width:1180px) 46vw, 320px", b.name)}${tag ? `<span class="chip chip--olive bcard__tag">${I.star} ${tag}</span>` : ""}</div>
+      <div class="bcard__media">${FV.picture(b.image, "(max-width:640px) 92vw, (max-width:1180px) 46vw, 320px", b.name)}${tag ? `<span class="chip chip--olive bcard__tag">${b.slug === "hosting-box" ? I.gift : I.leaf} ${tag}</span>` : ""}</div>
       <div class="bcard__body">
         <h3 class="bcard__name"><a href="product.html?box=${b.slug}">${esc(b.name)}</a></h3>
         <p class="bcard__tagline">${esc(b.tagline)}</p>
@@ -698,16 +872,6 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
           <span class="bcard__go" aria-hidden="true">${I.arrowUR}</span>
         </div>
       </div>
-    </article>`;
-  };
-  const AV = ["#2D4630", "#6E5F2E", "#7A2B21", "#4F5A2E", "#2A2622", "#19291C"];
-  FV.reviewCardHTML = function (r) {
-    const initials = r.name.split(" ").map((w) => w[0]).slice(0, 2).join("");
-    let h = 0; for (let i = 0; i < r.name.length; i++) h = (h * 31 + r.name.charCodeAt(i)) >>> 0;
-    return `<article class="rcard">
-      <div class="stars" role="img" aria-label="Rated ${r.stars} out of 5">${I.star.repeat(r.stars)}</div>
-      <p class="rcard__q">${esc(r.text)}</p>
-      <div class="rcard__who"><span class="rcard__av" style="background:${AV[h % AV.length]}">${esc(initials)}</span><span><strong>${esc(r.name)}</strong><small>${esc(r.area)} · ${esc(r.tag)}</small></span></div>
     </article>`;
   };
   FV.articleCardHTML = function (a, row) {
@@ -860,11 +1024,27 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
   }
 
   /* ------------------------------------------------------------------ *
+   * Arrival — the first page of a visit opens with a sunrise over the
+   * valley (markup in each page, styles.css › "Arrival"). It leaves once
+   * the page is ready and the sun is up; the hero intro then plays.
+   * ------------------------------------------------------------------ */
+  function arrive() {
+    const h = document.documentElement, L = document.getElementById("fvLoader");
+    const drop = () => { const el = document.getElementById("fvLoader"); if (el) el.remove(); };
+    if (!h.classList.contains("fv-intro")) { drop(); return; }
+    if (!L || h.classList.contains("fv-go")) { h.classList.add("fv-go"); setTimeout(drop, 900); return; }
+    const fonts = document.fonts && document.fonts.ready ? Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 450))]) : Promise.resolve();
+    fonts.then(() => setTimeout(() => { h.classList.add("fv-go"); setTimeout(drop, 1000); }, Math.max(0, 1250 - performance.now())));
+  }
+  addEventListener("pageshow", (e) => { if (e.persisted) { document.documentElement.classList.add("fv-go"); const el = document.getElementById("fvLoader"); if (el) el.remove(); } });
+
+  /* ------------------------------------------------------------------ *
    * Boot
    * ------------------------------------------------------------------ */
   function boot() {
     if (ADMIN_MODE || !document.getElementById("fv-header")) {
       FV.booted = true;
+      arrive();
       document.dispatchEvent(new CustomEvent("fv:ready"));
       return;
     }
@@ -887,7 +1067,10 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
     wire();
     try { if (!sessionStorage.getItem("fv_src")) sessionStorage.setItem("fv_src", sourceOf()); } catch (_) {}
     track("page_view", { path: pageFile() + location.search });
+    const cut = () => $$("[data-cutoff]").forEach((el) => { el.textContent = FV.cutoffText(); });
+    cut(); setInterval(cut, 30000);
     FV.booted = true;
+    arrive();
     document.dispatchEvent(new CustomEvent("fv:ready"));
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);

@@ -11,15 +11,15 @@
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/jakarta-s.woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/styles.css">
   <link rel="stylesheet" href="assets/css/shop.css">
-  <script>!function(d,w){var h=d.documentElement;if(!/[?&]fv_preview=1/.test(location.search)&&!w.matchMedia("(prefers-reduced-motion: reduce)").matches){h.classList.add("m-on");setTimeout(function(){if(!(w.FVMotion&&w.FVMotion.ready))h.classList.remove("m-on")},3500)}}(document,window)</script>
+  <script>!function(d,w){var h=d.documentElement;if(/[?&]fv_preview=1/.test(location.search)||w.matchMedia("(prefers-reduced-motion: reduce)").matches)return;h.classList.add("m-on");setTimeout(function(){if(!(w.FVMotion&&w.FVMotion.ready))h.classList.remove("m-on")},3500);try{if(!/[?&]bake=1/.test(location.search)&&!sessionStorage.getItem("fv_seen")){sessionStorage.setItem("fv_seen","1");h.classList.add("fv-intro");setTimeout(function(){h.classList.add("fv-go")},4500)}}catch(e){}}(document,window)</script>
 </head>
 <body data-page="cart">
+  <!--loader--><div class="fv-loader" id="fvLoader" aria-hidden="true"><span class="fv-loader__sun"></span><svg class="fv-loader__hills hills" viewBox="0 0 1440 160" preserveAspectRatio="none" focusable="false"><path class="h3" d="M0 160V80C120 54 250 36 400 48C560 60 650 94 820 90C990 86 1100 40 1260 42C1350 43 1410 58 1440 66V160Z"/><path class="h2" d="M0 160V106C150 84 300 72 460 88C640 106 760 126 930 114C1110 101 1240 80 1440 98V160Z"/><path class="h1" d="M0 160V134C200 120 380 114 560 126C760 139 900 148 1100 138C1260 130 1360 124 1440 128V160Z"/></svg><div class="fv-loader__brand"><img src="assets/img/logo.png" alt="" width="170" height="111" decoding="async"><p>Picking today's harvest</p></div></div><!--/loader-->
   <div id="fv-header"></div>
   <noscript><p class="noscript">Fresh Valley uses JavaScript for its menu, basket and checkout. <a href="products.html">Browse the collection</a> · <a href="contact.html">Contact us</a></p></noscript>
 
   <main id="main">
     <section class="s shop-head">
-      <div class="page-head__art" id="headArt" data-draw aria-hidden="true"></div>
       <div class="wrap wrap--wide">
         <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span aria-hidden="true">/</span><span aria-current="page">Basket</span></nav>
         <div class="page-head">
@@ -54,7 +54,6 @@
       const S = window.FVSections, esc = FV.esc, I = FV.icon;
       const wrap = document.getElementById("cartWrap");
       const SET = FV.settings;
-      document.getElementById("headArt").innerHTML = S.ART.bouquet;
       document.getElementById("shopAll").insertAdjacentHTML("beforeend", " " + I("arrow"));
       const getCode = () => { try { return sessionStorage.getItem("fv_code") || ""; } catch (_) { return ""; } };
       const setCode = (c) => { try { c ? sessionStorage.setItem("fv_code", c) : sessionStorage.removeItem("fv_code"); } catch (_) {} };

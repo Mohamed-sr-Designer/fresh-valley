@@ -39,8 +39,8 @@
     const t = A.theme.get();
     root.innerHTML = `<div class="page">${A.pageHead("Themes", { actions: `<a class="ab" href="../index.html" target="_blank" rel="noopener">${icon("eye")}View store</a>` })}
       <div class="card theme-card"><div class="theme-card__pv"><iframe src="../index.html?fv_preview=1" title="Store preview" loading="lazy" tabindex="-1" aria-hidden="true"></iframe></div>
-        <div class="theme-card__bd"><span class="bdg bdg--ok">Current theme</span><h2>Market Day</h2>
-          <p class="muted">Fresh Valley's section-based theme — forest ink, olive accent, kraft paper, Fraunces &amp; Jakarta, and a full motion layer.</p>
+        <div class="theme-card__bd"><span class="bdg bdg--ok">Current theme</span><h2>The Valley</h2>
+          <p class="muted">Fresh Valley's section-based theme — a walk through the valley: sunrise arrival, greenhouse arches, a harvest calendar, an origins map and a drawn herb garden, in the brand's forest, olive and kraft.</p>
           <div class="swatches" aria-label="Brand colours">${["#19291C", "#2D4630", "#AE9D57", "#8A8E57", "#E6DAC4", "#F3EDE1", "#7A2B21"].map((c) => `<i style="background:${c}" title="${c}"></i>`).join("")}</div>
           <dl class="kv"><dt>Last saved</dt><dd>${saved ? esc(ago(saved)) : "Using defaults"}</dd><dt>Published</dt><dd>${pub ? esc(fmtDT(pub)) : "Not yet"}</dd><dt>Pages</dt><dd>${Object.keys(t.pages).length} theme pages</dd></dl>
           <div class="row"><a class="ab ab--primary" href="theme.html">${icon("palette")}Customize</a>${A.auth.can("publish") ? `<button class="ab" type="button" id="pub">${icon("upload")}Publish</button>` : ""}<button class="ab ab--icon" type="button" id="more" aria-label="More">${icon("dots")}</button></div></div></div>
@@ -51,7 +51,7 @@
     root.querySelector("#more").addEventListener("click", (e) => A.menu(e.currentTarget, [
       { label: "Download content.js", icon: "download", fn: () => { if (window.FVPublish) FVPublish.download(); } },
       { label: "Export theme JSON", icon: "download", fn: () => A.download("fresh-valley-theme.json", JSON.stringify(A.theme.get(), null, 2)) },
-      { label: "Reset theme to default", icon: "refresh", danger: true, fn: async () => { if (await A.confirm("Reset the whole theme?", "Every section and setting returns to the original Market Day defaults in this browser.", { danger: true, ok: "Reset theme" })) { T.reset(); A.toast("Theme reset"); A.go("/online-store?r=" + Date.now()); } } },
+      { label: "Reset theme to default", icon: "refresh", danger: true, fn: async () => { if (await A.confirm("Reset the whole theme?", "Every section and setting returns to the original Valley defaults in this browser.", { danger: true, ok: "Reset theme" })) { T.reset(); A.toast("Theme reset"); A.go("/online-store?r=" + Date.now()); } } },
     ]));
   }, { perm: "store" });
 

@@ -14,8 +14,9 @@
   <div id="fv-header"></div>
   <main id="main">
     <section class="s s-page-head" style="min-height:78vh;display:flex;align-items:center">
-      <div class="page-head__art" id="art" aria-hidden="true"></div>
+      
       <div class="wrap wrap--narrow" style="text-align:center">
+        <div class="specimen" id="art" aria-hidden="true" style="margin:0 auto 1.4rem;display:block"></div>
         <p class="eyebrow" style="justify-content:center">404</p>
         <h1 style="margin:1rem auto;max-width:14ch">This page has gone <em class="i">out of season</em>.</h1>
         <p class="lede" style="margin:0 auto 1.8rem">It may have moved, or it was never on the shelf. Everything fresh is still right here.</p>
@@ -29,6 +30,6 @@
   <script src="assets/js/theme.js"></script>
   <script src="assets/js/app.js"></script>
   <script src="assets/js/sections.js"></script>
-  <script>document.getElementById("art").innerHTML = FVSections.ART.citrus; document.getElementById("ic1").innerHTML = FV.icon("home"); document.getElementById("ic2").innerHTML = FV.icon("arrow");</script>
+  <script>document.getElementById("art").innerHTML = FV.herbSVG("sprout"); document.getElementById("ic1").innerHTML = FV.icon("home"); document.getElementById("ic2").innerHTML = FV.icon("arrow");</script>
 </body>
 </html>

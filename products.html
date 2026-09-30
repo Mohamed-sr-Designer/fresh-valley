@@ -13,15 +13,15 @@
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/jakarta-s.woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/styles.css">
   <link rel="stylesheet" href="assets/css/shop.css">
-  <script>!function(d,w){var h=d.documentElement;if(!/[?&]fv_preview=1/.test(location.search)&&!w.matchMedia("(prefers-reduced-motion: reduce)").matches){h.classList.add("m-on");setTimeout(function(){if(!(w.FVMotion&&w.FVMotion.ready))h.classList.remove("m-on")},3500)}}(document,window)</script>
+  <script>!function(d,w){var h=d.documentElement;if(/[?&]fv_preview=1/.test(location.search)||w.matchMedia("(prefers-reduced-motion: reduce)").matches)return;h.classList.add("m-on");setTimeout(function(){if(!(w.FVMotion&&w.FVMotion.ready))h.classList.remove("m-on")},3500);try{if(!/[?&]bake=1/.test(location.search)&&!sessionStorage.getItem("fv_seen")){sessionStorage.setItem("fv_seen","1");h.classList.add("fv-intro");setTimeout(function(){h.classList.add("fv-go")},4500)}}catch(e){}}(document,window)</script>
 </head>
 <body data-page="products">
+  <!--loader--><div class="fv-loader" id="fvLoader" aria-hidden="true"><span class="fv-loader__sun"></span><svg class="fv-loader__hills hills" viewBox="0 0 1440 160" preserveAspectRatio="none" focusable="false"><path class="h3" d="M0 160V80C120 54 250 36 400 48C560 60 650 94 820 90C990 86 1100 40 1260 42C1350 43 1410 58 1440 66V160Z"/><path class="h2" d="M0 160V106C150 84 300 72 460 88C640 106 760 126 930 114C1110 101 1240 80 1440 98V160Z"/><path class="h1" d="M0 160V134C200 120 380 114 560 126C760 139 900 148 1100 138C1260 130 1360 124 1440 128V160Z"/></svg><div class="fv-loader__brand"><img src="assets/img/logo.png" alt="" width="170" height="111" decoding="async"><p>Picking today's harvest</p></div></div><!--/loader-->
   <div id="fv-header"></div>
   <noscript><p class="noscript">Fresh Valley uses JavaScript for its menu, basket and checkout. <a href="products.html">Browse the collection</a> · <a href="contact.html">Contact us</a></p></noscript>
 
   <main id="main">
     <section class="s shop-head">
-      <div class="page-head__art" id="headArt" data-draw aria-hidden="true"></div>
       <div class="wrap wrap--wide">
         <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span aria-hidden="true">/</span><span id="crumb" aria-current="page">The Collection</span></nav>
         <div class="page-head">
@@ -44,7 +44,7 @@
               <option value="featured">Featured</option>
               <option value="price-asc">Price · low to high</option>
               <option value="price-desc">Price · high to low</option>
-              <option value="rating">Top rated</option>
+              <option value="season">In season first</option>
               <option value="name">Name · A to Z</option>
             </select>
           </div>
@@ -136,7 +136,7 @@
         const a = list.slice();
         if (state.sort === "price-asc") a.sort((x, y) => price(x) - price(y));
         else if (state.sort === "price-desc") a.sort((x, y) => price(y) - price(x));
-        else if (state.sort === "rating") a.sort((x, y) => (y.rating || 0) - (x.rating || 0));
+        else if (state.sort === "season" && type !== "box") { const now = new Date().getMonth(), rank = (p) => FV.isYearRound(p) ? 1 : FV.inSeason(p, now) ? 0 : 2; a.sort((x, y) => rank(x) - rank(y)); }
         else if (state.sort === "name") a.sort((x, y) => x.name.localeCompare(y.name));
         else if (type !== "box") a.sort((x, y) => (FV.soldOut(x) - FV.soldOut(y)) || ((y.featured ? 1 : 0) - (x.featured ? 1 : 0)));
         return a;
@@ -154,7 +154,6 @@
         $("pageBlurb").textContent = t[1];
         $("eyebrow").textContent = t[2];
         $("crumb").textContent = t[0].replace(/[*~]/g, "");
-        $("headArt").innerHTML = S.ART[t[3]] || S.ART.sprig;
         document.title = t[0].replace(/[*~]/g, "") + " — Fresh Valley";
       }
       function render(first) {

@@ -29,16 +29,85 @@ window.FVSections = (function () {
     strawberry: '<path d="M100 186C66 160 44 128 46 96c2-24 22-36 54-36s52 12 54 36c2 32-20 64-54 90Z"/><path d="M100 62c-10-14-26-18-40-14 8 10 22 16 40 14Zm0 0c10-14 26-18 40-14-8 10-22 16-40 14Zm0 0V36"/><path d="M78 96l2 5M100 92v5M122 96l-2 5M70 122l2 5M92 118l1 5M114 118l-1 5M130 122l-2 5M84 146l2 5M108 146l-1 5M98 168v4"/>',
     herbs: '<path d="M100 250c-2-50-18-110-54-190"/><path d="M100 250c2-60 4-120 2-200"/><path d="M100 250c4-50 22-110 56-176"/><path d="M62 104c-18-2-30-12-36-26 16-1 28 8 36 22M54 86c10-12 12-26 8-40-12 8-14 22-10 36M74 140c-16 2-30-6-38-18 14-4 28 2 38 14"/><path d="M101 90c-14-6-22-18-22-32 14 4 22 16 22 30M103 128c14-6 22-18 22-32-14 4-22 16-22 30M102 60c10-8 14-20 12-32-10 6-14 18-12 30"/><path d="M140 108c16-4 26-16 28-30-14 2-24 12-28 26M130 140c16 0 30-8 36-22-14-2-28 6-36 20M148 80c-4-14 0-28 10-36 4 12 0 26-8 36"/><path d="M82 226c12 6 26 6 38 0M84 238c12 5 24 5 36 0"/>',
   };
+  /* Herb specimens (drawn in app.js) replace the old corner line-art. Legacy
+     art keys saved in older themes map onto a herb. */
+  const HERBS = ["mint", "basil", "coriander", "rosemary", "dill"];
+  const LEGACY_ART = { sprig: "rosemary", leaf: "basil", citrus: "mint", herbs: "coriander", bouquet: "dill", fig: "sprout", tomato: "sprout", strawberry: "sprout" };
+  const herbKind = (v) => (HERBS.includes(v) || v === "sprout" ? v : LEGACY_ART[v] || "");
+  const trio = () => `<svg class="art herb herb--trio" viewBox="0 0 440 210" aria-hidden="true"><g transform="translate(0 14) scale(.95)"><g class="herb__sway">${FV.herbPaths("mint")}</g></g><g transform="translate(138 0) scale(1.02)"><g class="herb__sway" style="--sw:5.2s">${FV.herbPaths("dill")}</g></g><g transform="translate(280 16) scale(.94)"><g class="herb__sway" style="--sw:4.4s">${FV.herbPaths("basil")}</g></g></svg>`;
   const ART = {
-    sprig: `<svg class="art" viewBox="0 0 200 260" aria-hidden="true">${P.sprig}</svg>`,
-    leaf: `<svg class="art" viewBox="0 0 200 200" aria-hidden="true">${P.leaf}</svg>`,
-    fig: `<svg class="art" viewBox="0 0 200 200" aria-hidden="true">${P.fig}</svg>`,
-    tomato: `<svg class="art" viewBox="0 0 200 200" aria-hidden="true">${P.tomato}</svg>`,
-    strawberry: `<svg class="art" viewBox="0 0 200 200" aria-hidden="true">${P.strawberry}</svg>`,
-    citrus: `<svg class="art" viewBox="0 0 200 200" aria-hidden="true">${citrusPaths()}</svg>`,
-    herbs: `<svg class="art" viewBox="0 0 200 260" aria-hidden="true">${P.herbs}</svg>`,
-    bouquet: `<svg class="art" viewBox="0 0 420 400" aria-hidden="true"><g transform="translate(150 20) rotate(8 100 130)">${P.sprig}</g><g transform="translate(20 150) rotate(-10 100 100) scale(.95)">${P.leaf}</g><g transform="translate(236 176) scale(.9)">${P.fig}</g><g transform="translate(40 18) scale(.62)">${citrusPaths()}</g><g transform="translate(250 30) scale(.7)">${P.strawberry}</g></svg>`,
+    sprig: FV.herbSVG("rosemary"), leaf: FV.herbSVG("basil"), citrus: FV.herbSVG("mint"), fig: FV.herbSVG("sprout"),
+    tomato: FV.herbSVG("sprout"), strawberry: FV.herbSVG("sprout"), herbs: trio(), bouquet: FV.herbSVG("dill"),
+    mint: FV.herbSVG("mint"), basil: FV.herbSVG("basil"), coriander: FV.herbSVG("coriander"), rosemary: FV.herbSVG("rosemary"), dill: FV.herbSVG("dill"), sprout: FV.herbSVG("sprout"),
+    // legacy line-art kept for older saved content (empty states etc.)
+    oldSprig: `<svg class="art" viewBox="0 0 200 260" aria-hidden="true">${P.sprig}</svg>`,
+    oldLeaf: `<svg class="art" viewBox="0 0 200 200" aria-hidden="true">${P.leaf}</svg>`,
   };
+  void citrusPaths;
+
+  /* ------------------------------------------------------------------ *
+   * Egypt, the Nile and the growing regions (equirectangular, lon/lat)
+   * ------------------------------------------------------------------ */
+  const GEO = (function () {
+    const X0 = 24.6, Y0 = 31.95, KX = 37.4, KY = 42;
+    const pr = (ll) => [+((ll[0] - X0) * KX).toFixed(1), +((Y0 - ll[1]) * KY).toFixed(1)];
+    const poly = (pts) => pts.map(pr).map((p, i) => (i ? "L" : "M") + p[0] + " " + p[1]).join("");
+    const curve = (pts) => { // smooth line through points
+      const P = pts.map(pr); let d = `M${P[0][0]} ${P[0][1]}`;
+      for (let i = 0; i < P.length - 1; i++) { const a = P[i - 1] || P[i], b = P[i], c = P[i + 1], e = P[i + 2] || c; d += `C${(b[0] + (c[0] - a[0]) / 6).toFixed(1)} ${(b[1] + (c[1] - a[1]) / 6).toFixed(1)} ${(c[0] - (e[0] - b[0]) / 6).toFixed(1)} ${(c[1] - (e[1] - b[1]) / 6).toFixed(1)} ${c[0]} ${c[1]}`; }
+      return d;
+    };
+    const LAND = [[25.15, 31.57], [25.92, 31.61], [27.23, 31.35], [28.95, 30.83], [29.92, 31.2], [30.07, 31.32], [30.37, 31.47], [31.05, 31.58], [31.85, 31.52], [32.3, 31.27], [33.1, 31.15], [33.8, 31.13], [34.22, 31.3], [34.9, 29.49], [34.67, 29.03], [34.52, 28.5], [34.25, 27.73], [33.6, 28.24], [33.1, 29.05], [32.55, 29.97], [32.35, 29.6], [32.65, 29.1], [33.1, 28.35], [33.8, 27.25], [33.93, 26.75], [34.28, 26.1], [34.9, 25.07], [35.47, 23.95], [35.6, 23.13], [36.6, 22.2], [36.88, 22.0], [25.0, 22.0], [25.0, 31.0]];
+    const NILE = [[31.4, 22.0], [31.62, 22.55], [32.2, 23.3], [32.9, 24.09], [32.93, 24.47], [32.87, 24.98], [32.55, 25.29], [32.64, 25.69], [32.73, 26.16], [32.24, 26.05], [31.7, 26.56], [31.18, 27.18], [30.75, 28.1], [30.95, 28.6], [31.1, 29.07], [31.23, 30.04]];
+    const ROSETTA = [[31.23, 30.04], [31.02, 30.32], [30.78, 30.7], [30.55, 31.02], [30.37, 31.47]];
+    const DAMIETTA = [[31.23, 30.04], [31.3, 30.42], [31.45, 30.82], [31.64, 31.2], [31.85, 31.52]];
+    const REGIONS = [
+      { name: "Nubaria", ll: [29.95, 30.55], note: "Reclaimed desert west of the Delta — clean, even vegetables." },
+      { name: "Beheira", ll: [30.45, 30.88], note: "The western Delta — citrus, stone fruit and sweet basil." },
+      { name: "Qalyubia", ll: [31.18, 30.46], note: "Just north of Cairo — strawberries and the tenderest herbs." },
+      { name: "Sharqia", ll: [31.75, 30.7], note: "The eastern Delta — melons in the heat of summer." },
+      { name: "Ismailia", ll: [32.27, 30.6], note: "Canal-side orchards — Egypt's famous mango." },
+      { name: "Minya", ll: [30.75, 28.1], note: "Middle Egypt — early grapes and firm garlic." },
+      { name: "Qena", ll: [32.73, 26.16], note: "Upper Egypt, where the Nile bends — bananas." },
+      { name: "Siwa", ll: [25.52, 29.2], note: "The western oasis — Medjool dates, sun-dried slowly." },
+    ];
+    return { pr, land: poly(LAND) + "Z", nile: curve(NILE), rosetta: curve(ROSETTA), damietta: curve(DAMIETTA), regions: REGIONS, cairo: pr([31.24, 30.04]) };
+  })();
+  const regionOf = (p) => { const o = FV.originShort(p.origin).toLowerCase(); return GEO.regions.find((r) => r.name.toLowerCase() === o) || null; };
+  function mapSVG(opt) {
+    opt = opt || {};
+    const pins = GEO.regions.map((r, i) => {
+      const [x, y] = GEO.pr(r.ll), act = opt.active === r.name;
+      return `<g class="map__pin${act ? " is-on" : ""}" data-region="${esc(r.name)}" transform="translate(${x} ${y})"><circle class="map__pulse" r="13"/><circle class="map__dot" r="6.5"/><text class="map__num" y="2.6">${i + 1}</text><text class="map__label" x="${r.ll[0] < 30.3 ? -12 : 12}" y="4" text-anchor="${r.ll[0] < 30.3 ? "end" : "start"}">${esc(r.name)}</text></g>`;
+    }).join("");
+    const [cx, cy] = GEO.cairo;
+    return `<svg class="map" viewBox="0 -26 470 456" role="img" aria-label="${esc(opt.label || "Map of Egypt: the Nile and the regions where our produce is grown")}">
+      <text class="map__sea" x="104" y="-8">Mediterranean Sea</text>
+      <text class="map__sea" x="392" y="236" transform="rotate(58 392 236)">Red Sea</text>
+      <path class="map__land" d="${GEO.land}"/>
+      <g class="map__river" data-draw><path d="${GEO.nile}"/><path d="${GEO.rosetta}"/><path d="${GEO.damietta}"/></g>
+      <text class="map__nile-lab" x="${GEO.pr([31.95, 27.2])[0]}" y="${GEO.pr([31.95, 27.2])[1]}">The Nile</text>
+      <g class="map__cairo" transform="translate(${cx} ${cy})"><rect x="-4.5" y="-4.5" width="9" height="9" rx="1.5" transform="rotate(45)"/><text x="10" y="14">Cairo · graded here</text></g>
+      <g class="map__pins">${pins}</g>
+    </svg>`;
+  }
+
+  /* The month that is "now" — sections render it for the bake, and
+     behave() re-applies it in the visitor's browser. */
+  function seasonNow(month) {
+    const m = month == null ? new Date().getMonth() : month;
+    const peak = D.products.filter((p) => !FV.isYearRound(p) && FV.inSeason(p, m));
+    const last = peak.filter((p) => !FV.inSeason(p, (m + 1) % 12));
+    const next = D.products.filter((p) => !FV.isYearRound(p) && !FV.inSeason(p, m) && FV.inSeason(p, (m + 1) % 12));
+    return { m, peak, last, next };
+  }
+  const nameList = (ps) => ps.map((p) => `<a href="product.html?slug=${p.slug}">${esc(p.name)}</a>`).reduce((s, a, i, arr) => s + (i ? (i === arr.length - 1 ? " and " : ", ") : "") + a, "");
+  function harvestNote(month) {
+    const n = seasonNow(month), mon = FV.MONTHS_LONG[n.m];
+    if (n.peak.length) return `<span class="harvest-ic" aria-hidden="true">${I("leaf")}</span><span><b>${mon} in the valley:</b> ${nameList(n.peak.slice(0, 3))} ${n.peak.length > 1 ? "are" : "is"} at ${n.last.length === n.peak.length ? "the end of the season — last weeks" : "their peak"}.</span>`;
+    if (n.next.length) return `<span class="harvest-ic" aria-hidden="true">${I("leaf")}</span><span><b>${mon} in the valley:</b> between harvests — ${nameList(n.next.slice(0, 2))} arrive${n.next.length > 1 ? "" : "s"} next month.</span>`;
+    return `<span class="harvest-ic" aria-hidden="true">${I("leaf")}</span><span><b>${mon} in the valley:</b> the all-year staples are at their best.</span>`;
+  }
   const MARK = '<svg class="mq-mark" viewBox="0 0 40 40" aria-hidden="true"><path fill="currentColor" d="M5 35C5 16 17 5 35 5c0 19-11 30-30 30Z"/><path d="M5 35 22 18" stroke="var(--mq-bg, #19291C)" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg>';
   const SWASH = '<svg viewBox="0 0 200 22" preserveAspectRatio="none" aria-hidden="true" data-draw><path d="M4 15C52 6 118 4 196 9"/><path d="M40 19c40-5 84-6 128-3"/></svg>';
 
@@ -65,6 +134,9 @@ window.FVSections = (function () {
     o = o || {};
     const alt = esc(o.alt || ""), load = o.eager ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"', attrs = o.attrs || "";
     if (!ref) return "";
+    if (ref === "hero-portrait") {
+      return `<picture><source type="image/webp" srcset="assets/img/hero/hero-portrait-700.webp 700w, assets/img/hero/hero-portrait-1000.webp 1000w" sizes="${o.sizes || "(max-width: 960px) 92vw, 42vw"}"><img src="assets/img/hero/hero-portrait-1000.jpg" srcset="assets/img/hero/hero-portrait-700.jpg 700w, assets/img/hero/hero-portrait-1000.jpg 1000w" sizes="${o.sizes || "(max-width: 960px) 92vw, 42vw"}" alt="${alt}" ${load} decoding="async" width="1000" height="1333" ${attrs}></picture>`;
+    }
     if (ref === "hero") {
       return `<picture><source media="(max-width: 700px)" type="image/webp" srcset="assets/img/hero/hero-portrait-700.webp 700w, assets/img/hero/hero-portrait-1000.webp 1000w" sizes="100vw"><source media="(max-width: 700px)" srcset="assets/img/hero/hero-portrait-700.jpg 700w, assets/img/hero/hero-portrait-1000.jpg 1000w" sizes="100vw"><source type="image/webp" srcset="assets/img/hero/hero-800.webp 800w, assets/img/hero/hero-1200.webp 1200w, assets/img/hero/hero-1800.webp 1800w, assets/img/hero/hero-2400.webp 2400w" sizes="${o.sizes || "100vw"}"><img src="assets/img/hero/hero-1800.jpg" srcset="assets/img/hero/hero-800.jpg 800w, assets/img/hero/hero-1200.jpg 1200w, assets/img/hero/hero-1800.jpg 1800w, assets/img/hero/hero-2400.jpg 2400w" sizes="${o.sizes || "100vw"}" alt="${alt}" ${load} decoding="async" width="2400" height="982" ${attrs}></picture>`;
     }
@@ -111,7 +183,8 @@ window.FVSections = (function () {
     if (["fruits", "vegetables", "herbs"].includes(key)) return FV.byCategory(key).length;
     return FV.byCollection(key).length;
   }
-  const stars = (n) => `<span class="stars" aria-hidden="true">${I("star").repeat(n || 5)}</span>`;
+  // a valley horizon on top of a band (dark bands only)
+  const horizon = (st, v) => st.horizon === false ? "" : `<div class="horizon" aria-hidden="true">${FV.hills(v || "b")}</div>`;
 
   /* ------------------------------------------------------------------ *
    * Renderers
@@ -119,20 +192,24 @@ window.FVSections = (function () {
   const R = {};
   const CTX = { page: null };
 
+  /* Hero — morning in the valley: the headline, and the photograph seen
+     through a greenhouse arch, the sun behind it, herbs growing up its
+     sides and the hills of the valley across the foot of the page. */
   R.hero = (s, st) => {
     const words = list(st.words);
-    const orbs = list(st.orbs, ",").slice(0, 4);
+    const orbs = list(st.orbs, ",").slice(0, 3);
     const chips = list(st.chips);
     const chipIc = ["shield", "snow", "truck", "leaf"];
     const ring = "fvStk-" + esc(s.id);
-    const av = [["NE", "#2D4630"], ["YF", "#6E5F2E"], ["OS", "#7A2B21"], ["MA", "#2A2622"]];
+    const photo = !st.image || st.image === "hero" ? "hero-portrait" : st.image;
+    const herbs = list(st.herbs, ",").map(herbKind).filter(Boolean).slice(0, 2);
     return `<section class="s s-hero" ${attrs(s)}>
       <div class="wrap wrap--wide">
         <div class="hero__grid">
           <div class="hero__head">
-            ${st.badge ? `<a class="hero__badge" href="${esc(st.badge_link || "products.html")}"><span class="dot" aria-hidden="true"></span>${md(st.badge)}${I("arrow")}</a>` : ""}
+            ${st.badge ? `<a class="hero__badge" href="${esc(st.badge_link || "products.html")}"><span class="hero__sprout" aria-hidden="true">${FV.herbSVG("sprout")}</span>${md(st.badge)}${I("arrow")}</a>` : ""}
             <h1 class="hero__title">
-              <span class="hero__orbs" aria-hidden="true">${orbs.map((o, i) => `<span class="orb" data-depth="${[0.9, 0.5, 0.7, 0.4][i]}"><span class="orb__in" data-float="${[12, 16, 10, 14][i]}">${img(o, { sizes: "130px", attrs: 'fetchpriority="low"' })}</span></span>`).join("")}</span>
+              <span class="hero__orbs" aria-hidden="true">${orbs.map((o, i) => `<span class="orb" data-depth="${[0.9, 0.5, 0.7][i]}"><span class="orb__px"><span class="orb__in" data-float="${[12, 16, 10][i]}">${img(o, { sizes: "130px", attrs: 'fetchpriority="low"' })}</span></span></span>`).join("")}</span>
               <span class="line" style="--i:0"><span class="line__in">${md(st.line1)}</span></span>
               <span class="line" style="--i:1"><span class="line__in">${md(st.line2)}</span></span>
               <span class="line" style="--i:2"><span class="line__in">${md(st.line3)}${words.length ? ` <em class="i rot" data-rotate="${esc(words.join("|"))}"><span class="rot__w">${esc(words[0])}</span></em>.` : ""}</span></span>
@@ -141,18 +218,20 @@ window.FVSections = (function () {
           <div class="hero__side">
             ${st.lede ? `<p class="lede">${md(st.lede)}</p>` : ""}
             <div class="hero__cta">${btn(st.cta1_label, st.cta1_link, "btn--lg", true)}${btn(st.cta2_label, st.cta2_link, "btn--ghost btn--lg")}</div>
-            ${st.proof ? `<div class="hero__proof"><span class="avatars" aria-hidden="true">${av.map((a) => `<span style="background:${a[1]}">${a[0]}</span>`).join("")}</span><span>${stars(5)}<br>${md(st.proof)}</span></div>` : ""}
+            ${st.harvest_note === false ? "" : `<p class="hero__harvest" data-harvest-note>${harvestNote()}</p>`}
           </div>
+          <figure class="hero__window">
+            <span class="hero__sun" aria-hidden="true"></span>
+            <div class="hero__arch">
+              ${img(photo, { eager: true, alt: st.image_alt, sizes: "(max-width: 960px) 92vw, 42vw" })}
+              ${chips.length ? `<figcaption class="hero__caption">${chips.map((c, i) => `<span class="chip chip--glass">${I(chipIc[i % 4])}${esc(c)}</span>`).join("")}</figcaption>` : ""}
+            </div>
+            ${herbs.map((h, i) => `<span class="hero__herb hero__herb--${i ? "r" : "l"}" aria-hidden="true">${FV.herbSVG(h)}</span>`).join("")}
+            ${st.sticker ? `<div class="sticker hero__sticker" aria-hidden="true"><svg class="ring" viewBox="0 0 120 120"><defs><path id="${ring}" d="M60 60m-47 0a47 47 0 1 1 94 0a47 47 0 1 1-94 0"/></defs><text><textPath href="#${ring}" textLength="292" lengthAdjust="spacing">${esc(st.sticker)}</textPath></text></svg><span class="sticker__core">${FV.herbSVG("sprout")}</span></div>` : ""}
+          </figure>
         </div>
       </div>
-      <div class="hero__media-wrap">
-        ${st.sticker ? `<div class="sticker hero__sticker" aria-hidden="true"><svg class="ring" viewBox="0 0 120 120"><defs><path id="${ring}" d="M60 60m-47 0a47 47 0 1 1 94 0a47 47 0 1 1-94 0"/></defs><text><textPath href="#${ring}" textLength="292" lengthAdjust="spacing">${esc(st.sticker)}</textPath></text></svg><span class="sticker__core">${ART.leaf}</span></div>` : ""}
-        <div class="hero__media">
-          ${img(st.image || "hero", { eager: true, alt: st.image_alt, sizes: "100vw" })}
-          ${chips.length ? `<div class="hero__caption">${chips.map((c, i) => `<span class="chip chip--glass">${I(chipIc[i % 4])}${esc(c)}</span>`).join("")}</div>` : ""}
-          ${st.rating ? `<div class="hero__rating"><span class="rating-pill"><b>${esc(st.rating)}</b>${stars(5)}<span>${esc(st.rating_label || "")}</span></span></div>` : ""}
-        </div>
-      </div>
+      <div class="hero__hills" aria-hidden="true">${FV.hills("a")}</div>
     </section>`;
   };
 
@@ -192,11 +271,9 @@ window.FVSections = (function () {
   };
 
   R.story = (s, st, blocks) => {
-    const struck = list(st.struck);
-    return `<section class="s sec s-story band--dark" ${attrs(s, "data-story")}><div class="wrap wrap--wide"><div class="story">
+    return `<section class="s sec s-story band--dark" ${attrs(s, "data-story")}>${horizon(st, "b")}<div class="wrap wrap--wide"><div class="story">
       <div class="story__copy">
         ${eyebrow(st.eyebrow)}
-        ${struck.length ? `<div class="story__struck" data-strike>${struck.map((t) => `<p>${esc(t)}.</p>`).join("")}</div>` : ""}
         <h2 data-split>${md(st.title)}</h2>
         ${st.text ? `<p class="lede">${md(st.text)}</p>` : ""}
         <div class="row">${btnDark(st, true)}</div>
@@ -218,7 +295,8 @@ window.FVSections = (function () {
       const shown = isNaN(v) ? esc(t.value) : (dec ? v.toFixed(dec) : Math.round(v).toLocaleString("en-US")) + esc(t.suffix || "");
       return `<div class="stat" data-reveal><span class="stat__n"${isNaN(v) ? "" : ` data-count="${v}" data-dec="${dec}" data-suffix="${esc(t.suffix || "")}"`}>${shown}</span><span class="stat__l">${md(t.label)}</span></div>`;
     }).join("");
-    return `<section class="s sec ${band(st.band || "dark")}" ${attrs(s)}><div class="wrap wrap--wide">${head(st, { noCta: true })}<div class="stats">${items}</div></div></section>`;
+    const dark = (st.band || "dark") === "dark";
+    return `<section class="s sec ${band(st.band || "dark")}" ${attrs(s)}>${dark ? horizon(st, "c") : ""}<div class="wrap wrap--wide">${head(st, { noCta: true })}<div class="stats">${items}</div></div></section>`;
   };
 
   R.image_text = (s, st) => {
@@ -229,16 +307,79 @@ window.FVSections = (function () {
     </div></div></section>`;
   };
 
-  R.testimonials = (s, st) => {
-    const tags = list(st.tags, ",");
-    let rs = tags.length ? D.reviews.filter((r) => tags.includes(r.tag)) : D.reviews.slice();
-    if (rs.length < 8) rs = rs.concat(D.reviews.filter((r) => !rs.includes(r)));
-    rs = rs.slice(0, Math.max(8, +st.limit || 16));
-    const half = Math.ceil(rs.length / 2);
-    const row = (arr, dir, sp) => `<div class="t-mask" data-marquee${dir ? '="right"' : ""} data-speed="${sp}" data-pause><div class="t-row marquee__track"><div class="t-unit">${arr.map(FV.reviewCardHTML).join("")}</div></div></div>`;
-    const pill = st.rating ? `<span class="rating-pill"><b>${esc(st.rating)}</b>${stars(5)}<span>${esc(st.rating_label || "")}</span></span>` : "";
-    return `<section class="s sec ${band(st.band)} s-testimonials" ${attrs(s)}><div class="wrap wrap--wide">${head(st, { side: pill, noText: true })}</div>
-      <div class="t-rows">${row(rs.slice(0, half), false, 0.55)}${row(rs.slice(half), true, 0.45)}</div></section>`;
+  /* Harvest calendar — the farmer's planting chart: every seasonal crop on
+     twelve months, with today marked. */
+  R.harvest = (s, st) => {
+    const rows = D.products.filter((p) => !FV.isYearRound(p)).sort((a, b) => FV.seasonMonths(a.season)[0] - FV.seasonMonths(b.season)[0]);
+    const staples = D.products.filter((p) => FV.isYearRound(p));
+    const now = new Date().getMonth();
+    const thumb = (p) => p.noPhoto ? `<span class="hc__img media--herb">${FV.herbSVG(p.slug)}</span>` : `<span class="hc__img">${img(FV.isCustomImg(p.image) ? p.image : p.slug, { sizes: "48px", alt: "" })}</span>`;
+    const row = (p, r) => {
+      const ms = FV.seasonMonths(p.season), on = (i) => ms.includes(i);
+      const cells = FV.MONTHS.map((_, i) => `<span class="hc__c${on(i) ? " on" : ""}${on(i) && !on((i + 11) % 12) ? " s" : ""}${on(i) && !on((i + 1) % 12) ? " e" : ""}${i === now ? " is-now" : ""}" data-m="${i}" style="--m:${i}"></span>`).join("");
+      return `<li class="hc__row" data-fly-root data-months="${ms.join(",")}" style="--r:${r}">
+        <a class="hc__lab" href="product.html?slug=${p.slug}">${thumb(p)}<span><strong>${esc(p.name)}</strong><small>${esc(FV.originShort(p.origin))} · ${esc(FV.seasonLabel(p))}</small></span></a>
+        ${cells}
+        <span class="hc__end"><span class="hc__status" data-status></span>${FV.soldOut(p) ? "" : `<button class="hc__add" type="button" data-add="${p.slug}" aria-label="Add ${esc(p.name)} to basket">${I("plus")}</button>`}</span>
+        <span class="sr-only">In season ${esc(p.season)}.</span>
+      </li>`;
+    };
+    return `<section class="s sec ${band(st.band)} s-harvest" ${attrs(s, "data-harvest")}><div class="wrap wrap--wide">
+      <div class="harvest__top">${head(st, { noCta: true })}
+        <div class="harvest__now" data-reveal><span class="harvest__month" data-harvest-month>${FV.MONTHS_LONG[now]}</span><p data-harvest-note>${harvestNote(now)}</p></div>
+      </div>
+      <div class="hc" data-reveal>
+        <div class="hc__row hc__row--head" aria-hidden="true"><span class="hc__lab">The crop</span>${FV.MONTHS.map((m, i) => `<span class="hc__m${i === now ? " is-now" : ""}" data-m="${i}"><b>${m.charAt(0)}</b><i>${m.slice(1)}</i></span>`).join("")}<span class="hc__end"></span></div>
+        <ul class="hc__rows" aria-label="Seasonal produce by month">${rows.map(row).join("")}</ul>
+      </div>
+      ${st.staples !== false && staples.length ? `<div class="harvest__staples"><p><b>Graded every week, all year:</b></p><div class="harvest__chips">${staples.map((p) => `<a class="chip" href="product.html?slug=${p.slug}">${esc(p.name)}</a>`).join("")}</div></div>` : ""}
+      ${st.cta_label ? `<div class="row" style="margin-top:1.6rem">${btn(st.cta_label, st.cta_link, "btn--ghost")}</div>` : ""}
+    </div></section>`;
+  };
+
+  /* Origins — the Nile valley on a map; every crop pinned to where it grows */
+  R.origins = (s, st) => {
+    const by = GEO.regions.map((r) => ({ r, ps: D.products.filter((p) => { const g = regionOf(p); return g && g.name === r.name; }) })).filter((x) => x.ps.length);
+    const abroad = D.products.filter((p) => !regionOf(p) && !/egypt/i.test(p.origin || ""));
+    const first = by.slice().sort((a, b) => b.ps.length - a.ps.length)[0];
+    const active = first ? first.r.name : "";
+    const item = ({ r, ps }) => `<li><button class="og__item${r.name === active ? " is-on" : ""}" type="button" data-region="${esc(r.name)}" aria-pressed="${r.name === active}">
+        <span class="og__n">${GEO.regions.indexOf(r) + 1}</span>
+        <span class="og__txt"><strong>${esc(r.name)}</strong><small>${esc(r.note)}</small><span class="og__crops">${ps.map((p) => esc(p.name)).join(" · ")}</span></span>
+      </button></li>`;
+    return `<section class="s sec ${band(st.band)} s-origins" ${attrs(s, "data-origins")}><div class="wrap wrap--wide">
+      ${head(st, { noCta: true })}
+      <div class="og">
+        <div class="og__map" data-reveal="scale">${mapSVG({ active })}</div>
+        <div class="og__side">
+          <ul class="og__list" data-stagger>${by.map(item).join("")}</ul>
+          ${abroad.length ? `<p class="og__abroad">${I("leaf")}<span>A few things Egypt can't grow well — ${abroad.map((p) => esc(p.name.toLowerCase())).join(", ")} — come from select growers abroad, and are graded here in Cairo like everything else.</span></p>` : ""}
+          ${st.cta_label ? `<div class="row">${btn(st.cta_label, st.cta_link, "btn--ghost")}</div>` : ""}
+        </div>
+      </div>
+    </div></section>`;
+  };
+
+  /* Herb garden — the five herbs, each drawn as itself, cut to order */
+  R.herbs = (s, st) => {
+    const hs = D.products.filter((p) => p.category === "herbs");
+    const card = (p) => {
+      const info = FV.herbInfo(p.slug) || {}, cp = FV.cardPrice(p), sold = FV.soldOut(p);
+      const pic = p.noPhoto ? FV.herbSVG(p.slug) : img(FV.isCustomImg(p.image) ? p.image : p.slug, { sizes: "260px", alt: "" });
+      return `<article class="herb-card${p.noPhoto ? "" : " herb-card--photo"}">
+        <div class="herb-card__glass">${pic}</div>
+        <div class="herb-card__label">
+          ${info.latin ? `<span class="herb-card__latin">${esc(info.latin)}</span>` : ""}
+          <h3><a href="product.html?slug=${p.slug}">${esc(p.name)}</a></h3>
+          <p>${esc(FV.originShort(p.origin))}${info.note ? " · " + esc(info.note) : ""}</p>
+          <div class="herb-card__buy"><span><b>${FV.money(cp.value)}</b> <small>${cp.per}</small></span>${sold ? `<span class="chip chip--forest">Sold out</span>` : `<button class="herb-card__add" type="button" data-add="${p.slug}" aria-label="Add ${esc(p.name)} to basket">${I("plus")}</button>`}</div>
+        </div>
+      </article>`;
+    };
+    return `<section class="s sec ${band(st.band)} s-herbs" ${attrs(s)}><div class="wrap wrap--wide">
+      ${head(st)}
+      <div class="herbs" data-stagger>${hs.map(card).join("")}</div>
+    </div></section>`;
   };
 
   R.banner = (s, st) => `<section class="s sec s-banner" ${attrs(s)}><div class="wrap wrap--wide"><div class="banner" data-parallax-root>
@@ -264,25 +405,18 @@ window.FVSections = (function () {
 
   R.page_head = (s, st) => {
     const crumbTitle = (CTX.page && CTX.page.title) || String(st.title || "").replace(/[*~]/g, "");
-    return `<section class="s s-page-head${st.compact ? " s-page-head--compact" : ""}" ${attrs(s)}>
-      ${st.art ? `<div class="page-head__art" data-draw>${ART[st.art] || ""}</div>` : ""}
+    const kind = herbKind(st.art), info = FV.herbInfo(kind);
+    return `<section class="s s-page-head${st.compact ? " s-page-head--compact" : ""}${kind ? " has-specimen" : ""}" ${attrs(s)}>
       <div class="wrap wrap--wide">
         <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span aria-hidden="true">/</span><span aria-current="page">${esc(crumbTitle)}</span></nav>
         <div class="page-head">
           <div>${eyebrow(st.eyebrow)}<h1 class="ph-title">${md(st.title)}</h1></div>
           <div class="page-head__side">${st.text ? `<p class="lede">${md(st.text)}</p>` : ""}${st.cta_label || st.cta2_label ? `<div class="row">${btn(st.cta_label, st.cta_link, "", true)}${btn(st.cta2_label, st.cta2_link, "btn--ghost")}</div>` : ""}</div>
+          ${kind ? `<figure class="specimen" aria-hidden="true"><span class="specimen__art" data-draw>${FV.herbSVG(kind)}</span>${info ? `<figcaption><i>${esc(info.latin)}</i><span>${esc(kind)}</span></figcaption>` : ""}</figure>` : ""}
         </div>
         ${st.image ? `<figure class="page-head__media" data-parallax-root>${img(st.image, { eager: true, sizes: "100vw", alt: "", attrs: 'data-parallax="8"' })}${st.caption ? `<figcaption class="chip chip--glass">${esc(st.caption)}</figcaption>` : ""}</figure>` : ""}
       </div>
     </section>`;
-  };
-
-  R.strike_list = (s, st) => {
-    const items = list(st.items).map((l) => { const [a, b] = l.split(/\s+—\s+/); return `<li><span class="sl__t">${md(a)}.</span>${b ? `<span class="sl__n">— ${md(b)}</span>` : ""}</li>`; }).join("");
-    return `<section class="s sec ${band(st.band)}" ${attrs(s)}><div class="wrap wrap--wide">
-      <div class="head head--split"><div class="head__main">${eyebrow(st.eyebrow)}<h2 data-split>${md(st.title)}</h2></div>${st.text ? `<p class="head__side">${md(st.text)}</p>` : ""}</div>
-      <ul class="strike-list" data-strike>${items}</ul>
-    </div></section>`;
   };
 
   R.seasons = (s, st, blocks) => `<section class="s sec ${band(st.band)}" ${attrs(s)}><div class="wrap wrap--wide">
@@ -290,9 +424,9 @@ window.FVSections = (function () {
       <div class="seasons" data-stagger>${blocks.map((b) => { const t = b.settings || {}; return `<figure class="season">${img(t.image, { sizes: "(max-width: 960px) 46vw, 24vw", alt: "" })}<figcaption><small>${esc(t.label)}</small><h3>${md(t.title)}</h3>${t.text ? `<p>${md(t.text)}</p>` : ""}</figcaption></figure>`; }).join("")}</div>
     </div></section>`;
 
-  R.hscroll = (s, st, blocks) => `<section class="s s-hscroll ${band(st.band || "dark")}" ${attrs(s, "data-hscroll")}>
+  R.hscroll = (s, st, blocks) => `<section class="s s-hscroll ${band(st.band || "dark")}" ${attrs(s, "data-hscroll")}>${(st.band || "dark") === "dark" ? horizon(st, "a") : ""}
       <div class="wrap wrap--wide">${head(st, { noCta: true })}</div>
-      <div class="hs__viewport" data-cursor="Scroll"><div class="hs__track">${blocks.map((b, i) => { const t = b.settings || {}; return `<article class="hs__card"><div class="hs__img">${img(t.image, { sizes: "(max-width: 960px) 80vw, 34vw", alt: "" })}</div><div class="hs__body"><span class="hs__n">${String(i + 1).padStart(2, "0")}</span><h3>${md(t.title)}</h3><p>${md(t.text)}</p></div></article>`; }).join("")}<div class="hs__end" aria-hidden="true">${ART.sprig}</div></div></div>
+      <div class="hs__viewport" data-cursor="Scroll"><div class="hs__track">${blocks.map((b, i) => { const t = b.settings || {}; return `<article class="hs__card"><div class="hs__img">${img(t.image, { sizes: "(max-width: 960px) 80vw, 34vw", alt: "" })}</div><div class="hs__body"><span class="hs__n">${String(i + 1).padStart(2, "0")}</span><h3>${md(t.title)}</h3><p>${md(t.text)}</p></div></article>`; }).join("")}<div class="hs__end" aria-hidden="true">${FV.herbSVG("basil")}<span>…and they remember.</span></div></div></div>
     </section>`;
 
   R.gallery = (s, st, blocks) => {
@@ -314,11 +448,10 @@ window.FVSections = (function () {
     </section>`;
 
   R.cta = (s, st) => {
-    const olive = st.style === "olive";
-    const form = st.newsletter ? `<form class="news-form" data-newsletter novalidate><label class="sr-only" for="nl-${esc(s.id)}">Email address</label><input id="nl-${esc(s.id)}" type="email" required placeholder="Your email address" autocomplete="email"><button class="btn ${olive ? "" : "btn--olive"} btn--sm" type="submit">Subscribe<span class="btn__ic">${I("arrow")}</span></button></form>` : "";
+    const olive = st.style === "olive", kind = herbKind(st.art);
     return `<section class="s sec" ${attrs(s)}><div class="wrap wrap--wide"><div class="cta-block${olive ? " cta-block--olive" : ""}">
-      <div>${eyebrow(st.eyebrow)}<h2 data-split>${md(st.title)}</h2>${st.text ? `<p class="lede">${md(st.text)}</p>` : ""}${form}${st.cta_label || st.cta2_label ? `<div class="row" style="margin-top:1.6rem">${btn(st.cta_label, st.cta_link, olive ? "" : "btn--olive", true)}${btn(st.cta2_label, st.cta2_link, olive ? "btn--ghost" : "btn--ghost-light")}</div>` : ""}</div>
-      ${st.art ? `<div class="cta-block__art" data-draw>${ART[st.art] || ""}</div>` : ""}
+      <div>${eyebrow(st.eyebrow)}<h2 data-split>${md(st.title)}</h2>${st.text ? `<p class="lede">${md(st.text)}</p>` : ""}${st.cta_label || st.cta2_label ? `<div class="row" style="margin-top:1.6rem">${btn(st.cta_label, st.cta_link, olive ? "" : "btn--olive", true)}${btn(st.cta2_label, st.cta2_link, olive ? "btn--ghost" : "btn--ghost-light")}</div>` : ""}</div>
+      ${kind ? `<div class="cta-block__art" data-draw>${FV.herbSVG(kind)}</div>` : ""}
     </div></div></section>`;
   };
 
@@ -384,28 +517,30 @@ window.FVSections = (function () {
   const HEAD = [F("eyebrow", "text", "Eyebrow"), F("title", "text", "Heading", { info: "*word* = olive italic · ~word~ = hand-drawn underline" }), F("text", "textarea", "Text")];
   const CTA = [F("cta_label", "text", "Button label"), F("cta_link", "link", "Button link")];
   const CTA2 = [F("cta2_label", "text", "Second button label"), F("cta2_link", "link", "Second button link")];
-  const ARTS = [["", "None"], ["sprig", "Sprig"], ["leaf", "Leaf"], ["citrus", "Citrus"], ["fig", "Fig"], ["tomato", "Tomato"], ["strawberry", "Strawberry"], ["herbs", "Herbs"], ["bouquet", "Bouquet"]];
+  const ARTS = [["", "None"], ["mint", "Mint"], ["basil", "Basil"], ["coriander", "Coriander"], ["rosemary", "Rosemary"], ["dill", "Dill"], ["sprout", "Sprout"]];
+  const HORIZON = F("horizon", "toggle", "Valley hills on top", { info: "Shown on the Forest background" });
   const COLL = [["best-sellers", "Best sellers"], ["seasonal", "Seasonal"], ["essentials", "Essentials"], ["hosting", "Hosting"], ["organic-reserve", "Organic Reserve"], ["premium", "Premium (smart)"], ["organic", "Organic (smart)"], ["fruits", "Fruits"], ["vegetables", "Vegetables"], ["herbs", "Herbs"], ["all", "Everything"]];
   const SCHEMA = {
-    hero: { name: "Hero", icon: "star", limit: 1, settings: [F("badge", "text", "Badge"), F("badge_link", "link", "Badge link"), F("line1", "text", "Headline · line 1"), F("line2", "text", "Headline · line 2", { info: "~word~ draws the olive underline" }), F("line3", "text", "Headline · line 3"), F("words", "text", "Rotating words", { info: "Separate with |" }), F("lede", "textarea", "Intro"), F("cta1_label", "text", "Button label"), F("cta1_link", "link", "Button link"), F("cta2_label", "text", "Second button label"), F("cta2_link", "link", "Second button link"), F("proof", "text", "Proof line"), F("image", "image", "Image"), F("image_alt", "text", "Image description"), F("orbs", "products", "Floating produce", { max: 4 }), F("sticker", "text", "Rotating sticker"), F("chips", "text", "Image chips", { info: "Separate with |" }), F("rating", "text", "Rating"), F("rating_label", "text", "Rating label")] },
+    hero: { name: "Hero", icon: "sparkle", limit: 1, settings: [F("badge", "text", "Badge"), F("badge_link", "link", "Badge link"), F("line1", "text", "Headline · line 1"), F("line2", "text", "Headline · line 2", { info: "~word~ draws the olive underline" }), F("line3", "text", "Headline · line 3"), F("words", "text", "Rotating words", { info: "Separate with |" }), F("lede", "textarea", "Intro"), F("cta1_label", "text", "Button label"), F("cta1_link", "link", "Button link"), F("cta2_label", "text", "Second button label"), F("cta2_link", "link", "Second button link"), F("harvest_note", "toggle", "Show this month's harvest", { info: "Updates itself every month from the product seasons" }), F("image", "image", "Image (shown in the greenhouse arch)"), F("image_alt", "text", "Image description"), F("orbs", "products", "Floating produce", { max: 3 }), F("herbs", "text", "Herbs beside the arch", { info: "Two of: mint, basil, coriander, rosemary, dill — comma separated" }), F("sticker", "text", "Rotating stamp"), F("chips", "text", "Image chips", { info: "Separate with |" })] },
     marquee: { name: "Scrolling words", icon: "sparkle", settings: [F("items", "list", "Words"), F("style", "select", "Style", { options: [["cross", "Crossed ribbons"], ["forest", "Forest ribbon"], ["olive", "Olive ribbon"]] }), F("speed", "range", "Speed", { min: 0.3, max: 3, step: 0.1 })] },
     categories: { name: "Category bento", icon: "grid", settings: [...HEAD, ...CTA, BAND], blocks: { tile: { name: "Tile", settings: [F("title", "text", "Title"), F("text", "text", "Text"), F("image", "image", "Image", { info: "art:herbs draws a botanical tile" }), F("link", "link", "Link"), F("count", "select", "Show product count of", { options: [["", "—"], ["fruits", "Fruits"], ["vegetables", "Vegetables"], ["herbs", "Herbs"], ["boxes", "Boxes"], ["seasonal", "Seasonal"], ["organic-reserve", "Organic Reserve"]] })] } }, max_blocks: 6 },
     product_rail: { name: "Product carousel", icon: "bag", settings: [...HEAD, F("collection", "select", "Collection", { options: COLL }), F("limit", "range", "Products shown", { min: 4, max: 20, step: 1 }), ...CTA, BAND] },
-    story: { name: "Pinned story", icon: "sparkle", settings: [...HEAD, F("struck", "list", "Crossed-out gifts"), ...CTA, ...CTA2], blocks: { step: { name: "Card", settings: [F("title", "text", "Title"), F("text", "textarea", "Text"), F("image", "image", "Image")] } }, max_blocks: 5 },
+    story: { name: "Pinned story", icon: "sparkle", settings: [...HEAD, ...CTA, ...CTA2, HORIZON], blocks: { step: { name: "Card", settings: [F("title", "text", "Title"), F("text", "textarea", "Text"), F("image", "image", "Image")] } }, max_blocks: 5 },
     boxes: { name: "Boxes", icon: "box", settings: [...HEAD, F("boxes", "boxes", "Boxes"), ...CTA, BAND] },
-    stats: { name: "Numbers", icon: "check", settings: [F("eyebrow", "text", "Eyebrow"), F("title", "text", "Heading"), BAND], blocks: { stat: { name: "Number", settings: [F("value", "text", "Value"), F("decimals", "range", "Decimals", { min: 0, max: 2, step: 1 }), F("suffix", "text", "Suffix"), F("label", "text", "Label")] } }, max_blocks: 4 },
+    stats: { name: "Numbers", icon: "check", settings: [F("eyebrow", "text", "Eyebrow"), F("title", "text", "Heading"), BAND, HORIZON], blocks: { stat: { name: "Number", settings: [F("value", "text", "Value"), F("decimals", "range", "Decimals", { min: 0, max: 2, step: 1 }), F("suffix", "text", "Suffix"), F("label", "text", "Label")] } }, max_blocks: 4 },
     image_text: { name: "Image with text", icon: "leaf", settings: [...HEAD, F("list", "list", "Checklist", { info: "One per line · Title — text" }), F("image", "image", "Image"), F("chip", "text", "Image label"), ...CTA, F("flip", "toggle", "Image on the right"), BAND] },
-    testimonials: { name: "Reviews", icon: "star", settings: [F("eyebrow", "text", "Eyebrow"), F("title", "text", "Heading"), F("rating", "text", "Rating"), F("rating_label", "text", "Rating label"), F("limit", "range", "Reviews shown", { min: 8, max: 27, step: 1 }), F("tags", "text", "Only reviews tagged", { info: "Comma separated · blank = all" }), BAND] },
+    harvest: { name: "Harvest calendar", icon: "calendar", limit: 1, settings: [...HEAD, F("staples", "toggle", "List the all-year staples"), ...CTA, BAND] },
+    origins: { name: "Origins map", icon: "pin", limit: 1, settings: [...HEAD, ...CTA, BAND] },
+    herbs: { name: "Herb garden", icon: "leaf", limit: 1, settings: [...HEAD, ...CTA, BAND] },
     banner: { name: "Image banner", icon: "truck", settings: [...HEAD, F("image", "image", "Image"), ...CTA, ...CTA2] },
     journal: { name: "Journal posts", icon: "leaf", settings: [F("eyebrow", "text", "Eyebrow"), F("title", "text", "Heading"), F("limit", "range", "Posts (0 = all)", { min: 0, max: 12, step: 1 }), F("layout", "select", "Layout", { options: [["grid", "Three cards"], ["magazine", "Feature + list"]] }), ...CTA] },
-    page_head: { name: "Page header", icon: "home", settings: [...HEAD, ...CTA, ...CTA2, F("image", "image", "Image"), F("caption", "text", "Image caption"), F("art", "select", "Line-art", { options: ARTS }), F("compact", "toggle", "Compact")] },
-    strike_list: { name: "Crossed-out list", icon: "x", settings: [...HEAD, F("items", "list", "Items", { info: "One per line · Item — note" }), BAND] },
+    page_head: { name: "Page header", icon: "home", settings: [...HEAD, ...CTA, ...CTA2, F("image", "image", "Image"), F("caption", "text", "Image caption"), F("art", "select", "Herb specimen", { options: ARTS }), F("compact", "toggle", "Compact")] },
     seasons: { name: "Four seasons", icon: "sparkle", settings: [...HEAD, BAND], blocks: { season: { name: "Season", settings: [F("image", "image", "Image"), F("label", "text", "Label"), F("title", "text", "Title"), F("text", "text", "Text")] } }, max_blocks: 4 },
-    hscroll: { name: "Horizontal scroll", icon: "arrow", settings: [...HEAD, BAND], blocks: { card: { name: "Card", settings: [F("title", "text", "Title"), F("text", "text", "Text"), F("image", "image", "Image")] } }, max_blocks: 8 },
+    hscroll: { name: "Horizontal scroll", icon: "arrow", settings: [...HEAD, BAND, HORIZON], blocks: { card: { name: "Card", settings: [F("title", "text", "Title"), F("text", "text", "Text"), F("image", "image", "Image")] } }, max_blocks: 8 },
     gallery: { name: "Moments carousel", icon: "gift", settings: [...HEAD, ...CTA, BAND], blocks: { moment: { name: "Moment", settings: [F("image", "image", "Image"), F("title", "text", "Title"), F("text", "text", "Text"), F("link", "link", "Link")] } } },
     compare: { name: "Comparison", icon: "check", settings: [F("eyebrow", "text", "Eyebrow"), F("title", "text", "Heading"), F("old_title", "text", "Left title"), F("old_items", "list", "Left items"), F("new_title", "text", "Right title"), F("new_items", "list", "Right items"), BAND] },
     quote: { name: "Big quote", icon: "sparkle", settings: [F("quote", "textarea", "Quote"), F("cite", "text", "Attribution"), F("image", "image", "Background image")] },
-    cta: { name: "Call to action", icon: "arrow", settings: [...HEAD, ...CTA, ...CTA2, F("style", "select", "Style", { options: [["forest", "Forest"], ["olive", "Olive"]] }), F("art", "select", "Line-art", { options: ARTS }), F("newsletter", "toggle", "Show newsletter form")] },
+    cta: { name: "Call to action", icon: "arrow", settings: [...HEAD, ...CTA, ...CTA2, F("style", "select", "Style", { options: [["forest", "Forest"], ["olive", "Olive"]] }), F("art", "select", "Herb", { options: ARTS })] },
     steps: { name: "Numbered steps", icon: "check", settings: [...HEAD, BAND], blocks: { step: { name: "Step", settings: [F("title", "text", "Title"), F("text", "textarea", "Text")] } }, max_blocks: 6 },
     features: { name: "Feature cards", icon: "shield", settings: [...HEAD, F("cols", "range", "Columns", { min: 2, max: 4, step: 1 }), F("numbered", "toggle", "Numbers instead of icons"), BAND], blocks: { feature: { name: "Card", settings: [F("icon", "icon", "Icon"), F("title", "text", "Title"), F("text", "textarea", "Text")] } } },
     areas: { name: "Delivery areas", icon: "pin", settings: [...HEAD, F("note", "text", "Note"), F("image", "image", "Image"), BAND] },
@@ -413,31 +548,35 @@ window.FVSections = (function () {
     faq: { name: "FAQ", icon: "plus", settings: [...HEAD, BAND], blocks: { qa: { name: "Question", settings: [F("q", "text", "Question"), F("a", "textarea", "Answer")] } } },
     legal: { name: "Policy text", icon: "shield", only: ["policies", "terms"], settings: [F("updated", "text", "Updated line")], blocks: { clause: { name: "Clause", settings: [F("title", "text", "Title"), F("body", "textarea", "Body", { info: "Blank line = new paragraph · start lines with - for bullets" })] } } },
   };
+  // Presets reuse the default section of that type (found by type, so the
+  // default page lists can change without breaking "Add section").
+  const byType = (page, type) => { const s = (T.defaults().pages[page].sections || []).find((x) => x.type === type); return s ? { settings: s.settings, blocks: s.blocks } : { settings: {} }; };
   const PRESETS = {
-    hero: () => T.defaults().pages.index.sections[0],
+    hero: () => byType("index", "hero"),
     marquee: () => ({ settings: { items: "Export-grade|Hand-graded|Next-day across Cairo", style: "forest", speed: 1 } }),
-    categories: () => T.defaults().pages.index.sections[2],
+    categories: () => byType("index", "categories"),
     product_rail: () => ({ settings: { eyebrow: "Hand-picked", title: "New *arrivals*", text: "", collection: "best-sellers", limit: 10, cta_label: "Shop all", cta_link: "products.html", band: "paper" } }),
-    story: () => T.defaults().pages.index.sections[4],
+    story: () => byType("index", "story"),
     boxes: () => ({ settings: { eyebrow: "Curated", title: "Our *boxes*", text: "", boxes: "hosting-box,premium-fruit-box,family-box", cta_label: "All boxes", cta_link: "products.html?cat=boxes", band: "kraft" } }),
-    stats: () => T.defaults().pages.index.sections[6],
+    stats: () => byType("index", "stats"),
     image_text: () => ({ settings: { eyebrow: "Our story", title: "A heading with an *accent*", text: "Tell the story in a sentence or two.", list: "", image: "banner:packaging", chip: "", cta_label: "", cta_link: "", flip: false, band: "paper" } }),
-    testimonials: () => ({ settings: { eyebrow: "From our hosts", title: "Loved across *Cairo*", rating: "4.9", rating_label: "Verified orders", limit: 16, tags: "", band: "paper" } }),
+    harvest: () => byType("index", "harvest"),
+    origins: () => byType("index", "origins"),
+    herbs: () => byType("index", "herbs"),
     banner: () => ({ settings: { eyebrow: "Next-day delivery", title: "A banner *headline*", text: "Short supporting line.", image: "banner:door-delivery", cta_label: "Shop now", cta_link: "products.html", cta2_label: "", cta2_link: "" } }),
     journal: () => ({ settings: { eyebrow: "The Journal", title: "Notes on eating *well*", limit: 3, layout: "grid", cta_label: "All entries", cta_link: "journal.html" } }),
-    page_head: () => ({ settings: { eyebrow: "Eyebrow", title: "Page *title*", text: "", art: "sprig" } }),
-    strike_list: () => T.defaults().pages.hosting.sections[1],
-    seasons: () => T.defaults().pages.hosting.sections[2],
-    hscroll: () => T.defaults().pages.hosting.sections[3],
-    gallery: () => T.defaults().pages.hosting.sections[4],
-    compare: () => T.defaults().pages.hosting.sections[6],
-    quote: () => T.defaults().pages.hosting.sections[9],
-    cta: () => T.defaults().pages.hosting.sections[10],
-    steps: () => T.defaults().pages.about.sections[2],
-    features: () => T.defaults().pages.about.sections[4],
-    areas: () => T.defaults().pages.about.sections[5],
-    contact: () => T.defaults().pages.contact.sections[1],
-    faq: () => T.defaults().pages.contact.sections[3],
+    page_head: () => ({ settings: { eyebrow: "Eyebrow", title: "Page *title*", text: "", art: "rosemary" } }),
+    seasons: () => byType("hosting", "seasons"),
+    hscroll: () => byType("hosting", "hscroll"),
+    gallery: () => byType("hosting", "gallery"),
+    compare: () => byType("hosting", "compare"),
+    quote: () => byType("hosting", "quote"),
+    cta: () => byType("hosting", "cta"),
+    steps: () => byType("about", "steps"),
+    features: () => byType("about", "features"),
+    areas: () => byType("about", "areas"),
+    contact: () => byType("contact", "contact"),
+    faq: () => byType("contact", "faq"),
     legal: () => ({ settings: { updated: "Last updated: " + new Date().toLocaleDateString("en-GB", { month: "long", year: "numeric" }) }, blocks: [{ type: "clause", settings: { title: "New clause", body: "Write the clause here." } }] }),
   };
 
@@ -479,9 +618,52 @@ window.FVSections = (function () {
       if (!BOUND.has(t)) { BOUND.add(t); window.addEventListener("resize", measure, { passive: true }); }
     });
   }
+  /* Month-dependent bits are re-applied in the visitor's browser (the baked
+     HTML carries the month it was baked in). */
+  function applyMonth(root) {
+    const now = new Date().getMonth();
+    Array.from(root.querySelectorAll(".pcard__tag[data-months]")).forEach((el) => { const ms = el.dataset.months.split(",").map(Number), lab = el.querySelector("span"); if (!lab) return; let k = 0; while (k < 12 && !ms.includes((now + k) % 12)) k++; lab.textContent = k === 0 ? "In season" : "Back in " + FV.MONTHS[(now + k) % 12]; el.classList.toggle("is-off", k > 0); });
+    Array.from(root.querySelectorAll("[data-harvest-note]")).forEach((el) => { const h = harvestNote(now); if (el.innerHTML !== h) el.innerHTML = h; });
+    Array.from(root.querySelectorAll("[data-harvest-month]")).forEach((el) => { el.textContent = FV.MONTHS_LONG[now]; });
+    Array.from(root.querySelectorAll("[data-harvest]")).forEach((sec) => {
+      sec.querySelectorAll("[data-m]").forEach((c) => c.classList.toggle("is-now", +c.dataset.m === now));
+      sec.querySelectorAll(".hc__row[data-months]").forEach((r) => {
+        const ms = r.dataset.months.split(",").map(Number), st = r.querySelector("[data-status]");
+        const on = ms.includes(now), last = on && !ms.includes((now + 1) % 12);
+        let txt;
+        if (on) txt = last ? "Last weeks" : "In season";
+        else { let k = 1; while (k < 12 && !ms.includes((now + k) % 12)) k++; txt = "From " + FV.MONTHS[(now + k) % 12]; }
+        r.classList.toggle("is-on", on); r.classList.toggle("is-last", last);
+        if (st) st.textContent = txt;
+      });
+    });
+  }
+  /* Origins: the list and the pins light each other up */
+  function bindOrigins(root) {
+    Array.from(root.querySelectorAll("[data-origins]")).forEach((sec) => {
+      if (BOUND.has(sec)) return; BOUND.add(sec);
+      const set = (name) => {
+        sec.querySelectorAll(".og__item").forEach((b) => { const on = b.dataset.region === name; b.classList.toggle("is-on", on); b.setAttribute("aria-pressed", on); });
+        sec.querySelectorAll(".map__pin").forEach((p) => p.classList.toggle("is-on", p.dataset.region === name));
+      };
+      sec.querySelectorAll(".og__item").forEach((b) => { b.addEventListener("click", () => set(b.dataset.region)); b.addEventListener("mouseenter", () => set(b.dataset.region)); b.addEventListener("focus", () => set(b.dataset.region)); });
+      sec.querySelectorAll(".map__pin").forEach((p) => p.addEventListener("mouseenter", () => set(p.dataset.region)));
+    });
+  }
+  function growCharts(root) {
+    Array.from(root.querySelectorAll(".hc")).forEach((hc) => {
+      if (BOUND.has(hc)) return; BOUND.add(hc);
+      if (!("IntersectionObserver" in window)) { hc.classList.add("is-grown"); return; }
+      const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { hc.classList.add("is-grown"); io.disconnect(); } }), { threshold: 0.18 });
+      io.observe(hc);
+    });
+  }
   function behave(root) {
     root = root || document;
     placeOrbs(root);
+    growCharts(root);
+    applyMonth(root);
+    bindOrigins(root);
     // rails with prev/next
     Array.from(root.querySelectorAll("[data-section-id]")).forEach((sec) => {
       const rail = sec.querySelector(".rail"), p = sec.querySelector("[data-rail-prev]"), n = sec.querySelector("[data-rail-next]");
@@ -586,5 +768,5 @@ window.FVSections = (function () {
     post({ type: "fv:ready", page: KEY || (document.body && document.body.dataset.page) || "" });
   }
 
-  return { render: renderSection, renderPageHTML, renderInto, behave, signature, schema: SCHEMA, presets: PRESETS, ART, img, md, list };
+  return { render: renderSection, renderPageHTML, renderInto, behave, signature, schema: SCHEMA, presets: PRESETS, ART, img, md, list, mapSVG, regionOf, harvestNote };
 })();

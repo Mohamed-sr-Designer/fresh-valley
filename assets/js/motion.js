@@ -184,8 +184,8 @@
       parts.forEach((p) => { p.setAttribute("pathLength", "1"); p.style.strokeDasharray = "1 1"; p.style.strokeDashoffset = "1"; });
       el.classList.add("is-in");
       G.to(parts, {
-        strokeDashoffset: 0, duration: 2.4, ease: "power2.inOut", stagger: { each: 0.05, from: "start" },
-        scrollTrigger: { trigger: el, start: "top 88%", once: true },
+        strokeDashoffset: 0, duration: 2.4, ease: "power2.inOut", stagger: { each: parts.length > 40 ? 0.012 : 0.05, from: "start" },
+        scrollTrigger: { trigger: el, start: "top 88%", once: true, onEnter: () => setTimeout(() => el.classList.add("is-drawn"), 700) },
       });
     });
   }
@@ -298,20 +298,22 @@
     h.classList.add("is-in");
     if (!M.on) return;
 
-    const media = h.querySelector(".hero__media");
-    if (media) {
-      const gut = () => parseFloat(getComputedStyle(media).getPropertyValue("--gut")) || Math.max(18, Math.min(56, W.innerWidth * 0.042));
-      G.fromTo(media, { "--clip-x": () => gut() + "px", "--clip-r": "44px" }, {
-        "--clip-x": "0px", "--clip-r": "0px", ease: "none",
-        scrollTrigger: { trigger: media, start: "top 78%", end: "top 12%", scrub: 0.6, invalidateOnRefresh: true },
-      });
-      const img = media.querySelector("img");
-      if (img) G.to(img, { yPercent: 9, ease: "none", scrollTrigger: { trigger: media, start: "top bottom", end: "bottom top", scrub: true } });
-    }
+    // as you scroll on, the sun sets behind the arch and the hills part
+    const scrub = { trigger: h, start: "top top", end: "bottom top", scrub: true };
+    const sun = h.querySelector(".hero__sun");
+    // CSS variables, not transforms: these elements also run CSS intros on
+    // individual transform properties, which GSAP would otherwise absorb
+    if (sun) G.fromTo(sun, { "--sy": "0%" }, { "--sy": "34%", ease: "none", scrollTrigger: scrub });
+    const pic = h.querySelector(".hero__arch img");
+    if (pic) G.fromTo(pic, { "--iy": "0%" }, { "--iy": "7%", ease: "none", scrollTrigger: scrub });
+    const layers = q(".hero__hills path", h);
+    layers.forEach((p, i) => G.to(p, { y: (layers.length - i) * -9, ease: "none", scrollTrigger: scrub }));
+    q(".hero__herb", h).forEach((el, i) => G.fromTo(el, { "--hy": "0px" }, { "--hy": (i ? -30 : -46) + "px", ease: "none", scrollTrigger: scrub }));
     const orbs = h.querySelector(".hero__orbs");
     if (orbs) G.to(orbs, { yPercent: -35, ease: "none", scrollTrigger: { trigger: h, start: "top top", end: "bottom top", scrub: true } });
     if (FINE) {
-      const items = q(".orb", h).map((o) => ({ d: parseFloat(o.dataset.depth || "0.5"), x: G.quickTo(o, "x", { duration: 1.2, ease: "power3" }), y: G.quickTo(o, "y", { duration: 1.2, ease: "power3" }) }));
+      // pointer parallax moves an inner wrapper — the .orb itself runs the CSS pop-in
+      const items = q(".orb", h).map((o) => { const el = o.querySelector(".orb__px") || o; return { d: parseFloat(o.dataset.depth || "0.5"), x: G.quickTo(el, "x", { duration: 1.2, ease: "power3" }), y: G.quickTo(el, "y", { duration: 1.2, ease: "power3" }) }; });
       h.addEventListener("pointermove", (e) => {
         const cx = e.clientX / W.innerWidth - 0.5, cy = e.clientY / W.innerHeight - 0.5;
         items.forEach((o) => { o.x(cx * 60 * o.d); o.y(cy * 40 * o.d); });

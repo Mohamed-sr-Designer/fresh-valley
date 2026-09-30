@@ -11,9 +11,10 @@
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/jakarta-s.woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/styles.css">
   <link rel="stylesheet" href="assets/css/shop.css">
-  <script>!function(d,w){var h=d.documentElement;if(!/[?&]fv_preview=1/.test(location.search)&&!w.matchMedia("(prefers-reduced-motion: reduce)").matches){h.classList.add("m-on");setTimeout(function(){if(!(w.FVMotion&&w.FVMotion.ready))h.classList.remove("m-on")},3500)}}(document,window)</script>
+  <script>!function(d,w){var h=d.documentElement;if(/[?&]fv_preview=1/.test(location.search)||w.matchMedia("(prefers-reduced-motion: reduce)").matches)return;h.classList.add("m-on");setTimeout(function(){if(!(w.FVMotion&&w.FVMotion.ready))h.classList.remove("m-on")},3500);try{if(!/[?&]bake=1/.test(location.search)&&!sessionStorage.getItem("fv_seen")){sessionStorage.setItem("fv_seen","1");h.classList.add("fv-intro");setTimeout(function(){h.classList.add("fv-go")},4500)}}catch(e){}}(document,window)</script>
 </head>
 <body data-page="product">
+  <!--loader--><div class="fv-loader" id="fvLoader" aria-hidden="true"><span class="fv-loader__sun"></span><svg class="fv-loader__hills hills" viewBox="0 0 1440 160" preserveAspectRatio="none" focusable="false"><path class="h3" d="M0 160V80C120 54 250 36 400 48C560 60 650 94 820 90C990 86 1100 40 1260 42C1350 43 1410 58 1440 66V160Z"/><path class="h2" d="M0 160V106C150 84 300 72 460 88C640 106 760 126 930 114C1110 101 1240 80 1440 98V160Z"/><path class="h1" d="M0 160V134C200 120 380 114 560 126C760 139 900 148 1100 138C1260 130 1360 124 1440 128V160Z"/></svg><div class="fv-loader__brand"><img src="assets/img/logo.png" alt="" width="170" height="111" decoding="async"><p>Picking today's harvest</p></div></div><!--/loader-->
   <div id="fv-header"></div>
   <noscript><p class="noscript">Fresh Valley uses JavaScript for its menu, basket and checkout. <a href="products.html">Browse the collection</a> · <a href="contact.html">Contact us</a></p></noscript>
   <main id="main"></main>
@@ -79,10 +80,28 @@
           <li>${I("shield")}<span>Export-grade. If it isn't perfect, we replace it.</span></li>
           <li>${I("snow")}<span>Cold-chain kept from grading table to your door.</span></li></ul>`;
       }
-      function reviewsFor(names, tags) {
-        let rs = FV.data.reviews.filter((r) => names.some((n) => r.tag === n) || tags.includes(r.tag));
-        if (rs.length < 3) rs = rs.concat(FV.data.reviews.filter((r) => !rs.includes(r))).slice(0, 3);
-        return rs.slice(0, 6);
+      /* From the field — where it grew (on the valley map) and its twelve months */
+      function fieldHTML(p) {
+        const region = S.regionOf(p), now = new Date().getMonth(), ms = FV.seasonMonths(p.season), yr = ms.length === 12;
+        const on = ms.includes(now), last = on && !ms.includes((now + 1) % 12);
+        let k = 1; while (!on && k < 12 && !ms.includes((now + k) % 12)) k++;
+        const end = FV.MONTHS_LONG[ms[ms.length - 1]];
+        const status = yr ? "Graded every week, all year round." : on ? (last ? `In its last weeks — the season closes with ${end}.` : `In season now, until the end of ${end}.`) : `Out of season — back in ${FV.MONTHS_LONG[(now + k) % 12]}.`;
+        const place = region ? region.name : FV.originShort(p.origin);
+        return `<section class="s sec band--kraft field" aria-labelledby="fieldTitle">
+          <div class="wrap wrap--wide"><div class="field__grid">
+            ${region ? `<div class="field__map" data-reveal="scale">${S.mapSVG({ active: region.name, label: p.name + " grows in " + region.name + ", Egypt" })}</div>` : `<div class="field__map field__map--abroad" data-reveal="scale">${FV.herbSVG("sprout")}<p>Grown by select growers abroad — graded by hand here in Cairo.</p></div>`}
+            <div class="field__copy">
+              <p class="eyebrow">From the field</p>
+              <h2 id="fieldTitle" data-split>Grown in <em class="i">${esc(place)}</em>.</h2>
+              <p class="lede">${region ? esc(region.note) : "Something Egypt can't grow at its best — so we buy it from growers who can, and hold it to the same export standard."}</p>
+              <div class="season-bar">
+                <div class="season-bar__months" aria-hidden="true">${FV.MONTHS.map((m, i) => `<span class="${ms.includes(i) ? "on" : ""}${i === now ? " is-now" : ""}"><b>${m}</b></span>`).join("")}</div>
+                <p class="season-bar__note"><b>${yr ? "All year" : esc(FV.seasonLabel(p))}</b> · ${status}</p>
+              </div>
+            </div>
+          </div></div>
+        </section>`;
       }
       function afterAdd(btn) {
         if (window.FVMotion) window.FVMotion.fly(btn);
@@ -105,7 +124,7 @@
         const pct = FV.scarcityPct(p.slug);
         const custom = FV.isCustomImg(p.image);
         const media = p.noPhoto
-          ? `<div class="media--herb"><svg class="art herb-art" viewBox="0 0 120 150" aria-hidden="true"><path d="M60 146C58 110 62 70 58 8"/><path d="M59 126c-12-3-22-11-27-21 11 0 21 6 27 16"/><path d="M60 108c11-3 20-11 24-22-11 0-20 7-24 17"/><path d="M59 90c-12-2-22-10-28-20 11-1 21 5 27 15"/><path d="M60 72c11-3 20-11 24-22-11 0-20 7-24 17"/><path d="M58 54c-11-2-20-9-25-18 10-1 19 4 25 13"/><path d="M59 38c9-3 17-10 20-19-9 1-16 6-20 14"/></svg><span>${esc(p.name)}</span></div>`
+          ? `<div class="media--herb">${FV.herbSVG(p.slug)}</div>`
           : custom ? `<img src="${esc(p.image)}" alt="${esc(p.name)}" width="1000" height="1000" fetchpriority="high">`
           : `<picture><source type="image/webp" srcset="${FV.webp(FV.thumb(p.slug))} 540w, ${FV.webp(FV.img(p.slug))} 1000w" sizes="(max-width: 1100px) 92vw, 50vw"><img src="${FV.img(p.slug)}" srcset="${FV.thumb(p.slug)} 540w, ${FV.img(p.slug)} 1000w" sizes="(max-width: 1100px) 92vw, 50vw" alt="${esc(p.name)}" width="1000" height="1000" fetchpriority="high" decoding="async"></picture>`;
         const flags = [
@@ -118,7 +137,6 @@
         const pair = (p.pairings || []).filter((s) => s !== p.slug).map(FV.find).filter(Boolean).slice(0, 4);
         const related = FV.byCategory(p.category).filter((x) => x.slug !== p.slug && !pair.includes(x)).slice(0, 10);
         const recents = FV.recent.list().filter((s) => s !== p.slug).map(FV.find).filter(Boolean).slice(0, 10);
-        const revs = reviewsFor([p.name], []);
 
         root.innerHTML = `
         <section class="s pdp" aria-labelledby="pName">
@@ -136,7 +154,7 @@
               <div class="pdp__info">
                 <div class="row"><span class="chip chip--soft">${esc(FV.topLabel(p))} · ${cat}</span></div>
                 <h1 id="pName" data-split>${esc(p.name)}</h1>
-                <div class="pdp__rating"><span class="stars" aria-hidden="true">${I("star").repeat(Math.round(p.rating || 5))}</span><strong>${(p.rating || 5).toFixed(1)}</strong><a href="#reviews">${p.reviews || 0} reviews</a></div>
+                <p class="pdp__origin">${I("pin")}<span>Grown in <b>${esc(FV.originShort(p.origin))}</b> · ${FV.isYearRound(p) ? "all year" : "in season " + esc(FV.seasonLabel(p))}</span></p>
                 <p class="lede">${esc(p.desc || p.short)}</p>
                 <div class="pdp__price" aria-live="polite"><b id="price"></b><small id="per"></small>${p.compareAt && +p.compareAt > FV.cardPrice(p).value ? `<s>${FV.money(+p.compareAt)}</s>` : ""}</div>
                 <p class="pdp__sub">${isKg ? "Price updates as you choose your weight — gentle savings on bigger baskets." : p.unit === "bunch" ? "Sold by the bunch, cut to order." : "Sold as a single piece, hand-selected."}</p>
@@ -179,13 +197,7 @@
           </div>
         </section>
 
-        <section class="s sec band--paper" id="reviews">
-          <div class="wrap wrap--wide">
-            <div class="head"><div class="head__main"><p class="eyebrow">From our hosts</p><h2 data-split>Loved at <em class="i">real tables</em></h2></div>
-              <div class="head__actions"><span class="rating-pill"><b>${(p.rating || 5).toFixed(1)}</b><span class="stars">${I("star").repeat(5)}</span><span>${p.reviews || 0} reviews</span></span></div></div>
-            <div class="rev-grid" data-stagger>${revs.slice(0, 3).map(FV.reviewCardHTML).join("")}</div>
-          </div>
-        </section>
+        ${fieldHTML(p)}
 
         ${related.length ? `<section class="s sec band--sage">
           <div class="wrap wrap--wide">
@@ -249,8 +261,7 @@
         refresh(); cutoff(); stickyBar("#buyRow"); FV.updateWishUI();
         S.behave(root);
         ld({ "@context": "https://schema.org", "@type": "Product", name: p.name, description: p.desc, image: p.noPhoto ? [] : [new URL(custom ? p.image : FV.img(p.slug), location.href).href], brand: { "@type": "Brand", name: "Fresh Valley" }, category: cat,
-          offers: { "@type": "Offer", priceCurrency: FV.settings.currency, price: isKg ? FV.priceForWeight(p, 1000) : p.pricePerUnit, availability: sold ? "https://schema.org/OutOfStock" : "https://schema.org/InStock", url: location.href },
-          aggregateRating: { "@type": "AggregateRating", ratingValue: p.rating, reviewCount: p.reviews } });
+          offers: { "@type": "Offer", priceCurrency: FV.settings.currency, price: isKg ? FV.priceForWeight(p, 1000) : p.pricePerUnit, availability: sold ? "https://schema.org/OutOfStock" : "https://schema.org/InStock", url: location.href } });
       }
 
       /* ============================== BOX ============================== */
@@ -258,7 +269,6 @@
         meta(b.name, b.tagline + " " + b.desc);
         const RIBBONS = [["Mid Forest", "#2D4630"], ["Charcoal", "#2A2622"]];
         const others = FV.data.boxes.filter((x) => x.slug !== b.slug);
-        const revs = reviewsFor([b.name], ["Hosting Box", "The Art of Hosting"]);
         const sold = FV.soldOut(b);
         root.innerHTML = `
         <section class="s pdp" aria-labelledby="pName">
@@ -267,7 +277,7 @@
             <div class="pdp__grid">
               <div class="pdp__media">
                 <div class="pdp__frame" data-clip>${FV.picture(b.image, "(max-width: 1100px) 92vw, 50vw", b.name, { eager: true })}
-                  <div class="pdp__flags"><span class="chip chip--olive">${I("gift")} Curated box</span>${b.slug === "hosting-box" ? `<span class="chip chip--glass">${I("star")} Most gifted</span>` : ""}</div>
+                  <div class="pdp__flags"><span class="chip chip--olive">${I("gift")} Curated box</span>${b.slug === "hosting-box" ? `<span class="chip chip--glass">${I("gift")} Most gifted</span>` : ""}</div>
                   <div class="sticker pdp__stamp" aria-hidden="true"><svg class="ring" viewBox="0 0 120 120"><defs><path id="stkBox" d="M60 60m-47 0a47 47 0 1 1 94 0a47 47 0 1 1-94 0"/></defs><text><textPath href="#stkBox" textLength="292" lengthAdjust="spacing">Wrapped by hand • Tied in ribbon •</textPath></text></svg><span class="sticker__core">${S.ART.leaf}</span></div>
                 </div>
                 <div class="pdp__facts">
@@ -301,13 +311,6 @@
                 </div>
               </div>
             </div>
-          </div>
-        </section>
-
-        <section class="s sec band--paper" id="reviews">
-          <div class="wrap wrap--wide">
-            <div class="head"><div class="head__main"><p class="eyebrow">From our hosts</p><h2 data-split>The gift they <em class="i">remembered</em></h2></div></div>
-            <div class="rev-grid" data-stagger>${revs.slice(0, 3).map(FV.reviewCardHTML).join("")}</div>
           </div>
         </section>
 
