@@ -89,7 +89,7 @@ window.FVTheme = (function () {
           { type: "tile", settings: { title: "Organic reserve", text: "Our quietest, rarest selections", image: "medjool-dates", link: "products.html?cat=organic-reserve", count: "organic-reserve" } },
           { type: "tile", settings: { title: "Herbs", text: "Cut fresh for the table", image: "art:herbs", link: "products.html?cat=herbs", count: "herbs" } },
         ] },
-        { id: "harvest", type: "harvest", settings: { eyebrow: "The harvest calendar", title: "What the valley is *giving*, month by month.", text: "Fruit tastes best in its own season. Here is ours — today is marked, so you always know what is at its peak.", staples: true, cta_label: "", cta_link: "", band: "kraft" } },
+        { id: "harvest", type: "harvest", settings: { eyebrow: "The harvest calendar", title: "What's fresh *this month*.", text: "Pick a month to see what is at its peak — and what arrives next. Everything else is graded every week, all year.", staples: true, cta_label: "", cta_link: "", band: "kraft" } },
         { id: "best", type: "product_rail", settings: { eyebrow: "Picked most often", title: "Best *sellers*", text: "", collection: "best-sellers", limit: 12, cta_label: "View all", cta_link: "products.html?collection=best-sellers", band: "paper" } },
         { id: "story", type: "story", settings: {
           eyebrow: "Our signature · only from Fresh Valley", title: "Arrive with the *season*.",

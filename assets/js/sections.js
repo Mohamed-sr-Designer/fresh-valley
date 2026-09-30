@@ -298,31 +298,50 @@ window.FVSections = (function () {
     </div></div></section>`;
   };
 
-  /* Harvest calendar — the farmer's planting chart: every seasonal crop on
-     twelve months, with today marked. */
+  /* Harvest calendar — pick a month, see what is fresh: what is in season
+     (with where it stands in its season), what arrives next, and the staples
+     graded all year. The current month is selected in the visitor's browser. */
+  const seasonal = () => D.products.filter((p) => !FV.isYearRound(p));
+  const inMonth = (m) => seasonal().filter((p) => FV.inSeason(p, m));
+  function hvTag(p, m) {
+    const ms = FV.seasonMonths(p.season);
+    if (!ms.includes(m)) { let k = 1; while (k < 12 && !ms.includes((m + k) % 12)) k++; return ["Arrives in " + FV.MONTHS_LONG[(m + k) % 12], "is-soon"]; }
+    if (ms.length > 1 && ms[0] === m) return ["Just arrived", "is-new"];
+    if (ms.length > 1 && ms[ms.length - 1] === m) return ["Last weeks", "is-last"];
+    return ["Peak season", "is-peak"];
+  }
+  function hvCard(p, m) {
+    const [label, cls] = hvTag(p, m), ms = FV.seasonMonths(p.season), cp = FV.cardPrice(p), href = "product.html?slug=" + p.slug;
+    const pic = p.noPhoto ? `<a class="hv-card__img media--herb" href="${href}" tabindex="-1" aria-hidden="true">${FV.herbSVG(p.slug)}</a>` : `<a class="hv-card__img" href="${href}" tabindex="-1" aria-hidden="true">${img(FV.isCustomImg(p.image) ? p.image : p.slug, { sizes: "96px", alt: "" })}</a>`;
+    return `<article class="hv-card" data-fly-root>
+      ${pic}
+      <div class="hv-card__body">
+        <span class="hv-tag ${cls}">${esc(label)}</span>
+        <h4 class="hv-card__name"><a href="${href}">${esc(p.name)}</a></h4>
+        <p class="hv-card__meta">${esc(FV.originShort(p.origin))} · ${esc(FV.seasonLabel(p))}</p>
+        <span class="hv-ticks" aria-hidden="true">${FV.MONTHS.map((_, i) => `<i class="${ms.includes(i) ? "on" : ""}${i === m ? " is-sel" : ""}"></i>`).join("")}</span>
+      </div>
+      <div class="hv-card__buy"><span><b>${FV.money(cp.value)}</b> <small>${cp.per}</small></span>${FV.soldOut(p) ? `<span class="chip chip--forest">Sold out</span>` : `<button class="hv-add" type="button" data-add="${p.slug}" aria-label="Add ${esc(p.name)} to basket">${I("plus")}</button>`}</div>
+    </article>`;
+  }
+  function harvestBody(m) {
+    const now = inMonth(m);
+    const firstIn = (p) => { const ms = FV.seasonMonths(p.season); let k = 1; while (k < 12 && !ms.includes((m + k) % 12)) k++; return k; };
+    const soon = seasonal().filter((p) => !FV.inSeason(p, m) && firstIn(p) <= 3).sort((x, y) => firstIn(x) - firstIn(y));
+    const mon = FV.MONTHS_LONG[m];
+    return `<div class="hv-group">
+        <h3 class="hv-group__t">In season in <b>${mon}</b><span class="hv-count">${now.length}</span></h3>
+        ${now.length ? `<div class="hv-grid">${now.map((p) => hvCard(p, m)).join("")}</div>` : `<p class="hv-empty">${I("leaf")}<span>${mon} falls between harvests — the all-year staples below are graded every week and at their best.</span></p>`}
+      </div>
+      ${soon.length ? `<div class="hv-group hv-group--soon"><h3 class="hv-group__t">Coming up<span class="hv-count">${soon.length}</span></h3><div class="hv-grid">${soon.map((p) => hvCard(p, m)).join("")}</div></div>` : ""}`;
+  }
   R.harvest = (s, st) => {
-    const rows = D.products.filter((p) => !FV.isYearRound(p)).sort((a, b) => FV.seasonMonths(a.season)[0] - FV.seasonMonths(b.season)[0]);
-    const staples = D.products.filter((p) => FV.isYearRound(p));
     const now = new Date().getMonth();
-    const thumb = (p) => p.noPhoto ? `<span class="hc__img media--herb">${FV.herbSVG(p.slug)}</span>` : `<span class="hc__img">${img(FV.isCustomImg(p.image) ? p.image : p.slug, { sizes: "48px", alt: "" })}</span>`;
-    const row = (p, r) => {
-      const ms = FV.seasonMonths(p.season), on = (i) => ms.includes(i);
-      const cells = FV.MONTHS.map((_, i) => `<span class="hc__c${on(i) ? " on" : ""}${on(i) && !on((i + 11) % 12) ? " s" : ""}${on(i) && !on((i + 1) % 12) ? " e" : ""}${i === now ? " is-now" : ""}" data-m="${i}" style="--m:${i}"></span>`).join("");
-      return `<li class="hc__row" data-fly-root data-months="${ms.join(",")}" style="--r:${r}">
-        <a class="hc__lab" href="product.html?slug=${p.slug}">${thumb(p)}<span><strong>${esc(p.name)}</strong><small>${esc(FV.originShort(p.origin))} · ${esc(FV.seasonLabel(p))}</small></span></a>
-        ${cells}
-        <span class="hc__end"><span class="hc__status" data-status></span>${FV.soldOut(p) ? "" : `<button class="hc__add" type="button" data-add="${p.slug}" aria-label="Add ${esc(p.name)} to basket">${I("plus")}</button>`}</span>
-        <span class="sr-only">In season ${esc(p.season)}.</span>
-      </li>`;
-    };
+    const staples = D.products.filter((p) => FV.isYearRound(p));
     return `<section class="s sec ${band(st.band)} s-harvest" ${attrs(s, "data-harvest")}><div class="wrap wrap--wide">
-      <div class="harvest__top">${head(st, { noCta: true })}
-        <div class="harvest__now" data-reveal><span class="harvest__month" data-harvest-month>${FV.MONTHS_LONG[now]}</span><p data-harvest-note>${harvestNote(now)}</p></div>
-      </div>
-      <div class="hc" data-reveal>
-        <div class="hc__row hc__row--head" aria-hidden="true"><span class="hc__lab">The crop</span>${FV.MONTHS.map((m, i) => `<span class="hc__m${i === now ? " is-now" : ""}" data-m="${i}"><b>${m.charAt(0)}</b><i>${m.slice(1)}</i></span>`).join("")}<span class="hc__end"></span></div>
-        <ul class="hc__rows" aria-label="Seasonal produce by month">${rows.map(row).join("")}</ul>
-      </div>
+      ${head(st, { noCta: true })}
+      <div class="hv-months" role="tablist" aria-label="Choose a month">${FV.MONTHS.map((mo, i) => { const n = inMonth(i).length; return `<button class="hv-m${i === now ? " is-now" : ""}" type="button" role="tab" aria-selected="${i === now}" aria-controls="hv-${esc(s.id)}" data-hm="${i}" tabindex="${i === now ? 0 : -1}"><span>${mo}</span><small aria-label="${n} in season">${n}</small></button>`; }).join("")}</div>
+      <div class="hv-body" id="hv-${esc(s.id)}" role="tabpanel" aria-live="polite" data-hv-body data-m="${now}">${harvestBody(now)}</div>
       ${st.staples !== false && staples.length ? `<div class="harvest__staples"><p><b>Graded every week, all year:</b></p><div class="harvest__chips">${staples.map((p) => `<a class="chip" href="product.html?slug=${p.slug}">${esc(p.name)}</a>`).join("")}</div></div>` : ""}
       ${st.cta_label ? `<div class="row" style="margin-top:1.6rem">${btn(st.cta_label, st.cta_link, "btn--ghost")}</div>` : ""}
     </div></section>`;
@@ -616,16 +635,24 @@ window.FVSections = (function () {
     Array.from(root.querySelectorAll(".pcard__tag[data-months]")).forEach((el) => { const ms = el.dataset.months.split(",").map(Number), lab = el.querySelector("span"); if (!lab) return; let k = 0; while (k < 12 && !ms.includes((now + k) % 12)) k++; lab.textContent = k === 0 ? "In season" : "Back in " + FV.MONTHS[(now + k) % 12]; el.classList.toggle("is-off", k > 0); });
     Array.from(root.querySelectorAll("[data-harvest-note]")).forEach((el) => { const h = harvestNote(now); if (el.innerHTML !== h) el.innerHTML = h; });
     Array.from(root.querySelectorAll("[data-harvest-month]")).forEach((el) => { el.textContent = FV.MONTHS_LONG[now]; });
+    Array.from(root.querySelectorAll("[data-harvest]")).forEach((sec) => { if (!sec.dataset.picked) pickMonth(sec, now); });
+  }
+  function pickMonth(sec, m, focus) {
+    const body = sec.querySelector("[data-hv-body]");
+    sec.querySelectorAll(".hv-m").forEach((b) => { const on = +b.dataset.hm === m; b.setAttribute("aria-selected", on); b.tabIndex = on ? 0 : -1; b.classList.toggle("is-now", +b.dataset.hm === new Date().getMonth()); if (on && focus) b.focus(); });
+    if (body && +body.dataset.m !== m) { body.dataset.m = m; body.innerHTML = harvestBody(m); if (window.FV && FV.updateWishUI) FV.updateWishUI(); }
+    const strip = sec.querySelector(".hv-months"), btn = strip && strip.querySelector('[aria-selected="true"]');
+    if (strip && btn && strip.scrollWidth > strip.clientWidth) strip.scrollLeft = btn.offsetLeft - strip.clientWidth / 2 + btn.offsetWidth / 2;
+  }
+  function bindHarvest(root) {
     Array.from(root.querySelectorAll("[data-harvest]")).forEach((sec) => {
-      sec.querySelectorAll("[data-m]").forEach((c) => c.classList.toggle("is-now", +c.dataset.m === now));
-      sec.querySelectorAll(".hc__row[data-months]").forEach((r) => {
-        const ms = r.dataset.months.split(",").map(Number), st = r.querySelector("[data-status]");
-        const on = ms.includes(now), last = on && !ms.includes((now + 1) % 12);
-        let txt;
-        if (on) txt = last ? "Last weeks" : "In season";
-        else { let k = 1; while (k < 12 && !ms.includes((now + k) % 12)) k++; txt = "From " + FV.MONTHS[(now + k) % 12]; }
-        r.classList.toggle("is-on", on); r.classList.toggle("is-last", last);
-        if (st) st.textContent = txt;
+      if (BOUND.has(sec)) return; BOUND.add(sec);
+      const tabs = Array.from(sec.querySelectorAll(".hv-m"));
+      tabs.forEach((b) => b.addEventListener("click", () => { sec.dataset.picked = "1"; const body = sec.querySelector("[data-hv-body]"); body.classList.add("is-swap"); setTimeout(() => { pickMonth(sec, +b.dataset.hm); body.classList.remove("is-swap"); }, 140); }));
+      sec.querySelector(".hv-months").addEventListener("keydown", (e) => {
+        const i = tabs.findIndex((t) => t.getAttribute("aria-selected") === "true");
+        const k = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+        if (!k) return; e.preventDefault(); sec.dataset.picked = "1"; pickMonth(sec, (i + k + 12) % 12, true);
       });
     });
   }
@@ -641,18 +668,10 @@ window.FVSections = (function () {
       sec.querySelectorAll(".map__pin").forEach((p) => p.addEventListener("mouseenter", () => set(p.dataset.region)));
     });
   }
-  function growCharts(root) {
-    Array.from(root.querySelectorAll(".hc")).forEach((hc) => {
-      if (BOUND.has(hc)) return; BOUND.add(hc);
-      if (!("IntersectionObserver" in window)) { hc.classList.add("is-grown"); return; }
-      const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { hc.classList.add("is-grown"); io.disconnect(); } }), { threshold: 0.18 });
-      io.observe(hc);
-    });
-  }
   function behave(root) {
     root = root || document;
     placeOrbs(root);
-    growCharts(root);
+    bindHarvest(root);
     applyMonth(root);
     bindOrigins(root);
     // rails with prev/next
