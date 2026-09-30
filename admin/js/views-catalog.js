@@ -56,7 +56,7 @@
       <div class="card card--flush"><div class="tabs" id="tabs" role="tablist"></div>
         <div class="toolbar"><label class="search"><span class="sr-only">Search products</span>${icon("search")}<input class="in" id="q" placeholder="Search products"></label>
           <select class="sel" id="catF" style="width:auto" aria-label="Category"><option value="">All categories</option>${CATS.map((c) => `<option value="${c[0]}">${c[1]}</option>`).join("")}</select>
-          <select class="sel" id="sort" style="width:auto" aria-label="Sort"><option value="name">Name A–Z</option><option value="price-h">Price · high to low</option><option value="price-l">Price · low to high</option><option value="stock">Inventory · low first</option><option value="rating">Rating</option></select></div>
+          <select class="sel" id="sort" style="width:auto" aria-label="Sort"><option value="name">Name A–Z</option><option value="price-h">Price · high to low</option><option value="price-l">Price · low to high</option><option value="stock">Inventory · low first</option><option value="season">In season first</option></select></div>
         <div id="bulk"></div><div class="tbl-wrap" id="tw"></div></div></div>`;
     const $ = (s) => root.querySelector(s);
     const TABS = [["all", "All"], ["active", "Active"], ["draft", "Draft"], ["archived", "Archived"]];
@@ -66,7 +66,7 @@
       if (st.catF) l = l.filter((p) => p.category === st.catF);
       const qq = st.q.trim().toLowerCase(); if (qq) l = l.filter((p) => (p.name + " " + p.slug + " " + (p.sku || "")).toLowerCase().includes(qq));
       const s = st.sort;
-      l.sort((a, b) => s === "price-h" ? cat.price(b) - cat.price(a) : s === "price-l" ? cat.price(a) - cat.price(b) : s === "stock" ? (cat.stockOf(a) ?? 1e9) - (cat.stockOf(b) ?? 1e9) : s === "rating" ? (b.rating || 0) - (a.rating || 0) : a.name.localeCompare(b.name));
+      l.sort((a, b) => s === "price-h" ? cat.price(b) - cat.price(a) : s === "price-l" ? cat.price(a) - cat.price(b) : s === "stock" ? (cat.stockOf(a) ?? 1e9) - (cat.stockOf(b) ?? 1e9) : s === "season" ? ((FV.isYearRound(a) ? 1 : FV.inSeason(a) ? 0 : 2) - (FV.isYearRound(b) ? 1 : FV.inSeason(b) ? 0 : 2)) : a.name.localeCompare(b.name));
       return l;
     }
     function render() {
@@ -74,11 +74,11 @@
       $("#tabs").innerHTML = TABS.map((t) => `<button type="button" role="tab" data-t="${t[0]}" aria-selected="${t[0] === st.tab}">${t[1]}<span class="cnt">${t[0] === "all" ? all.length : all.filter((p) => (p.status || "active") === t[0]).length}</span></button>`).join("");
       $("#tabs").querySelectorAll("[data-t]").forEach((b) => b.addEventListener("click", () => { st.tab = b.dataset.t; st.sel.clear(); render(); }));
       const l = list();
-      $("#tw").innerHTML = l.length ? `<table class="tbl"><thead><tr><th class="w-chk"><input type="checkbox" id="all" aria-label="Select all"${l.length && l.every((p) => st.sel.has(p.slug)) ? " checked" : ""}></th><th></th><th>Product</th><th>Status</th><th>Inventory</th><th>Category</th><th class="r">Price</th><th class="r">Rating</th></tr></thead><tbody>
+      $("#tw").innerHTML = l.length ? `<table class="tbl"><thead><tr><th class="w-chk"><input type="checkbox" id="all" aria-label="Select all"${l.length && l.every((p) => st.sel.has(p.slug)) ? " checked" : ""}></th><th></th><th>Product</th><th>Status</th><th>Inventory</th><th>Category</th><th class="r">Price</th><th>Grown in</th></tr></thead><tbody>
         ${l.map((p) => `<tr class="is-link${st.sel.has(p.slug) ? " is-sel" : ""}" data-s="${esc(p.slug)}"><td class="w-chk"><input type="checkbox" data-sel="${esc(p.slug)}" aria-label="Select ${esc(p.name)}"${st.sel.has(p.slug) ? " checked" : ""}></td><td style="width:52px">${thumb(p)}</td>
           <td><span class="strong">${esc(p.name)}</span>${isCustom(p.slug) ? ` <span class="bdg bdg--plain bdg--info">Custom</span>` : ""}<div class="sub">${esc(p.slug)}${p.sku ? " · " + esc(p.sku) : ""}</div></td>
           <td><span class="bdg ${STATUS_B[p.status || "active"]}">${esc((p.status || "active").replace(/^./, (c) => c.toUpperCase()))}</span></td><td>${stockLabel(p)}</td><td>${esc((p.category || "").replace(/^./, (c) => c.toUpperCase()))}</td>
-          <td class="r num">${money(cat.price(p))} <span class="faint">${FV.cardPrice(p).per}</span>${p.compareAt ? `<div class="sub"><s>${money(p.compareAt)}</s></div>` : ""}</td><td class="r num">★ ${(p.rating || 0).toFixed(1)}</td></tr>`).join("")}
+          <td class="r num">${money(cat.price(p))} <span class="faint">${FV.cardPrice(p).per}</span>${p.compareAt ? `<div class="sub"><s>${money(p.compareAt)}</s></div>` : ""}</td><td><span class="small">${esc(FV.originShort(p.origin))}</span><div class="sub">${esc(FV.seasonLabel(p))}${!FV.isYearRound(p) && FV.inSeason(p) ? " · in season" : ""}</div></td></tr>`).join("")}
         </tbody></table>` : A.empty("No products found", "Try another search or filter.");
       $("#tw").querySelectorAll("tr[data-s]").forEach((tr) => tr.addEventListener("click", (e) => { if (e.target.closest("input")) return; A.go("/products/" + tr.dataset.s); }));
       $("#tw").querySelectorAll("[data-sel]").forEach((c) => c.addEventListener("change", () => { c.checked ? st.sel.add(c.dataset.sel) : st.sel.delete(c.dataset.sel); render(); }));
@@ -97,7 +97,7 @@
     let t; $("#q").addEventListener("input", (e) => { clearTimeout(t); t = setTimeout(() => { st.q = e.target.value; render(); }, 150); });
     $("#catF").addEventListener("change", (e) => { st.catF = e.target.value; render(); });
     $("#sort").addEventListener("change", (e) => { st.sort = e.target.value; render(); });
-    $("#exp").addEventListener("click", () => A.csv("products.csv", [["Handle", "Name", "Status", "Category", "Unit", "Price", "Compare at", "Cost", "Stock", "SKU", "Origin", "Season", "Collections", "Badges", "Rating"]].concat(list().map((p) => [p.slug, p.name, p.status || "active", p.category, p.unit, cat.price(p), p.compareAt || "", p.cost || "", cat.stockOf(p) ?? "", p.sku || "", p.origin, p.season, (p.collections || []).join(" "), (p.badges || []).join(" "), p.rating]))));
+    $("#exp").addEventListener("click", () => A.csv("products.csv", [["Handle", "Name", "Status", "Category", "Unit", "Price", "Compare at", "Cost", "Stock", "SKU", "Origin", "Season", "Collections", "Badges"]].concat(list().map((p) => [p.slug, p.name, p.status || "active", p.category, p.unit, cat.price(p), p.compareAt || "", p.cost || "", cat.stockOf(p) ?? "", p.sku || "", p.origin, p.season, (p.collections || []).join(" "), (p.badges || []).join(" ")]))));
     render();
   }, { perm: "products" });
 
@@ -147,7 +147,7 @@
           <div><span class="lbl">Collections</span><div style="display:grid;gap:6px;margin-top:6px">${COLLS.map((c) => `<label class="chk"><input type="checkbox" data-coll="${c[0]}"${f.collections.includes(c[0]) ? " checked" : ""}>${c[1]}</label>`).join("")}</div></div>
           <div><span class="lbl">Badges</span><div style="display:grid;gap:6px;margin-top:6px">${BADGES.map((c) => `<label class="chk"><input type="checkbox" data-badge="${c[0]}"${f.badges.includes(c[0]) ? " checked" : ""}>${c[1]}</label>`).join("")}</div></div>
           <label class="row"><span style="flex:1"><b>Featured</b><br><span class="small faint">Sorts first in "Featured"</span></span>${A.switchEl("fFeat", f.featured, "Featured")}</label></div></div>
-        ${isNew ? "" : `<div class="card"><div class="card__hd"><h2>Last 90 days</h2></div><div class="card__bd"><dl class="kv"><dt>Units sold</dt><dd>${num(ins.units)}</dd><dt>Revenue</dt><dd>${money(ins.rev)}</dd><dt>Rating</dt><dd>★ ${(p.rating || 0).toFixed(1)} · ${num(p.reviews || 0)} reviews</dd></dl></div></div>`}
+        ${isNew ? "" : `<div class="card"><div class="card__hd"><h2>Last 90 days</h2></div><div class="card__bd"><dl class="kv"><dt>Units sold</dt><dd>${num(ins.units)}</dd><dt>Revenue</dt><dd>${money(ins.rev)}</dd><dt>Grown in</dt><dd>${esc(FV.originShort(p.origin))} · ${esc(FV.seasonLabel(p))}</dd></dl></div></div>`}
         ${isNew ? `<button class="ab ab--primary" type="submit" style="height:40px">Save product</button>` : ""}
       </div></form></div>`;
     const $ = (s) => root.querySelector(s);
