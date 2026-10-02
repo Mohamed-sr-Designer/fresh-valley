@@ -135,18 +135,18 @@ window.FVSections = (function () {
     const alt = esc(o.alt || ""), load = o.eager ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"', attrs = o.attrs || "";
     if (!ref) return "";
     if (ref === "hero-portrait") {
-      return `<picture><source type="image/webp" srcset="assets/img/hero/hero-portrait-700.webp 700w, assets/img/hero/hero-portrait-1000.webp 1000w" sizes="${o.sizes || "(max-width: 960px) 92vw, 42vw"}"><img src="assets/img/hero/hero-portrait-1000.jpg" srcset="assets/img/hero/hero-portrait-700.jpg 700w, assets/img/hero/hero-portrait-1000.jpg 1000w" sizes="${o.sizes || "(max-width: 960px) 92vw, 42vw"}" alt="${alt}" ${load} decoding="async" width="1000" height="1333" ${attrs}></picture>`;
+      return `<picture><source type="image/webp" srcset="assets/img/hero/hero-portrait-700.webp 700w, assets/img/hero/hero-portrait-1000.webp 1000w" sizes="${o.sizes || "(max-width: 960px) 92vw, 42vw"}"><img src="assets/img/hero/hero-portrait-1000.jpg" srcset="assets/img/hero/hero-portrait-700.jpg 700w, assets/img/hero/hero-portrait-1000.jpg 1000w" sizes="${o.sizes || "(max-width: 960px) 92vw, 42vw"}" alt="${alt}" ${load} decoding="async" width="1000" height="1250" ${attrs}></picture>`;
     }
     if (ref === "hero") {
-      return `<picture><source media="(max-width: 700px)" type="image/webp" srcset="assets/img/hero/hero-portrait-700.webp 700w, assets/img/hero/hero-portrait-1000.webp 1000w" sizes="100vw"><source media="(max-width: 700px)" srcset="assets/img/hero/hero-portrait-700.jpg 700w, assets/img/hero/hero-portrait-1000.jpg 1000w" sizes="100vw"><source type="image/webp" srcset="assets/img/hero/hero-800.webp 800w, assets/img/hero/hero-1200.webp 1200w, assets/img/hero/hero-1800.webp 1800w, assets/img/hero/hero-2400.webp 2400w" sizes="${o.sizes || "100vw"}"><img src="assets/img/hero/hero-1800.jpg" srcset="assets/img/hero/hero-800.jpg 800w, assets/img/hero/hero-1200.jpg 1200w, assets/img/hero/hero-1800.jpg 1800w, assets/img/hero/hero-2400.jpg 2400w" sizes="${o.sizes || "100vw"}" alt="${alt}" ${load} decoding="async" width="2400" height="982" ${attrs}></picture>`;
+      return `<picture><source media="(max-width: 700px)" type="image/webp" srcset="assets/img/hero/hero-portrait-700.webp 700w, assets/img/hero/hero-portrait-1000.webp 1000w" sizes="100vw"><source media="(max-width: 700px)" srcset="assets/img/hero/hero-portrait-700.jpg 700w, assets/img/hero/hero-portrait-1000.jpg 1000w" sizes="100vw"><source type="image/webp" srcset="assets/img/hero/hero-800.webp 800w, assets/img/hero/hero-1200.webp 1200w, assets/img/hero/hero-1800.webp 1800w, assets/img/hero/hero-2400.webp 2400w" sizes="${o.sizes || "100vw"}"><img src="assets/img/hero/hero-1800.jpg" srcset="assets/img/hero/hero-800.jpg 800w, assets/img/hero/hero-1200.jpg 1200w, assets/img/hero/hero-1800.jpg 1800w, assets/img/hero/hero-2400.jpg 2400w" sizes="${o.sizes || "100vw"}" alt="${alt}" ${load} decoding="async" width="2400" height="1340" ${attrs}></picture>`;
     }
     if (ref.indexOf("banner:") === 0) {
       const k = ref.slice(7).replace(/[^a-z0-9-]/gi, "");
-      return `<picture><source type="image/webp" srcset="assets/img/banners/sm/${k}.webp 540w, assets/img/banners/${k}.webp 1500w" sizes="${o.sizes || "(max-width: 960px) 100vw, 60vw"}"><img src="assets/img/banners/${k}.jpg" srcset="assets/img/banners/sm/${k}.jpg 540w, assets/img/banners/${k}.jpg 1500w" sizes="${o.sizes || "(max-width: 960px) 100vw, 60vw"}" alt="${alt}" ${load} decoding="async" width="1500" height="779" ${attrs}></picture>`;
+      return `<picture><source type="image/webp" srcset="assets/img/banners/sm/${k}.webp 540w, assets/img/banners/${k}.webp 1500w" sizes="${o.sizes || "(max-width: 960px) 100vw, 60vw"}"><img src="assets/img/banners/${k}.jpg" srcset="assets/img/banners/sm/${k}.jpg 540w, assets/img/banners/${k}.jpg 1500w" sizes="${o.sizes || "(max-width: 960px) 100vw, 60vw"}" alt="${alt}" ${load} decoding="async" width="1500" height="780" ${attrs}></picture>`;
     }
     if (ref.indexOf("art:") === 0) return ART[ref.slice(4)] || ART.sprig;
     if (FV.isCustomImg(ref)) return `<img src="${esc(ref)}" alt="${alt}" ${load} decoding="async" ${attrs}>`;
-    return `<picture><source type="image/webp" srcset="${FV.webp(FV.thumb(ref))} 540w, ${FV.webp(FV.img(ref))} 1000w" sizes="${o.sizes || "(max-width: 960px) 90vw, 40vw"}"><img src="${FV.thumb(ref)}" srcset="${FV.thumb(ref)} 540w, ${FV.img(ref)} 1000w" sizes="${o.sizes || "(max-width: 960px) 90vw, 40vw"}" alt="${alt}" ${load} decoding="async" width="1000" height="1000" ${attrs}></picture>`;
+    return `<picture><source type="image/webp" srcset="${FV.webp(FV.thumb(ref))} 432w, ${FV.webp(FV.img(ref))} 800w" sizes="${o.sizes || "(max-width: 960px) 90vw, 40vw"}"><img src="${FV.thumb(ref)}" srcset="${FV.thumb(ref)} 432w, ${FV.img(ref)} 800w" sizes="${o.sizes || "(max-width: 960px) 90vw, 40vw"}" alt="${alt}" ${load} decoding="async" width="800" height="1000" ${attrs}></picture>`;
   }
 
   /* ------------------------------------------------------------------ *
@@ -175,6 +175,9 @@ window.FVSections = (function () {
     else if (["fruits", "vegetables", "herbs"].includes(key)) ps = FV.byCategory(key);
     else ps = FV.byCollection(key);
     if (key === "best-sellers" && ps.length < (limit || 12)) ps = ps.concat(FV.byCollection("essentials").filter((p) => !ps.includes(p)));
+    // what can be enjoyed now comes first: in season, then all-year, then the rest
+    const now = new Date().getMonth(), rank = (p) => FV.soldOut(p) ? 3 : FV.isYearRound(p) ? 1 : FV.inSeason(p, now) ? 0 : 2;
+    ps = ps.map((p, i) => [p, i]).sort((x, y) => rank(x[0]) - rank(y[0]) || x[1] - y[1]).map((x) => x[0]);
     return limit ? ps.slice(0, limit) : ps;
   }
   function countFor(key) {
@@ -184,7 +187,7 @@ window.FVSections = (function () {
     return FV.byCollection(key).length;
   }
   // a valley horizon on top of a band (dark bands only)
-  const horizon = (st, v) => st.horizon === false ? "" : `<div class="horizon" aria-hidden="true">${FV.hills(v || "b")}</div>`;
+  const horizon = () => "";
 
   /* ------------------------------------------------------------------ *
    * Renderers
@@ -192,37 +195,22 @@ window.FVSections = (function () {
   const R = {};
   const CTX = { page: null };
 
-  /* Hero — morning in the valley: the photograph fills the whole screen,
-     the headline sits over it, herbs grow at the edges and the hills of the
-     valley run across its foot into the ribbon below. */
+  /* Hero — a calm welcome: the table in golden light, one clear promise,
+     two ways in, and the three things a host wants to know. */
   R.hero = (s, st) => {
-    const words = list(st.words);
-    const orbs = list(st.orbs, ",").slice(0, 3);
-    const chips = list(st.chips);
-    const chipIc = ["shield", "snow", "truck", "leaf"];
-    const herbs = list(st.herbs, ",").map(herbKind).filter(Boolean).slice(0, 2);
+    const words = list(st.words), chips = list(st.chips);
+    const chipIc = ["truck", "shield", "check", "leaf"];
+    const line3 = md(st.line3) + (words.length ? ` <em class="i">${esc(words[0])}</em>.` : "");
     return `<section class="s s-hero" ${attrs(s)}>
       <div class="hero__bg">${img(st.image || "hero", { eager: true, alt: st.image_alt, sizes: "100vw" })}</div>
       <div class="hero__shade" aria-hidden="true"></div>
       <div class="wrap wrap--wide hero__inner">
-        <div class="hero__head">
-          ${st.badge ? `<a class="hero__badge" href="${esc(st.badge_link || "products.html")}"><span class="hero__sprout" aria-hidden="true">${FV.herbSVG("sprout")}</span>${md(st.badge)}${I("arrow")}</a>` : ""}
-          <h1 class="hero__title">
-            <span class="hero__orbs" aria-hidden="true">${orbs.map((o, i) => `<span class="orb" data-depth="${[0.9, 0.5, 0.7][i]}"><span class="orb__px"><span class="orb__in" data-float="${[12, 16, 10][i]}">${img(o, { sizes: "130px", attrs: 'fetchpriority="low"' })}</span></span></span>`).join("")}</span>
-            <span class="line" style="--i:0"><span class="line__in">${md(st.line1)}</span></span>
-            <span class="line" style="--i:1"><span class="line__in">${md(st.line2)}</span></span>
-            <span class="line" style="--i:2"><span class="line__in">${md(st.line3)}${words.length ? ` <em class="i rot" data-rotate="${esc(words.join("|"))}"><span class="rot__w">${esc(words[0])}</span></em>.` : ""}</span></span>
-          </h1>
-        </div>
-        <div class="hero__side">
-          ${st.lede ? `<p class="lede">${md(st.lede)}</p>` : ""}
-          <div class="hero__cta">${btn(st.cta1_label, st.cta1_link, "btn--olive btn--lg", true)}${btn(st.cta2_label, st.cta2_link, "btn--ghost-light btn--lg")}</div>
-          ${st.harvest_note === false ? "" : `<p class="hero__harvest" data-harvest-note>${harvestNote()}</p>`}
-        </div>
+        ${st.badge ? `<a class="hero__badge" href="${esc(st.badge_link || "products.html")}">${md(st.badge)}${I("arrow")}</a>` : ""}
+        <h1 class="hero__title">${md(st.line1)} ${md(st.line2)}<br>${line3}</h1>
+        ${st.lede ? `<p class="lede">${md(st.lede)}</p>` : ""}
+        <div class="hero__cta">${btn(st.cta1_label, st.cta1_link, "btn--lg")}${btn(st.cta2_label, st.cta2_link, "btn--ghost btn--lg")}</div>
+        ${chips.length ? `<ul class="hero__trust">${chips.map((c, i) => `<li>${I(chipIc[i % 4])}<span>${esc(c)}</span></li>`).join("")}</ul>` : ""}
       </div>
-      ${chips.length ? `<div class="hero__caption">${chips.map((c, i) => `<span class="chip chip--glass">${I(chipIc[i % 4])}${esc(c)}</span>`).join("")}</div>` : ""}
-      ${herbs.map((h, i) => `<span class="hero__herb hero__herb--${i ? "r" : "l"}" aria-hidden="true">${FV.herbSVG(h)}</span>`).join("")}
-      <div class="hero__hills" aria-hidden="true">${FV.hills("a")}</div>
     </section>`;
   };
 
@@ -415,7 +403,7 @@ window.FVSections = (function () {
 
   R.page_head = (s, st) => {
     const crumbTitle = (CTX.page && CTX.page.title) || String(st.title || "").replace(/[*~]/g, "");
-    const kind = herbKind(st.art), info = FV.herbInfo(kind);
+    const kind = "", info = null;
     return `<section class="s s-page-head${st.compact ? " s-page-head--compact" : ""}${kind ? " has-specimen" : ""}" ${attrs(s)}>
       <div class="wrap wrap--wide">
         <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span aria-hidden="true">/</span><span aria-current="page">${esc(crumbTitle)}</span></nav>
@@ -436,7 +424,7 @@ window.FVSections = (function () {
 
   R.hscroll = (s, st, blocks) => `<section class="s s-hscroll ${band(st.band || "dark")}" ${attrs(s, "data-hscroll")}>${(st.band || "dark") === "dark" ? horizon(st, "a") : ""}
       <div class="wrap wrap--wide">${head(st, { noCta: true })}</div>
-      <div class="hs__viewport" data-cursor="Scroll"><div class="hs__track">${blocks.map((b, i) => { const t = b.settings || {}; return `<article class="hs__card"><div class="hs__img">${img(t.image, { sizes: "(max-width: 960px) 80vw, 34vw", alt: "" })}</div><div class="hs__body"><span class="hs__n">${String(i + 1).padStart(2, "0")}</span><h3>${md(t.title)}</h3><p>${md(t.text)}</p></div></article>`; }).join("")}<div class="hs__end" aria-hidden="true">${FV.herbSVG("basil")}<span>…and they remember.</span></div></div></div>
+      <div class="hs__viewport" data-cursor="Scroll"><div class="hs__track">${blocks.map((b, i) => { const t = b.settings || {}; return `<article class="hs__card"><div class="hs__img">${img(t.image, { sizes: "(max-width: 960px) 80vw, 34vw", alt: "" })}</div><div class="hs__body"><span class="hs__n">${String(i + 1).padStart(2, "0")}</span><h3>${md(t.title)}</h3><p>${md(t.text)}</p></div></article>`; }).join("")}</div></div>
     </section>`;
 
   R.gallery = (s, st, blocks) => {
@@ -458,7 +446,7 @@ window.FVSections = (function () {
     </section>`;
 
   R.cta = (s, st) => {
-    const olive = st.style === "olive", kind = herbKind(st.art);
+    const olive = st.style === "olive", kind = "";
     return `<section class="s sec" ${attrs(s)}><div class="wrap wrap--wide"><div class="cta-block${olive ? " cta-block--olive" : ""}">
       <div>${eyebrow(st.eyebrow)}<h2 data-split>${md(st.title)}</h2>${st.text ? `<p class="lede">${md(st.text)}</p>` : ""}${st.cta_label || st.cta2_label ? `<div class="row" style="margin-top:1.6rem">${btn(st.cta_label, st.cta_link, olive ? "" : "btn--olive", true)}${btn(st.cta2_label, st.cta2_link, olive ? "btn--ghost" : "btn--ghost-light")}</div>` : ""}</div>
       ${kind ? `<div class="cta-block__art" data-draw>${FV.herbSVG(kind)}</div>` : ""}
@@ -632,7 +620,7 @@ window.FVSections = (function () {
      HTML carries the month it was baked in). */
   function applyMonth(root) {
     const now = new Date().getMonth();
-    Array.from(root.querySelectorAll(".pcard__tag[data-months]")).forEach((el) => { const ms = el.dataset.months.split(",").map(Number), lab = el.querySelector("span"); if (!lab) return; let k = 0; while (k < 12 && !ms.includes((now + k) % 12)) k++; lab.textContent = k === 0 ? "In season" : "Back in " + FV.MONTHS[(now + k) % 12]; el.classList.toggle("is-off", k > 0); });
+    Array.from(root.querySelectorAll(".pcard__tag[data-months]")).forEach((el) => { el.hidden = !el.dataset.months.split(",").map(Number).includes(now); });
     Array.from(root.querySelectorAll("[data-harvest-note]")).forEach((el) => { const h = harvestNote(now); if (el.innerHTML !== h) el.innerHTML = h; });
     Array.from(root.querySelectorAll("[data-harvest-month]")).forEach((el) => { el.textContent = FV.MONTHS_LONG[now]; });
     Array.from(root.querySelectorAll("[data-harvest]")).forEach((sec) => { if (!sec.dataset.picked) pickMonth(sec, now); });

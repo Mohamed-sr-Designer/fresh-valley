@@ -115,6 +115,7 @@
     trash: sv('<path d="M4.5 7h15M9 7V4.5h6V7M6.5 7l1 13h9l1-13"/>', 1.5),
     filter: sv('<path d="M4 6h16M7 12h10M10 18h4"/>'),
     x: sv('<path d="m7 7 10 10M17 7 7 17"/>'),
+    bell: sv('<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>', 1.6),
   };
 
   /* Payment brand marks (white chips — work on light & dark) */
@@ -401,6 +402,57 @@
       _as(K.clients, list);
     },
   };
+  /* ------------------------------------------------------------------ *
+   * Stock alerts — guests can buy freely; signed-in customers are told the
+   * moment something they wait for (or saved) is back, or something new
+   * arrives: an on-site note, the browser notification if allowed, and an
+   * inbox in their account. Re-checked whenever the store's catalogue
+   * changes (another tab, the admin) and on every visit.
+   * ------------------------------------------------------------------ */
+  const userNow = () => _ag("fv_user", null);
+  function stockFrom(cat, slug) {
+    const m = cat && ((cat.pmeta && cat.pmeta[slug]) || (cat.boxes && cat.boxes[slug]));
+    if (m && m.status && m.status !== "active") return false;
+    if (m && m.stock != null && m.stock !== "") return +m.stock > 0;
+    const p = (D.products || []).find((x) => x.slug === slug) || (D.boxes || []).find((x) => x.slug === slug);
+    return !(p && p.stock != null && p.stock !== "" && +p.stock <= 0);
+  }
+  FV.alerts = {
+    list: () => _ag("fv_alerts", []),
+    has: (slug) => _ag("fv_alerts", []).includes(slug),
+    add(slug) { const a = _ag("fv_alerts", []); if (!a.includes(slug)) a.unshift(slug); _as("fv_alerts", a); const seen = _ag("fv_stock_seen", {}); seen[slug] = stockFrom(newest(PUB.catalog, _ag(K.catalog, null)), slug); _as("fv_stock_seen", seen); },
+    remove(slug) { _as("fv_alerts", _ag("fv_alerts", []).filter((s) => s !== slug)); },
+    inbox: () => _ag("fv_notices", []),
+    unread: () => _ag("fv_notices", []).filter((n) => !n.read).length,
+    markRead() { _as("fv_notices", _ag("fv_notices", []).map((n) => Object.assign(n, { read: true }))); },
+    enable() {
+      if (!("Notification" in window)) { toast("Alerts are on", "You'll see them here on the site"); return Promise.resolve("unsupported"); }
+      return Notification.requestPermission().then((r) => { toast(r === "granted" ? "Instant alerts are on" : "Alerts will appear on the site", r === "granted" ? "We'll tell you the moment it's back" : "Browser notifications were not allowed"); return r; });
+    },
+  };
+  function notice(n) {
+    const box = _ag("fv_notices", []); box.unshift(Object.assign({ id: "N" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), at: Date.now(), read: false }, n)); _as("fv_notices", box.slice(0, 60));
+    try { if ("Notification" in window && Notification.permission === "granted") { const x = new Notification(n.title, { body: n.body, icon: "assets/img/icon-192.png", tag: n.slug }); x.onclick = () => { window.focus(); location.href = n.href; }; } } catch (_) {}
+    toast(n.title, n.body);
+    document.dispatchEvent(new CustomEvent("fv:notice"));
+  }
+  FV.checkStock = function () {
+    if (ADMIN_MODE || !userNow()) return;
+    const cat = newest(PUB.catalog, _ag(K.catalog, null)) || {};
+    const seen = _ag("fv_stock_seen", {});
+    const watch = Array.from(new Set(_ag("fv_alerts", []).concat(_ag("fv_wish", []))));
+    watch.forEach((slug) => {
+      const now = stockFrom(cat, slug), p = FV.find(slug) || FV.findBox(slug);
+      if (seen[slug] === false && now && p) notice({ slug, kind: "restock", title: p.name + " is back", body: "Freshly in stock — while this week's allocation lasts.", href: (FV.findBox(slug) ? "product.html?box=" : "product.html?slug=") + slug });
+      seen[slug] = now;
+    });
+    _as("fv_stock_seen", seen);
+    const known = _ag("fv_known_products", null), all = D.products.map((p) => p.slug).concat((cat.custom || []).map((c) => c.slug)).filter((v, i, a) => a.indexOf(v) === i);
+    if (known) all.filter((s) => !known.includes(s)).forEach((slug) => { const p = FV.find(slug) || (cat.custom || []).find((c) => c.slug === slug); if (p) notice({ slug, kind: "new", title: "New in: " + p.name, body: "Just arrived at Fresh Valley.", href: "product.html?slug=" + slug }); });
+    _as("fv_known_products", all);
+  };
+  addEventListener("storage", (e) => { if (e.key === K.catalog || e.key === "fv_user") FV.checkStock(); });
+
   /* Discount codes (managed in the admin) */
   FV.discounts = {
     all: () => (CATALOG.discounts || []),
@@ -566,7 +618,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
         <nav class="nav" aria-label="Primary"><ul>${nav}</ul><span class="nav__hover" aria-hidden="true"></span><span class="nav__pill" aria-hidden="true"></span></nav>
         <div class="hdr__actions">
           <button class="icon-btn" id="searchBtn" aria-label="Search" aria-haspopup="dialog">${I.search}</button>
-          <a class="icon-btn hide-sm" href="account.html" aria-label="Account">${I.user}</a>
+          <a class="icon-btn hide-sm" href="account.html" aria-label="Account" id="acctLink">${I.user}<span class="badge-count" id="acctCount" data-n="0" aria-hidden="true"></span></a>
           <a class="icon-btn hide-sm" href="wishlist.html" aria-label="Wishlist" id="wishLink">${I.heart}<span class="badge-count" id="wishCount" data-n="0" aria-hidden="true"></span></a>
           <button class="icon-btn" id="cartBtn" aria-label="Cart" aria-haspopup="dialog">${I.bag}<span class="badge-count" id="cartCount" data-n="0" aria-hidden="true"></span></button>
           <button class="icon-btn hdr__menu" id="menuBtn" aria-label="Open menu" aria-controls="menu" aria-expanded="false">${I.menu}</button>
@@ -592,7 +644,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
 
   function buildMenu() {
     const extra = [
-      { label: "My account", href: "account.html" }, { label: "Wishlist", href: "wishlist.html" }, { label: "Contact", href: "contact.html" }, { label: "Delivery areas", href: "contact.html#areas" },
+      { label: "My account", href: "account.html" }, { label: "Contact", href: "contact.html" },
     ];
     const s = TS.social || {}, c = TS.contact || {};
     return `<div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Menu" aria-hidden="true" inert data-lenis-prevent>
@@ -829,7 +881,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
   function flag(p) {
     if (FV.soldOut(p)) return `<span class="chip chip--forest pcard__tag">Sold out</span>`;
     if (p.compareAt && +p.compareAt > cardPrice(p).value) return `<span class="chip chip--pom pcard__tag">−${Math.round((1 - cardPrice(p).value / +p.compareAt) * 100)}%</span>`;
-    if (!isYearRound(p)) { const ms = seasonMonths(p.season), now = new Date().getMonth(); let k = 0; while (k < 12 && !ms.includes((now + k) % 12)) k++; return `<span class="chip chip--glass pcard__tag${k ? " is-off" : ""}" data-months="${ms.join(",")}">${I.sparkle}<span>${k ? "Back in " + MONTHS[(now + k) % 12] : "In season"}</span></span>`; }
+    if (!isYearRound(p) && seasonMonths(p.season).includes(new Date().getMonth())) return `<span class="chip chip--glass pcard__tag" data-months="${seasonMonths(p.season).join(",")}">${I.leaf}<span>In season</span></span>`;
     if ((p.collections || []).includes("best-sellers")) return `<span class="chip chip--glass pcard__tag">${I.leaf} Bestseller</span>`;
     return "";
   }
@@ -838,7 +890,7 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
   FV.picture = function (slug, sizes, alt, opt) {
     opt = opt || {};
     if (isCustomImg(slug)) return `<img src="${esc(slug)}" alt="${esc(alt || "")}" loading="${opt.eager ? "eager" : "lazy"}" decoding="async">`;
-    return `<picture><source type="image/webp" srcset="${FV.webp(FV.thumb(slug))} 540w, ${FV.webp(FV.img(slug))} 1000w" sizes="${sizes}"><img src="${FV.thumb(slug)}" srcset="${FV.thumb(slug)} 540w, ${FV.img(slug)} 1000w" sizes="${sizes}" alt="${esc(alt || "")}" loading="${opt.eager ? "eager" : "lazy"}" decoding="async" width="540" height="540"></picture>`;
+    return `<picture><source type="image/webp" srcset="${FV.webp(FV.thumb(slug))} 432w, ${FV.webp(FV.img(slug))} 800w" sizes="${sizes}"><img src="${FV.thumb(slug)}" srcset="${FV.thumb(slug)} 432w, ${FV.img(slug)} 800w" sizes="${sizes}" alt="${esc(alt || "")}" loading="${opt.eager ? "eager" : "lazy"}" decoding="async" width="432" height="540"></picture>`;
   };
   /* Product card — a produce tag: photo (or the herb, drawn), a tear-off
      line, then where it grew and when it is in season. */
@@ -889,8 +941,21 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
   /* ------------------------------------------------------------------ *
    * Motion bridges (v3 API names kept)
    * ------------------------------------------------------------------ */
-  FV.observeReveals = function (root) { if (window.FVMotion && window.FVMotion.ready) window.FVMotion.scan(root || document); };
-  FV.observeCounts = FV.observeReveals;
+  /* Quiet reveal — one soft fade-up as things scroll into view. No
+     libraries; content that arrives later is picked up automatically. */
+  const RV_SEL = "[data-reveal], [data-stagger], [data-fan], [data-clip], [data-split]";
+  let rvIO = null;
+  FV.reveal = function (root) {
+    root = root || document;
+    const els = Array.from(root.querySelectorAll ? root.querySelectorAll(RV_SEL) : []);
+    if (root.matches && root.matches(RV_SEL)) els.push(root);
+    if (!("IntersectionObserver" in window) || matchMedia("(prefers-reduced-motion: reduce)").matches) { els.forEach((e) => e.classList.add("is-in")); return; }
+    if (!rvIO) rvIO = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("is-in"); rvIO.unobserve(e.target); } }), { rootMargin: "0px 0px -6% 0px", threshold: 0.01 });
+    els.forEach((e) => { if (!e.classList.contains("is-in")) rvIO.observe(e); });
+  };
+  FV.observeReveals = FV.reveal;
+  FV.observeCounts = FV.reveal;
+  if ("MutationObserver" in window) new MutationObserver((ms) => ms.forEach((m) => m.addedNodes.forEach((n) => { if (n.nodeType === 1) FV.reveal(n); }))).observe(document.documentElement, { childList: true, subtree: true });
   FV.motionLayer = function () {};
   FV.bindRail = function (rail, prev, next) {
     if (!rail || !prev || !next) return;
@@ -1069,6 +1134,10 @@ ${embedded ? "" : `<div class="ac"><button class="c" onclick="window.close()">Cl
     track("page_view", { path: pageFile() + location.search });
     const cut = () => $$("[data-cutoff]").forEach((el) => { el.textContent = FV.cutoffText(); });
     cut(); setInterval(cut, 30000);
+    FV.reveal(document);
+    const bell = () => { const n = FV.alerts.unread(), el = $("#acctCount"); if (el) { el.dataset.n = n; el.classList.toggle("show", n > 0); } const a = $("#acctLink"); if (a) a.setAttribute("aria-label", n ? "Account, " + n + " new alert" + (n > 1 ? "s" : "") : "Account"); };
+    document.addEventListener("fv:notice", bell);
+    FV.checkStock(); bell();
     FV.booted = true;
     arrive();
     document.dispatchEvent(new CustomEvent("fv:ready"));

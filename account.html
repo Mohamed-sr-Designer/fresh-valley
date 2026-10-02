@@ -11,10 +11,9 @@
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/jakarta-s.woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/styles.css">
   <link rel="stylesheet" href="assets/css/shop.css">
-  <script>!function(d,w){var h=d.documentElement;if(/[?&]fv_preview=1/.test(location.search)||w.matchMedia("(prefers-reduced-motion: reduce)").matches)return;h.classList.add("m-on");setTimeout(function(){if(!(w.FVMotion&&w.FVMotion.ready))h.classList.remove("m-on")},3500);try{if(!/[?&]bake=1/.test(location.search)&&!sessionStorage.getItem("fv_seen")){sessionStorage.setItem("fv_seen","1");h.classList.add("fv-intro");setTimeout(function(){h.classList.add("fv-go")},4500)}}catch(e){}}(document,window)</script>
+  <script>document.documentElement.classList.add("js")</script>
 </head>
 <body data-page="account">
-  <!--loader--><div class="fv-loader" id="fvLoader" aria-hidden="true"><span class="fv-loader__sun"></span><svg class="fv-loader__hills hills" viewBox="0 0 1440 160" preserveAspectRatio="none" focusable="false"><path class="h3" d="M0 160V80C120 54 250 36 400 48C560 60 650 94 820 90C990 86 1100 40 1260 42C1350 43 1410 58 1440 66V160Z"/><path class="h2" d="M0 160V106C150 84 300 72 460 88C640 106 760 126 930 114C1110 101 1240 80 1440 98V160Z"/><path class="h1" d="M0 160V134C200 120 380 114 560 126C760 139 900 148 1100 138C1260 130 1360 124 1440 128V160Z"/></svg><div class="fv-loader__brand"><img src="assets/img/logo.png" alt="" width="170" height="111" decoding="async"><p>Picking today's harvest</p></div></div><!--/loader-->
   <div id="fv-header"></div>
   <noscript><p class="noscript">Fresh Valley uses JavaScript for its menu, basket and checkout. <a href="products.html">Browse the collection</a> · <a href="contact.html">Contact us</a></p></noscript>
 
@@ -68,7 +67,7 @@
       const orders = (real.length ? real : samples).slice().sort((a, b) => new Date(b.date) - new Date(a.date));
       const spent = orders.filter((o) => o.status !== "cancelled" && o.status !== "refunded").reduce((s, o) => s + (o.total || 0), 0);
 
-      const NAV = [["overview", "home", "Overview"], ["orders", "bag", "Orders"], ["reorder", "truck", "Reorder"], ["wishlist", "heart", "Wishlist"], ["addresses", "pin", "Addresses"], ["profile", "user", "Profile"], ["settings", "sparkle", "Preferences"]];
+      const NAV = [["overview", "home", "Overview"], ["orders", "bag", "Orders"], ["reorder", "truck", "Reorder"], ["wishlist", "heart", "Wishlist"], ["alerts", "bell", "Stock alerts"], ["addresses", "pin", "Addresses"], ["profile", "user", "Profile"], ["settings", "sparkle", "Preferences"]];
       root.innerHTML = `<div class="acct">
         <nav class="acct__nav" aria-label="Account">
           <div class="acct__greet"><span class="acct__av">${esc(user.name.split(" ").map((w) => w[0]).slice(0, 2).join(""))}</span><span><strong>${esc(user.name)}</strong><small>${esc(user.email)}</small></span></div>
@@ -79,7 +78,7 @@
           <section class="acct__panel" data-panel="overview" aria-labelledby="h-ov"><h2 id="h-ov">Overview</h2>
             <div class="acct__stats"><div><small>Orders</small><b>${orders.length}</b></div><div><small>Total spent</small><b>${FV.money(spent)}</b></div><div><small>Saved items</small><b id="wishStat">${FV.wish.items().length}</b></div></div>
             ${orders[0] ? orderCard(orders[0], true) : ""}
-            <div class="host-rec"><div class="host-rec__img">${S.img("pepper-medley", { sizes: "220px", alt: "" })}</div><div><p class="eyebrow">For your next gathering</p><h3>The Hosting <em class="i">Box</em></h3><p>Fruit, dates and a finishing herb — arranged, wrapped and ready for guests.</p></div><a class="btn btn--olive" href="product.html?box=hosting-box">Explore<span class="btn__ic">${I("arrow")}</span></a></div>
+            <div class="host-rec"><div class="host-rec__img">${S.img("box-hosting", { sizes: "220px", alt: "" })}</div><div><p class="eyebrow">For your next gathering</p><h3>The Hosting <em class="i">Box</em></h3><p>Fruit, dates and a finishing herb — arranged, wrapped and ready for guests.</p></div><a class="btn btn--olive" href="product.html?box=hosting-box">Explore<span class="btn__ic">${I("arrow")}</span></a></div>
           </section>
           <section class="acct__panel" data-panel="orders" aria-labelledby="h-or"><h2 id="h-or">Orders</h2>
             ${real.length ? "" : `<div class="demo-note">${I("sparkle")}<span>Sample orders shown — your real orders appear here as soon as you check out with ${esc(user.email)}.</span></div>`}
@@ -91,6 +90,7 @@
             <div class="grid-products" id="regulars"></div>
           </section>
           <section class="acct__panel" data-panel="wishlist" aria-labelledby="h-wi"><h2 id="h-wi">Wishlist</h2><div id="wishMini"></div></section>
+          <section class="acct__panel" data-panel="alerts" aria-labelledby="h-al"><h2 id="h-al">Stock alerts</h2><div id="alertsBox"></div></section>
           <section class="acct__panel" data-panel="addresses" aria-labelledby="h-ad"><h2 id="h-ad">Addresses</h2><div id="addrBox"></div></section>
           <section class="acct__panel" data-panel="profile" aria-labelledby="h-pr"><h2 id="h-pr">Profile</h2><div id="profileBox"></div></section>
           <section class="acct__panel" data-panel="settings" aria-labelledby="h-se"><h2 id="h-se">Preferences</h2>
@@ -203,7 +203,7 @@
         }
       }
       /* ---- preferences ---- */
-      const PREFS = [["updates", "Order updates", "Delivery status by SMS", true], ["letter", "The Fresh Valley Letter", "A monthly note — what's in season", true], ["seasonal", "Seasonal reminders", "A nudge when your favourites are at their peak", false]];
+      const PREFS = [["updates", "Order updates", "Delivery status by SMS", true], ["alerts", "Instant stock alerts", "A notification the moment a saved item is back, or something new arrives", true], ["seasonal", "Seasonal reminders", "A nudge when your favourites are at their peak", false]];
       function renderPrefs() {
         const pr = store.get("fv_prefs", {});
         $("prefs").innerHTML = PREFS.map(([k, t, d, def]) => `<div class="set-row"><div><strong id="pl-${k}">${t}</strong><small>${d}</small></div><button type="button" class="toggle" data-pref="${k}" aria-labelledby="pl-${k}" aria-pressed="${pr[k] == null ? def : !!pr[k]}"></button></div>`).join("");
@@ -211,10 +211,24 @@
           const on = b.getAttribute("aria-pressed") !== "true";
           b.setAttribute("aria-pressed", on);
           const p = store.get("fv_prefs", {}); p[b.dataset.pref] = on; store.set("fv_prefs", p);
-          if (b.dataset.pref === "letter") FV.clients.upsert({ name: user.name, email: user.email, marketing: on });
+          if (b.dataset.pref === "alerts" && on) FV.alerts.enable();
           FV.toast("Preferences saved");
         }));
       }
+      /* ---- stock alerts ---- */
+      function renderAlerts() {
+        const inbox = FV.alerts.inbox(), watching = Array.from(new Set(FV.alerts.list().concat(FV.wish.items()))).map((s) => FV.find(s) || FV.findBox(s)).filter(Boolean);
+        const perm = "Notification" in window ? Notification.permission : "unsupported";
+        $("alertsBox").innerHTML = `<div class="notify">${I("bell")}<div><b>${perm === "granted" ? "Instant alerts are on." : "Get told the moment it's back."}</b><br>Anything on your wishlist, or that you ask us to watch, sends you an alert as soon as it's in stock again — and we'll tell you when something new arrives.${perm === "granted" ? "" : `<div class="row"><button class="btn btn--sm" type="button" id="alOn">Turn on browser alerts<span class="btn__ic">${I("bell")}</span></button></div>`}</div></div>
+          <p class="eyebrow" style="margin:1.6rem 0 .8rem">Latest</p>
+          ${inbox.length ? `<ul class="alerts-list">${inbox.slice(0, 20).map((n) => `<li class="${n.read ? "" : "is-new"}"><span><b>${esc(n.title)}</b><br><small>${new Date(n.at).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</small></span><a class="link-u" href="${esc(n.href)}">View ${I("arrow")}</a></li>`).join("")}</ul>` : `<p class="muted small">No alerts yet — they'll appear here.</p>`}
+          <p class="eyebrow" style="margin:1.6rem 0 .8rem">Watching for you</p>
+          ${watching.length ? `<ul class="alerts-list">${watching.map((p) => `<li><span><b>${esc(p.name)}</b><br><small>${FV.soldOut(p) ? "Sold out — we'll tell you when it's back" : "In stock"}</small></span>${FV.alerts.has(p.slug) ? `<button class="link-btn" type="button" data-unwatch="${esc(p.slug)}">Stop watching</button>` : "<small>On your wishlist</small>"}</li>`).join("")}</ul>` : `<p class="muted small">Save something to your wishlist, or tap “Notify me” on a sold-out item.</p>`}`;
+        const on = $("alOn"); if (on) on.addEventListener("click", () => FV.alerts.enable().then(renderAlerts));
+        $("alertsBox").querySelectorAll("[data-unwatch]").forEach((b) => b.addEventListener("click", () => { FV.alerts.remove(b.dataset.unwatch); renderAlerts(); }));
+        FV.alerts.markRead(); document.dispatchEvent(new CustomEvent("fv:notice"));
+      }
+      document.addEventListener("fv:notice", () => { const p = root.querySelector('[data-panel="alerts"]'); if (p && p.classList.contains("active") && !renderAlerts.busy) { renderAlerts.busy = true; setTimeout(() => { renderAlerts(); renderAlerts.busy = false; }, 50); } });
       renderProfile(false); renderAddr(null); renderPrefs();
 
       /* ---- tabs ---- */
@@ -223,6 +237,7 @@
         nav.querySelectorAll("[data-tab]").forEach((b) => b.setAttribute("aria-current", b.dataset.tab === tab));
         root.querySelectorAll(".acct__panel").forEach((p) => p.classList.toggle("active", p.dataset.panel === tab));
         if (tab === "wishlist") renderWish();
+        if (tab === "alerts") renderAlerts();
         history.replaceState({}, "", "#" + tab);
         $("acctCrumb").textContent = (NAV.find((n) => n[0] === tab) || [0, 0, "My account"])[2];
         FV.observeReveals(root); FV.updateWishUI();
@@ -281,7 +296,8 @@
           store.set("fv_user", { name, email, phone: phone || "" });
           FV.clients.upsert({ name, email, phone: phone || "", status: isNew ? "new" : "active" });
           FV.toast("Welcome, " + name.split(" ")[0]);
-          setTimeout(() => location.reload(), 400);
+          const next = new URLSearchParams(location.search).get("next");
+          setTimeout(() => { if (next && /^[a-z]+\.html(\?[\w=&%.-]*)?$/i.test(next)) location.assign(next); else location.reload(); }, 400);
         }
         function setMode(m) {
           mode = m;
@@ -307,10 +323,5 @@
       }
     })();
   </script>
-  <script defer src="assets/vendor/gsap.min.js"></script>
-  <script defer src="assets/vendor/ScrollTrigger.min.js"></script>
-  <script defer src="assets/vendor/SplitText.min.js"></script>
-  <script defer src="assets/vendor/lenis.min.js"></script>
-  <script defer src="assets/js/motion.js"></script>
 </body>
 </html>

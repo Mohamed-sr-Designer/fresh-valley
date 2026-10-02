@@ -11,10 +11,9 @@
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/jakarta-s.woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/styles.css">
   <link rel="stylesheet" href="assets/css/shop.css">
-  <script>!function(d,w){var h=d.documentElement;if(/[?&]fv_preview=1/.test(location.search)||w.matchMedia("(prefers-reduced-motion: reduce)").matches)return;h.classList.add("m-on");setTimeout(function(){if(!(w.FVMotion&&w.FVMotion.ready))h.classList.remove("m-on")},3500);try{if(!/[?&]bake=1/.test(location.search)&&!sessionStorage.getItem("fv_seen")){sessionStorage.setItem("fv_seen","1");h.classList.add("fv-intro");setTimeout(function(){h.classList.add("fv-go")},4500)}}catch(e){}}(document,window)</script>
+  <script>document.documentElement.classList.add("js")</script>
 </head>
 <body data-page="product">
-  <!--loader--><div class="fv-loader" id="fvLoader" aria-hidden="true"><span class="fv-loader__sun"></span><svg class="fv-loader__hills hills" viewBox="0 0 1440 160" preserveAspectRatio="none" focusable="false"><path class="h3" d="M0 160V80C120 54 250 36 400 48C560 60 650 94 820 90C990 86 1100 40 1260 42C1350 43 1410 58 1440 66V160Z"/><path class="h2" d="M0 160V106C150 84 300 72 460 88C640 106 760 126 930 114C1110 101 1240 80 1440 98V160Z"/><path class="h1" d="M0 160V134C200 120 380 114 560 126C760 139 900 148 1100 138C1260 130 1360 124 1440 128V160Z"/></svg><div class="fv-loader__brand"><img src="assets/img/logo.png" alt="" width="170" height="111" decoding="async"><p>Picking today's harvest</p></div></div><!--/loader-->
   <div id="fv-header"></div>
   <noscript><p class="noscript">Fresh Valley uses JavaScript for its menu, basket and checkout. <a href="products.html">Browse the collection</a> · <a href="contact.html">Contact us</a></p></noscript>
   <main id="main"></main>
@@ -103,6 +102,21 @@
           </div></div>
         </section>`;
       }
+      /* Sold out → a quiet way to be told when it's back (signed-in customers) */
+      function notifyHTML(slug) {
+        const u = FV.alerts && JSON.parse(localStorage.getItem("fv_user") || "null");
+        if (!u) return `<div class="notify" id="notifyBox">${I("bell")}<div><b>Sold out for now.</b><br>Sign in and we'll send you an instant alert the moment it's back. <div class="row"><a class="btn btn--sm" href="account.html?next=${encodeURIComponent(location.pathname.split("/").pop() + location.search)}">Sign in for alerts<span class="btn__ic">${I("arrow")}</span></a></div></div></div>`;
+        const on = FV.alerts.has(slug);
+        return `<div class="notify" id="notifyBox">${I("bell")}<div><b>${on ? "We'll tell you the moment it's back." : "Sold out for now."}</b><br>${on ? "You'll get an alert here and on this device." : "Tap below and you'll get an instant alert when it returns."}<div class="row"><button class="btn btn--sm${on ? " btn--ghost" : ""}" type="button" id="notifyBtn">${on ? "Stop the alert" : "Notify me"}<span class="btn__ic">${I("bell")}</span></button></div></div></div>`;
+      }
+      function bindNotify(slug) {
+        const b = $("notifyBtn"); if (!b) return;
+        b.addEventListener("click", () => {
+          if (FV.alerts.has(slug)) { FV.alerts.remove(slug); FV.toast("Alert removed"); }
+          else { FV.alerts.add(slug); FV.alerts.enable(); }
+          $("notifyBox").outerHTML = notifyHTML(slug); bindNotify(slug);
+        });
+      }
       function afterAdd(btn) {
         if (window.FVMotion) window.FVMotion.fly(btn);
         btn.classList.add("is-added");
@@ -126,7 +140,7 @@
         const media = p.noPhoto
           ? `<div class="media--herb">${FV.herbSVG(p.slug)}</div>`
           : custom ? `<img src="${esc(p.image)}" alt="${esc(p.name)}" width="1000" height="1000" fetchpriority="high">`
-          : `<picture><source type="image/webp" srcset="${FV.webp(FV.thumb(p.slug))} 540w, ${FV.webp(FV.img(p.slug))} 1000w" sizes="(max-width: 1100px) 92vw, 50vw"><img src="${FV.img(p.slug)}" srcset="${FV.thumb(p.slug)} 540w, ${FV.img(p.slug)} 1000w" sizes="(max-width: 1100px) 92vw, 50vw" alt="${esc(p.name)}" width="1000" height="1000" fetchpriority="high" decoding="async"></picture>`;
+          : `<picture><source type="image/webp" srcset="${FV.webp(FV.thumb(p.slug))} 432w, ${FV.webp(FV.img(p.slug))} 800w" sizes="(max-width: 1100px) 92vw, 50vw"><img src="${FV.img(p.slug)}" srcset="${FV.thumb(p.slug)} 432w, ${FV.img(p.slug)} 800w" sizes="(max-width: 1100px) 92vw, 50vw" alt="${esc(p.name)}" width="800" height="1000" fetchpriority="high" decoding="async"></picture>`;
         const flags = [
           `<span class="chip chip--glass">${I("shield")}${esc(FV.topLabel(p))}</span>`,
           seasonal ? `<span class="chip chip--olive">${I("sparkle")} In season</span>` : "",
@@ -167,6 +181,7 @@
                   <button class="btn btn--lg" type="button" id="addBtn"${sold ? " disabled" : ""}><span class="lbl">${sold ? "Sold out" : "Add to basket"}</span> · <span id="btnTotal"></span><span class="btn__ic">${I("bag")}</span></button>
                   <button class="pdp__wish" type="button" data-wish="${p.slug}" aria-label="Save ${esc(p.name)} to wishlist" aria-pressed="false">${I("heart")}</button>
                 </div>
+                ${sold ? notifyHTML(p.slug) : ""}
                 <div class="cutoff">${I("clock")}<span>Order within <b id="cutoffTime"></b> for next-day delivery.</span></div>
                 ${trustList()}
                 <div class="acc">
@@ -190,7 +205,7 @@
         <section class="s sec--sm">
           <div class="wrap wrap--wide">
             <div class="host-rec" data-reveal>
-              <div class="host-rec__img">${S.img("pepper-medley", { sizes: "220px", alt: "The Hosting Box" })}</div>
+              <div class="host-rec__img">${S.img("box-hosting", { sizes: "220px", alt: "The Hosting Box" })}</div>
               <div><p class="eyebrow">Hosting recommendation</p><h3>Make it a table, <em class="i">not a plate</em>.</h3><p>Add The Hosting Box and let us arrange the rest — fruit, dates and a finishing herb, ready for guests.</p></div>
               <a class="btn btn--olive" href="product.html?box=hosting-box">Explore the box<span class="btn__ic">${I("arrow")}</span></a>
             </div>
@@ -258,7 +273,7 @@
           const run = () => { fill.style.width = pct + "%"; };
           if ("IntersectionObserver" in window) { const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { run(); io.disconnect(); } }), { threshold: 0.4 }); io.observe($("avail")); } else run();
         }
-        refresh(); cutoff(); stickyBar("#buyRow"); FV.updateWishUI();
+        refresh(); cutoff(); stickyBar("#buyRow"); FV.updateWishUI(); bindNotify(p.slug);
         S.behave(root);
         ld({ "@context": "https://schema.org", "@type": "Product", name: p.name, description: p.desc, image: p.noPhoto ? [] : [new URL(custom ? p.image : FV.img(p.slug), location.href).href], brand: { "@type": "Brand", name: "Fresh Valley" }, category: cat,
           offers: { "@type": "Offer", priceCurrency: FV.settings.currency, price: isKg ? FV.priceForWeight(p, 1000) : p.pricePerUnit, availability: sold ? "https://schema.org/OutOfStock" : "https://schema.org/InStock", url: location.href } });
@@ -364,10 +379,5 @@
       }
     })();
   </script>
-  <script defer src="assets/vendor/gsap.min.js"></script>
-  <script defer src="assets/vendor/ScrollTrigger.min.js"></script>
-  <script defer src="assets/vendor/SplitText.min.js"></script>
-  <script defer src="assets/vendor/lenis.min.js"></script>
-  <script defer src="assets/js/motion.js"></script>
 </body>
 </html>

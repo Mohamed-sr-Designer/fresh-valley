@@ -18,7 +18,7 @@ window.FVTheme = (function () {
   "use strict";
 
   const DEFAULTS = {
-    version: 5,
+    version: 6,
     updatedAt: 0,
     settings: {
       store_name: "Fresh Valley",
@@ -28,8 +28,6 @@ window.FVTheme = (function () {
         { label: "Shop", href: "products.html" },
         { label: "Boxes", href: "products.html?cat=boxes" },
         { label: "The Art of Hosting", href: "hosting.html" },
-        { label: "Journal", href: "journal.html" },
-        { label: "About", href: "about.html" },
       ],
       footer: {
         title: "Eat with the season.\n*Host a little better.*",
@@ -69,70 +67,47 @@ window.FVTheme = (function () {
       /* ============================ HOME ============================ */
       index: { title: "Home", sections: [
         { id: "hero", type: "hero", settings: {
-          badge: "What's in season this month", badge_link: "#harvest",
-          line1: "Fresh from", line2: "the ~valley~,", line3: "to your", words: "table|kitchen|door|family",
-          lede: "Hand-graded fruit, vegetables and herbs from Egypt's best growers — the quality you'd only find abroad, at your door tomorrow.",
+          badge: "", badge_link: "",
+          line1: "Fresh from", line2: "the valley,", line3: "to your", words: "table",
+          lede: "Export-grade fruit, vegetables and herbs, chosen by hand and brought to your door tomorrow — the way a good host would choose them.",
           cta1_label: "Shop the market", cta1_link: "products.html",
-          cta2_label: "Build a hosting box", cta2_link: "products.html?cat=boxes",
-          harvest_note: true,
-          image: "hero", image_alt: "A host arranging export-grade fruit on a marble table in the morning light",
-          orbs: "",
-          herbs: "dill,rosemary",
-          chips: "Export-grade|Cold-chain kept|Next-day in Cairo",
+          cta2_label: "Hosting boxes", cta2_link: "products.html?cat=boxes",
+          image: "hero", image_alt: "A long marble table set with fruit, herbs and candles in golden evening light",
+          chips: "Next-day across Cairo|Graded by hand|Replaced if anything isn't right",
         } },
-        { id: "marquee", type: "marquee", settings: { items: "Grown in Beheira|Qalyubia|Ismailia|Siwa Oasis|Minya|Nubaria|Qena|Sharqia|Graded by hand in Cairo", style: "forest", speed: 0.8 } },
-        { id: "categories", type: "categories", settings: { eyebrow: "The market", title: "Shop by *category*", text: "Six ways into the season — every piece graded by hand and chosen for the table.", cta_label: "View everything", cta_link: "products.html" }, blocks: [
-          { type: "tile", settings: { title: "Fruits", text: "Sun-ripened, graded by hand", image: "strawberry", link: "products.html?cat=fruits", count: "fruits" } },
-          { type: "tile", settings: { title: "Vegetables", text: "Crisp, clean, picked at peak", image: "pepper-medley", link: "products.html?cat=vegetables", count: "vegetables" } },
-          { type: "tile", settings: { title: "Hosting boxes", text: "Curated, wrapped, ready to gift", image: "banner:door-delivery", link: "products.html?cat=boxes", count: "boxes" } },
-          { type: "tile", settings: { title: "Seasonal", text: "What is best, right now", image: "mango", link: "products.html?cat=seasonal", count: "seasonal" } },
-          { type: "tile", settings: { title: "Organic reserve", text: "Our quietest, rarest selections", image: "medjool-dates", link: "products.html?cat=organic-reserve", count: "organic-reserve" } },
-          { type: "tile", settings: { title: "Herbs", text: "Cut fresh for the table", image: "art:herbs", link: "products.html?cat=herbs", count: "herbs" } },
+        { id: "categories", type: "categories", settings: { eyebrow: "", title: "Where would you like to *begin*?", text: "", cta_label: "View everything", cta_link: "products.html" }, blocks: [
+          { type: "tile", settings: { title: "Fruit", text: "", image: "tile-fruit", link: "products.html?cat=fruits", count: "fruits" } },
+          { type: "tile", settings: { title: "Vegetables", text: "", image: "tile-veg", link: "products.html?cat=vegetables", count: "vegetables" } },
+          { type: "tile", settings: { title: "Herbs", text: "", image: "tile-herbs", link: "products.html?cat=herbs", count: "herbs" } },
+          { type: "tile", settings: { title: "Hosting boxes", text: "", image: "tile-boxes", link: "products.html?cat=boxes", count: "boxes" } },
         ] },
-        { id: "harvest", type: "harvest", settings: { eyebrow: "The harvest calendar", title: "What's fresh *this month*.", text: "Pick a month to see what is at its peak — and what arrives next. Everything else is graded every week, all year.", staples: true, cta_label: "", cta_link: "", band: "kraft" } },
-        { id: "best", type: "product_rail", settings: { eyebrow: "Picked most often", title: "Best *sellers*", text: "", collection: "best-sellers", limit: 12, cta_label: "View all", cta_link: "products.html?collection=best-sellers", band: "paper" } },
-        { id: "story", type: "story", settings: {
-          eyebrow: "Our signature · only from Fresh Valley", title: "Arrive with the *season*.",
-          text: "No one visits empty-handed. We make what you carry unforgettable — a hand-graded box of produce, wrapped like a gift, set on the table the moment you walk in.",
-          cta_label: "Gift a hosting box", cta_link: "product.html?box=hosting-box", cta2_label: "The full story", cta2_link: "hosting.html", horizon: true }, blocks: [
-          { type: "step", settings: { title: "Choose your box", text: "Fruit, vegetables, or both — sized for four guests or sixteen.", image: "pepper-medley" } },
-          { type: "step", settings: { title: "We grade, arrange & wrap", text: "Every piece graded by hand, composed like a still life and wrapped in our own paper.", image: "banner:packaging" } },
-          { type: "step", settings: { title: "You arrive generous", text: "Delivered next-day, cold and ready to set down. They remember it.", image: "banner:door-delivery" } },
-        ] },
-        { id: "boxes", type: "boxes", settings: { eyebrow: "Our flagship", title: "Fresh Valley *boxes*", text: "Composed like a still life, graded to export standard, wrapped to arrive looking like the gift it is.", boxes: "hosting-box,premium-fruit-box,family-box,organic-reserve-box", cta_label: "All boxes", cta_link: "products.html?cat=boxes", band: "kraft" } },
-        { id: "herbs", type: "herbs", settings: { eyebrow: "The herb garden", title: "Cut to order, the *morning* it leaves us.", text: "Five herbs from Qalyubia and Beheira — bunched by hand and kept cold, never left to wilt on a shelf.", cta_label: "All herbs", cta_link: "products.html?cat=herbs", band: "sage" } },
-        { id: "origins", type: "origins", settings: { eyebrow: "Where it grows", title: "Every piece has a *home* in the valley.", text: "We buy from the growers who supply Europe's best tables — along the Nile, across its Delta and out to the Siwa oasis. Choose a region to see what it gives us.", cta_label: "", cta_link: "", band: "paper" } },
-        { id: "stats", type: "stats", settings: { eyebrow: "Why Fresh Valley", title: "Graded like an export house.\n*Delivered like a guest.*", band: "dark", horizon: true }, blocks: [
-          { type: "stat", settings: { value: "8", decimals: 0, suffix: "", label: "Growing regions, from the Delta to Siwa" } },
-          { type: "stat", settings: { value: "1400", decimals: 0, suffix: "+", label: "Orders delivered across Cairo" } },
-          { type: "stat", settings: { value: "5", decimals: 0, suffix: "", label: "Premium districts, served next-day" } },
-          { type: "stat", settings: { value: "100", decimals: 0, suffix: "%", label: "Export-grade selection, every piece" } },
-        ] },
+        { id: "best", type: "product_rail", settings: { eyebrow: "", title: "Chosen most *often*", text: "", collection: "best-sellers", limit: 10, cta_label: "Shop all", cta_link: "products.html?collection=best-sellers", band: "paper" } },
+        { id: "harvest", type: "harvest", settings: { eyebrow: "", title: "What's fresh *this month*", text: "Pick a month to see what is at its best — and what arrives next.", staples: true, cta_label: "", cta_link: "", band: "paper" } },
+        { id: "boxes", type: "boxes", settings: { eyebrow: "The Art of Hosting", title: "Arrive with something *they'll remember*", text: "A box of the season, arranged and wrapped by hand, with your words on a card. We bring it to their door — or yours.", boxes: "hosting-box,premium-fruit-box,family-box", cta_label: "All boxes", cta_link: "products.html?cat=boxes", band: "paper" } },
         { id: "quality", type: "image_text", settings: {
-          eyebrow: "Behind the quality", title: "Nothing reaches your table by *accident*.",
-          text: "Every piece passes the same four checks the export market demands. What reaches you has earned its place.",
-          list: "Selection — only lots that meet export specification|Grading — sorted by hand for size, colour, firmness and ripeness|Cold chain — cooled within hours of harvest, kept cold to your door|Presentation — wrapped to arrive looking like a gift",
-          image: "banner:packaging", chip: "Our pressed-leaf paper", cta_label: "How we grade", cta_link: "about.html#quality", flip: false, band: "paper" } },
-        { id: "delivery", type: "banner", settings: { eyebrow: "Next-day across five districts", title: "Set a better table, *tomorrow*.", text: "New Cairo · Sheikh Zayed · October · Madinaty · Rehab. Order before 6pm and it arrives cold, graded and ready.", image: "banner:home-delivery", cta_label: "Start your basket", cta_link: "products.html", cta2_label: "Delivery areas", cta2_link: "contact.html#areas" } },
-        { id: "journal", type: "journal", settings: { eyebrow: "The Journal", title: "Notes on eating *well*", limit: 3, layout: "grid", cta_label: "All entries", cta_link: "journal.html" } },
+          eyebrow: "Our promise", title: "Chosen the way you would *choose it yourself*",
+          text: "We buy from the growers who supply Europe's best tables, and every piece is checked by hand before it leaves us. If anything isn't right, tell us within a day and we'll replace it.",
+          list: "Export-grade — only lots that meet export specification|Kept cold — from the grading table to your door|Delivered tomorrow — order before 6pm, across five districts",
+          image: "q-arrange", chip: "", cta_label: "How we choose", cta_link: "about.html#quality", flip: false, band: "paper" } },
+        { id: "delivery", type: "banner", settings: { eyebrow: "", title: "Your table, *tomorrow*", text: "New Cairo · Sheikh Zayed · October · Madinaty · Rehab. Complimentary delivery over EGP 600.", image: "banner:door-delivery", cta_label: "Start your basket", cta_link: "products.html", cta2_label: "", cta2_link: "" } },
       ] },
 
       /* ======================= THE ART OF HOSTING ======================= */
       hosting: { title: "The Art of Hosting", sections: [
-        { id: "head", type: "page_head", settings: { eyebrow: "The Art of Hosting", title: "Arrive with something they'll *remember*.", text: "In Egypt, no one visits empty-handed. We turn that small, beautiful habit into something unforgettable — a box of the season, graded and wrapped by hand, set on the table the moment you walk in.", cta_label: "Gift a hosting box", cta_link: "product.html?box=hosting-box", cta2_label: "See the ritual", cta2_link: "#ritual", image: "banner:home-delivery", caption: "The arrival.", art: "rosemary" } },
+        { id: "head", type: "page_head", settings: { eyebrow: "The Art of Hosting", title: "Arrive with something they'll *remember*.", text: "In Egypt, no one visits empty-handed. We turn that small, beautiful habit into something unforgettable — a box of the season, graded and wrapped by hand, set on the table the moment you walk in.", cta_label: "Gift a hosting box", cta_link: "product.html?box=hosting-box", cta2_label: "See the ritual", cta2_link: "#ritual", image: "banner:hosting-table", caption: "", art: "" } },
         { id: "philosophy", type: "seasons", settings: { eyebrow: "Our philosophy", title: "Bring the season. Bring something *alive*.", text: "Fruit at its peak is honest — it can't be faked or rushed. When you bring the season, you bring something that was perfect for exactly this moment. That isn't a gift you grabbed. It's a gift you timed.", band: "kraft" }, blocks: [
           { type: "season", settings: { image: "strawberry", label: "Winter", title: "Strawberries", text: "Deep red, fragrant, gone by March." } },
           { type: "season", settings: { image: "green-grapes", label: "Spring", title: "Grapes, two ways", text: "Bright, clean and elegantly tart." } },
           { type: "season", settings: { image: "mango", label: "Summer", title: "Egyptian mango", text: "Ismailia's few golden weeks." } },
           { type: "season", settings: { image: "medjool-dates", label: "Autumn", title: "Siwa dates", text: "Soft, glossy, endlessly generous." } },
         ] },
-        { id: "ritual", type: "hscroll", settings: { eyebrow: "The ritual", title: "From our hands to *their table*.", text: "Six quiet steps between the orchard and the moment you walk in.", band: "dark", horizon: true }, blocks: [
+        { id: "ritual", type: "hscroll", settings: { eyebrow: "The ritual", title: "From our hands to *their table*.", text: "Six quiet steps between the orchard and the moment you walk in.", band: "paper" }, blocks: [
           { type: "card", settings: { title: "You choose", text: "Fruit, vegetables, or both.", image: "apple-medley" } },
           { type: "card", settings: { title: "We select", text: "Only export-grade, by hand.", image: "red-grapes" } },
           { type: "card", settings: { title: "We arrange", text: "Composed like a still life.", image: "pepper-medley" } },
-          { type: "card", settings: { title: "We wrap", text: "Paper, ribbon, a written card.", image: "banner:packaging" } },
-          { type: "card", settings: { title: "It arrives", text: "Cold, fresh, ready to place.", image: "banner:door-delivery" } },
-          { type: "card", settings: { title: "They remember", text: "Long after the evening ends.", image: "hero" } },
+          { type: "card", settings: { title: "We wrap", text: "Paper, ribbon, a written card.", image: "box-premium" } },
+          { type: "card", settings: { title: "It arrives", text: "Cold, fresh, ready to place.", image: "box-family" } },
+          { type: "card", settings: { title: "They remember", text: "Long after the evening ends.", image: "box-hosting" } },
         ] },
         { id: "moments", type: "gallery", settings: { eyebrow: "For every table", title: "A box for every kind of *moment*.", text: "", cta_label: "Shop boxes", cta_link: "products.html?cat=boxes", band: "paper" }, blocks: [
           { type: "moment", settings: { image: "pepper-medley", title: "The Friday lunch", text: "When the whole family gathers.", link: "products.html?cat=boxes" } },
@@ -144,14 +119,13 @@ window.FVTheme = (function () {
         ] },
         { id: "collection", type: "boxes", settings: { eyebrow: "The collection", title: "Five ways to be *remembered*.", text: "Each box is composed like a still life, graded to export standard, and wrapped to arrive looking like the gift it is.", boxes: "hosting-box,premium-fruit-box,family-box,seasonal-box,organic-reserve-box", cta_label: "", cta_link: "", band: "kraft" } },
         { id: "difference", type: "compare", settings: { eyebrow: "The difference", title: "Why a box, and not a *bouquet*.", old_title: "The usual gift", old_items: "Looks nice for an evening, then it's gone.|The same thing everyone brings.|Decorative — admired, rarely used.|Could have been bought any day.", new_title: "A Fresh Valley box", new_items: "It gets eaten, shared, enjoyed — not just admired.|It's seasonal. It could only have come now.|It's generous — enough for the whole table.|Graded, arranged and wrapped by hand.|The gesture outlives the evening.", band: "paper" } },
-        { id: "details", type: "image_text", settings: { eyebrow: "The details", title: "It's the small things they *notice*.", text: "", list: "Branded paper — wrapped in our own pressed-leaf paper, never a plastic bag|The seasonal ribbon — tied in Mid Forest or Charcoal, a small signal of the season|A handwritten card — your words, written by hand, not a printed sticker|Composed, not packed — arranged like a still life, beautiful the moment it opens", image: "banner:packaging", chip: "Mid Forest · Charcoal", cta_label: "", cta_link: "", flip: true, band: "paper" } },
-        { id: "belief", type: "quote", settings: { quote: "Generosity is the oldest language we have. We simply gave it a *box*.", cite: "The Fresh Valley belief", image: "banner:delivery-van" } },
-        { id: "begin", type: "cta", settings: { eyebrow: "Begin", title: "Be the guest they *remember*.", text: "Choose a box, add a few words, and we'll do the rest — graded, arranged, wrapped and delivered ready for the table.", cta_label: "Gift a hosting box", cta_link: "product.html?box=hosting-box", cta2_label: "See all boxes", cta2_link: "products.html?cat=boxes", style: "olive", art: "dill" } },
+        { id: "details", type: "image_text", settings: { eyebrow: "The details", title: "It's the small things they *notice*.", text: "", list: "Branded paper — wrapped in our own pressed-leaf paper, never a plastic bag|The seasonal ribbon — tied in Mid Forest or Charcoal, a small signal of the season|A handwritten card — your words, written by hand, not a printed sticker|Composed, not packed — arranged like a still life, beautiful the moment it opens", image: "banner:guest-arrival", chip: "", cta_label: "", cta_link: "", flip: true, band: "paper" } },
+        { id: "begin", type: "cta", settings: { eyebrow: "Begin", title: "Be the guest they *remember*.", text: "Choose a box, add a few words, and we'll do the rest — graded, arranged, wrapped and delivered ready for the table.", cta_label: "Gift a hosting box", cta_link: "product.html?box=hosting-box", cta2_label: "See all boxes", cta2_link: "products.html?cat=boxes", style: "forest", art: "" } },
       ] },
 
       /* ============================ ABOUT ============================ */
       about: { title: "About", sections: [
-        { id: "head", type: "page_head", settings: { eyebrow: "Our story", title: "Produce, treated with the care it *deserves*.", text: "Fresh Valley is a premium produce company. We work directly with Egypt's finest growers — the same farms that supply Europe's best tables — to select export-grade fruit and vegetables for homes here.", cta_label: "Browse the collection", cta_link: "products.html", cta2_label: "", cta2_link: "", image: "banner:staff-shirt", caption: "Graded by hand in Cairo.", art: "basil" } },
+        { id: "head", type: "page_head", settings: { eyebrow: "Our story", title: "Produce, treated with the care it *deserves*.", text: "Fresh Valley is a premium produce company. We work directly with Egypt's finest growers — the same farms that supply Europe's best tables — to select export-grade fruit and vegetables for homes here.", cta_label: "Browse the collection", cta_link: "products.html", cta2_label: "", cta2_link: "", image: "banner:staff-shirt", caption: "Graded by hand in Cairo.", art: "" } },
         { id: "story", type: "image_text", settings: { eyebrow: "Where it began", title: "We wanted to keep some of the best *here*.", text: "We started Fresh Valley with a simple frustration: the best of Egypt's produce was leaving the country, while the rest filled the shelves at home.\n\nSo we go a step further. We curate that produce into boxes and collections built for the way people host today: generously, beautifully, and without a fuss. It is an everyday purchase, raised to the standard of an occasion.\n\nWe are based in Cairo, and we deliver to the neighbourhoods we know best — carefully, on time, and in packaging worth keeping.", list: "", image: "banner:delivery-van", chip: "Cairo, Egypt", cta_label: "", cta_link: "", flip: false, band: "paper" } },
         { id: "quality", type: "steps", settings: { eyebrow: "Behind the quality", title: "Graded like an export *house*.", text: "Nothing reaches your table by accident. Every piece of produce passes through the same four steps the export market demands.", band: "kraft" }, blocks: [
           { type: "step", settings: { title: "Selection", text: "We begin with Egypt's best growers, and only the lots that meet export specification. Most of what fills an ordinary market never makes the cut." } },
@@ -160,7 +134,7 @@ window.FVTheme = (function () {
           { type: "step", settings: { title: "Presentation", text: "Finally, we pack to arrive looking like a gift — because that is increasingly how good produce is used." } },
         ] },
         { id: "origins", type: "origins", settings: { eyebrow: "Where it grows", title: "From the *Delta* to the oasis.", text: "Most of what we sell grows along the Nile and across its Delta; our dates come from Siwa. A few things Egypt cannot grow well, we source abroad — and grade them here like everything else.", cta_label: "", cta_link: "", band: "paper" } },
-        { id: "numbers", type: "stats", settings: { eyebrow: "By the numbers", title: "Small company. *Serious standards.*", band: "dark", horizon: true }, blocks: [
+        { id: "numbers", type: "stats", settings: { eyebrow: "By the numbers", title: "Small company. *Serious standards.*", band: "kraft" }, blocks: [
           { type: "stat", settings: { value: "100", decimals: 0, suffix: "%", label: "Export-grade selection" } },
           { type: "stat", settings: { value: "5", decimals: 0, suffix: "", label: "Premium areas served" } },
           { type: "stat", settings: { value: "1400", decimals: 0, suffix: "+", label: "Orders delivered" } },
@@ -177,7 +151,7 @@ window.FVTheme = (function () {
 
       /* ============================ CONTACT ============================ */
       contact: { title: "Contact", sections: [
-        { id: "head", type: "page_head", settings: { eyebrow: "We're glad to help", title: "Talk to Fresh *Valley*.", text: "A question about an order, a hosting idea, or a wholesale enquiry — we read everything, and we reply like people.", cta_label: "", cta_link: "", cta2_label: "", cta2_link: "", image: "", caption: "", art: "mint" } },
+        { id: "head", type: "page_head", settings: { eyebrow: "We're glad to help", title: "Talk to Fresh *Valley*.", text: "A question about an order, a hosting idea, or a wholesale enquiry — we read everything, and we reply like people.", cta_label: "", cta_link: "", cta2_label: "", cta2_link: "", image: "", caption: "", art: "" } },
         { id: "form", type: "contact", settings: { eyebrow: "Get in touch", title: "Send a *message*", subjects: "An order|A product question|Hosting & events|Corporate & events|Wholesale & partnerships|Something else", note: "We usually reply within one working day.", band: "paper" } },
         { id: "areas", type: "areas", settings: { eyebrow: "Where we deliver", title: "Delivery *areas*", text: "We keep our delivery close to home, so the cold chain stays short and the service stays personal. Complimentary delivery on orders over EGP 600; a flat EGP 45 below that.", note: "Outside these areas? Tell us where you are — we're expanding.", image: "banner:delivery-van", band: "kraft" } },
         { id: "faq", type: "faq", settings: { eyebrow: "Good to know", title: "Common *questions*", text: "Still wondering? Message us on WhatsApp — it's the fastest way to a real person.", band: "paper" }, blocks: [
@@ -191,14 +165,14 @@ window.FVTheme = (function () {
 
       /* ============================ JOURNAL ============================ */
       journal: { title: "Journal", sections: [
-        { id: "head", type: "page_head", settings: { eyebrow: "Read, cook, host", title: "The Fresh Valley *Journal*.", text: "Recipes, hosting tips and a little produce education — for setting a better table, every week.", cta_label: "", cta_link: "", cta2_label: "", cta2_link: "", image: "", caption: "", art: "dill" } },
+        { id: "head", type: "page_head", settings: { eyebrow: "Read, cook, host", title: "The Fresh Valley *Journal*.", text: "Recipes, hosting tips and a little produce education — for setting a better table, every week.", cta_label: "", cta_link: "", cta2_label: "", cta2_link: "", image: "", caption: "", art: "" } },
         { id: "list", type: "journal", settings: { eyebrow: "All articles", title: "More from the *Journal*", limit: 0, layout: "magazine", cta_label: "", cta_link: "" } },
         { id: "shop", type: "product_rail", settings: { eyebrow: "Cook along", title: "Straight from the *stories*", text: "", collection: "hosting", limit: 10, cta_label: "Shop the market", cta_link: "products.html", band: "kraft" } },
       ] },
 
       /* ============================ POLICIES ============================ */
       policies: { title: "Company Policies", sections: [
-        { id: "head", type: "page_head", settings: { eyebrow: "The promises behind the produce", title: "Company *Policies*", text: "Plain words about freshness, delivery, returns, payment, subscriptions and your privacy.", cta_label: "", cta_link: "", cta2_label: "", cta2_link: "", image: "", caption: "", art: "basil", compact: true } },
+        { id: "head", type: "page_head", settings: { eyebrow: "The promises behind the produce", title: "Company *Policies*", text: "Plain words about freshness, delivery, returns, payment, subscriptions and your privacy.", cta_label: "", cta_link: "", cta2_label: "", cta2_link: "", image: "", caption: "", art: "", compact: true } },
         { id: "body", type: "legal", settings: { updated: "Last updated: June 2026" }, blocks: [
           { type: "clause", settings: { title: "Freshness & Quality Guarantee", body: "Every order is graded to export standard and cooled within hours of harvest. We stand behind it completely.\n\nIf anything arrives that is not perfect — bruised, under-ripe, or simply not up to standard — tell us within 24 hours of delivery. We will replace it on your next order or refund it, whichever you prefer. No long forms, no debate. Quality is the whole promise, and we treat it that way." } },
           { type: "clause", settings: { title: "Delivery", body: "- We deliver across New Cairo, Sheikh Zayed, October, Madinaty and Rehab.\n- Complimentary delivery on orders over EGP 600.\n- A flat EGP 45 delivery fee on orders below EGP 600.\n- Next-day slots: morning (9–12), midday (12–3), afternoon (3–6) and evening (6–9).\n- You'll receive an SMS update when your produce is on its way.\n\nIf you are not home, our driver will call. We keep produce cold in transit, so a short wait does it no harm." } },
@@ -212,7 +186,7 @@ window.FVTheme = (function () {
 
       /* ============================ TERMS ============================ */
       terms: { title: "Terms of Use", sections: [
-        { id: "head", type: "page_head", settings: { eyebrow: "The fine print, kept plain", title: "Terms of *Use*", text: "The agreement between you and Fresh Valley when you browse, order and manage your account.", cta_label: "", cta_link: "", cta2_label: "", cta2_link: "", image: "", caption: "", art: "rosemary", compact: true } },
+        { id: "head", type: "page_head", settings: { eyebrow: "The fine print, kept plain", title: "Terms of *Use*", text: "The agreement between you and Fresh Valley when you browse, order and manage your account.", cta_label: "", cta_link: "", cta2_label: "", cta2_link: "", image: "", caption: "", art: "", compact: true } },
         { id: "body", type: "legal", settings: { updated: "Last updated: June 2026" }, blocks: [
           { type: "clause", settings: { title: "Welcome", body: "These terms govern your use of the Fresh Valley website and services. By browsing the site or placing an order, you agree to them. We've tried to keep them clear — if anything is unclear, please ask us.\n\nFresh Valley is a premium produce company based in Cairo, Egypt." } },
           { type: "clause", settings: { title: "Using our site", body: "You may use this site to browse, order, and manage your account. In return, you agree to:\n\n- provide accurate contact and delivery information;\n- use the site lawfully, and not attempt to disrupt or misuse it;\n- keep your account details private and secure." } },

@@ -297,8 +297,7 @@ window.FV_DATA = (function () {
       nutrition:{ serving:"100 g", energy:"25 kcal", carbs:"5 g", sugars:"1.9 g", fibre:"2 g", vitc:"48 mg" } },
 
     // ---------- HERBS (no photography — rendered as botanical cards) ----------
-    { slug:"mint", name:"Fresh Mint", category:"herbs", unit:"bunch", pricePerUnit:25, noPhoto:true,
-      origin:"Qalyubia, Egypt", season:"All year", rating:4.8, reviews:38,
+    { slug:"mint", name:"Fresh Mint", category:"herbs", unit:"bunch", pricePerUnit:25, origin:"Qalyubia, Egypt", season:"All year", rating:4.8, reviews:38,
       badges:["organic"], collections:["essentials"],
       short:"Cool, fragrant and freshly cut.",
       desc:"Bright green and aromatic — for tea, for water, for finishing a salad. Cut to order so it arrives lively.",
@@ -306,8 +305,7 @@ window.FV_DATA = (function () {
       storage:"Stand stems in water, loosely covered, in the fridge.",
       nutrition:{ serving:"per bunch", energy:"—", carbs:"—", sugars:"—", fibre:"—", vitc:"—" } },
 
-    { slug:"basil", name:"Sweet Basil", category:"herbs", unit:"bunch", pricePerUnit:35, noPhoto:true,
-      origin:"Beheira, Egypt", season:"All year", rating:4.7, reviews:29,
+    { slug:"basil", name:"Sweet Basil", category:"herbs", unit:"bunch", pricePerUnit:35, origin:"Beheira, Egypt", season:"All year", rating:4.7, reviews:29,
       badges:["organic"], collections:["essentials"],
       short:"Peppery, sweet and aromatic.",
       desc:"Tender leaves with a warm, sweet scent. The soul of a summer plate — tomatoes, oil, a little salt.",
@@ -315,8 +313,7 @@ window.FV_DATA = (function () {
       storage:"Keep at room temperature, stems in water. Do not chill.",
       nutrition:{ serving:"per bunch", energy:"—", carbs:"—", sugars:"—", fibre:"—", vitc:"—" } },
 
-    { slug:"coriander", name:"Coriander", category:"herbs", unit:"bunch", pricePerUnit:22, noPhoto:true,
-      origin:"Qalyubia, Egypt", season:"All year", rating:4.6, reviews:24,
+    { slug:"coriander", name:"Coriander", category:"herbs", unit:"bunch", pricePerUnit:22, origin:"Qalyubia, Egypt", season:"All year", rating:4.6, reviews:24,
       badges:["organic"], collections:["essentials"],
       short:"Bright, citrusy and freshly bunched.",
       desc:"Clean, leafy and fragrant — a finishing herb for everything from soups to grills.",
@@ -324,8 +321,7 @@ window.FV_DATA = (function () {
       storage:"Stand stems in water, loosely covered, in the fridge.",
       nutrition:{ serving:"per bunch", energy:"—", carbs:"—", sugars:"—", fibre:"—", vitc:"—" } },
 
-    { slug:"rosemary", name:"Rosemary", category:"herbs", unit:"bunch", pricePerUnit:45, noPhoto:true,
-      origin:"Beheira, Egypt", season:"All year", rating:4.8, reviews:21,
+    { slug:"rosemary", name:"Rosemary", category:"herbs", unit:"bunch", pricePerUnit:45, origin:"Beheira, Egypt", season:"All year", rating:4.8, reviews:21,
       badges:["organic"], collections:["organic-reserve"],
       short:"Woody, fragrant and long-lasting.",
       desc:"Sturdy, scented sprigs for roasting potatoes, lamb, or bread. A little goes a long way.",
@@ -333,8 +329,7 @@ window.FV_DATA = (function () {
       storage:"Refrigerate, wrapped loosely. Keeps for over a week.",
       nutrition:{ serving:"per bunch", energy:"—", carbs:"—", sugars:"—", fibre:"—", vitc:"—" } },
 
-    { slug:"dill", name:"Fresh Dill", category:"herbs", unit:"bunch", pricePerUnit:25, noPhoto:true,
-      origin:"Qalyubia, Egypt", season:"All year", rating:4.6, reviews:18,
+    { slug:"dill", name:"Fresh Dill", category:"herbs", unit:"bunch", pricePerUnit:25, origin:"Qalyubia, Egypt", season:"All year", rating:4.6, reviews:18,
       badges:["organic"], collections:["essentials"],
       short:"Feathery, delicate and clean.",
       desc:"Soft fronds with a fresh, grassy scent. Beautiful with fish, yoghurt, or a simple cucumber salad.",
@@ -345,7 +340,7 @@ window.FV_DATA = (function () {
 
   /* ----- Curated boxes -------------------------------------------- */
   const boxes = [
-    { slug:"hosting-box", name:"The Hosting Box", image:"pepper-medley",
+    { slug:"hosting-box", name:"The Hosting Box", image:"box-hosting",
       tagline:"Everything a beautiful table needs.",
       desc:"A considered mix of fruit, colour and a few quiet luxuries — arranged to make hosting effortless. Our most-gifted box.",
       tiers:[ {label:"Petite", price:850, serves:"4–6 guests"},
@@ -354,7 +349,7 @@ window.FV_DATA = (function () {
       includes:["Seasonal fruit selection","Tricolour peppers","Medjool dates","Grapes, two ways","A finishing herb"],
       badges:["export","hosting"], collections:["boxes","hosting","best-sellers"] },
 
-    { slug:"family-box", name:"The Family Box", image:"orange",
+    { slug:"family-box", name:"The Family Box", image:"box-family",
       tagline:"The week's produce, chosen well.",
       desc:"A balanced weekly box of fruit and vegetables for a household that eats well. Reliable, generous and always fresh.",
       tiers:[ {label:"Weekly", price:650, serves:"3–4 people"},
@@ -362,7 +357,7 @@ window.FV_DATA = (function () {
       includes:["Everyday fruit","Salad vegetables","Cooking vegetables","Citrus","A bunch of herbs"],
       badges:["export"], collections:["boxes","best-sellers","essentials"] },
 
-    { slug:"premium-fruit-box", name:"Premium Fruit Box", image:"red-grapes",
+    { slug:"premium-fruit-box", name:"Premium Fruit Box", image:"box-premium",
       tagline:"Our finest fruit, in one box.",
       desc:"A bright, generous selection of the season's best fruit — graded to export size and arranged to impress.",
       tiers:[ {label:"Classic", price:750, serves:"4–6 people"},
@@ -370,14 +365,14 @@ window.FV_DATA = (function () {
       includes:["Strawberries or cherries, in season","Grapes, two ways","Stone fruit","Citrus","Medjool dates"],
       badges:["export"], collections:["boxes","hosting"] },
 
-    { slug:"seasonal-box", name:"The Seasonal Box", image:"mango",
+    { slug:"seasonal-box", name:"The Seasonal Box", image:"box-seasonal",
       tagline:"What is best, this month.",
       desc:"A changing box built entirely around what is at its peak right now. A different pleasure every time it arrives.",
       tiers:[ {label:"This month", price:690, serves:"4–6 people"} ],
       includes:["Peak-season fruit","Peak-season vegetables","A seasonal surprise"],
       badges:["seasonal"], collections:["boxes","seasonal"] },
 
-    { slug:"organic-reserve-box", name:"Organic Reserve Box", image:"medjool-dates",
+    { slug:"organic-reserve-box", name:"Organic Reserve Box", image:"box-organic",
       tagline:"Our quietest, rarest selection.",
       desc:"A small, limited box of our most carefully grown produce — organic where we can, rare where we can't. For those who notice the difference.",
       tiers:[ {label:"Reserve", price:1450, serves:"4–6 people"} ],
@@ -418,7 +413,7 @@ window.FV_DATA = (function () {
 
   /* ----- Journal / blog ------------------------------------------- */
   const articles = [
-    { slug:"art-of-the-hosting-table", category:"Hosting", title:"The Art of the Hosting Table", image:"pepper-medley",
+    { slug:"art-of-the-hosting-table", category:"Hosting", title:"The Art of the Hosting Table", image:"j-hosting-table",
       read:"6 min read", date:"May 2026", author:"The Fresh Valley Kitchen",
       excerpt:"How a few bowls of well-chosen produce can change the whole feeling of a gathering — before a single dish is served.",
       body:[
@@ -428,7 +423,7 @@ window.FV_DATA = (function () {
         "Then add one quiet luxury. A small pile of Medjool dates. A halved pomegranate. Something that signals care without shouting about it. This is the difference between a snack and a welcome.",
         "Finally, leave space. A crowded table feels anxious. A table with room to breathe feels like abundance. Trust the produce to do the work — when it is this good, it does not need much help."
       ] },
-    { slug:"how-we-grade-export-quality", category:"Behind the Quality", title:"What 'Export-Grade' Really Means", image:"green-apple",
+    { slug:"how-we-grade-export-quality", category:"Behind the Quality", title:"What 'Export-Grade' Really Means", image:"j-grading",
       read:"5 min read", date:"Apr 2026", author:"Fresh Valley Sourcing",
       excerpt:"Size, colour, firmness, sugar. A quiet look at the standards a fruit must pass before it reaches your table.",
       body:[
@@ -438,7 +433,7 @@ window.FV_DATA = (function () {
         "What is left is a smaller, more consistent selection — the same fruit the world's best tables expect. The rest is not waste; it simply goes elsewhere. What reaches you has earned its place.",
         "It is a slower way to sell produce. It is also the only way we know how to make hosting feel effortless."
       ] },
-    { slug:"three-ways-medjool-dates", category:"Recipes", title:"Three Quiet Ways with Medjool Dates", image:"medjool-dates",
+    { slug:"three-ways-medjool-dates", category:"Recipes", title:"Three Quiet Ways with Medjool Dates", image:"j-dates",
       read:"4 min read", date:"Apr 2026", author:"The Fresh Valley Kitchen",
       excerpt:"Stuffed, halved, or simply served — the most generous way to end an evening with guests.",
       body:[
@@ -448,7 +443,7 @@ window.FV_DATA = (function () {
         "Third, warm. Halve and stuff them, then warm gently in the oven for a few minutes until they soften and the filling melts. Serve with a small spoon of yoghurt. A dessert that feels considered, made entirely from things you kept in the house.",
         "However you serve them, choose dates that are large, glossy and soft. Ours come from the springs of Siwa, graded to export size — the cornerstone of Egyptian hospitality."
       ] },
-    { slug:"egyptian-mango-season", category:"Seasonal", title:"Why We Wait All Year for Egyptian Mango", image:"mango",
+    { slug:"egyptian-mango-season", category:"Seasonal", title:"Why We Wait All Year for Egyptian Mango", image:"j-mango",
       read:"5 min read", date:"Jul 2026", author:"Fresh Valley Sourcing",
       excerpt:"A short note on Ismailia's orchards, and the few weeks that make the whole year worth it.",
       body:[
@@ -457,7 +452,7 @@ window.FV_DATA = (function () {
         "We do not rush them. A mango picked early to travel is a mango that never reaches its best. Ours are allowed to ripen properly, then moved quickly and gently to your door.",
         "When they arrive, treat them simply. Chilled and sliced is enough. Add a squeeze of lemon if you like, to lift the sweetness. And eat them while you can — the season is short, and that is rather the point."
       ] },
-    { slug:"a-board-for-unexpected-guests", category:"Hosting", title:"A Board for Unexpected Guests", image:"red-grapes",
+    { slug:"a-board-for-unexpected-guests", category:"Hosting", title:"A Board for Unexpected Guests", image:"j-guests",
       read:"4 min read", date:"Mar 2026", author:"The Fresh Valley Kitchen",
       excerpt:"Keep five things in the house, and you are never caught off guard. Here is what we keep, and why.",
       body:[
@@ -467,7 +462,7 @@ window.FV_DATA = (function () {
         "Three: a hard cheese and a soft one. Produce loves company, and a board is more inviting with something to slice.",
         "Four: a citrus — oranges or lemons — for brightness, in water or sliced alongside. Five: a small bowl of nuts. That is the whole list. With these, you are never caught off guard, and your guests will think you planned it all along."
       ] },
-    { slug:"storing-fruit-the-right-way", category:"Produce Education", title:"Storing Fruit the Right Way", image:"strawberry",
+    { slug:"storing-fruit-the-right-way", category:"Produce Education", title:"Storing Fruit the Right Way", image:"j-storing",
       read:"6 min read", date:"Feb 2026", author:"Fresh Valley Sourcing",
       excerpt:"A simple guide to keeping produce at its best for longer — what to chill, what to leave out, and why.",
       body:[

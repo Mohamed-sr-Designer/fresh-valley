@@ -31,7 +31,7 @@
 .pdp { padding-top: calc(var(--hdr) + clamp(1.6rem, 1rem + 2.4vw, 3.2rem)); padding-bottom: var(--sec-sm); }
 .pdp__grid { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr); gap: clamp(2rem, 5vw, 5.5rem); align-items: start; margin-top: clamp(1.2rem, 2vw, 2rem); }
 .pdp__media { position: sticky; top: calc(var(--hdr) + 1rem); display: flex; flex-direction: column; gap: 1rem; }
-.pdp__frame { position: relative; aspect-ratio: 1 / 1; border-radius: var(--r-xl); overflow: hidden; background: var(--forest); box-shadow: var(--sh-2); }
+.pdp__frame { position: relative; aspect-ratio: 4 / 5; border-radius: var(--r-lg); overflow: hidden; background: var(--paper-2); box-shadow: none; }
 .pdp__frame img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--e-out); }
 .pdp__frame:hover img { transform: scale(1.04); }
 .pdp__frame .media--herb { position: absolute; inset: 0; display: grid; place-items: center; }
