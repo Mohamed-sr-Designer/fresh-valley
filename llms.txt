@@ -1,0 +1,70 @@
+# Fresh Valley
+
+> Fresh Valley is a premium produce company in Cairo, Egypt. It sells export-grade fruit, vegetables and fresh herbs, chosen and graded by hand, plus curated hosting boxes that are arranged and wrapped as gifts. Orders placed before 6pm are delivered the next day across New Cairo, Sheikh Zayed, 6th of October, Madinaty and Rehab.
+
+## Key facts
+- Website: https://freshvalley.eg/
+- Location: Cairo, Egypt (delivery only — no walk-in shop)
+- Delivery areas: New Cairo, Sheikh Zayed, October, Madinaty, Rehab
+- Delivery: next-day slots (9–12, 12–3, 3–6, 6–9); complimentary over EGP 600, otherwise EGP 45
+- Quality promise: anything not perfect is replaced or refunded if reported within 24 hours
+- Payment: Visa, Mastercard, Apple Pay, mobile wallets, cash on delivery
+- Accounts: guest checkout available; signed-in customers get instant restock and new-arrival alerts
+- Contact: hello@freshvalley.eg · +20 100 000 0000 · WhatsApp +201000000000
+- Hours: Sat – Thu, 9am – 9pm · Fri, 1pm – 9pm
+
+## Hosting boxes
+- The Hosting Box — Everything a beautiful table needs. From EGP 850. https://freshvalley.eg/product.html?box=hosting-box
+- The Family Box — The week's produce, chosen well. From EGP 650. https://freshvalley.eg/product.html?box=family-box
+- Premium Fruit Box — Our finest fruit, in one box. From EGP 750. https://freshvalley.eg/product.html?box=premium-fruit-box
+- The Seasonal Box — What is best, this month. From EGP 690. https://freshvalley.eg/product.html?box=seasonal-box
+- Organic Reserve Box — Our quietest, rarest selection. From EGP 1450. https://freshvalley.eg/product.html?box=organic-reserve-box
+
+## Fruit
+- Winter Strawberries — Qalyubia, Egypt; in season Dec – Mar; EGP 120 per kg — https://freshvalley.eg/product.html?slug=strawberry
+- Egyptian Mango — Ismailia, Egypt; in season Jul – Sep; EGP 150 per kg — https://freshvalley.eg/product.html?slug=mango
+- Navel Oranges — Beheira, Egypt; in season Dec – Apr; EGP 60 per kg — https://freshvalley.eg/product.html?slug=orange
+- Red Seedless Grapes — Minya, Egypt; in season Jun – Aug; EGP 130 per kg — https://freshvalley.eg/product.html?slug=red-grapes
+- Green Seedless Grapes — Nubaria, Egypt; in season Jun – Aug; EGP 130 per kg — https://freshvalley.eg/product.html?slug=green-grapes
+- Red Apples — Select highland orchards; all year; EGP 110 per kg — https://freshvalley.eg/product.html?slug=red-apple
+- Green Apples — Select highland orchards; all year; EGP 115 per kg — https://freshvalley.eg/product.html?slug=green-apple
+- Golden Apples — Select highland orchards; all year; EGP 105 per kg — https://freshvalley.eg/product.html?slug=golden-apple
+- Orchard Peaches — Beheira, Egypt; in season May – Jul; EGP 130 per kg — https://freshvalley.eg/product.html?slug=peach
+- Dark Cherries — Select cool-climate growers; in season May – Jul; EGP 480 per kg — https://freshvalley.eg/product.html?slug=cherry
+- Medjool Dates — Siwa Oasis, Egypt; all year; EGP 380 per kg — https://freshvalley.eg/product.html?slug=medjool-dates
+- Lemons — Beheira, Egypt; all year; EGP 70 per kg — https://freshvalley.eg/product.html?slug=lemon
+- Bananas — Qena, Egypt; all year; EGP 55 per kg — https://freshvalley.eg/product.html?slug=banana
+- Whole Pineapple — Select tropical growers; all year; EGP 140 each — https://freshvalley.eg/product.html?slug=pineapple
+- Whole Watermelon — Sharqia, Egypt; in season May – Aug; EGP 180 each — https://freshvalley.eg/product.html?slug=watermelon
+- Whole Cantaloupe — Ismailia, Egypt; in season May – Aug; EGP 130 each — https://freshvalley.eg/product.html?slug=cantaloupe
+- Apple Medley — Select highland orchards; all year; EGP 120 per kg — https://freshvalley.eg/product.html?slug=apple-medley
+
+## Vegetables
+- Vine Tomatoes — Nubaria, Egypt; all year; EGP 45 per kg — https://freshvalley.eg/product.html?slug=tomato
+- Baby Cucumbers — Nubaria, Egypt; all year; EGP 40 per kg — https://freshvalley.eg/product.html?slug=cucumber
+- Sweet Carrots — Nubaria, Egypt; all year; EGP 38 per kg — https://freshvalley.eg/product.html?slug=carrot
+- Gold Potatoes — Nubaria, Egypt; all year; EGP 35 per kg — https://freshvalley.eg/product.html?slug=potato
+- Yellow Onions — Beheira, Egypt; all year; EGP 32 per kg — https://freshvalley.eg/product.html?slug=onion
+- White Garlic — Minya, Egypt; all year; EGP 160 per kg — https://freshvalley.eg/product.html?slug=garlic
+- Red Bell Peppers — Nubaria, Egypt; all year; EGP 75 per kg — https://freshvalley.eg/product.html?slug=red-pepper
+- Green Bell Peppers — Nubaria, Egypt; all year; EGP 60 per kg — https://freshvalley.eg/product.html?slug=green-pepper
+- Yellow Bell Peppers — Nubaria, Egypt; all year; EGP 80 per kg — https://freshvalley.eg/product.html?slug=yellow-pepper
+- Tricolour Pepper Medley — Nubaria, Egypt; all year; EGP 75 per kg — https://freshvalley.eg/product.html?slug=pepper-medley
+- Black Eggplant — Beheira, Egypt; all year; EGP 42 per kg — https://freshvalley.eg/product.html?slug=eggplant
+- White Eggplant — Beheira, Egypt; all year; EGP 55 per kg — https://freshvalley.eg/product.html?slug=white-eggplant
+- Whole Cauliflower — Beheira, Egypt; in season Nov – Mar; EGP 70 each — https://freshvalley.eg/product.html?slug=cauliflower
+
+## Herbs
+- Fresh Mint — Qalyubia, Egypt; all year; EGP 25 per bunch — https://freshvalley.eg/product.html?slug=mint
+- Sweet Basil — Beheira, Egypt; all year; EGP 35 per bunch — https://freshvalley.eg/product.html?slug=basil
+- Coriander — Qalyubia, Egypt; all year; EGP 22 per bunch — https://freshvalley.eg/product.html?slug=coriander
+- Rosemary — Beheira, Egypt; all year; EGP 45 per bunch — https://freshvalley.eg/product.html?slug=rosemary
+- Fresh Dill — Qalyubia, Egypt; all year; EGP 25 per bunch — https://freshvalley.eg/product.html?slug=dill
+
+## Pages
+- [Shop](https://freshvalley.eg/products.html): every product, filterable by fruit, vegetables, herbs and boxes
+- [The Art of Hosting](https://freshvalley.eg/hosting.html): why a box of the season makes a better gift
+- [About](https://freshvalley.eg/about.html): how produce is selected, graded and kept cold
+- [Contact & delivery areas](https://freshvalley.eg/contact.html)
+- [Company policies](https://freshvalley.eg/policies.html): freshness guarantee, delivery, returns, payment, privacy
+- [Journal](https://freshvalley.eg/journal.html): recipes, hosting ideas and produce education

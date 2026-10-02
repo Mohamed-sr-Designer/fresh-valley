@@ -1,3 +1,4 @@
+# Search engines and AI answer engines are welcome on the public store.
 User-agent: *
 Allow: /
 Disallow: /cart.html
@@ -5,5 +6,16 @@ Disallow: /checkout.html
 Disallow: /account.html
 Disallow: /wishlist.html
 Disallow: /admin/
+
+User-agent: GPTBot
+Allow: /
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
 
 Sitemap: https://freshvalley.eg/sitemap.xml

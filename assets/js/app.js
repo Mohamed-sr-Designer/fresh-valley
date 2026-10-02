@@ -453,6 +453,20 @@
   };
   addEventListener("storage", (e) => { if (e.key === K.catalog || e.key === "fv_user") FV.checkStock(); });
 
+  /* Per-page SEO for pages rendered from data (product, article):
+     canonical, Open Graph / Twitter and a breadcrumb trail. */
+  FV.SITE = (window.FV_CONFIG && window.FV_CONFIG.site) || "https://freshvalley.eg/";
+  FV.seoPage = function (o) {
+    const head = document.head, abs = (u) => /^https?:/.test(u) ? u : FV.SITE + String(u || "").replace(/^\//, "");
+    const set = (sel, make, attr, val) => { let el = head.querySelector(sel); if (!el) { el = make(); head.appendChild(el); } el.setAttribute(attr, val); };
+    const meta = (key, val, prop) => set(`meta[${prop ? "property" : "name"}="${key}"]`, () => { const m = document.createElement("meta"); m.setAttribute(prop ? "property" : "name", key); return m; }, "content", val);
+    if (o.path) set('link[rel="canonical"]', () => { const l = document.createElement("link"); l.rel = "canonical"; return l; }, "href", abs(o.path));
+    const img = o.image ? abs(o.image) : FV.SITE + "assets/img/og.jpg";
+    [["og:title", o.title], ["og:description", o.desc], ["og:image", img], ["og:type", o.type || "website"], ["og:url", o.path ? abs(o.path) : location.href]].forEach(([k, v]) => v && meta(k, v, true));
+    [["twitter:card", "summary_large_image"], ["twitter:title", o.title], ["twitter:description", o.desc], ["twitter:image", img]].forEach(([k, v]) => v && meta(k, v));
+    if (o.crumbs) { const s = document.createElement("script"); s.type = "application/ld+json"; s.textContent = JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: o.crumbs.map(([n, u], i) => ({ "@type": "ListItem", position: i + 1, name: n, item: abs(u) })) }); head.appendChild(s); }
+  };
+
   /* Discount codes (managed in the admin) */
   FV.discounts = {
     all: () => (CATALOG.discounts || []),

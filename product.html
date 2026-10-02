@@ -5,8 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Fresh Valley</title>
   <meta name="description" content="Export-grade produce from Fresh Valley — graded by hand, delivered next-day across Cairo.">
-  <meta name="theme-color" content="#19291C">
+  <!--seo-->
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta property="og:site_name" content="Fresh Valley">
+  <meta property="og:locale" content="en_EG">
   <meta property="og:type" content="product">
+  <meta property="og:title" content="Fresh Valley">
+  <meta property="og:description" content="Export-grade produce from Fresh Valley — graded by hand, delivered next-day across Cairo.">
+  <meta property="og:image" content="https://freshvalley.eg/assets/img/og.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Fresh Valley">
+  <meta name="twitter:description" content="Export-grade produce from Fresh Valley — graded by hand, delivered next-day across Cairo.">
+  <meta name="twitter:image" content="https://freshvalley.eg/assets/img/og.jpg">
+  <meta name="geo.region" content="EG-C">
+  <meta name="geo.placename" content="Cairo">
+  <meta name="geo.position" content="30.0444;31.2357">
+  <meta name="ICBM" content="30.0444, 31.2357">
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://freshvalley.eg/#org","name":"Fresh Valley","url":"https://freshvalley.eg/","logo":"https://freshvalley.eg/assets/img/logo.png","image":"https://freshvalley.eg/assets/img/og.jpg","email":"hello@freshvalley.eg","telephone":"+20 100 000 0000","description":"Fresh Valley is a premium produce company in Cairo, Egypt: export-grade fruit, vegetables, herbs and curated hosting boxes, graded by hand and delivered next-day.","sameAs":["https://instagram.com/freshvalley.eg","https://facebook.com/freshvalley.eg","https://tiktok.com/@freshvalley.eg"]}]}</script>
+  <!--/seo-->
+  <meta name="theme-color" content="#19291C">
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/fraunces-v4s.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/jakarta-s.woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/styles.css">
@@ -131,6 +150,7 @@
       /* ============================ PRODUCT ============================ */
       function renderProduct(p) {
         meta(p.name, p.short + " " + (p.desc || ""));
+        FV.seoPage({ title: p.name + " — Fresh Valley", desc: (p.short + " " + (p.desc || "")).trim().slice(0, 200), image: "assets/img/products/" + (FV.isCustomImg(p.image) ? p.slug : p.slug) + ".jpg", path: "product.html?slug=" + p.slug, type: "product", crumbs: [["Home", ""], [({ fruits: "Fruits", vegetables: "Vegetables", herbs: "Herbs" })[p.category] || "Shop", "products.html?cat=" + p.category], [p.name, "product.html?slug=" + p.slug]] });
         const isKg = p.unit === "kg", cat = catName[p.category] || "Produce";
         const sold = FV.soldOut(p);
         const seasonal = (p.badges || []).includes("seasonal") || (p.collections || []).includes("seasonal");
@@ -282,6 +302,7 @@
       /* ============================== BOX ============================== */
       function renderBox(b) {
         meta(b.name, b.tagline + " " + b.desc);
+        FV.seoPage({ title: b.name + " — Fresh Valley", desc: (b.tagline + " " + b.desc).slice(0, 200), image: "assets/img/products/" + b.image + ".jpg", path: "product.html?box=" + b.slug, type: "product", crumbs: [["Home", ""], ["Boxes", "products.html?cat=boxes"], [b.name, "product.html?box=" + b.slug]] });
         const RIBBONS = [["Mid Forest", "#2D4630"], ["Charcoal", "#2A2622"]];
         const others = FV.data.boxes.filter((x) => x.slug !== b.slug);
         const sold = FV.soldOut(b);

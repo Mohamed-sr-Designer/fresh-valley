@@ -5,8 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>The Journal — Fresh Valley</title>
   <meta name="description" content="Recipes, hosting tips and a little produce education from Fresh Valley.">
-  <meta name="theme-color" content="#19291C">
+  <!--seo-->
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta property="og:site_name" content="Fresh Valley">
+  <meta property="og:locale" content="en_EG">
   <meta property="og:type" content="article">
+  <meta property="og:title" content="The Journal — Fresh Valley">
+  <meta property="og:description" content="Recipes, hosting tips and a little produce education from Fresh Valley.">
+  <meta property="og:image" content="https://freshvalley.eg/assets/img/og.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="The Journal — Fresh Valley">
+  <meta name="twitter:description" content="Recipes, hosting tips and a little produce education from Fresh Valley.">
+  <meta name="twitter:image" content="https://freshvalley.eg/assets/img/og.jpg">
+  <meta name="geo.region" content="EG-C">
+  <meta name="geo.placename" content="Cairo">
+  <meta name="geo.position" content="30.0444;31.2357">
+  <meta name="ICBM" content="30.0444, 31.2357">
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://freshvalley.eg/#org","name":"Fresh Valley","url":"https://freshvalley.eg/","logo":"https://freshvalley.eg/assets/img/logo.png","image":"https://freshvalley.eg/assets/img/og.jpg","email":"hello@freshvalley.eg","telephone":"+20 100 000 0000","description":"Fresh Valley is a premium produce company in Cairo, Egypt: export-grade fruit, vegetables, herbs and curated hosting boxes, graded by hand and delivered next-day.","sameAs":["https://instagram.com/freshvalley.eg","https://facebook.com/freshvalley.eg","https://tiktok.com/@freshvalley.eg"]}]}</script>
+  <!--/seo-->
+  <meta name="theme-color" content="#19291C">
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/fraunces-v4s.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/jakarta-s.woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/styles.css">
@@ -43,6 +62,7 @@
         return;
       }
       document.title = a.title + " — Fresh Valley Journal";
+      FV.seoPage({ title: a.title, desc: a.excerpt, image: "assets/img/products/" + a.image + ".jpg", path: "article.html?slug=" + a.slug, type: "article", crumbs: [["Home", ""], ["Journal", "journal.html"], [a.title, "article.html?slug=" + a.slug]] });
       const md = document.querySelector('meta[name="description"]'); if (md) md.content = a.excerpt;
 
       // Shop the story: the article's hero produce + anything it mentions by name
